@@ -2,71 +2,41 @@ name: CI
 
 on:
   push:
-    branches:
-      - "**"
-    paths-ignore:
-      - '**/*.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/FUNDING.yml'
-      - 'assets/images/**'
-      - 'LICENSE'
+    branches: ["**"]
+  pull_request:
 
-env:
-  APP_NAME: Pindrop
-  SCHEME: Pindrop
-  CONFIGURATION: Debug
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-test:
     runs-on: macos-26
-    permissions:
-      contents: read
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
         with:
           xcode-version: latest-stable
 
-      - name: Setup just
-        uses: extractions/setup-just@v3
+      - name: Set up just
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b # v3
         with:
-          just-version: '1.49.0'
+          just-version: "1.49.0"
 
-      - name: Build App (Unsigned)
+      - name: Build unsigned
         run: just build-unsigned
 
-      - name: Locate App Bundle
-        run: |
-          APP_PATH="DerivedData/Build/Products/${{ env.CONFIGURATION }}/${{ env.APP_NAME }}.app"
-          echo "App built at: $APP_PATH"
-          echo "app_path=$APP_PATH" >> $GITHUB_ENV
-
-          if [ ! -d "$APP_PATH" ]; then
-            echo "Error: App not found at $APP_PATH"
-            find DerivedData -name "*.app" -type d
-            exit 1
-          fi
-
-      - name: Run Tests
+      - name: Run unit tests unsigned
         env:
           NSUnbufferedIO: YES
         run: just test-unsigned
-
-      - name: Package App Artifact
-        run: |
-          ARTIFACT_DIR="dist"
-          ARTIFACT_NAME="${{ env.APP_NAME }}-${{ github.sha }}.zip"
-          mkdir -p "$ARTIFACT_DIR"
-          ditto -c -k --sequesterRsrc --keepParent "${{ env.app_path }}" "${ARTIFACT_DIR}/${ARTIFACT_NAME}"
-          echo "artifact_path=${ARTIFACT_DIR}/${ARTIFACT_NAME}" >> $GITHUB_ENV
-
-      - name: Upload App Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: "${{ env.APP_NAME }}-${{ github.sha }}"
-          path: "${{ env.artifact_path }}"
-          if-no-files-found: error

@@ -155,10 +155,12 @@ struct StatsView: View {
                     value: String(format: localized("%d-day", locale: locale), snapshot.longestStreak),
                     label: localized("Longest streak", locale: locale)
                 )
-                metric(
-                    value: StatsPresentation.formatNumber(Double(snapshot.enhancedSessions), locale: locale),
-                    label: localized("AI-enhanced", locale: locale)
-                )
+                if LocalOnlySecurityPolicy.allowsExternalAI {
+                    metric(
+                        value: StatsPresentation.formatNumber(Double(snapshot.enhancedSessions), locale: locale),
+                        label: localized("AI-enhanced", locale: locale)
+                    )
+                }
                 metric(
                     value: StatsPresentation.formatNumber(snapshot.averageWPM, locale: locale),
                     label: localized("Dictation words / min", locale: locale)
@@ -179,7 +181,8 @@ struct StatsView: View {
                         label: localized("Average transcription time", locale: locale)
                     )
                 }
-                if snapshot.averageEnhancementSeconds > 0 {
+                if LocalOnlySecurityPolicy.allowsExternalAI,
+                   snapshot.averageEnhancementSeconds > 0 {
                     metric(
                         value: StatsPresentation.formatLatency(snapshot.averageEnhancementSeconds, locale: locale),
                         label: localized("Average AI enhancement", locale: locale)

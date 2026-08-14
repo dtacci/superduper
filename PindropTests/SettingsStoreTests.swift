@@ -65,6 +65,9 @@ struct SettingsStoreTests {
         settingsStore.toggleHotkey = "⌘⇧A"
         #expect(settingsStore.toggleHotkey == "⌘⇧A")
 
+        settingsStore.meetingHotkey = "⌘⇧M"
+        #expect(settingsStore.meetingHotkey == "⌘⇧M")
+
         settingsStore.pushToTalkHotkey = "⌘⇧B"
         #expect(settingsStore.pushToTalkHotkey == "⌘⇧B")
 
@@ -83,6 +86,7 @@ struct SettingsStoreTests {
         #expect(newStore.lightThemePresetID == "paper")
         #expect(newStore.darkThemePresetID == "signal")
         #expect(newStore.toggleHotkey == "⌘⇧A")
+        #expect(newStore.meetingHotkey == "⌘⇧M")
         #expect(newStore.pushToTalkHotkey == "⌘⇧B")
         #expect(newStore.outputMode == "directInsert")
         #expect(newStore.selectedAppLanguage == .simplifiedChinese)
@@ -93,6 +97,7 @@ struct SettingsStoreTests {
         settingsStore.lightThemePresetID = SettingsStore.Defaults.lightThemePresetID
         settingsStore.darkThemePresetID = SettingsStore.Defaults.darkThemePresetID
         settingsStore.toggleHotkey = "⌘⇧R"
+        settingsStore.meetingHotkey = "⌥⇧M"
         settingsStore.pushToTalkHotkey = "⌘⇧T"
         settingsStore.outputMode = "clipboard"
         settingsStore.aiEnhancementEnabled = false
@@ -211,11 +216,21 @@ struct SettingsStoreTests {
         defer { cleanup(store) }
 
         #expect(store.selectedModel == SettingsStore.Defaults.selectedModel)
+        #expect(store.selectedModel == "openai_whisper-large-v3-v20240930_626MB")
         #expect(store.selectedThemeMode == .system)
         #expect(store.lightThemePresetID == SettingsStore.Defaults.lightThemePresetID)
         #expect(store.darkThemePresetID == SettingsStore.Defaults.darkThemePresetID)
         #expect(store.toggleHotkey == SettingsStore.Defaults.Hotkeys.toggleHotkey)
+        #expect(store.toggleHotkey == "⌥Space")
+        #expect(store.meetingHotkey == SettingsStore.Defaults.Hotkeys.meetingHotkey)
+        #expect(store.meetingHotkey == "⌥⇧Space")
+        #expect(store.meetingHotkeyCode == Int(kVK_Space))
+        #expect(store.meetingHotkeyModifiers == Int(optionKey | shiftKey))
         #expect(store.pushToTalkHotkey == SettingsStore.Defaults.Hotkeys.pushToTalkHotkey)
+        #expect(store.pushToTalkHotkey.isEmpty)
+        #expect(store.copyLastTranscriptHotkey.isEmpty)
+        #expect(store.quickCapturePTTHotkey.isEmpty)
+        #expect(store.configuredHotkeyAssignments().map(\.slot) == [.toggleRecording, .toggleMeetingCapture])
         #expect(store.outputMode == "directInsert")
         #expect(store.selectedAppLanguage == .automatic)
         #expect(!store.aiEnhancementEnabled)

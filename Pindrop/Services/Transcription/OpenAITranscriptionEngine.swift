@@ -166,7 +166,7 @@ public final class OpenAITranscriptionEngine: TranscriptionEngine {
         languageCode: String?,
         prompt: String?
     ) async throws -> String {
-        let boundary = "Pindrop-\(UUID().uuidString)"
+        let boundary = "Superduper-Dictation-\(UUID().uuidString)"
         var request = URLRequest(url: endpoint, timeoutInterval: 300)
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")

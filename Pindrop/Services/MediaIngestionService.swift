@@ -103,7 +103,65 @@ enum MediaIngestionError: Error, LocalizedError {
     }
 }
 
+enum MediaLinkSecurityPolicy {
+    static let maximumDownloadBytes: Int64 = 2 * 1024 * 1024 * 1024
+
+    static func validatedURL(from input: String) throws -> URL {
+        guard let url = URL(string: input), isAllowed(url) else {
+            throw MediaIngestionError.unsupportedInput(
+                "Use an HTTPS link on the public internet (standard port 443). Local-network addresses and embedded credentials are blocked."
+            )
+        }
+        return url
+    }
+
+    static func isAllowed(_ url: URL) -> Bool {
+        guard url.scheme?.lowercased() == "https",
+              url.user == nil,
+              url.password == nil,
+              url.port == nil || url.port == 443,
+              let rawHost = url.host?.lowercased(),
+              !rawHost.isEmpty else {
+            return false
+        }
+
+        let host = rawHost.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+        guard host != "localhost",
+              !host.hasSuffix(".localhost"),
+              !host.hasSuffix(".local"),
+              !host.hasSuffix(".internal"),
+              host != "home.arpa",
+              !host.hasSuffix(".home.arpa") else {
+            return false
+        }
+
+        // Literal IPv6 hosts are rejected. Domain names remain supported, while
+        // local/link-local IPv6 literals cannot be used to reach machine services.
+        guard !host.contains(":") else { return false }
+
+        let octets = host.split(separator: ".").compactMap { UInt8($0) }
+        if octets.count == 4 {
+            let first = octets[0]
+            let second = octets[1]
+            if first == 0 || first == 10 || first == 127 || first >= 224 { return false }
+            if first == 100 && (64...127).contains(second) { return false }
+            if first == 169 && second == 254 { return false }
+            if first == 172 && (16...31).contains(second) { return false }
+            if first == 192 && second == 168 { return false }
+            if first == 198 && (18...19).contains(second) { return false }
+        } else if host.hasPrefix("0x") || host.allSatisfy({ $0.isNumber || $0 == "." }) {
+            // Reject legacy integer/hex-like IPv4 spellings that URL stacks may
+            // normalize differently (for example, a decimal form of 127.0.0.1).
+            return false
+        }
+
+        return true
+    }
+}
+
 private final class ProcessOutputCollector: @unchecked Sendable {
+    private static let maximumCapturedBytes = 8 * 1024 * 1024
+    private static let maximumRemainderCharacters = 256 * 1024
     private let lock = NSLock()
     private var stdoutData = Data()
     private var stderrData = Data()
@@ -148,19 +206,32 @@ private final class ProcessOutputCollector: @unchecked Sendable {
         defer { lock.unlock() }
 
         if isStdout {
-            stdoutData.append(data)
+            appendCapped(data, to: &stdoutData)
         } else {
-            stderrData.append(data)
+            appendCapped(data, to: &stderrData)
         }
 
         let string = String(data: data, encoding: .utf8) ?? ""
         if isStdout {
             stdoutRemainder += string
+            capRemainder(&stdoutRemainder)
             emitCompleteLines(from: &stdoutRemainder)
         } else {
             stderrRemainder += string
+            capRemainder(&stderrRemainder)
             emitCompleteLines(from: &stderrRemainder)
         }
+    }
+
+    private func appendCapped(_ data: Data, to destination: inout Data) {
+        let remaining = max(0, Self.maximumCapturedBytes - destination.count)
+        guard remaining > 0 else { return }
+        destination.append(data.prefix(remaining))
+    }
+
+    private func capRemainder(_ remainder: inout String) {
+        guard remainder.count > Self.maximumRemainderCharacters else { return }
+        remainder = String(remainder.suffix(Self.maximumRemainderCharacters))
     }
 
     private func flushRemainder(isStdout: Bool) {
@@ -251,12 +322,12 @@ final class ManagedMediaLibrary: MediaLibraryManaging {
         self.fileManager = fileManager
     }
 
-    /// Application Support/Pindrop/MediaLibrary — shared root for job dirs and DictationAudio.
+    /// Application Support/Superduper Dictation/MediaLibrary — shared root for job dirs and DictationAudio.
     static var libraryBaseURL: URL {
         baseURL
     }
 
-    /// Application Support/Pindrop/MediaLibrary/DictationAudio — ordinary voice dictation audio.
+    /// Application Support/Superduper Dictation/MediaLibrary/DictationAudio — ordinary voice dictation audio.
     static var dictationAudioDirectoryURL: URL {
         baseURL.appendingPathComponent("DictationAudio", isDirectory: true)
     }
@@ -447,7 +518,7 @@ final class ManagedMediaLibrary: MediaLibraryManaging {
 
     private static var baseURL: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("Pindrop", isDirectory: true)
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
             .appendingPathComponent("MediaLibrary", isDirectory: true)
     }
 }
@@ -470,12 +541,15 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
     private var result: Result<URL, Error>?
     private let onProgress: (Int64, Int64) -> Void
     private let temporaryDirectory: URL
+    private let maximumBytes: Int64
 
     init(
         temporaryDirectory: URL = FileManager.default.temporaryDirectory,
+        maximumBytes: Int64 = MediaLinkSecurityPolicy.maximumDownloadBytes,
         onProgress: @escaping (Int64, Int64) -> Void
     ) {
         self.temporaryDirectory = temporaryDirectory
+        self.maximumBytes = maximumBytes
         self.onProgress = onProgress
     }
 
@@ -504,6 +578,11 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
     }
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        if let size = try? location.resourceValues(forKeys: [.fileSizeKey]).fileSize,
+           Int64(size) > maximumBytes {
+            complete(.failure(MediaIngestionError.downloadFailed("The file exceeds the 2 GB safety limit.")))
+            return
+        }
         // URLSession deletes the temp file when this method returns, so move it first.
         let safeURL = temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -530,7 +609,28 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
     ) {
+        if totalBytesWritten > maximumBytes
+            || (totalBytesExpectedToWrite > maximumBytes && totalBytesExpectedToWrite > 0) {
+            downloadTask.cancel()
+            complete(.failure(MediaIngestionError.downloadFailed("The file exceeds the 2 GB safety limit.")))
+            return
+        }
         onProgress(totalBytesWritten, totalBytesExpectedToWrite)
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse,
+        newRequest request: URLRequest,
+        completionHandler: @escaping (URLRequest?) -> Void
+    ) {
+        guard let redirectURL = request.url, MediaLinkSecurityPolicy.isAllowed(redirectURL) else {
+            complete(.failure(MediaIngestionError.downloadFailed("The server redirected to a blocked address.")))
+            completionHandler(nil)
+            return
+        }
+        completionHandler(request)
     }
 
     @discardableResult
@@ -611,11 +711,7 @@ final class MediaIngestionService {
         case .file(let url):
             return try await mediaLibrary.importLocalFile(at: url, jobID: jobID)
         case .link(let string):
-            guard let url = URL(string: string),
-                  let scheme = url.scheme?.lowercased(),
-                  ["http", "https"].contains(scheme) else {
-                throw MediaIngestionError.unsupportedInput("Only http and https links are supported.")
-            }
+            let url = try MediaLinkSecurityPolicy.validatedURL(from: string)
 
             if Self.isDirectMediaURL(url) {
                 let directoryURL = try mediaLibrary.makeJobDirectory(for: jobID)
@@ -629,7 +725,7 @@ final class MediaIngestionService {
                 }
                 let resolvedTooling = try resolvedTooling(from: tooling)
                 return try await downloadLinkedMedia(
-                    from: string,
+                    from: url.absoluteString,
                     tooling: resolvedTooling,
                     jobID: jobID,
                     progressHandler: progressHandler
@@ -703,7 +799,10 @@ final class MediaIngestionService {
             let byteStr = ByteCountFormatter.string(fromByteCount: written, countStyle: .file)
             Task { @MainActor in progressHandler(progress, "Downloading \(byteStr)…") }
         }
-        let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.httpShouldSetCookies = false
+        configuration.httpCookieAcceptPolicy = .never
+        let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
         let downloadTask = session.downloadTask(with: url)
         defer { session.invalidateAndCancel() }
 
@@ -809,6 +908,7 @@ final class MediaIngestionService {
         let result = try await processRunner.run(
             executableURL: tooling.ytDLPURL,
             arguments: [
+                "--ignore-config",
                 "--dump-single-json",
                 "--no-playlist",
                 "--ffmpeg-location", tooling.ffmpegURL.deletingLastPathComponent().path,
@@ -874,9 +974,11 @@ final class MediaIngestionService {
         attempt: MediaDownloadAttempt
     ) -> [String] {
         var arguments = [
+            "--ignore-config",
             "--no-playlist",
             "--newline",
-            "--progress"
+            "--progress",
+            "--max-filesize", "2G"
         ]
 
         if let extractorArgs = attempt.extractorArgs {
@@ -947,25 +1049,33 @@ final class MediaIngestionService {
     }
 
     private func processEnvironment(for tooling: ResolvedMediaTooling) -> [String: String] {
-        var environment = ProcessInfo.processInfo.environment
-
         var directories = Self.toolSearchDirectories.map(\.path)
         directories.append(tooling.ytDLPURL.deletingLastPathComponent().path)
         directories.append(tooling.ffmpegURL.deletingLastPathComponent().path)
 
-        if let existingPath = environment["PATH"], !existingPath.isEmpty {
-            directories.append(contentsOf: existingPath.split(separator: ":").map(String.init))
-        }
-
-        environment["PATH"] = Array(NSOrderedSet(array: directories))
+        var environment = [
+            "PATH": Array(NSOrderedSet(array: directories))
             .compactMap { $0 as? String }
-            .joined(separator: ":")
+            .joined(separator: ":"),
+            "HOME": FileManager.default.homeDirectoryForCurrentUser.path,
+            "TMPDIR": FileManager.default.temporaryDirectory.path,
+            // yt-dlp imports discovered plugins even when they are not selected.
+            // Disable that implicit code-loading surface for app-initiated jobs.
+            "YTDLP_NO_PLUGINS": "1",
+            // Prevent Python-based installations from adding per-user packages
+            // to their import path when launched by the app.
+            "PYTHONNOUSERSITE": "1"
+        ]
+        for key in ["LANG", "LC_ALL"] {
+            if let value = ProcessInfo.processInfo.environment[key], !value.isEmpty {
+                environment[key] = value
+            }
+        }
         return environment
     }
 
     nonisolated private static var toolSearchDirectories: [URL] {
-        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
-        let baseDirectories = [
+        [
             "/opt/homebrew/bin",
             "/usr/local/bin",
             "/opt/local/bin",
@@ -973,18 +1083,7 @@ final class MediaIngestionService {
             "/bin",
             "/usr/sbin",
             "/sbin"
-        ].map { URL(fileURLWithPath: $0, isDirectory: true) } + [
-            homeDirectory.appendingPathComponent(".local/bin", isDirectory: true),
-            homeDirectory.appendingPathComponent("bin", isDirectory: true),
-            homeDirectory.appendingPathComponent("homebrew/bin", isDirectory: true)
-        ]
-
-        let pathDirectories = (ProcessInfo.processInfo.environment["PATH"] ?? "")
-            .split(separator: ":")
-            .map { URL(fileURLWithPath: String($0), isDirectory: true) }
-
-        return Array(NSOrderedSet(array: baseDirectories + pathDirectories))
-            .compactMap { $0 as? URL }
+        ].map { URL(fileURLWithPath: $0, isDirectory: true) }
     }
 
     nonisolated private static var toolSearchPath: String {

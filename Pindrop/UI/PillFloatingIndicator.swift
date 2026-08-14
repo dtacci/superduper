@@ -288,7 +288,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private func makeContextMenu() -> NSMenu {
         let locale = settingsStore.selectedAppLocale.locale
-        let menu = NSMenu(title: localized("Pindrop Pill", locale: locale))
+        let menu = NSMenu(title: localized("Superduper Dictation Pill", locale: locale))
         menu.delegate = self
 
         let hideForOneHourItem = NSMenuItem(
@@ -299,13 +299,15 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         hideForOneHourItem.target = self
         menu.addItem(hideForOneHourItem)
 
-        let reportIssueItem = NSMenuItem(
-            title: localized("Report an issue", locale: locale),
-            action: #selector(handleReportIssueMenuItem),
-            keyEquivalent: ""
-        )
-        reportIssueItem.target = self
-        menu.addItem(reportIssueItem)
+        if actions.onReportIssue != nil {
+            let reportIssueItem = NSMenuItem(
+                title: localized("Report an issue", locale: locale),
+                action: #selector(handleReportIssueMenuItem),
+                keyEquivalent: ""
+            )
+            reportIssueItem.target = self
+            menu.addItem(reportIssueItem)
+        }
 
         let goToSettingsItem = NSMenuItem(
             title: localized("Go to settings", locale: locale),

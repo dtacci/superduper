@@ -737,12 +737,12 @@ private actor ExtractionCancellationGate {
 @MainActor
 @Suite
 struct DictationAudioRetentionSettingsTests {
-    @Test func testDefaultRetentionIsDays7() {
+    @Test func testDefaultRetentionIsOff() {
         let settings = SettingsStore()
         settings.resetAllSettings()
         defer { settings.resetAllSettings() }
 
-        #expect(settings.dictationAudioRetention == .days7)
+        #expect(settings.dictationAudioRetention == .off)
 
         settings.dictationAudioRetention = .off
         #expect(settings.dictationAudioRetention == .off)
@@ -752,6 +752,6 @@ struct DictationAudioRetentionSettingsTests {
         #expect(settings.dictationAudioRetention == .days30)
 
         settings.resetAllSettings()
-        #expect(settings.dictationAudioRetention == .days7)
+        #expect(settings.dictationAudioRetention == .off)
     }
 }

@@ -1,187 +1,21 @@
-# Releasing Pindrop
+# Releasing Superduper Dictation
 
-This document describes the release process for Pindrop, including code signing and update distribution via Sparkle.
+There is intentionally no automatic public-release workflow in this fork.
+Release signing is owner-specific and should not fall back silently to an ad-hoc
+signature.
 
-## EdDSA Signing Keys
+Before publishing a release:
 
-Pindrop uses [Sparkle](https://sparkle-project.org/) for automatic updates. Updates are signed using EdDSA (Ed25519) for security.
+1. Start from a clean, reviewed commit and locked dependencies.
+2. Run `just build-unsigned` and `just test-unsigned`.
+3. Build a Release archive with a Developer ID Application identity.
+4. Confirm hardened runtime and expected entitlements with `codesign`.
+5. Notarize the final app/DMG with `notarytool`, then staple the ticket.
+6. Verify the stapled artifact on a separate Mac or clean user account.
+7. Publish checksums and concise release notes.
 
-### Key Storage
+Local self-signed builds are useful for development because they preserve
+Accessibility approval. They are not suitable for a public release and should
+never be described as Apple-notarized.
 
-- **Public Key**: Embedded in `Pindrop/Info.plist` as `SUPublicEDKey`
-- **Private Key**: Stored securely in the macOS Keychain (automatically managed by Sparkle)
-
-**IMPORTANT**: The private key is NEVER committed to the repository. It is stored only in the macOS Keychain of the machine that generated it.
-
-### Current Public Key
-
-```
-TCU0MwULuIK6y0ubIossVr+61PGh/wHZfFrRFc9F2Is=
-```
-
-This key is already configured in `Pindrop/Info.plist`:
-
-```xml
-<key>SUPublicEDKey</key>
-<string>TCU0MwULuIK6y0ubIossVr+61PGh/wHZfFrRFc9F2Is=</string>
-```
-
-### Generating New Keys (if needed)
-
-If you need to regenerate the signing keys (e.g., if the private key is lost):
-
-1. Download the Sparkle release:
-   ```bash
-   curl -L -o Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/2.8.1/Sparkle-2.8.1.tar.xz"
-   tar -xf Sparkle.tar.xz
-   ```
-
-2. Run the key generator:
-   ```bash
-   ./bin/generate_keys
-   ```
-
-3. The tool will:
-   - Generate a new EdDSA keypair
-   - Store the private key in your macOS Keychain
-   - Output the public key to stdout
-
-4. Update `Pindrop/Info.plist` with the new public key:
-   ```xml
-   <key>SUPublicEDKey</key>
-   <string>YOUR_NEW_PUBLIC_KEY_HERE</string>
-   ```
-
-5. **CRITICAL**: Users with older versions will NOT be able to update to versions signed with the new key. This should only be done for major releases or security incidents.
-
-## Release Process
-
-### Prerequisites
-
-- macOS development machine with the private key in Keychain
-- Xcode installed
-- `just` command runner: `brew install just`
-
-### Steps
-
-1. **Update version numbers** in Xcode project settings
-
-2. **Build and sign the release**:
-```bash
-just release 1.0.0
-```
-This will:
-- Clean build artifacts
-- Build the release version
-- Sign the app with your Developer ID
-- Create a DMG in `dist/Pindrop.dmg`
-- Notarize the DMG with Apple
-- Staple the notarization ticket to the DMG
-- Render version-specific release notes HTML from `release-notes/vX.Y.Z.md`
-- Generate `appcast.xml` from the final stapled DMG and attach release-notes links
-
-3. **Upload the release**:
-- Upload `dist/Pindrop.dmg` to GitHub Releases
-- Upload `appcast.xml` as a GitHub Release asset (or host it at your feed URL)
-- Upload the rendered `dist/release-notes-vX.Y.Z.html` asset so Sparkle can show notes in the update window
-
-4. **Tag the release**:
-```bash
-git tag -a v1.0.0 -m "Release version 1.0.0"
-git push origin v1.0.0
-```
-
-## Appcast Generation Workflow
-
-The `just appcast` command automates the appcast generation process:
-
-### What It Does
-
-1. **Validates the DMG** exists at the specified path
-2. **Downloads Sparkle tools** (if not already present):
-   - Downloads Sparkle 2.8.1 release
-   - Extracts `generate_appcast` and `sign_update` to `bin/`
-3. **Renders release notes HTML** from `release-notes/vX.Y.Z.md` into `dist/release-notes-vX.Y.Z.html`
-4. **Generates the appcast**:
-    - Copies DMG to a temporary directory
-    - Runs `generate_appcast` to create signatures
-    - Injects `sparkle:releaseNotesLink` and `sparkle:fullReleaseNotesLink`
-    - Outputs `appcast.xml` in the project root
-
-### Usage
-
-```bash
-# Generate appcast for the default DMG location
-just appcast dist/Pindrop.dmg
-
-# The appcast.xml will be created in the current directory
-```
-
-### Appcast Structure
-
-The generated `appcast.xml` follows Sparkle's RSS format:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
-  <channel>
-    <title>Pindrop Updates</title>
-    <item>
-      <title>Version 1.0.0</title>
-      <link>https://github.com/watzon/pindrop/releases/tag/v1.0.0</link>
-      <sparkle:version>100</sparkle:version>
-      <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
-      <sparkle:releaseNotesLink>https://github.com/watzon/pindrop/releases/download/v1.0.0/release-notes-v1.0.0.html</sparkle:releaseNotesLink>
-      <sparkle:fullReleaseNotesLink>https://github.com/watzon/pindrop/releases/tag/v1.0.0</sparkle:fullReleaseNotesLink>
-      <enclosure url="..."
-                 sparkle:edSignature="SIGNATURE"
-                 length="SIZE"
-                 type="application/octet-stream"/>
-    </item>
-  </channel>
-</rss>
-```
-
-### Manual Appcast Updates
-
-If you need to manually edit `appcast.xml`:
-
-1. Use a generated appcast file as a starting point
-2. Update version numbers, release notes links, and download URL
-3. Generate the EdDSA signature using:
-   ```bash
-   ./bin/sign_update /path/to/Pindrop.dmg
-   ```
-4. Add the signature to the `<enclosure>` element
-
-### Hosting the Appcast
-
-The appcast can be hosted:
-- **GitHub Pages**: Commit `appcast.xml` to `gh-pages` branch
-- **GitHub Releases**: Upload as a release asset
-- **Custom server**: Any HTTPS URL accessible to users
-
-Update `SUFeedURL` in `Pindrop/Info.plist` to point to your hosted appcast.
-
-## Security Notes
-
-- Never share the private key
-- Never commit the private key to version control
-- The private key is tied to your Mac's Keychain and cannot be exported easily
-- If you lose the private key, you will need to generate new keys and users will need to manually download updates
-
-## Troubleshooting
-
-### "Update is improperly signed" error
-
-This means the update was signed with a different key than what's in the app's `Info.plist`. Ensure:
-1. You're using the correct private key (check Keychain)
-2. The public key in `Info.plist` matches the private key used for signing
-
-### Lost private key
-
-If you've lost the private key:
-1. Generate new keys using `generate_keys`
-2. Update `Info.plist` with the new public key
-3. Notify users they'll need to manually download the update
-4. Future updates will work normally with the new key
+See [BUILD.md](BUILD.md) and [SECURITY.md](SECURITY.md).

@@ -123,6 +123,7 @@ struct DashboardView: View {
                 }
 
                 heroBlock(now: now, stats: dashboardStats)
+                meetingQuickAction
                 statsStrip(stats: dashboardStats)
                 recentSection
                 chartRowWidthProbe
@@ -135,15 +136,88 @@ struct DashboardView: View {
         }
         .background(AppColors.contentBackground)
         .sheet(isPresented: $showMeetingCaptureOptions) {
-            MeetingCaptureOptionsSheet { expectedSpeakerCount in
+            MeetingCaptureOptionsSheet(stopHotkey: settingsStore.meetingHotkey) { expectedSpeakerCount in
                 onRecordMeeting?(expectedSpeakerCount)
             }
         }
     }
 
-    private func requestMeetingCapture() {
+    private func startMeetingCaptureNow() {
+        guard onRecordMeeting != nil else { return }
+        onRecordMeeting?(nil)
+    }
+
+    private func requestMeetingCaptureOptions() {
         guard onRecordMeeting != nil else { return }
         showMeetingCaptureOptions = true
+    }
+
+    @ViewBuilder
+    private var meetingQuickAction: some View {
+        if onRecordMeeting != nil {
+            HStack(spacing: 14) {
+                Image(systemName: "person.2.wave.2")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(AppColors.accent)
+                    .frame(width: 32, height: 32)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(localized("Meetings", locale: locale))
+                        .font(AppTypography.labelStrongSelected)
+                        .foregroundStyle(AppColors.textPrimary)
+
+                    HStack(spacing: 10) {
+                        Label(localized("Local", locale: locale), systemImage: "lock.shield")
+                        Label(localized("Speaker diarization", locale: locale), systemImage: "person.2")
+                        if !settingsStore.meetingHotkey.isEmpty {
+                            Label(settingsStore.meetingHotkey, systemImage: "keyboard")
+                        }
+                    }
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+                }
+
+                Spacer(minLength: 12)
+
+                PrimaryButton(
+                    title: localized("Record Meeting", locale: locale),
+                    systemImage: "record.circle",
+                    isEnabled: recordingState?.isRecording != true,
+                    action: startMeetingCaptureNow
+                )
+                .accessibilityIdentifier("home.button.recordMeeting")
+
+                Button(action: requestMeetingCaptureOptions) {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .frame(width: 30, height: 30)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(AppColors.contentBackground)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .strokeBorder(AppColors.border, lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
+                .disabled(recordingState?.isRecording == true)
+                .help(localized("Meeting options…", locale: locale))
+                .accessibilityLabel(localized("Meeting options…", locale: locale))
+                .accessibilityIdentifier("home.button.meetingOptions")
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(AppColors.windowBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(AppColors.border, lineWidth: 1)
+            )
+            .padding(.top, 20)
+        }
     }
 
     private func diarizationSetupIssueBanner(
@@ -341,7 +415,7 @@ struct DashboardView: View {
                     onViewAllHistory?()
                 } label: {
                     HStack(spacing: 3) {
-                        Text(localized("Open Library", locale: locale))
+                        Text(localized("Open History", locale: locale))
                         Image(systemName: "arrow.right")
                             .flipsForRightToLeftLayoutDirection(true)
                     }
@@ -372,17 +446,6 @@ struct DashboardView: View {
                 .foregroundStyle(AppColors.textTertiary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            if onRecordMeeting != nil {
-                Button {
-                    requestMeetingCapture()
-                } label: {
-                    Text(localized("Record Meeting…", locale: locale))
-                        .font(AppTypography.labelSemibold)
-                        .foregroundStyle(AppColors.accent)
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("home.button.recordMeeting")
-            }
         }
         .padding(.vertical, 12)
     }

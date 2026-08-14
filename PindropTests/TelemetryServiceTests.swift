@@ -26,6 +26,10 @@ private final class TelemetrySinkSpy: TelemetrySink {
 @MainActor
 @Suite(.serialized)
 struct TelemetryServiceTests {
+    @Test func productionBuildHasNoTelemetryDestination() {
+        #expect(TelemetryService.telemetryDeckAppID.isEmpty)
+    }
+
     @Test func dropsSignalsWhenTelemetryDisabled() {
         let settings = makeSettingsStore()
         defer { cleanup(settings) }

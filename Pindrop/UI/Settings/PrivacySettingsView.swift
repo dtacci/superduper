@@ -26,34 +26,6 @@ struct PrivacySettingsView: View {
             SettingsGroupCard {
                 SettingsRow(showSeparator: true) {
                     SettingsRowLabel(
-                        title: localized("Share anonymous usage data", locale: locale),
-                        subtitle: localized("Anonymous diagnostics and usage signals. Never transcript text, audio, or personal content.", locale: locale)
-                    )
-                } control: {
-                    SettingsToggle(
-                        isOn: $settings.telemetryEnabled,
-                        label: localized("Share anonymous usage data", locale: locale)
-                    )
-                    .accessibilityIdentifier("settings.toggle.telemetryEnabled")
-                }
-
-                SettingsRow(showSeparator: false) {
-                    SettingsRowLabel(
-                        title: localized("What does Pindrop collect?", locale: locale)
-                    )
-                } control: {
-                    SettingsAccentLink(
-                        title: localized("Learn More", locale: locale)
-                    ) {
-                        NSWorkspace.shared.open(TelemetryConsentView.collectionDetailsURL)
-                    }
-                    .accessibilityIdentifier("settings.link.telemetryDetails")
-                }
-            }
-
-            SettingsGroupCard {
-                SettingsRow(showSeparator: true) {
-                    SettingsRowLabel(
                         title: localized("Contribute transcription fixes", locale: locale),
                         subtitle: localized("Keep before-and-after text pairs when AI enhancement or your edits improve a transcript. Stored only on this Mac — nothing is uploaded.", locale: locale)
                     )

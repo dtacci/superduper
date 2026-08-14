@@ -92,7 +92,8 @@ final class NotesStore {
         var finalTags = tags
         
         // Generate metadata if requested and a noteMetadata assignment resolves.
-        if generateMetadata,
+        if LocalOnlySecurityPolicy.allowsExternalAI,
+           generateMetadata,
            let settings = settingsStore,
            let aiService = aiEnhancementService,
            let assignment = settings.resolveAssignment(for: .noteMetadata)

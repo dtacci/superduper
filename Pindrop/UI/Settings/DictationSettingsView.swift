@@ -500,7 +500,7 @@ private struct SpeakerProfilesManageSheet: View {
                         systemImage: "person.crop.circle.badge.questionmark"
                     )
                 } description: {
-                    Text(localized("Rename speakers in transcripts to teach Pindrop to recognize voices automatically.", locale: locale))
+                    Text(localized("Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically.", locale: locale))
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {

@@ -6,9 +6,6 @@
 //
 
 import Foundation
-import AppKit
-import Sparkle
-import UserNotifications
 
 @MainActor
 protocol UpdateControlling: AnyObject {
@@ -19,104 +16,8 @@ protocol UpdateControlling: AnyObject {
     func checkForUpdatesInBackground()
 }
 
-@MainActor
-final class SparkleUpdateController: UpdateControlling {
-    private let controller: SPUStandardUpdaterController
-    private let userDriverDelegate: GentleReminderUserDriverDelegate
-
-    init() {
-        userDriverDelegate = GentleReminderUserDriverDelegate()
-        controller = SPUStandardUpdaterController(
-            startingUpdater: true,
-            updaterDelegate: nil,
-            userDriverDelegate: userDriverDelegate
-        )
-    }
-
-    var automaticallyChecksForUpdates: Bool {
-        get { controller.updater.automaticallyChecksForUpdates }
-        set { controller.updater.automaticallyChecksForUpdates = newValue }
-    }
-
-    var canCheckForUpdates: Bool {
-        controller.updater.canCheckForUpdates
-    }
-
-    var lastUpdateCheckDate: Date? {
-        controller.updater.lastUpdateCheckDate
-    }
-
-    func checkForUpdates() {
-        controller.checkForUpdates(nil)
-    }
-
-    func checkForUpdatesInBackground() {
-        controller.updater.checkForUpdatesInBackground()
-    }
-}
-
-@preconcurrency @MainActor
-final class GentleReminderUserDriverDelegate: NSObject, SPUStandardUserDriverDelegate, UNUserNotificationCenterDelegate {
-    private let notificationIdentifier = "PindropUpdateCheck"
-
-    nonisolated var supportsGentleScheduledUpdateReminders: Bool {
-        true
-    }
-
-    nonisolated func updater(_ updater: SPUUpdater, willScheduleUpdateCheckAfterDelay delay: TimeInterval) {
-        Task { @MainActor in
-            UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { granted, error in
-                if let error {
-                    Log.app.warning("Failed to request notification authorization for updates: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-
-    nonisolated func standardUserDriverWillHandleShowingUpdate(_ handleShowingUpdate: Bool, forUpdate update: SUAppcastItem, state: SPUUserUpdateState) {
-        guard !handleShowingUpdate else { return }
-
-        if !state.userInitiated {
-            Task { @MainActor in
-                NSApp.dockTile.badgeLabel = "1"
-
-                let content = UNMutableNotificationContent()
-                content.title = "Update Available"
-                content.body = "Version \(update.displayVersionString) is now available. Click to install."
-                content.sound = .default
-
-                let request = UNNotificationRequest(identifier: self.notificationIdentifier, content: content, trigger: nil)
-                UNUserNotificationCenter.current().add(request)
-            }
-        }
-    }
-
-    nonisolated func standardUserDriverDidReceiveUserAttention(forUpdate update: SUAppcastItem) {
-        Task { @MainActor in
-            NSApp.dockTile.badgeLabel = ""
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [self.notificationIdentifier])
-        }
-    }
-
-    nonisolated func standardUserDriverWillFinishUpdateSession() {
-        Task { @MainActor in
-            NSApp.dockTile.badgeLabel = ""
-        }
-    }
-
-    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        if response.notification.request.identifier == notificationIdentifier {
-            Task { @MainActor in
-                NSApp.setActivationPolicy(.regular)
-                NSApp.activate(ignoringOtherApps: true)
-            }
-        }
-        completionHandler()
-    }
-}
-
-/// Service for managing OTA updates via Sparkle framework.
-/// Wraps SPUStandardUpdaterController for programmatic update control.
+/// Update seam retained for compatibility with upstream tests and UI wiring.
+/// This local fork intentionally installs no production update controller.
 @MainActor
 @Observable
 class UpdateService: NSObject {
@@ -189,18 +90,13 @@ class UpdateService: NSObject {
         self.checkTimeout = checkTimeout
         super.init()
 
-        self.updateController = updateController ?? Self.makeDefaultController()
+        self.updateController = updateController
 
         if self.updateController == nil {
-            Log.app.debug("UpdateService initialized in test mode (Sparkle disabled)")
+            Log.app.debug("UpdateService initialized with network updates disabled")
         } else {
-            Log.app.info("UpdateService initialized with Sparkle")
+            Log.app.debug("UpdateService initialized with an injected controller")
         }
-    }
-
-    private static func makeDefaultController() -> UpdateControlling? {
-        guard !AppTestMode.isRunningAnyTests else { return nil }
-        return SparkleUpdateController()
     }
     
     // MARK: - Public Methods

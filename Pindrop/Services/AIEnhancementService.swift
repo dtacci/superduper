@@ -1172,7 +1172,7 @@ final class AIEnhancementService {
                     request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
                 }
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
+                request.setValue("Superduper Dictation/1.0", forHTTPHeaderField: "X-Title")
 
                 let requestBody = AIEnhancementService.buildOpenAICompatibleRequestBody(
                     model: model,
@@ -1261,7 +1261,7 @@ final class AIEnhancementService {
             if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
                 request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
             }
-            request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
+            request.setValue("Superduper Dictation/1.0", forHTTPHeaderField: "X-Title")
 
             let messages: [[String: Any]] = [
                 ["role": "system", "content": systemPrompt],

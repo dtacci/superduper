@@ -82,11 +82,15 @@ struct TranscriptionBackendTests {
 
    @Test func availabilityMatchesSpeechTranscriberIsAvailable() {
       let expected: Bool
+#if compiler(>=6.2)
       if #available(macOS 26, *) {
          expected = SpeechTranscriber.isAvailable
       } else {
          expected = false
       }
+#else
+      expected = false
+#endif
       #expect(SettingsStore.appleSpeechTranscriberAvailable == expected)
    }
 

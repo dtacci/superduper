@@ -45,7 +45,7 @@ final class TelemetryConsentWindowController: NSObject, TelemetryConsentPresenti
         let window = ConsentNSWindow(contentViewController: hosting)
         window.delegate = self
         window.styleMask = [.titled, .closable, .fullSizeContentView]
-        window.title = localized("Help improve Pindrop?", locale: settings.selectedAppLocale.locale)
+        window.title = localized("Help improve Superduper Dictation?", locale: settings.selectedAppLocale.locale)
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.isMovableByWindowBackground = true

@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in Pindrop
+description: Report a bug in Superduper Dictation
 title: "[Bug]: "
 labels: ["bug", "triage"]
 body:
@@ -10,8 +10,8 @@ body:
 
         ## System Information
 
-        **Please copy your system info from Pindrop:**
-        1. Open Pindrop
+        **Please copy your system info from Superduper Dictation:**
+        1. Open Superduper Dictation
         2. Go to **Settings → About**
         3. Click **"Copy System Info for Bug Report"**
         4. Paste it in the field below
@@ -22,7 +22,7 @@ body:
       label: System Information
       description: Paste the output from Settings → About → "Copy System Info for Bug Report"
       placeholder: |
-        Pindrop: 1.1.0 (42)
+        Superduper Dictation: 1.1.0 (42)
         macOS: Version 15.1 (Build 24B83)
         Chip: Apple Silicon
         Model: openai_whisper-small
@@ -63,11 +63,11 @@ body:
     attributes:
       label: Log File Attachment
       description: |
-        Please attach your Pindrop log file by drag-and-drop in this field.
+        Review the log for private information before attaching it.
         Steps:
-        1. Open **Pindrop → Settings → About**
+        1. Open **Superduper Dictation → Settings → About**
         2. Click **"Open Logs in Finder"**
-        3. Attach the latest `pindrop-*.log` file from `~/Library/Application Support/Pindrop/Logs/`
+        3. Attach the latest log from `~/Library/Application Support/Superduper Dictation/Logs/`
       placeholder: |
         Drag and drop the latest `pindrop-*.log` file here.
         If you cannot attach logs, explain why.

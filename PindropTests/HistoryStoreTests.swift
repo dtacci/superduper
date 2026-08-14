@@ -2033,7 +2033,7 @@ struct HistoryStoreTests {
 
         let records = try context.fetch(FetchDescriptor<TranscriptionRecord>())
 
-        #expect(currentStoreURL.path.contains("/Pindrop/default.store"))
+        #expect(currentStoreURL.path.contains("/Superduper Dictation/default.store"))
         #expect(FileManager.default.fileExists(atPath: currentStoreURL.path))
         #expect(FileManager.default.fileExists(atPath: legacyStoreURL.path))
         #expect(records.count == 1)

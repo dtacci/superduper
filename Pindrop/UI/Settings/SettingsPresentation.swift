@@ -14,7 +14,7 @@ import Foundation
 enum SettingsLayoutMetrics {
     static let windowWidth: CGFloat = 620
     static let defaultHeight: CGFloat = 640
-    static let minimumHeight: CGFloat = 420
+    static let minimumHeight: CGFloat = 560
 
     /// Titlebar row
     static let titlebarTrafficLane: CGFloat = 60
@@ -57,6 +57,26 @@ enum SettingsLayoutMetrics {
 
     /// About
     static let aboutIconSize: CGFloat = 64
+}
+
+/// Repairs undersized frames persisted by older builds while preserving a
+/// deliberate user-selected height once the window meets the current minimum.
+enum SettingsWindowSizing {
+    static func contentSize(restoredSize: CGSize?) -> CGSize {
+        guard let restoredSize,
+              restoredSize.width >= SettingsLayoutMetrics.windowWidth,
+              restoredSize.height >= SettingsLayoutMetrics.minimumHeight else {
+            return CGSize(
+                width: SettingsLayoutMetrics.windowWidth,
+                height: SettingsLayoutMetrics.defaultHeight
+            )
+        }
+
+        return CGSize(
+            width: SettingsLayoutMetrics.windowWidth,
+            height: restoredSize.height
+        )
+    }
 }
 
 // MARK: - Dictation audio retention labels
@@ -213,7 +233,7 @@ enum SettingsUpdateStatusPresentation {
         if !canCheck {
             return localized("Update checks are temporarily unavailable.", locale: locale)
         }
-        return localized("Pindrop checks for updates automatically.", locale: locale)
+        return localized("Superduper Dictation checks for updates automatically.", locale: locale)
     }
 }
 

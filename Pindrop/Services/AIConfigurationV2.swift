@@ -13,6 +13,14 @@
 
 import Foundation
 
+/// Compile-time security boundary for this fork. The upstream provider and MCP
+/// types remain in the tree for mergeability and tests, but production entry
+/// points must consult this policy before opening those network surfaces.
+enum LocalOnlySecurityPolicy {
+   static let allowsExternalAI = false
+   static let allowsMCPServer = false
+}
+
 // MARK: - ProviderConfig
 
 /// A user-configured AI provider. Non-secret; persisted as JSON in `@AppStorage`.

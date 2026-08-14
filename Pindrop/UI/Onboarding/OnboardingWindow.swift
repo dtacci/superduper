@@ -11,7 +11,6 @@ enum OnboardingStep: Int, CaseIterable {
     case welcome = 0
     case modelSelection
     case modelDownload
-    case aiEnhancement
     case permissions
     case hotkeySetup
     case ready
@@ -21,7 +20,6 @@ enum OnboardingStep: Int, CaseIterable {
         case .welcome: return "Welcome"
         case .modelSelection: return "Choose Model"
         case .modelDownload: return "Downloading"
-        case .aiEnhancement: return "AI Enhancement"
         case .permissions: return "Permissions"
         case .hotkeySetup: return "Hotkeys"
         case .ready: return "Ready"
@@ -30,7 +28,7 @@ enum OnboardingStep: Int, CaseIterable {
     
     var canSkip: Bool {
         switch self {
-        case .aiEnhancement, .hotkeySetup: return true
+        case .hotkeySetup: return true
         default: return false
         }
     }
@@ -118,7 +116,7 @@ struct OnboardingWindow: View {
     @State private var currentStep: OnboardingStep = .welcome
     @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var selectedModelName: String = "openai_whisper-base"
+    @State private var selectedModelName: String = SettingsStore.Defaults.selectedModel
     @State private var direction: Int = 1
     
     private var canGoBack: Bool {
@@ -135,8 +133,7 @@ struct OnboardingWindow: View {
         case .welcome: return nil
         case .modelSelection: return .welcome
         case .modelDownload: return nil
-        case .aiEnhancement: return .modelSelection
-        case .permissions: return .aiEnhancement
+        case .permissions: return .modelSelection
         case .hotkeySetup: return .permissions
         case .ready: return .hotkeySetup
         }
@@ -187,7 +184,7 @@ struct OnboardingWindow: View {
     }
     
     // Renders through OnboardingProgressPresentation so the unit tests pin the
-    // actual dot row (7 dots, download step included).
+    // actual dot row (download preparation included).
     private var stepIndicator: some View {
         HStack(spacing: 7) {
             ForEach(0..<OnboardingProgressPresentation.dotCount, id: \.self) { index in
@@ -236,19 +233,8 @@ struct OnboardingWindow: View {
                     modelManager: modelManager,
                     transcriptionService: transcriptionService,
                     modelName: selectedModelName,
-                    onComplete: { goToStep(.aiEnhancement) },
+                    onComplete: { goToStep(.permissions) },
                     onCancel: { goToStep(.modelSelection, direction: -1) }
-                )
-                .transition(stepTransition)
-                
-            case .aiEnhancement:
-                AIEnhancementStepView(
-                    settings: settings,
-                    onContinue: { goToStep(.permissions) },
-                    onSkip: { goToStep(.permissions) },
-                    onPreferredContentSizeChange: { size in
-                        onPreferredContentSizeChange(size)
-                    }
                 )
                 .transition(stepTransition)
                 

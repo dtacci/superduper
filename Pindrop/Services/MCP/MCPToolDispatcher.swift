@@ -537,7 +537,7 @@ enum MCPToolDispatcher {
         let s = coordinator.settingsStore
         guard let assignment = s.resolveAssignment(for: .transcriptionEnhancement) else {
             return .error(
-                "AI enhancement is not configured. Open Pindrop Settings → AI Enhancement and assign a provider + model for Transcription Enhancement."
+                "AI enhancement is not configured. Open Superduper Dictation Settings → AI Enhancement and assign a provider + model for Transcription Enhancement."
             )
         }
         let customPrompt = arguments["prompt"]?.stringValue

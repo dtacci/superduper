@@ -30,7 +30,7 @@ struct AboutSettingsView: View {
                         .foregroundStyle(AppColors.contentBackground)
                 }
 
-                Text("Pindrop")
+                Text("Superduper Dictation")
                     .font(AppTypography.wordmark)
                     .foregroundStyle(AppColors.textPrimary)
 
@@ -41,17 +41,6 @@ struct AboutSettingsView: View {
                 Text(localized(SettingsAboutPresentation.taglineKey, locale: locale))
                     .font(FontLoader.font(family: .newsreader, size: 15, weight: .regular, italic: true))
                     .foregroundStyle(AppColors.textSecondary)
-
-                HStack(spacing: 16) {
-                    linkButton(localized("GitHub", locale: locale), url: "https://github.com/watzon/pindrop")
-                    Text("·").foregroundStyle(AppColors.textTertiary)
-                    linkButton(localized("Website", locale: locale), url: "https://pindrop.watzon.tech")
-                    Text("·").foregroundStyle(AppColors.textTertiary)
-                    linkButton(localized("License — MIT", locale: locale), url: "https://github.com/watzon/pindrop/blob/main/LICENSE")
-                    Text("·").foregroundStyle(AppColors.textTertiary)
-                    linkButton(localized("Acknowledgements", locale: locale), url: "https://github.com/watzon/pindrop#acknowledgements")
-                }
-                .font(AppTypography.label)
 
                 Text(localized("Bundled fonts (Newsreader, Inter, JetBrains Mono) are licensed under the SIL Open Font License.", locale: locale))
                     .font(AppTypography.caption)
@@ -81,7 +70,7 @@ struct AboutSettingsView: View {
             SettingsGroupCard {
                 if AnnouncementCatalog.current != nil {
                     SettingsRow(showSeparator: true) {
-                        SettingsRowLabel(title: localized("What's New in Pindrop", locale: locale))
+                        SettingsRowLabel(title: localized("What's New in Superduper Dictation", locale: locale))
                     } control: {
                         Button {
                             NotificationCenter.default.post(name: .showWhatsNew, object: nil)
@@ -153,21 +142,9 @@ struct AboutSettingsView: View {
         )
     }
 
-    private func linkButton(_ title: String, url: String) -> some View {
-        Button {
-            if let destination = URL(string: url) {
-                NSWorkspace.shared.open(destination)
-            }
-        } label: {
-            Text(title)
-                .foregroundStyle(AppColors.accent)
-        }
-        .buttonStyle(.plain)
-    }
-
     private func copySystemInfo() {
         let info = """
-            Pindrop: \(appVersion) (\(buildNumber))
+            Superduper Dictation: \(appVersion) (\(buildNumber))
             macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)
             Chip: \(chipType)
             Model: \(activeModel)

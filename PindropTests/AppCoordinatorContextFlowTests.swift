@@ -477,12 +477,11 @@ struct AppCoordinatorContextFlowTests {
         #expect(AppCoordinator.isTranscriptionEffectivelyEmpty("transcribed text") == false)
     }
 
-    @Test func shouldPersistHistoryRequiresSuccessfulOutputAndNonEmptyText() {
-        #expect(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "transcribed text"))
+    @Test func shouldPersistHistoryRequiresNonEmptyText() {
+        #expect(AppCoordinator.shouldPersistHistory(text: "transcribed text"))
 
-        #expect(AppCoordinator.shouldPersistHistory(outputSucceeded: false, text: "transcribed text") == false)
-        #expect(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "   ") == false)
-        #expect(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "[BLANK AUDIO]") == false)
+        #expect(AppCoordinator.shouldPersistHistory(text: "   ") == false)
+        #expect(AppCoordinator.shouldPersistHistory(text: "[BLANK AUDIO]") == false)
     }
 
     @Test func whisperRepairSkipsDirectNetworkErrors() {

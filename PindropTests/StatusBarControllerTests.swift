@@ -12,6 +12,45 @@ import Testing
 @MainActor
 @Suite(.serialized)
 struct StatusBarControllerTests {
+    @Test func meetingCaptureMenuReflectsShortcutAndRecordingState() throws {
+        let settingsStore = SettingsStore()
+        settingsStore.resetAllSettings()
+        defer { settingsStore.resetAllSettings() }
+
+        let audioRecorder = try AudioRecorder(
+            permissionManager: MockPermissionProvider(),
+            captureBackend: MockAudioCaptureBackend(identifier: "microphone"),
+            systemAudioCaptureBackend: MockAudioCaptureBackend(identifier: "system")
+        )
+        let sut = StatusBarController(
+            audioRecorder: audioRecorder,
+            settingsStore: settingsStore
+        )
+
+        let meetingItem = try #require(sut.meetingCaptureMenuItemForTesting())
+        let recordingItem = try #require(sut.recordingMenuItemForTesting())
+        #expect(meetingItem.title == localized("Record Meeting", locale: settingsStore.selectedAppLocale.locale))
+        #expect(meetingItem.isEnabled)
+        #expect(meetingItem.action != nil)
+        #expect(meetingItem.target === sut)
+        #expect(meetingItem.keyEquivalent == " ")
+        #expect(meetingItem.keyEquivalentModifierMask.contains(.option))
+        #expect(meetingItem.keyEquivalentModifierMask.contains(.shift))
+
+        sut.setRecordingState(isMeetingCapture: true)
+        #expect(meetingItem.title == localized("Stop Meeting", locale: settingsStore.selectedAppLocale.locale))
+        #expect(meetingItem.isEnabled)
+        #expect(!recordingItem.isEnabled)
+
+        sut.setProcessingState()
+        #expect(!meetingItem.isEnabled)
+
+        sut.setIdleState()
+        #expect(meetingItem.title == localized("Record Meeting", locale: settingsStore.selectedAppLocale.locale))
+        #expect(meetingItem.isEnabled)
+        #expect(recordingItem.isEnabled)
+    }
+
     @Test func promptPresetMenuShowsSelectionAndRoutesChanges() throws {
         let settingsStore = SettingsStore()
         settingsStore.resetAllSettings()

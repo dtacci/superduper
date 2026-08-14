@@ -7,15 +7,17 @@
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
-	<string>Pindrop</string>
+	<string>SuperduperDictation</string>
 	<key>CFBundleIconName</key>
-	<string>Pindrop</string>
+	<string>SuperduperDictation</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>Superduper Dictation</string>
+	<key>CFBundleDisplayName</key>
+	<string>Superduper Dictation</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
@@ -31,14 +33,8 @@
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Pindrop needs microphone access to transcribe your voice.</string>
+	<string>Superduper Dictation needs microphone access to transcribe your voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server.</string>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUFeedURL</key>
-	<string>https://github.com/watzon/pindrop/releases/latest/download/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>TCU0MwULuIK6y0ubIossVr+61PGh/wHZfFrRFc9F2Is=</string>
+	<string>Superduper Dictation uses on-device speech recognition to transcribe your audio without sending data to any server.</string>
 </dict>
 </plist>

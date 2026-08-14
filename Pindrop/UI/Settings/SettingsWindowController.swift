@@ -15,9 +15,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case dictation
     case appearance
     case shortcuts
-    case ai
     case privacy
-    case advanced
     case about
 
     var id: String { rawValue }
@@ -28,9 +26,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .dictation: return localized("Dictation", locale: locale)
         case .appearance: return localized("Appearance", locale: locale)
         case .shortcuts: return localized("Shortcuts", locale: locale)
-        case .ai: return localized("AI", locale: locale)
         case .privacy: return localized("Privacy", locale: locale)
-        case .advanced: return localized("Advanced", locale: locale)
         case .about: return localized("About", locale: locale)
         }
     }
@@ -41,9 +37,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .dictation: return "mic.fill"
         case .appearance: return "paintbrush"
         case .shortcuts: return "keyboard"
-        case .ai: return "sparkles"
         case .privacy: return "hand.raised"
-        case .advanced: return "wrench.and.screwdriver"
         case .about: return "info.circle"
         }
     }
@@ -97,12 +91,8 @@ struct SettingsPaneContent: View {
             ThemeSettingsView(settings: settings)
         case .shortcuts:
             HotkeysSettingsView(settings: settings)
-        case .ai:
-            AIEnhancementSettingsView(settings: settings)
         case .privacy:
             PrivacySettingsView(settings: settings)
-        case .advanced:
-            MCPSettingsView(settings: settings)
         case .about:
             AboutSettingsView(settings: settings)
         }
@@ -115,7 +105,9 @@ final class SettingsWindowController: NSWindowController {
         static let contentWidth: CGFloat = SettingsLayoutMetrics.windowWidth
         static let minimumContentHeight: CGFloat = SettingsLayoutMetrics.minimumHeight
         static let defaultContentHeight: CGFloat = SettingsLayoutMetrics.defaultHeight
-        static let frameAutosaveName = "PindropSettings"
+        // Versioned so invalid frames saved by the inherited Pindrop window do
+        // not keep reopening this fork below its usable minimum size.
+        static let frameAutosaveName = "SuperduperDictationSettings-v2"
     }
 
     private let settings: SettingsStore
@@ -159,6 +151,7 @@ final class SettingsWindowController: NSWindowController {
 
     func show(tab: SettingsTab = .general) {
         ensureWindow()
+        repairWindowSizeIfNeeded()
         windowModel.select(tab)
         reloadLocalizedStrings()
 
@@ -220,8 +213,20 @@ final class SettingsWindowController: NSWindowController {
         // Leave room for traffic lights under the transparent titlebar.
         window.titlebarSeparatorStyle = .none
 
-        if !window.setFrameUsingName(Layout.frameAutosaveName) {
+        let restoredFrame = window.setFrameUsingName(Layout.frameAutosaveName)
+        let restoredContentSize = restoredFrame
+            ? window.contentRect(forFrameRect: window.frame).size
+            : nil
+        window.setContentSize(
+            SettingsWindowSizing.contentSize(restoredSize: restoredContentSize)
+        )
+        if !restoredFrame {
             window.center()
+        } else if let screen = window.screen ?? NSScreen.main {
+            window.setFrame(
+                window.constrainFrameRect(window.frame, to: screen),
+                display: false
+            )
         }
         window.setFrameAutosaveName(Layout.frameAutosaveName)
         applyInterfaceLayoutDirection(to: window, locale: settings.selectedAppLocale.locale)
@@ -230,6 +235,20 @@ final class SettingsWindowController: NSWindowController {
         updateWindowTitle()
         positionTrafficLights()
         PindropThemeController.shared.apply(to: window)
+    }
+
+    private func repairWindowSizeIfNeeded() {
+        guard let window else { return }
+        let currentSize = window.contentRect(forFrameRect: window.frame).size
+        let repairedSize = SettingsWindowSizing.contentSize(restoredSize: currentSize)
+        guard currentSize != repairedSize else { return }
+        window.setContentSize(repairedSize)
+        if let screen = window.screen ?? NSScreen.main {
+            window.setFrame(
+                window.constrainFrameRect(window.frame, to: screen),
+                display: false
+            )
+        }
     }
 
     /// Centers the standard traffic lights on the title row's text line (spec §13:

@@ -1,95 +1,28 @@
-# Build Scripts
+# Scripts
 
-This directory contains scripts for building and packaging Pindrop.
+Build and packaging helpers for Superduper Dictation. The Xcode target and raw
+build product still use the inherited `Pindrop` name.
 
-## Scripts
+## Local signing
 
-### `create-dmg.sh`
+`sign-app-bundle.sh` signs nested code before the main bundle, enables hardened
+runtime, and applies `Pindrop/Pindrop.entitlements`. Pass `local` to use the
+login-keychain certificate named `Superduper Dictation Local Signing`:
 
-Creates a distributable DMG file for macOS.
-
-**Requirements:**
-- `create-dmg` (install via `brew install create-dmg`)
-- Signed export of `Pindrop.app` in `DerivedData/Build/Products/Release/`
-
-**Usage:**
-```bash
-./scripts/create-dmg.sh
+```sh
+./scripts/sign-app-bundle.sh /path/to/Pindrop.app local
 ```
 
-Or use the justfile:
-```bash
-just dmg
-```
+If that certificate is missing, the script falls back to ad-hoc signing and
+warns that Accessibility approval may not survive a rebuild. A local
+self-signed identity is for development only; a public release needs Developer
+ID signing and Apple notarization.
 
-**Output:**
-- DMG file in `dist/Pindrop.dmg`
+## Release helpers
 
-### `ExportOptions.plist`
+Legacy upstream appcast and website-sync scripts remain in the tree for
+provenance but their `just` entry points are disabled. Configure and review an
+owner-specific release process before re-enabling any command that tags, pushes,
+uploads, downloads build tooling, or publishes an artifact.
 
-Configuration file for Xcode archive exports. Used when creating signed builds for distribution.
-
-**Setup:**
-1. Sign into Xcode with your Apple Developer account
-2. Enable automatic signing for the `Pindrop` target
-3. Ensure a Developer ID Application certificate is available for export
-
-## Build Workflow
-
-### Development Build
-
-```bash
-just build
-```
-
-### Release Build
-
-```bash
-just build-release
-```
-
-### Create DMG
-
-```bash
-just dmg
-```
-
-### Manual GitHub Release
-
-```bash
-just release 1.9.0
-```
-
-This will:
-1. Create/edit contextual release notes (`release-notes/vX.Y.Z.md`)
-2. Bump version/build and commit the change (if needed)
-3. Run tests
-4. Build signed release DMG
-5. Generate `appcast.xml`
-6. Create and push tag
-7. Create GitHub release using `gh` with notes + DMG + `appcast.xml`
-
-### Notarization (requires Apple Developer account)
-
-```bash
-just notarize dist/Pindrop.dmg
-just staple dist/Pindrop.dmg
-```
-
-## Directory Structure
-
-```
-scripts/
-├── README.md                   # This file
-├── create-dmg.sh               # Signed DMG creation script
-├── create-dmg-self-signed.sh   # Fallback self-signed DMG script
-├── sign-app-bundle.sh          # Manual/fallback bundle signing
-└── ExportOptions.plist         # Xcode export configuration
-```
-
-## Notes
-
-- All scripts should be executable (`chmod +x script.sh`)
-- `just dmg` expects `just export-app` semantics and packages the exported signed app
-- `just dmg-self-signed` is retained only as a fallback path
-- Notarization requires an Apple Developer account and proper credentials
+See `BUILD.md`, `RELEASING.md`, and `SECURITY.md` at the repository root.

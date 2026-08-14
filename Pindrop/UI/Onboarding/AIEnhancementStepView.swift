@@ -201,7 +201,7 @@ struct AIEnhancementStepView: View {
                 highlighted: false
              )
              enhancementExampleCard(
-                label: localized("Pindrop writes", locale: locale),
+                label: localized("Superduper Dictation writes", locale: locale),
                 text: localized("So the meeting is at 3:30. Can you confirm?", locale: locale),
                 highlighted: true
              )

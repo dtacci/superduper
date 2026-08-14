@@ -101,7 +101,7 @@ struct HistoryView: View {
     }
 
     private var retention: DictationAudioRetention {
-        settingsStore?.dictationAudioRetention ?? .days7
+        settingsStore?.dictationAudioRetention ?? .off
     }
 
     private var headerMetaText: String {
@@ -224,7 +224,7 @@ struct HistoryView: View {
             pasteLinkSheet
         }
         .sheet(isPresented: $showMeetingCaptureOptions) {
-            MeetingCaptureOptionsSheet { expectedSpeakerCount in
+            MeetingCaptureOptionsSheet(stopHotkey: settingsStore?.meetingHotkey) { expectedSpeakerCount in
                 onStartMeetingCapture?(expectedSpeakerCount)
             }
         }
@@ -367,9 +367,39 @@ struct HistoryView: View {
     // MARK: - Header
 
     private var headerSection: some View {
-        PageHeader(title: localized("Library", locale: locale), meta: headerMetaText) {
+        PageHeader(title: localized("History", locale: locale), meta: headerMetaText) {
             HStack(spacing: 10) {
-                if onImportMediaFiles != nil || onSubmitMediaLink != nil || onStartMeetingCapture != nil {
+                if onStartMeetingCapture != nil {
+                    SecondaryButton(
+                        title: localized("Record Meeting", locale: locale),
+                        systemImage: "person.2.wave.2"
+                    ) {
+                        onStartMeetingCapture?(nil)
+                    }
+                    .accessibilityIdentifier("history.button.recordMeeting")
+
+                    Button {
+                        showMeetingCaptureOptions = true
+                    } label: {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(AppColors.textPrimary)
+                            .frame(width: 30, height: 30)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .fill(AppColors.contentBackground)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .strokeBorder(AppColors.border, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .help(localized("Meeting options…", locale: locale))
+                    .accessibilityLabel(localized("Meeting options…", locale: locale))
+                    .accessibilityIdentifier("history.button.meetingOptions")
+                }
+                if onImportMediaFiles != nil || onSubmitMediaLink != nil {
                     importMenu
                 }
                 SearchFieldChrome(
@@ -601,6 +631,15 @@ struct HistoryView: View {
                 .foregroundStyle(AppColors.textTertiary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 360)
+            if selectedFilter == .meetings, onStartMeetingCapture != nil {
+                PrimaryButton(
+                    title: localized("Record Meeting", locale: locale),
+                    systemImage: "record.circle"
+                ) {
+                    onStartMeetingCapture?(nil)
+                }
+                .accessibilityIdentifier("history.empty.button.recordMeeting")
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.bottom, AppTheme.Spacing.huge)
@@ -959,16 +998,6 @@ struct HistoryView: View {
             expectedSpeakersItem.submenu = makeExpectedSpeakersSubmenu()
             menu.addItem(expectedSpeakersItem)
         }
-        if onStartMeetingCapture != nil {
-            menu.addItem(.separator())
-            menu.addItem(ClosureMenuItem(
-                title: localized("Record Meeting…", locale: locale),
-                systemImage: "person.2.wave.2"
-            ) {
-                showMeetingCaptureOptions = true
-            })
-        }
-
         // Non-flipped view coords: (0, 0) is the bottom-left corner, and popUp
         // places the menu's top-left at the given point → just below the button.
         menu.popUp(positioning: nil, at: NSPoint(x: 0, y: -6), in: anchor)

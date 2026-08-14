@@ -9,6 +9,90 @@ import SwiftUI
 import SwiftData
 import AppKit
 import SQLite3
+import Darwin
+
+enum LocalDataProtection {
+    private static let ownerDirectoryPermissions = 0o700
+    private static let ownerFilePermissions = 0o600
+
+    /// New transcripts, audio, logs, and databases should never be group/world readable.
+    static func applyRestrictiveProcessUmask() {
+        _ = Darwin.umask(mode_t(0o077))
+    }
+
+    /// Repairs permissions created by older builds. The app-support root is the
+    /// primary boundary; smaller sensitive trees are repaired recursively without
+    /// walking the much larger downloaded-model directory on every launch.
+    static func hardenExistingApplicationSupport(fileManager: FileManager = .default) throws {
+        guard let supportURL = fileManager.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first else { return }
+
+        let rootURL = supportURL.appendingPathComponent("Superduper Dictation", isDirectory: true)
+        try fileManager.createDirectory(
+            at: rootURL,
+            withIntermediateDirectories: true,
+            attributes: [.posixPermissions: ownerDirectoryPermissions]
+        )
+        try setOwnerOnlyPermissions(at: rootURL, isDirectory: true, fileManager: fileManager)
+
+        for storeName in ["default.store", "default.store-wal", "default.store-shm"] {
+            let storeURL = rootURL.appendingPathComponent(storeName)
+            if fileManager.fileExists(atPath: storeURL.path) {
+                try setOwnerOnlyPermissions(at: storeURL, isDirectory: false, fileManager: fileManager)
+            }
+        }
+
+        for directoryName in ["Logs", "MediaLibrary", "DatabaseBackups"] {
+            let directoryURL = rootURL.appendingPathComponent(directoryName, isDirectory: true)
+            guard fileManager.fileExists(atPath: directoryURL.path) else { continue }
+            try hardenTree(at: directoryURL, fileManager: fileManager)
+        }
+
+        let modelsURL = rootURL.appendingPathComponent("models", isDirectory: true)
+        if fileManager.fileExists(atPath: modelsURL.path) {
+            try setOwnerOnlyPermissions(at: modelsURL, isDirectory: true, fileManager: fileManager)
+        }
+    }
+
+    private static func hardenTree(at rootURL: URL, fileManager: FileManager) throws {
+        try setOwnerOnlyPermissions(at: rootURL, isDirectory: true, fileManager: fileManager)
+        guard let enumerator = fileManager.enumerator(
+            at: rootURL,
+            includingPropertiesForKeys: [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey],
+            options: [.skipsHiddenFiles]
+        ) else { return }
+
+        for case let itemURL as URL in enumerator {
+            let values = try itemURL.resourceValues(
+                forKeys: [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey]
+            )
+            if values.isSymbolicLink == true {
+                if values.isDirectory == true {
+                    enumerator.skipDescendants()
+                }
+                continue
+            }
+            if values.isDirectory == true {
+                try setOwnerOnlyPermissions(at: itemURL, isDirectory: true, fileManager: fileManager)
+            } else if values.isRegularFile == true {
+                try setOwnerOnlyPermissions(at: itemURL, isDirectory: false, fileManager: fileManager)
+            }
+        }
+    }
+
+    private static func setOwnerOnlyPermissions(
+        at url: URL,
+        isDirectory: Bool,
+        fileManager: FileManager
+    ) throws {
+        try fileManager.setAttributes(
+            [.posixPermissions: isDirectory ? ownerDirectoryPermissions : ownerFilePermissions],
+            ofItemAtPath: url.path
+        )
+    }
+}
 
 @main
 struct PindropApp: App {
@@ -83,6 +167,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !Self.isPreview else { return }
+        LocalDataProtection.applyRestrictiveProcessUmask()
+        do {
+            try LocalDataProtection.hardenExistingApplicationSupport()
+        } catch {
+            NSLog("Superduper Dictation could not tighten local data permissions: %@", error.localizedDescription)
+        }
         // Capture before any async hop; `currentAppleEvent` is only reliable here.
         launchSemantics = StartupWindowPresentationPolicy.captureLaunchSemantics()
         let bootStarted = CFAbsoluteTimeGetCurrent()
@@ -215,7 +305,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.appearsDisabled = false
             button.image = earlyLaunchStatusIcon()
             button.image?.isTemplate = true
-            button.toolTip = "Pindrop"
+            button.toolTip = "Superduper Dictation"
         }
 
         let locale = currentLocale
@@ -232,7 +322,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Keep the surface usable if store probing hangs — never trap the user.
         menu.addItem(NSMenuItem.separator())
         let quitItem = NSMenuItem(
-            title: localized("Quit Pindrop", locale: locale),
+            title: localized("Quit Superduper Dictation", locale: locale),
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
         )
@@ -280,7 +370,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             resizedIcon.isTemplate = true
             return resizedIcon
         }
-        return NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
+        return NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Superduper Dictation")
     }
 
     private func setupMainMenu() {
@@ -293,7 +383,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let appMenuItem = NSMenuItem()
         appMenuItem.submenu = appMenu
 
-        appMenu.addItem(NSMenuItem(title: localized("About Pindrop", locale: locale), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: ""))
+        appMenu.addItem(NSMenuItem(title: localized("About Superduper Dictation", locale: locale), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: ""))
         appMenu.addItem(NSMenuItem.separator())
 
         let settingsItem = NSMenuItem(title: localized("Settings…", locale: locale), action: #selector(openSettings(_:)), keyEquivalent: ",")
@@ -301,7 +391,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appMenu.addItem(settingsItem)
 
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(NSMenuItem(title: localized("Quit Pindrop", locale: locale), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        appMenu.addItem(NSMenuItem(title: localized("Quit Superduper Dictation", locale: locale), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
         mainMenu.addItem(appMenuItem)
 
@@ -356,7 +446,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let viewMenuItem = NSMenuItem()
         viewMenuItem.submenu = viewMenu
 
-        // Home ⌘1, Library ⌘2, Notes ⌘3, Dictionary ⌘4, Models ⌘5
+        // Home ⌘1, Stats ⌘2, History ⌘3, Notes ⌘4, Dictionary ⌘5, Models ⌘6
         for nav in MainNavItem.primaryNavigationItems {
             guard let key = MainNavItem.viewMenuShortcut(for: nav) else { continue }
             let item = NSMenuItem(
@@ -406,7 +496,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         windowMenu.addItem(NSMenuItem.separator())
 
         let mainWindowItem = NSMenuItem(
-            title: localized("Pindrop", locale: locale),
+            title: localized("Superduper Dictation", locale: locale),
             action: #selector(menuShowMainWindow(_:)),
             keyEquivalent: ""
         )
@@ -415,22 +505,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         mainMenu.addItem(windowMenuItem)
         NSApp.windowsMenu = windowMenu
-
-        // MARK: Help menu
-        let helpMenu = NSMenu(title: localized("Help", locale: locale))
-        let helpMenuItem = NSMenuItem()
-        helpMenuItem.submenu = helpMenu
-
-        let helpItem = NSMenuItem(
-            title: localized("Pindrop Help", locale: locale),
-            action: #selector(menuOpenHelp(_:)),
-            keyEquivalent: ""
-        )
-        helpItem.target = self
-        helpMenu.addItem(helpItem)
-
-        mainMenu.addItem(helpMenuItem)
-        NSApp.helpMenu = helpMenu
 
         applyInterfaceLayoutDirection(to: mainMenu, locale: locale)
         NSApplication.shared.mainMenu = mainMenu
@@ -512,19 +586,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         coordinator?.mainWindowController.show()
     }
 
-    @objc func menuOpenHelp(_ sender: Any?) {
-        guard let url = URL(string: "https://github.com/watzon/pindrop/blob/main/README.md") else { return }
-        NSWorkspace.shared.open(url)
-    }
-
     /// Menu validation: nav items stay enabled when the main window is closed
     /// (they open it). Find is enabled whenever History is reachable.
     @objc func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         guard coordinator != nil else { return false }
 
         if menuItem.action == #selector(menuFind(_:)) {
-            // Library is always a primary nav destination — enable Find so ⌘F
-            // can open the main window and focus the Library search field.
+            // History is always a primary nav destination — enable Find so ⌘F
+            // can open the main window and focus the History search field.
             return true
         }
 
@@ -532,7 +601,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             || menuItem.action == #selector(menuNewNote(_:))
             || menuItem.action == #selector(menuExportLastTranscript(_:))
             || menuItem.action == #selector(menuShowMainWindow(_:))
-            || menuItem.action == #selector(menuOpenHelp(_:))
             || menuItem.action == #selector(openSettings(_:)) {
             return true
         }
@@ -883,7 +951,7 @@ final class SwiftDataStoreRepairService {
 
     private func backupStoreArtifacts(for storeURL: URL) throws -> URL {
         let backupsRootURL = applicationSupportRootURL
-            .appendingPathComponent("Pindrop", isDirectory: true)
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
             .appendingPathComponent("DatabaseBackups", isDirectory: true)
         // Include a UUID so concurrent repair paths (e.g. parallel unit tests) never
         // collide on second-granularity timestamp folders (NSCocoaErrorDomain 516).
@@ -976,7 +1044,7 @@ final class SwiftDataStoreRepairService {
 
     private static func defaultStoreURL(applicationSupportRootURL: URL) -> URL {
         applicationSupportRootURL
-            .appendingPathComponent("Pindrop", isDirectory: true)
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
             .appendingPathComponent("default.store")
     }
 

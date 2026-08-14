@@ -184,7 +184,7 @@ final class AIModelService {
 
     private var cacheBaseURL: URL {
         fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("Pindrop", isDirectory: true)
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
             .appendingPathComponent("AIModels", isDirectory: true)
     }
 
@@ -403,7 +403,7 @@ final class AIModelService {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
+        request.setValue("Superduper Dictation/1.0", forHTTPHeaderField: "X-Title")
         if let apiKey {
             request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         }

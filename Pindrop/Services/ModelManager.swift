@@ -17,6 +17,7 @@ class ModelManager {
     @ObservationIgnored var telemetryService: TelemetryService?
 
     nonisolated static let englishRecommendedModelNames = [
+        "openai_whisper-large-v3-v20240930_626MB",
         "apple_speech_on_device",
         "openai_whisper-base.en",
         "openai_whisper-small.en",
@@ -26,6 +27,7 @@ class ModelManager {
     ]
 
     nonisolated static let multilingualRecommendedModelNames = [
+        "openai_whisper-large-v3-v20240930_626MB",
         "apple_speech_on_device",
         "openai_whisper-base",
         "openai_whisper-small",
@@ -241,7 +243,7 @@ class ModelManager {
         }
     }
     
-    let availableModels: [WhisperModel] = [
+    private let modelCatalog: [WhisperModel] = [
         // Apple Speech (on-device, uses system models — no download required)
         WhisperModel(
             name: "apple_speech_on_device",
@@ -600,6 +602,13 @@ class ModelManager {
         )
     ]
 
+    /// This fork intentionally exposes on-device engines only. Keeping the full
+    /// catalog private makes a cloud model impossible to select through any UI or
+    /// automation surface while preserving the upstream provider abstractions.
+    var availableModels: [WhisperModel] {
+        modelCatalog.filter(\.provider.isLocal)
+    }
+
     func recommendedModels(for language: AppLanguage) -> [WhisperModel] {
         let recommendedModelNames: [String]
         switch language {
@@ -645,7 +654,7 @@ class ModelManager {
     
     private var modelsBaseURL: URL {
         fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("Pindrop", isDirectory: true)
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
     }
 
     private var whisperKitModelsURL: URL {
@@ -923,7 +932,7 @@ class ModelManager {
         do {
             Log.model.info("Downloading WhisperKit model: \(modelName) to \(self.modelsBaseURL.path)")
             Log.boot.info(
-                "WhisperKit pipeline begin variant=\(modelName) storageLeaf=Pindrop/models/argmaxinc/whisperkit-coreml (under Application Support) uiProgressNote=0-80pct is file download 85-100pct is prewarm"
+                "WhisperKit pipeline begin variant=\(modelName) storageLeaf=Superduper Dictation/models/argmaxinc/whisperkit-coreml (under Application Support) uiProgressNote=0-80pct is file download 85-100pct is prewarm"
             )
             
             let mkdirStart = CFAbsoluteTimeGetCurrent()

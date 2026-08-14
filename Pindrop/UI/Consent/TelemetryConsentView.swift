@@ -15,23 +15,19 @@ struct TelemetryConsentView: View {
 
     @Environment(\.locale) private var locale
 
-    static let collectionDetailsURL = URL(
-        string: "https://github.com/watzon/pindrop/blob/main/docs/TELEMETRY.md"
-    )!
-
     var body: some View {
         ZStack {
             AppColors.windowBackground
                 .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
-                Text(localized("Help improve Pindrop?", locale: locale))
+                Text(localized("Help improve Superduper Dictation?", locale: locale))
                     .font(FontLoader.font(family: .newsreader, size: 28, weight: .medium))
                     .tracking(-0.42)
                     .foregroundStyle(AppColors.textPrimary)
                     .accessibilityAddTraits(.isHeader)
 
-                Text(localized("Pindrop can send anonymous, privacy-preserving signals so bugs get fixed faster.", locale: locale))
+                Text(localized("Superduper Dictation can send anonymous, privacy-preserving signals so bugs get fixed faster.", locale: locale))
                     .font(FontLoader.font(family: .inter, size: 12, weight: .regular))
                     .lineSpacing(5)
                     .foregroundStyle(AppColors.textSecondary)
@@ -57,17 +53,6 @@ struct TelemetryConsentView: View {
                     )
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
-
-                Button {
-                    NSWorkspace.shared.open(Self.collectionDetailsURL)
-                } label: {
-                    Text(localized("What does Pindrop collect?", locale: locale))
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.accent)
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("consent.link.collectionDetails")
-                .padding(.top, 14)
 
                 VStack(spacing: 10) {
                     Button(localized("Share anonymous diagnostics", locale: locale)) {

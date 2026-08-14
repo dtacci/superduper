@@ -46,7 +46,7 @@ struct ReadyStepView: View {
     /// word order (e.g. Japanese puts the verb after the shortcut).
     private var instructionLine: some View {
         let format = localized(
-            "Press %@ and start talking — Pindrop types wherever your cursor is.",
+            "Press %@ and start talking — Superduper Dictation types wherever your cursor is.",
             locale: locale
         )
         let parts = format.components(separatedBy: "%@")
@@ -88,7 +88,7 @@ struct ReadyStepView_Previews: PreviewProvider {
         ReadyStepView(
             settings: SettingsStore(),
             modelManager: PreviewModelManagerReady(),
-            selectedModelName: "openai_whisper-base.en",
+            selectedModelName: SettingsStore.Defaults.selectedModel,
             onComplete: {}
         )
         .frame(width: 760, height: 500)

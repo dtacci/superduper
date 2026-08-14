@@ -63,7 +63,7 @@ final class AlertManager {
     func showMicrophonePermissionAlert() {
         let alert = makeAlert(style: .warning)
         alert.messageText = localized("Microphone Permission Required", locale: locale)
-        alert.informativeText = localized("Pindrop needs microphone access to record and transcribe your voice.\n\nPlease grant permission in System Settings.", locale: locale)
+        alert.informativeText = localized("Superduper Dictation needs microphone access to record and transcribe your voice.\n\nPlease grant permission in System Settings.", locale: locale)
         alert.addButton(withTitle: localized("Open System Settings", locale: locale))
         alert.addButton(withTitle: localized("Cancel", locale: locale))
         

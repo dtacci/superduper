@@ -100,7 +100,6 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		SCHEMAV12TESTBUILD01A2B3C4D5E6F /* SchemaV12MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMAV12TESTFILE01A2B3C4D5E6F /* SchemaV12MigrationTests.swift */; };
 		TRAINREDACTTESTBUILD01A2B3C4D5F /* TrainingTextRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */; };
 		CONTRIBSVCTESTBUILD01A2B3C4D5EF /* ContributionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */; };
-		TELEMETRYDECKBUILD01A2B3C4D5EF /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = TELEMETRYDECKDEP01A2B3C4D5E6F /* TelemetryDeck */; };
 		MUTEMONBUILD01A2B3C4D5E6F /* InputMuteMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */; };
 		AIADAPTEXTBUILD01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */; };
 		AIADAPTTESTBUILD01A2B3C4D5 /* AIEnhancementAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */; };
@@ -125,7 +124,7 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		NOTESGROUPTESTBUILD01A2B3 /* NotesGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESGROUPTESTFILE01A2B3 /* NotesGroupingTests.swift */; };
 		MDCHECKBOXTESTBUILD01A2B3 /* MarkdownCheckboxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MDCHECKBOXTESTFILE01A2B3 /* MarkdownCheckboxTests.swift */; };
 		NOTEAPPENDTESTBUILD01A2B3 /* NoteAppendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEAPPENDTESTFILE01A2B3 /* NoteAppendTests.swift */; };
-		ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */ = {isa = PBXBuildFile; fileRef = ICNS01A2B3C4D5E6F71 /* Pindrop.icns */; };
+		ICNS01A2B3C4D5E6F70 /* SuperduperDictation.icns in Resources */ = {isa = PBXBuildFile; fileRef = ICNS01A2B3C4D5E6F71 /* SuperduperDictation.icns */; };
 		AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */; };
 		AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */; };
 		AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */; };
@@ -263,7 +262,6 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		DETCLEANTESTBUILD1A2B3C4 /* DeterministicTranscriptCleanerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DETCLEANTESTFILE1A2B3C4 /* DeterministicTranscriptCleanerTests.swift */; };
 		TRBACKENDTESTBUILD1A2B3C /* TranscriptionBackendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRBACKENDTESTFILE1A2B3C /* TranscriptionBackendTests.swift */; };
 		SANITIZERTESTBUILD1A2B3C /* AIEnhancementResponseSanitizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SANITIZERTESTFILE1A2B3C /* AIEnhancementResponseSanitizerTests.swift */; };
-		SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = SPARKLEDEP01A2B3C4D5E6F /* Sparkle */; };
 		SPKDIARIZ02A2B3C4D5E6F /* SpeakerDiarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */; };
 		SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */; };
 		STREAMASR02A2B3C4D5E6F /* StreamingTranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */; };
@@ -426,7 +424,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		NOTESGROUPTESTFILE01A2B3 /* NotesGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesGroupingTests.swift; sourceTree = "<group>"; };
 		MDCHECKBOXTESTFILE01A2B3 /* MarkdownCheckboxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownCheckboxTests.swift; sourceTree = "<group>"; };
 		NOTEAPPENDTESTFILE01A2B3 /* NoteAppendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAppendTests.swift; sourceTree = "<group>"; };
-		ICNS01A2B3C4D5E6F71 /* Pindrop.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Pindrop.icns; sourceTree = "<group>"; };
+		ICNS01A2B3C4D5E6F71 /* SuperduperDictation.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = SuperduperDictation.icns; sourceTree = "<group>"; };
 		AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineCapabilities.swift; sourceTree = "<group>"; };
 		AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningService.swift; sourceTree = "<group>"; };
 		AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningServiceTests.swift; sourceTree = "<group>"; };
@@ -615,8 +613,6 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			files = (
 				E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */,
 				FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */,
-				SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */,
-				TELEMETRYDECKBUILD01A2B3C4D5EF /* TelemetryDeck in Frameworks */,
 			);
 		};
 		CBC1B6398AC040CF9417EDEC /* Frameworks */ = {
@@ -1081,7 +1077,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			isa = PBXGroup;
 			children = (
 				BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */,
-				ICNS01A2B3C4D5E6F71 /* Pindrop.icns */,
+				ICNS01A2B3C4D5E6F71 /* SuperduperDictation.icns */,
 				FONTSFOLDER01A2B3C4D5 /* Fonts */,
 				ACKFOLDER01A2B3C4D5 /* Acknowledgements */,
 			);
@@ -1167,8 +1163,6 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			packageProductDependencies = (
 				563D563B8CE142449E7030FB /* WhisperKit */,
 				FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */,
-				SPARKLEDEP01A2B3C4D5E6F /* Sparkle */,
-				TELEMETRYDECKDEP01A2B3C4D5E6F /* TelemetryDeck */,
 			);
 			productName = Pindrop;
 			productReference = 05406A418EF343BAA525028E /* Pindrop.app */;
@@ -1254,8 +1248,6 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			packageReferences = (
 				CFD28D45C1FE4DF09ED8A269 /* XCRemoteSwiftPackageReference "WhisperKit" */,
 				FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */,
-				SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */,
-				TELEMETRYDECKREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 34D7D79B92CD42AA8CBA1057 /* Products */;
@@ -1289,7 +1281,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				440249066D0941BF82CA74EB /* Preview Assets.xcassets in Resources */,
 				509539AC0B5D433489196E46 /* Assets.xcassets in Resources */,
 				6EA189DAD2FC954E2AA5B6B4 /* Localizable.xcstrings in Resources */,
-				ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */,
+				ICNS01A2B3C4D5E6F70 /* SuperduperDictation.icns in Resources */,
 				FONTSFOLDERBUILD01A2 /* Fonts in Resources */,
 				ACKFOLDERBUILD01A2B3 /* Acknowledgements in Resources */,
 			);
@@ -1616,7 +1608,6 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 26;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = MB5789APU7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.22.5;
@@ -1641,22 +1632,21 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				CURRENT_PROJECT_VERSION = 26;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Pindrop/Preview Content\"";
-				DEVELOPMENT_TEAM = MB5789APU7;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Pindrop/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Pindrop;
+				INFOPLIST_KEY_CFBundleDisplayName = "Superduper Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Pindrop needs microphone access to transcribe your voice.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Superduper Dictation needs microphone access to transcribe your voice.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.22.5;
-				PRODUCT_BUNDLE_IDENTIFIER = tech.watzon.pindrop;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dantacci.superduper-dictation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1725,7 +1715,6 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MB5789APU7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = tech.watzon.pindrop.uitests;
@@ -1815,22 +1804,21 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				CURRENT_PROJECT_VERSION = 26;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Pindrop/Preview Content\"";
-				DEVELOPMENT_TEAM = MB5789APU7;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Pindrop/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Pindrop;
+				INFOPLIST_KEY_CFBundleDisplayName = "Superduper Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Pindrop needs microphone access to transcribe your voice.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Superduper Dictation needs microphone access to transcribe your voice.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.22.5;
-				PRODUCT_BUNDLE_IDENTIFIER = tech.watzon.pindrop;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dantacci.superduper-dictation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1842,7 +1830,6 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MB5789APU7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = tech.watzon.pindrop.uitests;
@@ -1862,7 +1849,6 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 26;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = MB5789APU7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.22.5;
@@ -1917,8 +1903,8 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/argmaxinc/WhisperKit.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.0;
+				kind = exactVersion;
+				version = 0.15.0;
 			};
 		};
 		FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */ = {
@@ -1927,22 +1913,6 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			requirement = {
 				kind = exactVersion;
 				version = 0.15.4;
-			};
-		};
-		SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.6.0;
-			};
-		};
-		TELEMETRYDECKREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1957,16 +1927,6 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			isa = XCSwiftPackageProductDependency;
 			package = FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */;
 			productName = FluidAudio;
-		};
-		SPARKLEDEP01A2B3C4D5E6F /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
-		};
-		TELEMETRYDECKDEP01A2B3C4D5E6F /* TelemetryDeck */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = TELEMETRYDECKREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "SwiftSDK" */;
-			productName = TelemetryDeck;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -121,7 +121,10 @@ struct AudioPCMFile {
                 maximumDuration: Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size)
             )
         }
-        return try Data(contentsOf: fileURL)
+        // Keep long meeting captures file-backed during handoff. Foundation can
+        // map regular files into virtual memory here instead of eagerly copying
+        // the entire PCM spool into a second heap allocation.
+        return try Data(contentsOf: fileURL, options: [.mappedIfSafe])
     }
 
     func discard() {
@@ -443,10 +446,11 @@ extension AudioCaptureUtilities {
     }
 }
 
-private enum CaptureLimits {
-    /// Batch inference currently accepts one contiguous Data value. Keep that
-    /// materialization below 40 MB (ten minutes of 16 kHz mono Float32 PCM).
-    static let maximumASRDuration: TimeInterval = 10 * 60
+enum AudioRecordingLimits {
+    /// A meeting is automatically finalized at 90 minutes so an unattended
+    /// capture cannot run indefinitely. The 16 kHz mono Float32 spool is kept
+    /// file-backed and memory-mapped when handed to batch inference.
+    static let maximumASRDuration: TimeInterval = 90 * 60
     static let maximumASRByteCount = Int(maximumASRDuration * 16_000 * Double(MemoryLayout<Float>.size))
 }
 
@@ -714,7 +718,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
 final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     
     private var audioEngine: AVAudioEngine?
-    private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
+    private let audioStorage = AudioPCMFileStorage(maximumByteCount: AudioRecordingLimits.maximumASRByteCount)
     /// Native-rate mono copy for retention (tap format), kept only when enabled.
     private let nativeAudioStorage = AudioPCMFileStorage()
     /// Reused across tap callbacks; rebuilt when the engine reinstalls a tap with a new format.
@@ -1223,7 +1227,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         let generation: UInt64
     }
 
-    private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
+    private let audioStorage = AudioPCMFileStorage(maximumByteCount: AudioRecordingLimits.maximumASRByteCount)
     /// Native-rate mono copy for retention, kept only when enabled.
     private let nativeAudioStorage = AudioPCMFileStorage()
     /// Serial capture-callback converters; rebuilt automatically when formats change.
@@ -2011,7 +2015,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
 
 @available(macOS 14.2, *)
 final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
-    private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
+    private let audioStorage = AudioPCMFileStorage(maximumByteCount: AudioRecordingLimits.maximumASRByteCount)
     /// Serial capture-callback converter; rebuilt automatically when formats change.
     private let audioConverter = ReusableAudioConverter()
     private let targetFormatStorage: AVAudioFormat
@@ -2049,7 +2053,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     /// `systemAudioCaptureFailed`.
     static func probeSystemAudioTapAccess() -> Bool {
         let tapDescription = CATapDescription(stereoMixdownOfProcesses: [])
-        tapDescription.name = "Pindrop System Audio Permission Probe"
+        tapDescription.name = "Superduper Dictation System Audio Permission Probe"
         tapDescription.uuid = UUID()
         tapDescription.isPrivate = true
         tapDescription.isExclusive = true
@@ -2085,7 +2089,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         audioConverter.reset()
 
         let tapDescription = CATapDescription(stereoMixdownOfProcesses: [])
-        tapDescription.name = "Pindrop System Audio"
+        tapDescription.name = "Superduper Dictation System Audio"
         tapDescription.uuid = UUID()
         tapDescription.isPrivate = true
         tapDescription.isExclusive = true
@@ -2287,7 +2291,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     private func createAggregateDevice(tapUID: String, outputDeviceUID: String) throws -> AudioObjectID {
         let aggregateUID = "tech.watzon.pindrop.aggregate.\(UUID().uuidString)"
         let aggregateDictionary: [String: Any] = [
-            kAudioAggregateDeviceNameKey: "Pindrop System Audio Capture",
+            kAudioAggregateDeviceNameKey: "Superduper Dictation System Audio Capture",
             kAudioAggregateDeviceUIDKey: aggregateUID,
             kAudioAggregateDeviceMainSubDeviceKey: outputDeviceUID,
             kAudioAggregateDeviceIsPrivateKey: true,
@@ -2856,7 +2860,7 @@ final class AudioRecorder {
         let finalization = Task.detached(priority: .userInitiated) {
             try CaptureFinalization.stopAndMaterialize(
                 backend: handoff.backend,
-                maximumByteCount: CaptureLimits.maximumASRByteCount
+                maximumByteCount: AudioRecordingLimits.maximumASRByteCount
             )
         }
 

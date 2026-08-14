@@ -95,7 +95,7 @@ struct SplashScreen: View {
                     )
                     
                     // App name
-                    Text("Pindrop")
+                    Text("Superduper Dictation")
                         .font(.system(size: 36, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                     

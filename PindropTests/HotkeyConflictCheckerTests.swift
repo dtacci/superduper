@@ -52,6 +52,19 @@ struct HotkeyConflictCheckerTests {
         #expect(status == .pindropConflict(conflictingSlot: .toggleRecording))
     }
 
+    @Test("Meeting shortcut conflicts with another slot using the same combination")
+    func meetingShortcutConflictDetected() {
+        let status = HotkeyConflictChecker.check(
+            keyCode: space,
+            modifiers: option,
+            slot: .toggleMeetingCapture,
+            assignments: defaultAssignments
+        )
+
+        #expect(status == .pindropConflict(conflictingSlot: .toggleRecording))
+        #expect(HotkeySlot.toggleMeetingCapture.registrationIdentifier == "toggle-meeting-capture")
+    }
+
     @Test("Cancel Operation conflicts with an existing Pindrop slot")
     func cancelOperationConflictsWithToggle() {
         let status = HotkeyConflictChecker.check(

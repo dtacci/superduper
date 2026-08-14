@@ -176,7 +176,8 @@ final class StreamingSessionController {
             let coord = StreamingRefinementCoordinator()
             coord.beginSession(outputSink: ensureOverlaySink())
             refinementCoordinator = coord
-            if let refinementAssignment = settingsStore.resolveAssignment(for: .streamingRefinement) {
+            if LocalOnlySecurityPolicy.allowsExternalAI,
+               let refinementAssignment = settingsStore.resolveAssignment(for: .streamingRefinement) {
                 Log.transcription.info(
                     "Streaming refinement coordinator engaged (provider=\(refinementAssignment.kind.rawValue), model=\(refinementAssignment.modelID)) — live LLM refinement disabled in Phase 2, post-stop path unchanged"
                 )

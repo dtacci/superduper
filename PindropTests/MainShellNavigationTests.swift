@@ -29,17 +29,16 @@ struct MainShellNavigationTests {
         #expect(MainNavItem.viewMenuShortcut(for: .transcribe) == nil)
     }
 
-    @Test func transcribeResolvesToLibrary() {
+    @Test func transcribeResolvesToHistory() {
         #expect(MainNavItem.transcribe.resolvedDestination == .history)
         #expect(MainNavItem.history.resolvedDestination == .history)
         #expect(MainNavItem.home.resolvedDestination == .home)
         #expect(MainNavItem.stats.resolvedDestination == .stats)
     }
 
-    @Test func historyTitleKeyIsLibrary() {
+    @Test func historyTitleIsHistory() {
         let title = MainNavItem.history.title(locale: Locale(identifier: "en"))
-        #expect(title == "Library")
-        // rawValue stays History for notification identity stability
+        #expect(title == "History")
         #expect(MainNavItem.history.rawValue == "History")
     }
 

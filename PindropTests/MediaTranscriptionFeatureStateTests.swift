@@ -48,11 +48,13 @@ struct MediaTranscriptionFeatureStateTests {
     @Test func mediaTranscriptionResolvesCatalogModelProviders() {
         let models = ModelManager().availableModels
 
+        // Cloud models are deliberately absent from the local-only catalog, so a stale
+        // cloud model name safely falls back to the default local WhisperKit provider.
         #expect(
             AppCoordinator.mediaTranscriptionProvider(
                 named: "openai_gpt-4o-mini-transcribe",
                 availableModels: models
-            ) == .openAI
+            ) == .whisperKit
         )
         #expect(
             AppCoordinator.mediaTranscriptionProvider(

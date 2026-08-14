@@ -940,7 +940,7 @@ extension NSColor {
 private struct ThemePreviewView: View {
     var body: some View {
         VStack(spacing: AppTheme.Spacing.xl) {
-            Text("Pindrop Theme")
+            Text("Superduper Dictation Theme")
                 .font(AppTypography.largeTitle)
                 .foregroundStyle(AppColors.textPrimary)
 

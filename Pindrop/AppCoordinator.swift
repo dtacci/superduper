@@ -192,6 +192,7 @@ struct HotkeySettingsSnapshot: Equatable {
     let hasCompletedOnboarding: Bool
     let pushToTalk: HotkeyBindingSnapshot
     let toggle: HotkeyBindingSnapshot
+    let meeting: HotkeyBindingSnapshot
     let copyLastTranscript: HotkeyBindingSnapshot
     let quickCapturePTT: HotkeyBindingSnapshot
     let quickCaptureToggle: HotkeyBindingSnapshot
@@ -859,6 +860,10 @@ final class AppCoordinator {
             await self?.handleToggleRecording(source: .statusBarMenu)
         }
 
+        self.statusBarController.onToggleMeetingCapture = { [weak self] in
+            await self?.handleMeetingCaptureToggle()
+        }
+
         self.statusBarController.onCopyLastTranscript = { [weak self] in
             await self?.handleCopyLastTranscript()
         }
@@ -938,9 +943,9 @@ final class AppCoordinator {
             onHideForOneHour: { [weak self] in
                 self?.handleHideFloatingIndicatorForOneHour()
             },
-            onReportIssue: { [weak self] in
-                self?.handleReportIssue()
-            },
+            // Configure a fork-owned issue tracker before exposing this action.
+            // Sending fork reports to the upstream Pindrop tracker is misleading.
+            onReportIssue: nil,
             onGoToSettings: { [weak self] in
                 self?.statusBarController.showSettings(tab: .general)
             },
@@ -1569,14 +1574,20 @@ final class AppCoordinator {
     // MARK: - MCP Server
 
     private func applyMCPServerSettings() {
+        // The public local-only fork does not expose a network automation surface.
+        // Fail closed even if an inherited preference was set by an older build or
+        // modified directly in UserDefaults.
         if settingsStore.mcpServerEnabled {
-            startMCPServerIfNeeded()
-        } else {
-            stopMCPServerIfRunning()
+            settingsStore.mcpServerEnabled = false
         }
+        stopMCPServerIfRunning()
     }
 
     private func startMCPServerIfNeeded() {
+        guard LocalOnlySecurityPolicy.allowsMCPServer else {
+            stopMCPServerIfRunning()
+            return
+        }
         let port = UInt16(clamping: settingsStore.mcpServerPort)
 
         // Reuse existing server if port hasn't changed
@@ -1733,6 +1744,43 @@ final class AppCoordinator {
             }
         }
 
+        if !settingsStore.meetingHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Toggle Meeting Capture",
+               hotkeyString: settingsStore.meetingHotkey,
+               keyCodeValue: settingsStore.meetingHotkeyCode,
+               modifiersValue: settingsStore.meetingHotkeyModifiers
+           ) {
+            if canRegisterHotkey(
+                identifier: HotkeySlot.toggleMeetingCapture.registrationIdentifier,
+                displayName: "Toggle Meeting Capture",
+                hotkeyString: settingsStore.meetingHotkey,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
+                registrationState: &registrationState
+            ) {
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
+                    identifier: HotkeySlot.toggleMeetingCapture.registrationIdentifier,
+                    mode: .toggle,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handleMeetingCaptureToggle()
+                        }
+                    },
+                    onKeyUp: nil
+                )
+
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(
+                        displayName: "Toggle Meeting Capture",
+                        hotkeyString: settingsStore.meetingHotkey
+                    )
+                }
+            }
+        }
+
         if !settingsStore.copyLastTranscriptHotkey.isEmpty,
            let binding = validatedHotkeyBinding(
                displayName: "Copy Last Transcript",
@@ -1845,7 +1893,7 @@ final class AppCoordinator {
 
         if !settingsStore.openLibraryHotkey.isEmpty,
            let binding = validatedHotkeyBinding(
-               displayName: "Open Library",
+               displayName: "Open History",
                hotkeyString: settingsStore.openLibraryHotkey,
                keyCodeValue: settingsStore.openLibraryHotkeyCode,
                modifiersValue: settingsStore.openLibraryHotkeyModifiers
@@ -1853,7 +1901,7 @@ final class AppCoordinator {
             Log.hotkey.info("Registering open-library: keyCode=\(binding.keyCode), modifiers=0x\(String(binding.modifiers.rawValue, radix: 16)), string=\(self.settingsStore.openLibraryHotkey)")
             if canRegisterHotkey(
                 identifier: "open-library",
-                displayName: "Open Library",
+                displayName: "Open History",
                 hotkeyString: settingsStore.openLibraryHotkey,
                 keyCode: binding.keyCode,
                 modifiers: binding.modifiers,
@@ -1872,7 +1920,7 @@ final class AppCoordinator {
                     onKeyUp: nil
                 )
                 if !didRegister {
-                    handleHotkeyRegistrationFailure(displayName: "Open Library", hotkeyString: settingsStore.openLibraryHotkey)
+                    handleHotkeyRegistrationFailure(displayName: "Open History", hotkeyString: settingsStore.openLibraryHotkey)
                 }
             }
         }
@@ -1968,6 +2016,8 @@ final class AppCoordinator {
         switch identifier {
         case "toggle-recording":
             return "Toggle Recording"
+        case "toggle-meeting-capture":
+            return "Toggle Meeting Capture"
         case "push-to-talk":
             return "Push-to-Talk"
         case "copy-last-transcript":
@@ -1977,7 +2027,7 @@ final class AppCoordinator {
         case "quick-capture-toggle":
             return "Note Capture (Toggle)"
         case "open-library":
-            return "Open Library"
+            return "Open History"
         case "cancel-operation":
             return "Cancel Operation"
         default:
@@ -1996,7 +2046,8 @@ final class AppCoordinator {
             selectedAppLanguage: settingsStore.selectedAppLanguage,
             floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             floatingIndicatorType: settingsStore.selectedFloatingIndicatorType,
-            aiEnhancementEnabled: settingsStore.assignment(for: .transcriptionEnhancement) != nil,
+            aiEnhancementEnabled: LocalOnlySecurityPolicy.allowsExternalAI
+                && settingsStore.assignment(for: .transcriptionEnhancement) != nil,
             enableUIContext: settingsStore.enableUIContext,
             vibeLiveSessionEnabled: settingsStore.vibeLiveSessionEnabled,
             streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
@@ -2011,6 +2062,11 @@ final class AppCoordinator {
                     hotkey: settingsStore.toggleHotkey,
                     keyCode: settingsStore.toggleHotkeyCode,
                     modifiers: settingsStore.toggleHotkeyModifiers
+                ),
+                meeting: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.meetingHotkey,
+                    keyCode: settingsStore.meetingHotkeyCode,
+                    modifiers: settingsStore.meetingHotkeyModifiers
                 ),
                 copyLastTranscript: HotkeyBindingSnapshot(
                     hotkey: settingsStore.copyLastTranscriptHotkey,
@@ -2273,12 +2329,17 @@ final class AppCoordinator {
     // MARK: - Live Session Context
 
     private func shouldRunLiveContextSession() -> Bool {
-        settingsStore.assignment(for: .transcriptionEnhancement) != nil &&
+        LocalOnlySecurityPolicy.allowsExternalAI &&
+            settingsStore.assignment(for: .transcriptionEnhancement) != nil &&
             settingsStore.enableUIContext &&
             settingsStore.vibeLiveSessionEnabled
     }
 
     private func updateVibeRuntimeStateFromSettings() {
+        guard LocalOnlySecurityPolicy.allowsExternalAI else {
+            settingsStore.updateVibeRuntimeState(.degraded, detail: "External AI is disabled in this local-only build.")
+            return
+        }
         guard settingsStore.assignment(for: .transcriptionEnhancement) != nil else {
             settingsStore.updateVibeRuntimeState(.degraded, detail: "AI enhancement is disabled.")
             return
@@ -3154,7 +3215,8 @@ final class AppCoordinator {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
         }
 
-        if let noteAssignment = settingsStore.resolveAssignment(for: .noteEnhancement) {
+        if LocalOnlySecurityPolicy.allowsExternalAI,
+           let noteAssignment = settingsStore.resolveAssignment(for: .noteEnhancement) {
             do {
                 let notePrompt = resolvedPrompt(
                     for: noteAssignment,
@@ -3410,8 +3472,8 @@ final class AppCoordinator {
         return normalizedText.caseInsensitiveCompare("[BLANK AUDIO]") == .orderedSame
     }
 
-    static func shouldPersistHistory(outputSucceeded: Bool, text: String) -> Bool {
-        outputSucceeded && !isTranscriptionEffectivelyEmpty(text)
+    static func shouldPersistHistory(text: String) -> Bool {
+        !isTranscriptionEffectivelyEmpty(text)
     }
 
     /// Dictation transcriptions never diarize: the output is a single-speaker paste
@@ -3469,6 +3531,12 @@ final class AppCoordinator {
     ) async -> [DiarizedTranscriptSegment] {
         if let existingSegments, !existingSegments.isEmpty {
             return existingSegments
+        }
+
+        // Loading the diarization model for every ordinary dictation is expensive
+        // and surprising. Speaker learning is opt-in with the diarization feature.
+        guard settingsStore.diarizationFeatureEnabled else {
+            return []
         }
 
         do {
@@ -3634,6 +3702,7 @@ final class AppCoordinator {
         text: String,
         vocabularyWords: [String]
     ) async -> StreamingSessionController.PostStopEnhanceOutcome? {
+        guard LocalOnlySecurityPolicy.allowsExternalAI else { return nil }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
         guard let assignment = settingsStore.resolveAssignment(for: .transcriptionEnhancement)
@@ -3756,7 +3825,7 @@ final class AppCoordinator {
             return
         }
 
-        guard Self.shouldPersistHistory(outputSucceeded: outcome.outputSucceeded, text: outcome.finalText) else {
+        guard Self.shouldPersistHistory(text: outcome.finalText) else {
             return
         }
 
@@ -3945,8 +4014,8 @@ final class AppCoordinator {
             routingSignal: capturedRoutingSignal,
             snapshot: capturedSnapshot
         )
-        let shouldUsePlaceholderMentions =
-            settingsStore.resolveAssignment(for: .transcriptionEnhancement) != nil
+        let shouldUsePlaceholderMentions = LocalOnlySecurityPolicy.allowsExternalAI
+            && settingsStore.resolveAssignment(for: .transcriptionEnhancement) != nil
         if let capabilities = capturedAdapterCapabilities,
            capabilities.supportsFileMentions {
             let resolvedMentionFormatting = settingsStore.resolveMentionFormatting(
@@ -4000,7 +4069,8 @@ final class AppCoordinator {
         var originalText: String? = nil
         var enhancedWithModel: String? = nil
 
-        if let transcriptionAssignment = settingsStore.resolveAssignment(
+        if LocalOnlySecurityPolicy.allowsExternalAI,
+           let transcriptionAssignment = settingsStore.resolveAssignment(
             for: .transcriptionEnhancement)
         {
             let enhancementStart = pipelineClock.now
@@ -4225,7 +4295,7 @@ final class AppCoordinator {
         if !outputSucceeded {
             try ensureOperationCurrent(token)
         }
-        guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: finalText) else { return }
+        guard Self.shouldPersistHistory(text: finalText) else { return }
 
         let speakerTrainingSegments = await speakerTrainingSegments(
             audioData: audioData,
@@ -4991,11 +5061,6 @@ final class AppCoordinator {
         Log.ui.info("Floating indicator hidden for one hour")
     }
 
-    private func handleReportIssue() {
-        guard let supportURL = URL(string: "https://github.com/watzon/pindrop/issues") else { return }
-        NSWorkspace.shared.open(supportURL)
-    }
-
     @discardableResult
     private func applyPreferredInputDeviceUID(_ uid: String) -> Bool {
         do {
@@ -5279,6 +5344,51 @@ final class AppCoordinator {
         }
     }
 
+    /// One-gesture meeting control used by the dedicated global shortcut.
+    /// It only stops a meeting it owns; it never turns an unrelated dictation
+    /// into a meeting or interrupts another processing job.
+    private func handleMeetingCaptureToggle() async {
+        if isRecording {
+            guard isRecordingFeatureCaptureActive else {
+                recordingState.message = localized(
+                    "Finish the active transcription before starting another one.",
+                    locale: settingsStore.selectedAppLocale.locale
+                )
+                return
+            }
+
+            do {
+                try await dispatchRecordingStop()
+            } catch {
+                self.error = error
+                audioRecorder.resetAudioEngine()
+                Log.app.error("Failed to stop meeting capture: \(error)")
+            }
+            return
+        }
+
+        guard !isProcessing else {
+            recordingState.message = localized(
+                "Finish the active transcription before starting another one.",
+                locale: settingsStore.selectedAppLocale.locale
+            )
+            return
+        }
+
+        do {
+            try await startManualTranscriptionRecording(
+                mode: .microphoneAndSystemAudio,
+                expectedSpeakerCount: nil
+            )
+        } catch {
+            self.error = error
+            audioRecorder.resetAudioEngine()
+            isRecordingFeatureCaptureActive = false
+            recordingState.endRecording(message: error.localizedDescription)
+            Log.app.error("Failed to start meeting capture: \(error)")
+        }
+    }
+
     private func startManualTranscriptionRecording(
         mode: AudioRecordingMode,
         expectedSpeakerCount: Int? = nil
@@ -5309,7 +5419,7 @@ final class AppCoordinator {
         isRecordingFeatureCaptureActive = true
         recordingStartTime = Date()
         recordingState.beginRecording(mode: mode, startedAt: recordingStartTime ?? Date())
-        statusBarController.setRecordingState()
+        statusBarController.setRecordingState(isMeetingCapture: true)
         statusBarController.updateMenuState()
         startRecordingIndicatorSession()
     }
@@ -5857,6 +5967,9 @@ final class AppCoordinator {
         from transcription: String,
         managedAsset: ManagedMediaAsset
     ) async -> (generatedTitle: String?, summary: String?) {
+        guard LocalOnlySecurityPolicy.allowsExternalAI else {
+            return (nil, nil)
+        }
         guard let assignment = settingsStore.resolveAssignment(for: .transcriptionMetadata) else {
             return (nil, nil)
         }
@@ -6007,7 +6120,7 @@ final class AppCoordinator {
             toastService.show(
                 ToastPayload(
                     message:
-                        "No AI provider configured for transcription enhancement. Open Pindrop Settings → AI Enhancement.",
+                        "No AI provider configured for transcription enhancement. Open Superduper Dictation Settings → AI Enhancement.",
                     style: .error
                 )
             )

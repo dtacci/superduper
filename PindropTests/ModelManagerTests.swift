@@ -28,8 +28,8 @@ struct ModelManagerTests {
         #expect(models.contains { $0.name == "openai_whisper-large-v2" })
         #expect(models.contains { $0.name == "distil-whisper_distil-large-v3" })
         #expect(models.contains { $0.name == "parakeet-tdt-0.6b-v2" })
-        #expect(models.contains { $0.name == "openai_gpt-4o-transcribe" && $0.provider == .openAI })
-        #expect(models.contains { $0.name == "openai_gpt-4o-mini-transcribe" && $0.provider == .openAI })
+        #expect(models.allSatisfy { $0.provider.isLocal })
+        #expect(models.contains { $0.name == SettingsStore.Defaults.selectedModel })
     }
 
 
@@ -75,9 +75,8 @@ struct ModelManagerTests {
         #expect(isDownloaded == true || isDownloaded == false)
     }
 
-    @Test func cloudModelsRequireNoLocalDownload() {
-        #expect(modelManager.isModelDownloaded("openai_gpt-4o-transcribe"))
-        #expect(modelManager.isModelDownloaded("openai_gpt-4o-mini-transcribe"))
+    @Test func cloudModelsAreNotExposed() {
+        #expect(!modelManager.availableModels.contains { !$0.provider.isLocal })
     }
 
     @Test func modelLookup() {

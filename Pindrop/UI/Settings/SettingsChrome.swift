@@ -454,12 +454,12 @@ extension SettingsLogExport {
         panel.canChooseDirectories = true
         panel.canCreateDirectories = true
         panel.prompt = localized("Export", locale: locale)
-        panel.message = localized("Choose a folder to copy Pindrop log files into.", locale: locale)
+        panel.message = localized("Choose a folder to copy Superduper Dictation log files into.", locale: locale)
         panel.begin { response in
             guard response == .OK, let destination = panel.url else { return }
             let logs = logFileURLs(in: Log.logsDirectoryURL)
             let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
-            let folder = destination.appendingPathComponent("Pindrop-Logs-\(stamp)", isDirectory: true)
+            let folder = destination.appendingPathComponent("Superduper-Dictation-Logs-\(stamp)", isDirectory: true)
             do {
                 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
                 for file in logs {

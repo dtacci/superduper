@@ -16,7 +16,7 @@ struct WelcomeStepView: View {
         VStack(spacing: 0) {
             medallion
 
-            Text(localized("Welcome to Pindrop", locale: locale))
+            Text(localized("Welcome to Superduper Dictation", locale: locale))
                 .font(OnboardingType.bigHeading)
                 .tracking(-0.8)
                 .foregroundStyle(AppColors.textPrimary)

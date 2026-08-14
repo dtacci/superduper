@@ -11,6 +11,7 @@ import Carbon
 /// Identifies a configurable global hotkey slot in Settings.
 enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
     case toggleRecording
+    case toggleMeetingCapture
     case pushToTalk
     case copyLastTranscript
     case quickCapturePTT
@@ -23,6 +24,8 @@ enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
         switch self {
         case .toggleRecording:
             return "Toggle Recording"
+        case .toggleMeetingCapture:
+            return "Toggle Meeting Capture"
         case .pushToTalk:
             return "Push-to-Talk"
         case .copyLastTranscript:
@@ -32,7 +35,7 @@ enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
         case .quickCaptureToggle:
             return "Note Capture — Toggle"
         case .openLibrary:
-            return "Open Library"
+            return "Open History"
         case .cancelOperation:
             return "Cancel Operation"
         }
@@ -43,6 +46,8 @@ enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
         switch self {
         case .toggleRecording:
             return "toggle-recording"
+        case .toggleMeetingCapture:
+            return "toggle-meeting-capture"
         case .pushToTalk:
             return "push-to-talk"
         case .copyLastTranscript:

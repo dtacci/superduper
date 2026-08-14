@@ -40,68 +40,13 @@ struct HotkeysSettingsView: View {
                 }
             ),
             (
-                .pushToTalk,
-                localized("Push to talk", locale: locale),
-                localized("Hold the shortcut to record, then release to transcribe.", locale: locale),
-                settings.pushToTalkHotkey,
+                .toggleMeetingCapture,
+                localized("Toggle meeting capture", locale: locale),
+                localized("Start or stop a meeting immediately with automatic speaker detection.", locale: locale),
+                settings.meetingHotkey,
                 {
-                    settings.updatePushToTalkHotkey("", keyCode: 0, modifiers: 0)
-                    lastConflictStatusBySlot[.pushToTalk] = nil
-                }
-            ),
-            (
-                .copyLastTranscript,
-                localized("Copy last transcript", locale: locale),
-                localized("Copy the most recent transcript to the clipboard.", locale: locale),
-                settings.copyLastTranscriptHotkey,
-                {
-                    settings.updateCopyLastTranscriptHotkey("", keyCode: 0, modifiers: 0)
-                    lastConflictStatusBySlot[.copyLastTranscript] = nil
-                }
-            ),
-            (
-                .openLibrary,
-                localized("Open Library", locale: locale),
-                localized("Show the main window and open the Library.", locale: locale),
-                settings.openLibraryHotkey,
-                {
-                    settings.updateOpenLibraryHotkey("", keyCode: 0, modifiers: 0)
-                    lastConflictStatusBySlot[.openLibrary] = nil
-                }
-            ),
-            (
-                .cancelOperation,
-                localized("Cancel Operation", locale: locale),
-                localized("Cancel the active recording, transcription, or enhancement.", locale: locale),
-                settings.cancelOperationHotkey,
-                {
-                    settings.updateCancelOperationHotkey("", keyCode: 0, modifiers: 0)
-                    lastConflictStatusBySlot[.cancelOperation] = nil
-                }
-            ),
-        ]
-    }
-
-    private var noteSlots: [(HotkeySlot, String, String, String, () -> Void)] {
-        [
-            (
-                .quickCapturePTT,
-                localized("Note Capture — Hold", locale: locale),
-                localized("Hold to record, then release to open the note editor with the transcription.", locale: locale),
-                settings.quickCapturePTTHotkey,
-                {
-                    settings.updateQuickCapturePTTHotkey("", keyCode: 0, modifiers: 0)
-                    lastConflictStatusBySlot[.quickCapturePTT] = nil
-                }
-            ),
-            (
-                .quickCaptureToggle,
-                localized("Note Capture — Toggle", locale: locale),
-                localized("Press once to start recording, then again to open the note editor.", locale: locale),
-                settings.quickCaptureToggleHotkey,
-                {
-                    settings.updateQuickCaptureToggleHotkey("", keyCode: 0, modifiers: 0)
-                    lastConflictStatusBySlot[.quickCaptureToggle] = nil
+                    settings.updateMeetingHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.toggleMeetingCapture] = nil
                 }
             ),
         ]
@@ -141,19 +86,6 @@ struct HotkeysSettingsView: View {
                         label: localized("Double-press Escape to cancel", locale: locale)
                     )
                         .accessibilityIdentifier("settings.toggle.cancelRequiresDoubleEscape")
-                }
-            }
-
-            SettingsGroupCard {
-                ForEach(Array(noteSlots.enumerated()), id: \.element.0) { index, item in
-                    hotkeyRow(
-                        slot: item.0,
-                        title: item.1,
-                        detail: item.2,
-                        hotkey: item.3,
-                        onClear: item.4,
-                        showSeparator: index < noteSlots.count - 1
-                    )
                 }
             }
         }
@@ -335,6 +267,8 @@ struct HotkeysSettingsView: View {
         switch slot {
         case .toggleRecording:
             settings.updateToggleHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
+        case .toggleMeetingCapture:
+            settings.updateMeetingHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
         case .pushToTalk:
             settings.updatePushToTalkHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
         case .copyLastTranscript:

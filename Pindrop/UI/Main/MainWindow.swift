@@ -16,13 +16,13 @@ enum MainNavItem: String, Identifiable {
     case stats = "Stats"
     case history = "History"
     case notes = "Notes"
-    /// Unrouted as of U2 — kept for API compatibility; navigation redirects to Library.
+    /// Unrouted as of U2 — kept for API compatibility; navigation redirects to History.
     case transcribe = "Transcribe"
     case models = "Models"
     case dictionary = "Dictionary"
 
     /// Primary sidebar destinations after U2 restructure.
-    /// Order: Home, Stats, Library, Notes, Dictionary, Models (⌘1–6).
+    /// Order: Home, Stats, History, Notes, Dictionary, Models (⌘1–6).
     static let primaryNavigationItems: [MainNavItem] = [
         .home,
         .stats,
@@ -51,7 +51,7 @@ enum MainNavItem: String, Identifiable {
     func title(locale: Locale) -> String {
         switch self {
         case .history:
-            return localized("Library", locale: locale)
+            return localized("History", locale: locale)
         default:
             return localized(rawValue, locale: locale)
         }
@@ -290,22 +290,46 @@ struct MainWindow: View {
 
 // MARK: - Meeting capture options
 
-/// Shared speaker-count picker for Dashboard and Library "Record Meeting…" flows.
+/// Shared speaker-count picker for Dashboard and History "Record Meeting…" flows.
 /// Start invokes the callback with `nil` (Automatic) or `1...20`; Cancel starts nothing.
 struct MeetingCaptureOptionsSheet: View {
     @Environment(\.locale) private var locale
     @Environment(\.dismiss) private var dismiss
 
+    let stopHotkey: String?
     let onStart: (Int?) -> Void
 
     /// `0` represents Automatic detection; `1...20` are exact speaker counts.
     @State private var selectedOption: Int = 0
+
+    init(stopHotkey: String? = nil, onStart: @escaping (Int?) -> Void) {
+        self.stopHotkey = stopHotkey
+        self.onStart = onStart
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(localized("Record Meeting…", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
+
+            HStack(spacing: 14) {
+                Label(localized("Local", locale: locale), systemImage: "lock.shield")
+                Label(localized("Speaker diarization", locale: locale), systemImage: "person.2.wave.2")
+                Label(meetingDurationLimitText, systemImage: "clock")
+            }
+            .font(AppTypography.caption)
+            .foregroundStyle(AppColors.textSecondary)
+
+            if let stopHotkey, !stopHotkey.isEmpty {
+                Label {
+                    Text("\(localized("Start/stop recording", locale: locale)): \(stopHotkey)")
+                } icon: {
+                    Image(systemName: "keyboard")
+                }
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
+            }
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(localized("Expected speakers", locale: locale))
@@ -343,6 +367,17 @@ struct MeetingCaptureOptionsSheet: View {
         .padding(24)
         .frame(minWidth: 360)
         .accessibilityIdentifier("meetingCaptureOptionsSheet")
+    }
+
+    private var meetingDurationLimitText: String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        formatter.maximumUnitCount = 2
+        let duration = formatter.string(
+            from: AudioRecordingLimits.maximumASRDuration
+        ) ?? "1 hr 30 min"
+        return "≤ \(duration)"
     }
 }
 
@@ -484,7 +519,7 @@ private struct MainSidebar: View {
     private var appHeader: some View {
         Group {
             if isExpanded {
-                Text("Pindrop")
+                Text("Superduper Dictation")
                     .font(AppTypography.wordmark)
                     .tracking(AppTypography.wordmarkTracking)
                     .foregroundStyle(AppColors.textPrimary)
@@ -796,7 +831,7 @@ final class MainWindowController {
                 defer: false
             )
             window.contentViewController = hostingController
-            window.title = "Pindrop"
+            window.title = "Superduper Dictation"
             window.identifier = Self.windowIdentifier
             window.titleVisibility = .hidden
             window.titlebarAppearsTransparent = true

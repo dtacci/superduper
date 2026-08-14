@@ -222,7 +222,7 @@ enum PindropThemePresetCatalog {
     /// Pindrop — amber signal on near-black grounds.
     static let pindrop = PindropThemePreset(
         id: "pindrop",
-        title: "Pindrop",
+        title: "Superduper Dictation",
         summary: "Dark precision surfaces with an amber signal accent.",
         badgeText: "Pd",
         badgeBackgroundHex: "#141417",

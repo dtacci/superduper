@@ -271,7 +271,8 @@ final class SettingsStore: ObservableObject {
    // MARK: - Default Values (Single Source of Truth)
 
     enum Defaults {
-       static let selectedModel = "openai_whisper-base"
+       /// Best quality/latency default for Apple Silicon Macs with 16 GB+ RAM.
+       static let selectedModel = "openai_whisper-large-v3-v20240930_626MB"
         // "directInsert" (paste at cursor) has been the observed behavior of BOTH
         // modes since character-typing was removed; the default flipped from
         // "clipboard" when clipboard mode became truly copy-only (see
@@ -283,7 +284,7 @@ final class SettingsStore: ObservableObject {
       static let lightThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let darkThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let sidebarPosition = SidebarPosition.trailing.rawValue
-      static let dictationAudioRetention = DictationAudioRetention.days7.rawValue
+      static let dictationAudioRetention = DictationAudioRetention.off.rawValue
       static let automaticDictionaryLearningEnabled = true
       static let programmaticFormattingEnabled = false
 
@@ -319,17 +320,21 @@ final class SettingsStore: ObservableObject {
          static let toggleHotkeyCode = 49
          static let toggleHotkeyModifiers = 0x800
 
-         static let pushToTalkHotkey = "⌘/"
-         static let pushToTalkHotkeyCode = 44
-         static let pushToTalkHotkeyModifiers = 0x100
+         static let meetingHotkey = "⌥⇧Space"
+         static let meetingHotkeyCode = 49
+         static let meetingHotkeyModifiers = 0xA00
 
-         static let copyLastTranscriptHotkey = "⇧⌘C"
-         static let copyLastTranscriptHotkeyCode = 8
-         static let copyLastTranscriptHotkeyModifiers = 0x300
+         static let pushToTalkHotkey = ""
+         static let pushToTalkHotkeyCode = 0
+         static let pushToTalkHotkeyModifiers = 0
 
-         static let quickCapturePTTHotkey = "⇧⌥Space"
-         static let quickCapturePTTHotkeyCode = 49
-         static let quickCapturePTTHotkeyModifiers = 0xA00  // Shift + Option
+         static let copyLastTranscriptHotkey = ""
+         static let copyLastTranscriptHotkeyCode = 0
+         static let copyLastTranscriptHotkeyModifiers = 0
+
+         static let quickCapturePTTHotkey = ""
+         static let quickCapturePTTHotkeyCode = 0
+         static let quickCapturePTTHotkeyModifiers = 0
 
          static let quickCaptureToggleHotkey = ""
          static let quickCaptureToggleHotkeyCode = 0
@@ -359,6 +364,12 @@ final class SettingsStore: ObservableObject {
    var toggleHotkeyCode: Int = Defaults.Hotkeys.toggleHotkeyCode
    @AppStorage("toggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
    var toggleHotkeyModifiers: Int = Defaults.Hotkeys.toggleHotkeyModifiers
+   @AppStorage("meetingHotkey", store: SettingsStoreRuntime.appStorageStore)
+   var meetingHotkey: String = Defaults.Hotkeys.meetingHotkey
+   @AppStorage("meetingHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
+   var meetingHotkeyCode: Int = Defaults.Hotkeys.meetingHotkeyCode
+   @AppStorage("meetingHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+   var meetingHotkeyModifiers: Int = Defaults.Hotkeys.meetingHotkeyModifiers
    @AppStorage("pushToTalkHotkey", store: SettingsStoreRuntime.appStorageStore)
    var pushToTalkHotkey: String = Defaults.Hotkeys.pushToTalkHotkey
    @AppStorage("pushToTalkHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
@@ -688,9 +699,11 @@ final class SettingsStore: ObservableObject {
     /// True when the current host can run Apple SpeechTranscriber. Checked synchronously;
     /// deeper locale/asset checks happen at engine load time.
     static var appleSpeechTranscriberAvailable: Bool {
+#if compiler(>=6.2)
        if #available(macOS 26, *) {
           return Speech.SpeechTranscriber.isAvailable
        }
+#endif
        return false
     }
 
@@ -699,9 +712,9 @@ final class SettingsStore: ObservableObject {
        set { sidebarPosition = newValue.rawValue }
     }
 
-    /// How long dictation audio files are kept. Default is `.days7`.
+    /// How long dictation audio files are kept. Audio retention is opt-in.
     var dictationAudioRetention: DictationAudioRetention {
-       get { DictationAudioRetention(rawValue: dictationAudioRetentionRawValue) ?? .days7 }
+       get { DictationAudioRetention(rawValue: dictationAudioRetentionRawValue) ?? .off }
        set { dictationAudioRetentionRawValue = newValue.rawValue }
     }
 
@@ -1140,6 +1153,9 @@ final class SettingsStore: ObservableObject {
       toggleHotkey = Defaults.Hotkeys.toggleHotkey
       toggleHotkeyCode = Defaults.Hotkeys.toggleHotkeyCode
       toggleHotkeyModifiers = Defaults.Hotkeys.toggleHotkeyModifiers
+      meetingHotkey = Defaults.Hotkeys.meetingHotkey
+      meetingHotkeyCode = Defaults.Hotkeys.meetingHotkeyCode
+      meetingHotkeyModifiers = Defaults.Hotkeys.meetingHotkeyModifiers
       pushToTalkHotkey = Defaults.Hotkeys.pushToTalkHotkey
       pushToTalkHotkeyCode = Defaults.Hotkeys.pushToTalkHotkeyCode
       pushToTalkHotkeyModifiers = Defaults.Hotkeys.pushToTalkHotkeyModifiers
@@ -1253,6 +1269,14 @@ final class SettingsStore: ObservableObject {
       }
    }
 
+   func updateMeetingHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+      performHotkeyUpdate {
+         meetingHotkey = hotkey
+         meetingHotkeyCode = keyCode
+         meetingHotkeyModifiers = modifiers
+      }
+   }
+
    func updatePushToTalkHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
       performHotkeyUpdate {
          pushToTalkHotkey = hotkey
@@ -1308,6 +1332,11 @@ final class SettingsStore: ObservableObject {
          let keyCode = UInt32(exactly: toggleHotkeyCode),
          let modifiers = UInt32(exactly: toggleHotkeyModifiers) {
          assignments.append(HotkeyAssignment(slot: .toggleRecording, keyCode: keyCode, modifiers: modifiers))
+      }
+      if !meetingHotkey.isEmpty,
+         let keyCode = UInt32(exactly: meetingHotkeyCode),
+         let modifiers = UInt32(exactly: meetingHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .toggleMeetingCapture, keyCode: keyCode, modifiers: modifiers))
       }
       if !pushToTalkHotkey.isEmpty,
          let keyCode = UInt32(exactly: pushToTalkHotkeyCode),

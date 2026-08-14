@@ -15,6 +15,24 @@ struct MediaIngestionServiceTests {
     private let fakeYTDLPPath = "/tmp/pindrop-test-yt-dlp"
     private let fakeFFmpegPath = "/tmp/pindrop-test-ffmpeg"
 
+    @Test func testWebLinkPolicyRequiresPublicHTTPS() throws {
+        #expect(try MediaLinkSecurityPolicy.validatedURL(from: "https://example.com/video").host == "example.com")
+
+        for blocked in [
+            "http://example.com/video",
+            "https://localhost/video",
+            "https://127.0.0.1/video",
+            "https://192.168.1.20/video",
+            "https://[::1]/video",
+            "https://user:password@example.com/video",
+            "https://example.com:8443/video"
+        ] {
+            #expect(throws: MediaIngestionError.self) {
+                _ = try MediaLinkSecurityPolicy.validatedURL(from: blocked)
+            }
+        }
+    }
+
     @Test func testDirectDownloadDelegateRetainsImmediateSuccess() async throws {
         let sourceURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -436,18 +454,23 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
         case .metadata(let url, let result):
             #expect(executableURL.path == expectedYTDLPPath)
             #expect(arguments == [
+                "--ignore-config",
                 "--dump-single-json",
                 "--no-playlist",
                 "--ffmpeg-location", URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path,
                 url
             ])
             #expect(environment?["PATH"]?.contains(URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path) == true)
+            #expect(environment?["YTDLP_NO_PLUGINS"] == "1")
+            #expect(environment?["PYTHONNOUSERSITE"] == "1")
             return result
 
         case .download(let url, let strategy, let result, let emittedLines):
             #expect(executableURL.path == expectedYTDLPPath)
             #expect(arguments == expectedDownloadArguments(for: url, strategy: strategy))
             #expect(environment?["PATH"]?.contains(URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path) == true)
+            #expect(environment?["YTDLP_NO_PLUGINS"] == "1")
+            #expect(environment?["PYTHONNOUSERSITE"] == "1")
             emittedLines.forEach { lineHandler?($0) }
             return result
         }
@@ -460,6 +483,7 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
         case .metadata(let url, _):
             return executableURL.path == expectedYTDLPPath
                 && arguments == [
+                    "--ignore-config",
                     "--dump-single-json",
                     "--no-playlist",
                     "--ffmpeg-location", URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path,
@@ -477,9 +501,11 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
         switch strategy {
         case .standard:
             return [
+                "--ignore-config",
                 "--no-playlist",
                 "--newline",
                 "--progress",
+                "--max-filesize", "2G",
                 "--format", "bestvideo*+bestaudio/best",
                 "--merge-output-format", "mp4",
                 "--ffmpeg-location", ffmpegDirectory,
@@ -490,9 +516,11 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
             ]
         case .youtubeCompatibility:
             return [
+                "--ignore-config",
                 "--no-playlist",
                 "--newline",
                 "--progress",
+                "--max-filesize", "2G",
                 "--extractor-args", "youtube:player_client=default,-web,-web_safari,-web_creator",
                 "--format", "best[ext=mp4]/best",
                 "--ffmpeg-location", ffmpegDirectory,

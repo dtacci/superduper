@@ -549,20 +549,29 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     private func makeContextMenu() -> NSMenu {
         let locale = settingsStore.selectedAppLocale.locale
-        let menu = NSMenu(title: localized("Pindrop Orb", locale: locale))
+        let menu = NSMenu(title: localized("Superduper Dictation Orb", locale: locale))
         menu.delegate = self
 
         // No Size submenu: U10 locked the orb to the spec's fixed state sizes, so the
         // old Small/Medium/Large picker no longer changes anything.
         let items: [(String, Selector)] = [
             (localized("Hide this for 1 hour",   locale: locale), #selector(handleHideForOneHourMenuItem)),
-            (localized("Report an issue",         locale: locale), #selector(handleReportIssueMenuItem)),
             (localized("Go to settings",          locale: locale), #selector(handleGoToSettingsMenuItem)),
         ]
         for (title, action) in items {
             let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
             item.target = self
             menu.addItem(item)
+        }
+
+        if actions.onReportIssue != nil {
+            let item = NSMenuItem(
+                title: localized("Report an issue", locale: locale),
+                action: #selector(handleReportIssueMenuItem),
+                keyEquivalent: ""
+            )
+            item.target = self
+            menu.insertItem(item, at: 1)
         }
 
         menu.addItem(.separator())
@@ -1446,7 +1455,7 @@ struct OrbIndicatorView: View {
         .buttonStyle(.plain)
         .contentShape(Circle())
         .onHover { controller.setPointerCursorActive($0) }
-        .accessibilityLabel(localized("Pindrop Orb", locale: locale))
+        .accessibilityLabel(localized("Superduper Dictation Orb", locale: locale))
         .accessibilityValue(
             localized(
                 state.isInputMuted

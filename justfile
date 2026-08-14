@@ -75,10 +75,11 @@ build-release-unsigned:
     @just _build Release no
     @echo "✅ Unsigned release build complete"
 
-# Legacy fallback when no Apple signing identity is available
+# Local fallback when no Apple Developer identity is available. The persistent
+# local certificate keeps the app's TCC/Accessibility identity stable across builds.
 build-self-signed: build-release-unsigned
     @echo "🔏 Re-signing with explicit nested order (required for macOS TCC permissions)..."
-    ./scripts/sign-app-bundle.sh {{app_bundle}} -
+    ./scripts/sign-app-bundle.sh {{app_bundle}} local
     @echo "✅ Self-signed build complete"
 
 # Self-signed DMG (no developer account needed)
@@ -198,7 +199,11 @@ staple dmg_path:
 # Manual GitHub release workflow
 # Usage: just release 1.9.0
 # Runs locally: tests -> signed DMG -> notarize/staple -> appcast -> release notes -> tag -> push tag -> gh release create
-release version:
+_public-release-disabled:
+    @echo "❌ Public release automation is disabled until this fork has owner-specific signing, notarization, and repository configuration."
+    @exit 1
+
+release version: _public-release-disabled
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -398,7 +403,7 @@ release version:
 # pindrop-website repo, commits just that file, and pushes so Vercel redeploys.
 # Website location defaults to ../pindrop-website; override with PINDROP_WEBSITE_DIR.
 # Usage: just sync-website-changelog 1.22.0
-sync-website-changelog version:
+sync-website-changelog version: _public-release-disabled
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -539,7 +544,7 @@ release-notes-html version:
 
 # Generate appcast.xml for Sparkle updates
 # Usage: just appcast dist/Pindrop.dmg
-appcast dmg_path:
+appcast dmg_path: _public-release-disabled
     @echo "📡 Generating appcast.xml..."
     @if [ ! -f "{{dmg_path}}" ]; then \
         echo "❌ DMG not found: {{dmg_path}}"; \

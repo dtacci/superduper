@@ -12,6 +12,32 @@ import Testing
 @Suite
 struct SettingsPresentationTests {
 
+    @Test func settingsWindowRepairsInheritedUndersizedFrame() {
+        let repaired = SettingsWindowSizing.contentSize(
+            restoredSize: CGSize(width: 506, height: 435)
+        )
+        #expect(repaired.width == SettingsLayoutMetrics.windowWidth)
+        #expect(repaired.height == SettingsLayoutMetrics.defaultHeight)
+    }
+
+    @Test func settingsWindowPreservesValidCustomHeight() {
+        let repaired = SettingsWindowSizing.contentSize(
+            restoredSize: CGSize(width: SettingsLayoutMetrics.windowWidth, height: 720)
+        )
+        #expect(repaired == CGSize(width: SettingsLayoutMetrics.windowWidth, height: 720))
+    }
+
+    @Test func meetingBatchCaptureLimitIsExplicitlyNinetyMinutes() {
+        #expect(AudioRecordingLimits.maximumASRDuration == 90 * 60)
+        #expect(AudioRecordingLimits.maximumASRByteCount == 345_600_000)
+    }
+
+    @Test func publicSettingsDoNotExposeNetworkAutomation() {
+        #expect(!SettingsTab.allCases.contains(where: { $0.rawValue == "advanced" }))
+        #expect(!LocalOnlySecurityPolicy.allowsMCPServer)
+        #expect(!LocalOnlySecurityPolicy.allowsExternalAI)
+    }
+
     // MARK: - Retention picker labels
 
     @Test func retentionPickerOrderIsOff7_30Forever() {
@@ -245,13 +271,13 @@ struct SettingsPresentationTests {
 @Suite
 struct OnboardingPresentationTests {
     @Test func progressHasOneDotPerStepIncludingDownload() {
-        #expect(OnboardingProgressPresentation.dotCount == 7)
-        #expect(OnboardingStep.allCases.count == 7)
+        #expect(OnboardingProgressPresentation.dotCount == 6)
+        #expect(OnboardingStep.allCases.count == 6)
     }
 
     @Test func progressActiveIndexMapsEveryStepInOrder() {
         let indices = OnboardingStep.allCases.map(OnboardingProgressPresentation.activeIndex)
-        #expect(indices == [0, 1, 2, 3, 4, 5, 6])
+        #expect(indices == [0, 1, 2, 3, 4, 5])
         #expect(OnboardingProgressPresentation.activeIndex(for: .modelSelection) == 1)
         #expect(OnboardingProgressPresentation.activeIndex(for: .modelDownload) == 2)
     }
@@ -265,5 +291,12 @@ struct OnboardingPresentationTests {
             OnboardingModelSelectionRouting.destination(modelIsDownloaded: false)
                 == .modelDownload
         )
+    }
+}
+
+@Suite
+struct LocalOnlySettingsPresentationTests {
+    @Test func cloudAISettingsAreNotExposed() {
+        #expect(!SettingsTab.allCases.map(\.rawValue).contains("ai"))
     }
 }

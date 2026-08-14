@@ -4,14 +4,11 @@
 //
 //  Created on 2026-07-14.
 //
-//  Opt-in, anonymous telemetry built on TelemetryDeck. Signals are sent only when
-//  the user has explicitly enabled telemetry (Settings → Privacy), a TelemetryDeck
-//  app ID is configured, and the app is not running under tests. The SDK's default
-//  anonymous, salted install identifier is used — `customUserID` is never set.
+//  Telemetry compatibility seam retained from upstream. This fork ships without a
+//  telemetry SDK or app identifier, so the production sink never sends data.
 //
 
 import Foundation
-import TelemetryDeck
 
 @MainActor
 protocol TelemetrySink: AnyObject {
@@ -19,31 +16,21 @@ protocol TelemetrySink: AnyObject {
     func send(_ signalName: String, parameters: [String: String])
 }
 
-/// Production sink backed by the TelemetryDeck SDK. The SDK batches signals,
-/// persists its queue to disk, and flushes when the network is available, so no
-/// custom retry or queueing lives on our side.
 @MainActor
 final class LiveTelemetrySink: TelemetrySink {
-    func initialize(appID: String) {
-        TelemetryDeck.initialize(config: .init(appID: appID))
-    }
+    func initialize(appID _: String) {}
 
-    func send(_ signalName: String, parameters: [String: String]) {
-        TelemetryDeck.signal(signalName, parameters: parameters)
-    }
+    func send(_: String, parameters _: [String: String]) {}
 }
 
 @MainActor
 final class TelemetryService {
-    /// Public TelemetryDeck app identifier. Not a secret — it only routes signals to
-    /// the Pindrop dashboard. When empty (forks, local builds without a TelemetryDeck
-    /// app), telemetry is fully disabled and the consent prompt never shows.
-    static let telemetryDeckAppID = "21D3C582-D7C2-47A5-9598-E5DEC62ADFF0"
+    /// Deliberately empty in the local-only build. Telemetry is therefore disabled
+    /// before a sink can initialize and the consent prompt never appears.
+    nonisolated static let telemetryDeckAppID = ""
 
-    /// Fraction of `transcription.succeeded` signals that are sent. Failure signals
-    /// are never sampled. Lower this if the TelemetryDeck free-tier signal cap
-    /// (50k/month) comes into view.
-    static let successSampleRate: Double = 1.0
+    /// Retained for compatibility with the upstream coordinator and unit tests.
+    nonisolated static let successSampleRate: Double = 1.0
 
     private let settingsStore: SettingsStore
     private let sink: TelemetrySink

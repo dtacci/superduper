@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import Carbon
 import SwiftUI
 import os.log
 
@@ -28,6 +29,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     private var recordingStatusItem: NSMenuItem?
     private var toggleRecordingItem: NSMenuItem?
+    private var toggleMeetingCaptureItem: NSMenuItem?
     private var clearAudioBufferItem: NSMenuItem?
     private var cancelOperationItem: NSMenuItem?
     private var contextualItemsInserted = false
@@ -48,6 +50,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     // MARK: - Callbacks
 
     var onToggleRecording: (() async -> Void)?
+    var onToggleMeetingCapture: (() async -> Void)?
     var onShowApp: (() -> Void)?
     var onCopyLastTranscript: (() async -> Void)?
     var onPasteLastTranscript: (() async -> Void)?
@@ -79,6 +82,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             updateMenuState()
         }
     }
+    private var isMeetingCaptureActive = false
 
     init(audioRecorder: AudioRecorder, settingsStore: SettingsStore) {
         self.audioRecorder = audioRecorder
@@ -165,7 +169,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         button.image = getBaseIcon()
         button.image?.isTemplate = true
 
-        button.toolTip = "Pindrop"
+        button.toolTip = "Superduper Dictation"
     }
 
     private func setupMenu() {
@@ -187,6 +191,20 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         toggleRecordingItem?.target = self
         toggleRecordingItem?.image = NSImage(systemSymbolName: "record.circle", accessibilityDescription: nil)
         menu.addItem(toggleRecordingItem!)
+
+        // === START/STOP MEETING ===
+        toggleMeetingCaptureItem = NSMenuItem(
+            title: localized("Record Meeting", locale: locale),
+            action: #selector(toggleMeetingCapture),
+            keyEquivalent: ""
+        )
+        toggleMeetingCaptureItem?.target = self
+        toggleMeetingCaptureItem?.image = NSImage(
+            systemSymbolName: "person.2.fill",
+            accessibilityDescription: nil
+        )
+        configureMeetingShortcutDisplay()
+        menu.addItem(toggleMeetingCaptureItem!)
 
         // Contextual items (Clear Audio Buffer / Cancel Operation) are created here but only
         // inserted into the menu while recording/processing — see updateMenuState().
@@ -260,14 +278,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             systemSymbolName: "text.bubble",
             accessibilityDescription: nil
         )
-        menu.addItem(promptPresetMenuItem!)
         rebuildPromptPresetMenu()
 
         menu.addItem(NSMenuItem.separator())
 
         // === OPEN HISTORY / SHOW APP ===
         openHistoryItem = NSMenuItem(
-            title: localized("Open Library", locale: locale),
+            title: localized("History", locale: locale),
             action: #selector(openHistory),
             keyEquivalent: ""
         )
@@ -296,7 +313,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(settingsItem)
 
         let quitItem = NSMenuItem(
-            title: localized("Quit Pindrop", locale: locale),
+            title: localized("Quit Superduper Dictation", locale: locale),
             action: #selector(quit),
             keyEquivalent: "q"
         )
@@ -310,18 +327,18 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     /// Inserts the contextual "Clear Audio Buffer" / "Cancel Operation" rows directly
-    /// after the Start/Stop Recording row. No-ops if already inserted.
+    /// after the recording controls. No-ops if already inserted.
     private func insertContextualItemsIfNeeded() {
         guard !contextualItemsInserted,
-              let toggleRecordingItem,
+              let toggleMeetingCaptureItem,
               let clearAudioBufferItem,
               let cancelOperationItem else { return }
 
-        let toggleIndex = menu.index(of: toggleRecordingItem)
-        guard toggleIndex >= 0 else { return }
+        let meetingIndex = menu.index(of: toggleMeetingCaptureItem)
+        guard meetingIndex >= 0 else { return }
 
-        menu.insertItem(clearAudioBufferItem, at: toggleIndex + 1)
-        menu.insertItem(cancelOperationItem, at: toggleIndex + 2)
+        menu.insertItem(clearAudioBufferItem, at: meetingIndex + 1)
+        menu.insertItem(cancelOperationItem, at: meetingIndex + 2)
         contextualItemsInserted = true
     }
 
@@ -432,6 +449,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     func updateDynamicItems() {
         updateStatusRow()
         updatePromptPresetItems()
+        configureMeetingShortcutDisplay()
     }
 
     private func startInputDeviceCacheObservation() {
@@ -496,23 +514,85 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     func updateMenuState() {
         switch currentState {
         case .recording:
-            toggleRecordingItem?.title = localized("Stop Recording", locale: locale)
-            toggleRecordingItem?.isEnabled = true
+            if isMeetingCaptureActive {
+                toggleRecordingItem?.title = localized("Start Recording", locale: locale)
+                toggleRecordingItem?.isEnabled = false
+                toggleMeetingCaptureItem?.title = localized("Stop Meeting", locale: locale)
+                toggleMeetingCaptureItem?.isEnabled = true
+            } else {
+                toggleRecordingItem?.title = localized("Stop Recording", locale: locale)
+                toggleRecordingItem?.isEnabled = true
+                toggleMeetingCaptureItem?.title = localized("Record Meeting", locale: locale)
+                toggleMeetingCaptureItem?.isEnabled = false
+            }
             insertContextualItemsIfNeeded()
             clearAudioBufferItem?.isEnabled = true
             cancelOperationItem?.isEnabled = true
         case .processing:
             toggleRecordingItem?.title = localized("Processing...", locale: locale)
             toggleRecordingItem?.isEnabled = false
+            toggleMeetingCaptureItem?.title = localized("Record Meeting", locale: locale)
+            toggleMeetingCaptureItem?.isEnabled = false
             insertContextualItemsIfNeeded()
             clearAudioBufferItem?.isEnabled = false
             cancelOperationItem?.isEnabled = true
         case .idle:
             toggleRecordingItem?.title = localized("Start Recording", locale: locale)
             toggleRecordingItem?.isEnabled = true
+            toggleMeetingCaptureItem?.title = localized("Record Meeting", locale: locale)
+            toggleMeetingCaptureItem?.isEnabled = true
             removeContextualItemsIfNeeded()
         }
         updateStatusRow()
+    }
+
+    private func configureMeetingShortcutDisplay() {
+        guard let toggleMeetingCaptureItem else { return }
+
+        let configuredHotkey = settingsStore.meetingHotkey
+        guard !configuredHotkey.isEmpty,
+              let keyEquivalent = menuKeyEquivalent(from: configuredHotkey) else {
+            toggleMeetingCaptureItem.keyEquivalent = ""
+            toggleMeetingCaptureItem.keyEquivalentModifierMask = []
+            return
+        }
+
+        toggleMeetingCaptureItem.keyEquivalent = keyEquivalent
+        toggleMeetingCaptureItem.keyEquivalentModifierMask = menuModifierMask(
+            fromCarbonModifiers: settingsStore.meetingHotkeyModifiers
+        )
+    }
+
+    private func menuModifierMask(fromCarbonModifiers modifiers: Int) -> NSEvent.ModifierFlags {
+        var mask: NSEvent.ModifierFlags = []
+        if modifiers & Int(cmdKey) != 0 { mask.insert(.command) }
+        if modifiers & Int(optionKey) != 0 { mask.insert(.option) }
+        if modifiers & Int(controlKey) != 0 { mask.insert(.control) }
+        if modifiers & Int(shiftKey) != 0 { mask.insert(.shift) }
+        if modifiers & Int(kEventKeyModifierFnMask) != 0 { mask.insert(.function) }
+        return mask
+    }
+
+    private func menuKeyEquivalent(from displayString: String) -> String? {
+        var key = displayString
+        for token in ["⌘", "⌥", "⌃", "⇧", "fn"] {
+            key = key.replacingOccurrences(of: token, with: "")
+        }
+
+        switch key {
+        case "Space": return " "
+        case "↩": return "\r"
+        case "⇥": return "\t"
+        case "⌫": return "\u{8}"
+        case "⎋": return "\u{1B}"
+        case "←": return String(UnicodeScalar(NSLeftArrowFunctionKey)!)
+        case "→": return String(UnicodeScalar(NSRightArrowFunctionKey)!)
+        case "↓": return String(UnicodeScalar(NSDownArrowFunctionKey)!)
+        case "↑": return String(UnicodeScalar(NSUpArrowFunctionKey)!)
+        default:
+            guard key.count == 1 else { return nil }
+            return key.lowercased()
+        }
     }
 
     // MARK: - Actions
@@ -520,6 +600,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     @objc private func toggleRecording() {
         Task {
             await onToggleRecording?()
+        }
+    }
+
+    @objc private func toggleMeetingCapture() {
+        Task {
+            await onToggleMeetingCapture?()
         }
     }
 
@@ -600,7 +686,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
 
         guard let customIcon = NSImage(named: "PindropIcon") else {
-            return NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
+            return NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Superduper Dictation")
         }
 
         let targetSize: CGFloat = 18
@@ -731,16 +817,27 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         button.layer?.removeAllAnimations()
     }
 
-    func setRecordingState() {
+    func setRecordingState(isMeetingCapture: Bool = false) {
+        isMeetingCaptureActive = isMeetingCapture
         currentState = .recording
     }
 
     func setProcessingState() {
+        isMeetingCaptureActive = false
         currentState = .processing
     }
 
     func setIdleState() {
+        isMeetingCaptureActive = false
         currentState = .idle
+    }
+
+    func meetingCaptureMenuItemForTesting() -> NSMenuItem? {
+        toggleMeetingCaptureItem
+    }
+
+    func recordingMenuItemForTesting() -> NSMenuItem? {
+        toggleRecordingItem
     }
 
     func showWelcomePopover() {

@@ -19,6 +19,7 @@ import AVFoundation
 import Foundation
 import Speech
 
+#if compiler(>=6.2)
 @available(macOS 26, *)
 @MainActor
 public final class AppleSpeechTranscriberEngine: StreamingTranscriptionEngine {
@@ -289,3 +290,62 @@ public final class AppleSpeechTranscriberEngine: StreamingTranscriptionEngine {
       state = .error
    }
 }
+#else
+// SpeechAnalyzer and SpeechTranscriber were added to the macOS 26 SDK. Keep the
+// backend's type available when building with Xcode 16 so the rest of the app can
+// compile for macOS 14/15; TranscriptionService only constructs it on macOS 26.
+@available(macOS 26, *)
+@MainActor
+public final class AppleSpeechTranscriberEngine: StreamingTranscriptionEngine {
+   public enum EngineError: Error, LocalizedError {
+      case notSupportedOnThisPlatform
+
+      public var errorDescription: String? {
+         "Apple SpeechTranscriber requires a macOS 26 SDK build."
+      }
+   }
+
+   public private(set) var state: StreamingTranscriptionState = .unloaded
+
+   public init(locale _: Locale = Locale(identifier: "en-US")) {}
+
+   public func loadModel(name _: String) async throws {
+      state = .error
+      throw EngineError.notSupportedOnThisPlatform
+   }
+
+   public func unloadModel() async {
+      state = .unloaded
+   }
+
+   public func startStreaming() async throws {
+      throw EngineError.notSupportedOnThisPlatform
+   }
+
+   public func stopStreaming() async throws -> String {
+      throw EngineError.notSupportedOnThisPlatform
+   }
+
+   public func pauseStreaming() async {}
+
+   public func resumeStreaming() async throws {
+      throw EngineError.notSupportedOnThisPlatform
+   }
+
+   public func processAudioChunk(_: [Float]) async throws {
+      throw EngineError.notSupportedOnThisPlatform
+   }
+
+   public func processAudioBuffer(_: AVAudioPCMBuffer) async throws {
+      throw EngineError.notSupportedOnThisPlatform
+   }
+
+   public func setTranscriptionCallback(_: @escaping StreamingTranscriptionCallback) {}
+
+   public func setEndOfUtteranceCallback(_: @escaping EndOfUtteranceCallback) {}
+
+   public func reset() async {
+      state = .unloaded
+   }
+}
+#endif

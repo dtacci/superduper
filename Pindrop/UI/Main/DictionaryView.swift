@@ -420,7 +420,7 @@ struct DictionaryView: View {
     private var headerSection: some View {
         PageHeader(
             title: localized("Dictionary", locale: locale),
-            meta: localized("Teach Pindrop your words", locale: locale)
+            meta: localized("Teach Superduper Dictation your words", locale: locale)
         ) {
             addEntryControl
         }

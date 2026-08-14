@@ -2015,7 +2015,7 @@ class TranscriptionService {
 
     private func getDownloadBase() -> URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("Pindrop", isDirectory: true)
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
     }
 
     private nonisolated static func modelLoadTimeoutError(after timeoutSeconds: TimeInterval) -> TranscriptionError {

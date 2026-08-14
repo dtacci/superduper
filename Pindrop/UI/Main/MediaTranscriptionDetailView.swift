@@ -226,7 +226,7 @@ struct MediaTranscriptionDetailView: View {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 12, weight: .semibold))
                     .flipsForRightToLeftLayoutDirection(true)
-                Text(localized("Library", locale: locale))
+                Text(localized("History", locale: locale))
                     .font(AppTypography.label)
             }
             .foregroundStyle(AppColors.textSecondary)

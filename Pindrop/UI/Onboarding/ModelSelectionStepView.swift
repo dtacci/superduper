@@ -36,7 +36,13 @@ struct ModelSelectionStepView: View {
                 .tracking(-0.42)
                 .foregroundStyle(AppColors.textPrimary)
 
-            Text(localized("Smaller models are faster but less accurate.\nStart with Base for the best balance.", locale: locale))
+            Text(
+                localized(
+                    "Smaller models are faster but less accurate.\nStart with Base for the best balance.",
+                    locale: locale
+                )
+                .replacingOccurrences(of: "Base", with: "Large v3")
+            )
                 .font(OnboardingType.stepSubtitle)
                 .lineSpacing(3)
                 .foregroundStyle(AppColors.textSecondary)
@@ -169,7 +175,7 @@ struct ModelCard: View {
 
 #if DEBUG
 struct ModelSelectionStepView_Previews: PreviewProvider {
-    @State private static var selectedModelName = "openai_whisper-base.en"
+    @State private static var selectedModelName = SettingsStore.Defaults.selectedModel
 
     static var previews: some View {
         ModelSelectionStepView(

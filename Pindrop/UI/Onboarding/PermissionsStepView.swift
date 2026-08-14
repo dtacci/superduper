@@ -60,7 +60,7 @@ struct PermissionsStepView: View {
                 .tracking(-0.42)
                 .foregroundStyle(AppColors.textPrimary)
 
-            Text(localized("Pindrop needs a few permissions to work.\nYour privacy is always respected.", locale: locale))
+            Text(localized("Superduper Dictation needs a few permissions to work.\nYour privacy is always respected.", locale: locale))
                 .font(OnboardingType.stepSubtitle)
                 .lineSpacing(3)
                 .foregroundStyle(AppColors.textSecondary)
@@ -143,7 +143,7 @@ struct PermissionsStepView: View {
 
     private var continueSection: some View {
         VStack(spacing: 0) {
-            Text(localized("Without Accessibility, Pindrop copies text to the clipboard instead.", locale: locale))
+            Text(localized("Without Accessibility, Superduper Dictation copies text to the clipboard instead.", locale: locale))
                 .font(AppTypography.captionLarge)
                 .foregroundStyle(AppColors.textTertiary)
                 .padding(.top, 22)
