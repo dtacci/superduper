@@ -12,6 +12,7 @@ set -euo pipefail
 
 APP_BUNDLE="${1:-}"
 SIGN_IDENTITY="${2:--}"
+REQUESTED_SIGNING_MODE="${SIGN_IDENTITY}"
 SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(dirname "${SCRIPT_DIRECTORY}")"
 APP_ENTITLEMENTS="${REPOSITORY_ROOT}/Pindrop/Pindrop.entitlements"
@@ -24,9 +25,10 @@ if [ "${SIGN_IDENTITY}" = "local" ]; then
     } | awk -F': ' '/SHA-1 hash:/{print $2; exit}')"
 
     if [ -z "${SIGN_IDENTITY}" ]; then
-        echo "⚠️  Persistent local signing certificate not found; falling back to ad-hoc signing."
-        echo "⚠️  Accessibility permission may need to be granted again after every rebuild."
-        SIGN_IDENTITY="-"
+        echo "❌ Persistent local signing certificate not found: ${LOCAL_CERTIFICATE_NAME}"
+        echo "   Refusing to create an ad-hoc build because it would invalidate"
+        echo "   Accessibility permission after rebuilds."
+        exit 1
     else
         echo "🔐 Using persistent local signing certificate: ${LOCAL_CERTIFICATE_NAME}"
     fi
@@ -75,4 +77,16 @@ codesign "${MAIN_SIGN_ARGUMENTS[@]}" "${APP_BUNDLE}"
 
 echo "🔍 Verifying strict deep signature..."
 codesign --verify --deep --strict --verbose=2 "${APP_BUNDLE}"
+
+if [ "${REQUESTED_SIGNING_MODE}" = "local" ]; then
+    DESIGNATED_REQUIREMENT="$(codesign -dr - "${APP_BUNDLE}" 2>&1)"
+    if [[ "${DESIGNATED_REQUIREMENT}" == *"cdhash"* ]] \
+        || [[ "${DESIGNATED_REQUIREMENT}" != *"certificate root"* ]]; then
+        echo "❌ Local signature is not stable across rebuilds: ${DESIGNATED_REQUIREMENT}"
+        echo "   Refusing to present this bundle as a stable self-signed build."
+        exit 1
+    fi
+    echo "✅ Stable certificate-based designated requirement verified"
+fi
+
 echo "✅ Strict deep signature verification passed"

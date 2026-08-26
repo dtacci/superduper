@@ -71,8 +71,12 @@ source.
 
 If direct insertion is unavailable, the transcript remains available through
 the clipboard fallback and in History. If macOS says Accessibility is already
-enabled but insertion does not work, remove and re-add Superduper Dictation in
-**System Settings → Privacy & Security → Accessibility**, then relaunch it.
+enabled but insertion does not work, choose **Repair Permission** when the app
+alerts you. This resets only Superduper Dictation's stale Accessibility entry
+and opens the exact installed app plus **System Settings → Privacy & Security →
+Accessibility** for a fresh grant. Locally rebuilding with an ad-hoc signature
+invalidates the previous grant; use `just build-self-signed` for a stable local
+identity.
 
 ### Record a Meeting
 

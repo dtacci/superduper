@@ -1,3 +1,9 @@
+permission_repair:
+  action: "Repair Permission"
+  explanation: |-
+    macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.
+
+    Repair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted.
 meeting_release:
   action_item: "Action item"
   add_action_item: "Add action item"

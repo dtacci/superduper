@@ -8,6 +8,12 @@
 import Foundation
 import AppKit
 
+enum AccessibilityPermissionAlertAction: Equatable {
+    case repairPermission
+    case openSystemSettings
+    case useClipboardOnly
+}
+
 @MainActor
 final class AlertManager {
     
@@ -27,35 +33,34 @@ final class AlertManager {
         return alert
     }
     
-    func showAccessibilityPermissionAlert() {
+    func showAccessibilityPermissionAlert() -> AccessibilityPermissionAlertAction {
         let alert = makeAlert(style: .informational)
         alert.messageText = localized("Accessibility Permission Required", locale: locale)
         alert.informativeText = localized("""
-            Pindrop needs Accessibility permission to insert text at your cursor.
-            
-            To grant permission:
-            1. Click "Open System Settings" below
-            2. Click the + button
-            3. Navigate to the app shown in Finder
-            4. Restart Pindrop after granting permission
-            
-            Without this permission, text will only be copied to your clipboard.
+            macOS is not granting Accessibility access to this exact copy of \
+            Superduper Dictation, even if an older entry appears enabled in System Settings.
+
+            Repair Permission removes only this app's stale Accessibility entry and \
+            requests a fresh grant. You will still choose Allow in macOS. Without permission, \
+            transcripts are copied to the clipboard instead of inserted.
             """, locale: locale)
+        alert.addButton(withTitle: localized("Repair Permission", locale: locale))
         alert.addButton(withTitle: localized("Open System Settings", locale: locale))
-        alert.addButton(withTitle: localized("Show App in Finder", locale: locale))
         alert.addButton(withTitle: localized("Use Clipboard Only", locale: locale))
         
         let response = alert.runModal()
         
         if response == .alertFirstButtonReturn {
-            openAccessibilitySettings()
+            return .repairPermission
         } else if response == .alertSecondButtonReturn {
-            revealAppInFinder()
             openAccessibilitySettings()
+            return .openSystemSettings
         }
+
+        return .useClipboardOnly
     }
     
-    private func revealAppInFinder() {
+    func revealAppInFinder() {
         let appURL = Bundle.main.bundleURL
         NSWorkspace.shared.selectFile(appURL.path, inFileViewerRootedAtPath: appURL.deletingLastPathComponent().path)
     }
@@ -196,7 +201,7 @@ final class AlertManager {
         alert.runModal()
     }
 
-    private func openAccessibilitySettings() {
+    func openAccessibilitySettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
             NSWorkspace.shared.open(url)
         }

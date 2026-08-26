@@ -23,6 +23,57 @@ extension PermissionProviding {
 
 extension PermissionManager: PermissionProviding {}
 
+protocol AccessibilityPermissionResetting {
+    func reset(bundleIdentifier: String) throws
+}
+
+enum AccessibilityPermissionRepairError: Error, LocalizedError {
+    case missingBundleIdentifier
+    case resetUnavailable(String)
+    case resetFailed(status: Int32, detail: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .missingBundleIdentifier:
+            return "The app bundle identifier is unavailable, "
+                + "so Accessibility permission could not be repaired."
+        case .resetUnavailable(let detail):
+            return "The macOS Accessibility repair tool could not be started. \(detail)"
+        case .resetFailed(let status, let detail):
+            let suffix = detail.isEmpty ? "" : " \(detail)"
+            return "macOS could not reset Accessibility permission (status \(status)).\(suffix)"
+        }
+    }
+}
+
+final class TCCAccessibilityPermissionResetter: AccessibilityPermissionResetting {
+    func reset(bundleIdentifier: String) throws {
+        let process = Process()
+        let outputPipe = Pipe()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+        process.arguments = ["reset", "Accessibility", bundleIdentifier]
+        process.standardOutput = outputPipe
+        process.standardError = outputPipe
+
+        do {
+            try process.run()
+        } catch {
+            throw AccessibilityPermissionRepairError.resetUnavailable(error.localizedDescription)
+        }
+        process.waitUntilExit()
+
+        guard process.terminationStatus == 0 else {
+            let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+            let detail = String(data: data, encoding: .utf8)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            throw AccessibilityPermissionRepairError.resetFailed(
+                status: process.terminationStatus,
+                detail: detail
+            )
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class PermissionManager {
@@ -72,8 +123,18 @@ final class PermissionManager {
     }
 
     private static var hasRequestedAccessibilityPermissionPromptThisLaunch = false
+
+    private let accessibilityPermissionResetter: any AccessibilityPermissionResetting
+    private let bundleIdentifierProvider: () -> String?
     
-    init() {
+    init(
+        accessibilityPermissionResetter: any AccessibilityPermissionResetting =
+            TCCAccessibilityPermissionResetter(),
+        bundleIdentifierProvider: @escaping () -> String? = { Bundle.main.bundleIdentifier }
+    ) {
+        self.accessibilityPermissionResetter = accessibilityPermissionResetter
+        self.bundleIdentifierProvider = bundleIdentifierProvider
+
         if Self.isPreview {
             self.permissionStatus = .notDetermined
             self.accessibilityPermissionGranted = false
@@ -301,6 +362,22 @@ final class PermissionManager {
     
     func refreshAccessibilityPermissionStatus() {
         accessibilityPermissionGranted = AXIsProcessTrusted()
+    }
+
+    /// Removes only this app's stale Accessibility record. This is useful after a
+    /// local build was replaced by another binary whose code-signing requirement no
+    /// longer matches the entry displayed in System Settings. macOS still requires
+    /// the user to approve the freshly requested grant.
+    func repairAccessibilityPermission() throws {
+        guard let bundleIdentifier = bundleIdentifierProvider()?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+              !bundleIdentifier.isEmpty else {
+            throw AccessibilityPermissionRepairError.missingBundleIdentifier
+        }
+
+        try accessibilityPermissionResetter.reset(bundleIdentifier: bundleIdentifier)
+        accessibilityPermissionGranted = false
+        Self.hasRequestedAccessibilityPermissionPromptThisLaunch = false
     }
     
     func openAccessibilityPreferences() {

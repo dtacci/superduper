@@ -37,6 +37,12 @@ hardened-runtime flag plus the app entitlements.
 just build-self-signed
 ```
 
+The first signing attempt may show a Keychain prompt. Choose **Always Allow**
+for `codesign` so later rebuilds keep the same certificate identity. The recipe
+now fails instead of silently producing an ad-hoc signature: installing an
+ad-hoc rebuild makes an existing Accessibility approval look enabled while
+macOS rejects the new binary.
+
 That certificate is for local development only. Never export or commit its
 private key, and never distribute it as proof of publisher identity.
 
