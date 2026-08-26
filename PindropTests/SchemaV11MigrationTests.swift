@@ -86,7 +86,7 @@ struct SchemaV11MigrationTests {
         )
         let migratedContext = ModelContext(migratedContainer)
 
-        let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecord>())
+        let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecordSchemaV12.TranscriptionRecord>())
         #expect(records.count == 1)
         #expect(records.first?.text == "Legacy transcription")
         #expect(records.first?.userEditedAt == nil)

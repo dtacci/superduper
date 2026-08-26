@@ -293,12 +293,15 @@ final class SettingsStore: ObservableObject {
       static let aiEnhancementPrompt =
          "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
       static let floatingIndicatorEnabled = true
+      static let onDeviceMeetingAIAllowed = false
       static let floatingIndicatorType = FloatingIndicatorType.orb.rawValue
       static let pillFloatingIndicatorOffsetX = 0.0
       static let pillFloatingIndicatorOffsetY = 0.0
       static let orbFloatingIndicatorOffsetX = 0.0
       static let orbFloatingIndicatorOffsetY = 0.0
       static let orbFloatingIndicatorSize = "medium"
+      static let waveformFloatingIndicatorOffsetX = 0.0
+      static let waveformFloatingIndicatorOffsetY = 0.0
       static let noteEnhancementPrompt = """
          You are a note formatting assistant. Transform the transcribed text into a well-structured note.
 
@@ -323,6 +326,10 @@ final class SettingsStore: ObservableObject {
          static let meetingHotkey = "⌥⇧Space"
          static let meetingHotkeyCode = 49
          static let meetingHotkeyModifiers = 0xA00
+
+         static let recordingIndicatorHotkey = ""
+         static let recordingIndicatorHotkeyCode = 0
+         static let recordingIndicatorHotkeyModifiers = 0
 
          static let pushToTalkHotkey = ""
          static let pushToTalkHotkeyCode = 0
@@ -370,6 +377,12 @@ final class SettingsStore: ObservableObject {
    var meetingHotkeyCode: Int = Defaults.Hotkeys.meetingHotkeyCode
    @AppStorage("meetingHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
    var meetingHotkeyModifiers: Int = Defaults.Hotkeys.meetingHotkeyModifiers
+   @AppStorage("recordingIndicatorHotkey", store: SettingsStoreRuntime.appStorageStore)
+   var recordingIndicatorHotkey: String = Defaults.Hotkeys.recordingIndicatorHotkey
+   @AppStorage("recordingIndicatorHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
+   var recordingIndicatorHotkeyCode: Int = Defaults.Hotkeys.recordingIndicatorHotkeyCode
+   @AppStorage("recordingIndicatorHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+   var recordingIndicatorHotkeyModifiers: Int = Defaults.Hotkeys.recordingIndicatorHotkeyModifiers
    @AppStorage("pushToTalkHotkey", store: SettingsStoreRuntime.appStorageStore)
    var pushToTalkHotkey: String = Defaults.Hotkeys.pushToTalkHotkey
    @AppStorage("pushToTalkHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
@@ -464,6 +477,10 @@ final class SettingsStore: ObservableObject {
    var orbFloatingIndicatorOffsetY: Double = Defaults.orbFloatingIndicatorOffsetY
    @AppStorage("orbFloatingIndicatorSize", store: SettingsStoreRuntime.appStorageStore)
    var orbFloatingIndicatorSize: String = Defaults.orbFloatingIndicatorSize
+   @AppStorage("waveformFloatingIndicatorOffsetX", store: SettingsStoreRuntime.appStorageStore)
+   var waveformFloatingIndicatorOffsetX: Double = Defaults.waveformFloatingIndicatorOffsetX
+   @AppStorage("waveformFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
+   var waveformFloatingIndicatorOffsetY: Double = Defaults.waveformFloatingIndicatorOffsetY
    @AppStorage("sidebarPosition", store: SettingsStoreRuntime.appStorageStore)
    var sidebarPosition: String = Defaults.sidebarPosition
    @AppStorage("sidebarExpanded", store: SettingsStoreRuntime.appStorageStore)
@@ -521,6 +538,10 @@ final class SettingsStore: ObservableObject {
    var diarizationFeatureEnabled: Bool = false
    @AppStorage("streamingFeatureEnabled", store: SettingsStoreRuntime.appStorageStore)
    var streamingFeatureEnabled: Bool = false
+   /// Independent consent for local meeting-note generation. This never enables
+   /// external AI providers or permits meeting transcripts to leave the Mac.
+   @AppStorage("onDeviceMeetingAIAllowed", store: SettingsStoreRuntime.appStorageStore)
+   var onDeviceMeetingAIAllowed: Bool = Defaults.onDeviceMeetingAIAllowed
    /// Picks the Nemotron chunk variant used by the streaming backend. OFF (default)
    /// maps to the 1120ms variant — NVIDIA's original export, best accuracy. ON maps to
    /// the 560ms variant — snappier partials at comparable accuracy, double the encoder
@@ -637,6 +658,14 @@ final class SettingsStore: ObservableObject {
          if previousValue == .pill, newValue != .pill {
             resetPillFloatingIndicatorOffset()
          }
+      }
+   }
+
+   var waveformFloatingIndicatorOffset: CGSize {
+      get { CGSize(width: waveformFloatingIndicatorOffsetX, height: waveformFloatingIndicatorOffsetY) }
+      set {
+         waveformFloatingIndicatorOffsetX = newValue.width
+         waveformFloatingIndicatorOffsetY = newValue.height
       }
    }
 
@@ -1156,6 +1185,9 @@ final class SettingsStore: ObservableObject {
       meetingHotkey = Defaults.Hotkeys.meetingHotkey
       meetingHotkeyCode = Defaults.Hotkeys.meetingHotkeyCode
       meetingHotkeyModifiers = Defaults.Hotkeys.meetingHotkeyModifiers
+      recordingIndicatorHotkey = Defaults.Hotkeys.recordingIndicatorHotkey
+      recordingIndicatorHotkeyCode = Defaults.Hotkeys.recordingIndicatorHotkeyCode
+      recordingIndicatorHotkeyModifiers = Defaults.Hotkeys.recordingIndicatorHotkeyModifiers
       pushToTalkHotkey = Defaults.Hotkeys.pushToTalkHotkey
       pushToTalkHotkeyCode = Defaults.Hotkeys.pushToTalkHotkeyCode
       pushToTalkHotkeyModifiers = Defaults.Hotkeys.pushToTalkHotkeyModifiers
@@ -1200,7 +1232,10 @@ final class SettingsStore: ObservableObject {
          try? deleteProviderEndpoint(forProviderID: config.id)
       }
       floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
+      onDeviceMeetingAIAllowed = Defaults.onDeviceMeetingAIAllowed
       floatingIndicatorType = Defaults.floatingIndicatorType
+      waveformFloatingIndicatorOffsetX = Defaults.waveformFloatingIndicatorOffsetX
+      waveformFloatingIndicatorOffsetY = Defaults.waveformFloatingIndicatorOffsetY
       resetPillFloatingIndicatorOffset()
       pauseMediaOnRecording = false
       muteAudioDuringRecording = false
@@ -1277,6 +1312,14 @@ final class SettingsStore: ObservableObject {
       }
    }
 
+   func updateRecordingIndicatorHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+      performHotkeyUpdate {
+         recordingIndicatorHotkey = hotkey
+         recordingIndicatorHotkeyCode = keyCode
+         recordingIndicatorHotkeyModifiers = modifiers
+      }
+   }
+
    func updatePushToTalkHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
       performHotkeyUpdate {
          pushToTalkHotkey = hotkey
@@ -1337,6 +1380,11 @@ final class SettingsStore: ObservableObject {
          let keyCode = UInt32(exactly: meetingHotkeyCode),
          let modifiers = UInt32(exactly: meetingHotkeyModifiers) {
          assignments.append(HotkeyAssignment(slot: .toggleMeetingCapture, keyCode: keyCode, modifiers: modifiers))
+      }
+      if !recordingIndicatorHotkey.isEmpty,
+         let keyCode = UInt32(exactly: recordingIndicatorHotkeyCode),
+         let modifiers = UInt32(exactly: recordingIndicatorHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .toggleRecordingIndicator, keyCode: keyCode, modifiers: modifiers))
       }
       if !pushToTalkHotkey.isEmpty,
          let keyCode = UInt32(exactly: pushToTalkHotkeyCode),
@@ -1624,6 +1672,7 @@ final class SettingsStore: ObservableObject {
       case .vad: return vadFeatureEnabled
       case .diarization: return diarizationFeatureEnabled
       case .streaming: return streamingFeatureEnabled
+      case .meetingNotes: return onDeviceMeetingAIAllowed
       }
    }
 
@@ -1632,6 +1681,7 @@ final class SettingsStore: ObservableObject {
       case .vad: vadFeatureEnabled = enabled
       case .diarization: diarizationFeatureEnabled = enabled
       case .streaming: streamingFeatureEnabled = enabled
+      case .meetingNotes: onDeviceMeetingAIAllowed = enabled
       }
       objectWillChange.send()
    }

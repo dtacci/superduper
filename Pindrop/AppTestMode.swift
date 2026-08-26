@@ -38,6 +38,8 @@ enum AppTestMode {
 
 enum AppUITestSurface: String {
     case settings
+    case meetings
+    case calendarSetup
 }
 
 enum AppUITestFixture {
@@ -59,10 +61,15 @@ enum AppUITestFixture {
     }
 
     @ViewBuilder
+    @MainActor
     static func rootView() -> some View {
         switch surface {
         case .settings:
             SettingsFixtureRootView(initialTab: settingsInitialTab)
+        case .meetings:
+            MeetingsFixtureRootView()
+        case .calendarSetup:
+            GoogleCalendarSetupFixtureRootView()
         case nil:
             EmptyView()
         }
@@ -75,6 +82,77 @@ enum AppUITestFixture {
     }
 }
 
+@MainActor
+private struct GoogleCalendarSetupFixtureRootView: View {
+    @State private var state = MeetingsFeatureState()
+
+    var body: some View {
+        GoogleCalendarSetupWizard(
+            meetingsState: state,
+            onConnect: { state.isGoogleConnected = true },
+            onEnableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true }
+        )
+        .task {
+            state.isGoogleConfigured = true
+        }
+    }
+}
+
+@MainActor
+private struct MeetingsFixtureRootView: View {
+    @State private var state = MeetingsFeatureState()
+
+    private static let modelContainer: ModelContainer = {
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        do {
+            return try ModelContainer(for: schema, configurations: [configuration])
+        } catch {
+            fatalError("Failed to create meetings UI-test fixture model container: \(error)")
+        }
+    }()
+
+    var body: some View {
+        MeetingsView(
+            meetingsState: state,
+            onConnect: {},
+            onEnableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true },
+            onDisconnect: {},
+            onRefresh: {},
+            onRecordMeeting: {},
+            onArm: { event in
+                state.armedOccurrenceIDsByIdentity[event.persistentIdentity] = UUID()
+            },
+            onDisarm: { identity in
+                state.armedOccurrenceIDsByIdentity[identity] = nil
+            },
+            onRetryProcessing: { _ in },
+            onRegenerateInsights: { _ in }
+        )
+        .frame(minWidth: 900, minHeight: 620)
+        .modelContainer(Self.modelContainer)
+        .task {
+            state.isGoogleConfigured = true
+            state.isGoogleConnected = true
+            state.isLaunchAtLoginEnabled = true
+            state.replaceEvents([
+                MeetingOccurrenceSnapshot(
+                    id: "fixture-event",
+                    provider: "google",
+                    calendarID: "primary",
+                    eventID: "fixture-event",
+                    recurringEventID: nil,
+                    title: "Design review",
+                    start: Date().addingTimeInterval(3_600),
+                    end: Date().addingTimeInterval(5_400),
+                    joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
+                    rawSnapshotJSON: "{}"
+                )
+            ])
+        }
+    }
+}
+
 private struct SettingsFixtureRootView: View {
     @StateObject private var settings = SettingsStore()
 
@@ -83,7 +161,7 @@ private struct SettingsFixtureRootView: View {
     /// Deterministic in-memory store so panes using @Query (e.g. Privacy) render
     /// in the fixture without touching the real persistent store.
     private static let modelContainer: ModelContainer = {
-        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV12.self)
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
             return try ModelContainer(for: schema, configurations: [configuration])

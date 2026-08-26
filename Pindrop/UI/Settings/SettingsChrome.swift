@@ -17,6 +17,9 @@ struct SettingsShellView: View {
     @ObservedObject var model: SettingsWindowModel
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
+    let meetingsState: MeetingsFeatureState?
+    let onConnectGoogleCalendar: () -> Void
+    let onDisconnectGoogleCalendar: () -> Void
 
     @Environment(\.locale) private var locale
     @Environment(\.layoutDirection) private var layoutDirection
@@ -30,7 +33,10 @@ struct SettingsShellView: View {
                     settings: settings,
                     tab: model.selectedTab,
                     launchAtLoginManager: launchAtLoginManager,
-                    updateService: updateService
+                    updateService: updateService,
+                    meetingsState: meetingsState,
+                    onConnectGoogleCalendar: onConnectGoogleCalendar,
+                    onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
                 )
                 .padding(.top, SettingsLayoutMetrics.contentTopPadding)
                 .padding(.horizontal, SettingsLayoutMetrics.contentSidePadding)

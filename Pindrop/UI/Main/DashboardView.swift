@@ -117,7 +117,8 @@ struct DashboardView: View {
                     diarizationSetupIssueBanner(
                         message: setupIssue,
                         isDownloading: recordingState?.isDiarizationModelDownloading ?? false,
-                        progress: recordingState?.diarizationModelDownloadProgress ?? 0.0
+                        progress: recordingState?.diarizationModelDownloadProgress ?? 0.0,
+                        requiresRepair: recordingState?.diarizationIssueNeedsRepair ?? false
                     )
                         .padding(.bottom, 16)
                 }
@@ -223,7 +224,8 @@ struct DashboardView: View {
     private func diarizationSetupIssueBanner(
         message: String,
         isDownloading: Bool,
-        progress: Double
+        progress: Double,
+        requiresRepair: Bool
     ) -> some View {
         HStack(spacing: 12) {
             Image(systemName: isDownloading ? "arrow.down.circle" : "exclamationmark.triangle")
@@ -253,7 +255,7 @@ struct DashboardView: View {
             Spacer(minLength: 8)
 
             if !isDownloading, onDownloadDiarizationModel != nil {
-                Button(localized("Download model", locale: locale)) {
+                Button(localized(requiresRepair ? "Repair diarization model" : "Download model", locale: locale)) {
                     onDownloadDiarizationModel?()
                 }
                 .buttonStyle(.plain)

@@ -15,13 +15,13 @@ import Testing
 struct SchemaV12MigrationTests {
     @Test func currentSchemaIsV12WithPipelineMetricsColumn() throws {
         #expect(TranscriptionRecordSchemaV12.versionIdentifier == .init(1, 0, 11))
-        #expect(TranscriptionRecordSchemaV12.models.contains { $0 == TranscriptionRecord.self })
+        #expect(TranscriptionRecordSchemaV12.models.contains { $0 == TranscriptionRecordSchemaV12.TranscriptionRecord.self })
     }
 
-    @Test func migrationPlanEndsWithV11ToV12LightweightStage() {
-        #expect(TranscriptionRecordMigrationPlan.schemas.count == 12)
-        #expect(TranscriptionRecordMigrationPlan.stages.count == 11)
-        #expect(TranscriptionRecordMigrationPlan.schemas.last == TranscriptionRecordSchemaV12.self)
+    @Test func migrationPlanEndsWithV12ToV13LightweightStage() {
+        #expect(TranscriptionRecordMigrationPlan.schemas.count == 13)
+        #expect(TranscriptionRecordMigrationPlan.stages.count == 12)
+        #expect(TranscriptionRecordMigrationPlan.schemas.last == TranscriptionRecordSchemaV13.self)
     }
 
     @Test func pipelineMetricsRoundTripsThroughRecord() throws {
@@ -90,11 +90,10 @@ struct SchemaV12MigrationTests {
         )
         let migratedContext = ModelContext(migratedContainer)
 
-        let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecord>())
+        let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecordSchemaV12.TranscriptionRecord>())
         #expect(records.count == 1)
         #expect(records.first?.text == "Legacy transcription")
         #expect(records.first?.pipelineMetricsJSON == nil)
-        #expect(records.first?.pipelineMetrics == nil)
     }
 
     @Test func productionConfigurationReopensExistingStoreForHistoryFetch() throws {
@@ -115,7 +114,7 @@ struct SchemaV12MigrationTests {
             )
             let legacyContext = ModelContext(legacyContainer)
             legacyContext.insert(
-                TranscriptionRecord(
+                TranscriptionRecordSchemaV12.TranscriptionRecord(
                     text: "Existing transcript",
                     duration: 1.0,
                     modelUsed: "test"

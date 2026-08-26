@@ -5,7 +5,7 @@ set -euo pipefail
 # consistently track bundle identity across launches.
 #
 # Usage:
-#   ./scripts/sign-app-bundle.sh /path/to/Pindrop.app [identity]
+#   ./scripts/sign-app-bundle.sh "/path/to/Superduper Dictation.app" [identity]
 #
 # identity defaults to "-" (ad-hoc). Pass "local" to use the persistent
 # Superduper Dictation signing certificate from the user's login keychain.
@@ -34,7 +34,7 @@ fi
 
 if [ -z "${APP_BUNDLE}" ]; then
     echo "❌ Missing app bundle path."
-    echo "Usage: $0 /path/to/Pindrop.app [identity]"
+    echo "Usage: $0 \"/path/to/Superduper Dictation.app\" [identity]"
     exit 1
 fi
 

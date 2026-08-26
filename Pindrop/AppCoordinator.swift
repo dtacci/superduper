@@ -193,6 +193,7 @@ struct HotkeySettingsSnapshot: Equatable {
     let pushToTalk: HotkeyBindingSnapshot
     let toggle: HotkeyBindingSnapshot
     let meeting: HotkeyBindingSnapshot
+    let recordingIndicator: HotkeyBindingSnapshot
     let copyLastTranscript: HotkeyBindingSnapshot
     let quickCapturePTT: HotkeyBindingSnapshot
     let quickCaptureToggle: HotkeyBindingSnapshot
@@ -463,7 +464,7 @@ final class AppCoordinator {
         if isRecording || isProcessing {
             // Bubble manages its own caret-anchor refresh; other active styles use focus tracking.
             switch selectedType {
-            case .pill, .orb, .notch:
+            case .pill, .orb, .notch, .waveform:
                 return .activeSession
             case .bubble:
                 return nil
@@ -497,6 +498,9 @@ final class AppCoordinator {
     let updateService: UpdateService
     let outputManager: OutputManager
     let historyStore: HistoryStore
+    let meetingStore: MeetingStore
+    let meetingsState: MeetingsFeatureState
+    let meetingInsightGenerator: MeetingInsightGenerator
     let speakerIdentityService: SpeakerIdentityService
     let dictionaryStore: DictionaryStore
     let settingsStore: SettingsStore
@@ -518,6 +522,12 @@ final class AppCoordinator {
     let recordingState: RecordingFeatureState
     let mediaTranscriptionState: MediaTranscriptionFeatureState
     private(set) var mcpServer: MCPServer?
+    private var googleOAuthService: GoogleOAuthService?
+    private var googleCalendarClient: GoogleCalendarClient?
+    private var calendarMeetingScheduler: CalendarMeetingScheduler?
+    private var calendarRefreshTask: Task<Void, Never>?
+    private var calendarWakeObserver: NSObjectProtocol?
+    private var googleCalendarSyncTokens: [String: String] = [:]
 
     // MARK: - UI Controllers
     
@@ -534,6 +544,7 @@ final class AppCoordinator {
     let pillFloatingIndicatorController: PillFloatingIndicatorController
     let caretBubbleFloatingIndicatorController: CaretBubbleFloatingIndicatorController
     let orbFloatingIndicatorController: OrbFloatingIndicatorController
+    let waveformFloatingIndicatorController: WaveformFloatingIndicatorController
     let floatingIndicatorPresenters: [FloatingIndicatorType: any FloatingIndicatorPresenting]
     let floatingIndicatorFocusTracker: FloatingIndicatorFocusTracker
     let onboardingController: OnboardingWindowController
@@ -552,6 +563,7 @@ final class AppCoordinator {
     private let recordingStopAdmission = RecordingStopAdmission()
     private var isRecordingFeatureCaptureActive = false
     private var manualExpectedSpeakerCount: Int?
+    private var activeMeetingOccurrenceID: UUID?
     private var quickCaptureTranscription: String?
     private var noteAppendEditorID: UUID?
     private var mediaTranscriptionTask: Task<Void, Never>? {
@@ -688,6 +700,10 @@ final class AppCoordinator {
         }
         self.speakerIdentityService = SpeakerIdentityService(modelContext: modelContext)
         self.modelManager = ModelManager()
+        self.meetingsState = MeetingsFeatureState()
+        self.meetingInsightGenerator = MeetingInsightGenerator(
+            inference: self.modelManager.localMeetingModelService
+        )
         self.aiEnhancementService = AIEnhancementService()
         self.hotkeyManager = HotkeyManager()
         self.launchAtLoginManager = LaunchAtLoginManager()
@@ -729,6 +745,16 @@ final class AppCoordinator {
             speakerIdentityService: speakerIdentityService,
             contributionService: contributionService
         )
+        let meetingStore = MeetingStore(modelContext: modelContext)
+        self.meetingStore = meetingStore
+        do {
+            let recovered = try meetingStore.recoverInterruptedOccurrences()
+            if !recovered.isEmpty {
+                Log.app.warning("Recovered \(recovered.count) interrupted meeting workspace(s)")
+            }
+        } catch {
+            Log.app.error("Failed to recover interrupted meeting workspaces: \(error.localizedDescription)")
+        }
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()
@@ -790,11 +816,16 @@ final class AppCoordinator {
             settingsStore: settingsStore,
             liveTranscript: liveTranscriptState
         )
+        self.waveformFloatingIndicatorController = WaveformFloatingIndicatorController(
+            state: floatingIndicatorState,
+            settingsStore: settingsStore
+        )
         self.floatingIndicatorPresenters = [
             .notch: floatingIndicatorController,
             .pill: pillFloatingIndicatorController,
             .bubble: caretBubbleFloatingIndicatorController,
-            .orb: orbFloatingIndicatorController
+            .orb: orbFloatingIndicatorController,
+            .waveform: waveformFloatingIndicatorController
         ]
         self.onboardingController = OnboardingWindowController()
         self.announcementController = AnnouncementWindowController()
@@ -814,13 +845,18 @@ final class AppCoordinator {
             settings: settingsStore,
             modelContainer: modelContainer,
             launchAtLoginManager: launchAtLoginManager,
-            updateService: updateService
+            updateService: updateService,
+            meetingsState: meetingsState
         )
         self.mainWindowController = MainWindowController()
         self.modelManager.telemetryService = telemetryService
         self.mainWindowController.setModelContainer(modelContainer)
         self.noteEditorWindowController = NoteEditorWindowController()
         self.noteEditorWindowController.setModelContainer(modelContainer)
+        self.settingsWindowController.configureGoogleCalendar(
+            onConnect: { [weak self] in self?.connectGoogleCalendar() },
+            onDisconnect: { [weak self] in self?.disconnectGoogleCalendar() }
+        )
         self.mainWindowController.configureMeetingCapture(
             floatingIndicatorState: floatingIndicatorState,
             recordingState: recordingState,
@@ -837,6 +873,19 @@ final class AppCoordinator {
                     await self?.handleQuickCaptureToggle()
                 }
             }
+        )
+        self.mainWindowController.configureMeetingsFeature(
+            state: meetingsState,
+            onConnect: { [weak self] in self?.connectGoogleCalendar() },
+            onEnableLaunchAtLogin: { [weak self] in self?.enableLaunchAtLoginForCalendarMeetings() },
+            onDisconnect: { [weak self] in self?.disconnectGoogleCalendar() },
+            onRefresh: { [weak self] in
+                Task { @MainActor in await self?.refreshGoogleCalendar() }
+            },
+            onArm: { [weak self] snapshot in self?.armCalendarMeeting(snapshot) },
+            onDisarm: { [weak self] identity in self?.disarmCalendarMeeting(identity: identity) },
+            onRetryProcessing: { [weak self] id in self?.retryMeetingProcessing(id) },
+            onRegenerateInsights: { [weak self] id in self?.regenerateMeetingInsights(id) }
         )
         self.mainWindowController.configureTranscribeFeature(
             state: mediaTranscriptionState,
@@ -862,6 +911,13 @@ final class AppCoordinator {
 
         self.statusBarController.onToggleMeetingCapture = { [weak self] in
             await self?.handleMeetingCaptureToggle()
+        }
+
+        self.statusBarController.onToggleRecordingIndicator = { [weak self] in
+            guard let self else { return }
+            self.settingsStore.floatingIndicatorEnabled.toggle()
+            self.updateFloatingIndicatorVisibility()
+            self.statusBarController.updateMenuState()
         }
 
         self.statusBarController.onCopyLastTranscript = { [weak self] in
@@ -1006,6 +1062,7 @@ final class AppCoordinator {
         }
         observeSettings()
         setupNotifications()
+        setupGoogleCalendarIntegration()
         Log.boot.info("AppCoordinator init finished enableSystemHooks=\(self.enableSystemHooks)")
     }
     
@@ -1089,6 +1146,281 @@ final class AppCoordinator {
             }
         )
     }
+
+    // MARK: - Google Calendar meetings
+
+    private static let googleCalendarSyncTokenDefaultsKey = "googleCalendarSyncTokens"
+
+    private func setupGoogleCalendarIntegration() {
+        meetingsState.isLaunchAtLoginEnabled = launchAtLoginManager.isEnabled
+        let environmentClientID = ProcessInfo.processInfo.environment["PINDROP_GOOGLE_CLIENT_ID"]?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let bundledClientID = (Bundle.main.object(forInfoDictionaryKey: "GoogleCalendarClientID") as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let clientID = environmentClientID?.isEmpty == false ? environmentClientID : bundledClientID
+        meetingsState.isGoogleConfigured = clientID?.isEmpty == false
+        guard let clientID, !clientID.isEmpty else {
+            meetingsState.readinessMessage = "Google Calendar requires a desktop OAuth client ID in this build."
+            return
+        }
+
+        let oauth = GoogleOAuthService(configuration: .desktop(clientID: clientID))
+        let client = GoogleCalendarClient(oauth: oauth)
+        let scheduler = CalendarMeetingScheduler(
+            meetingStore: meetingStore,
+            notifier: SystemMeetingNotifier(),
+            launchAtLoginEnabled: { [weak self] in self?.launchAtLoginManager.isEnabled == true },
+            readiness: { [weak self] in
+                guard let self else {
+                    return MeetingPreflightReport(issues: [.microphonePermission])
+                }
+                return await self.meetingPreflightReport()
+            },
+            isBusy: { [weak self] in
+                guard let self else { return true }
+                return self.isRecording || self.isProcessing
+            },
+            startCapture: { [weak self] occurrenceID in
+                guard let self else { return }
+                let expectedSpeakers = try self.meetingStore.occurrence(id: occurrenceID)?.expectedSpeakerCount
+                try await self.startManualTranscriptionRecording(
+                    mode: .microphoneAndSystemAudio,
+                    expectedSpeakerCount: expectedSpeakers,
+                    existingOccurrenceID: occurrenceID
+                )
+            },
+            stopCapture: { [weak self] occurrenceID in
+                guard let self, self.activeMeetingOccurrenceID == occurrenceID else { return }
+                try await self.dispatchRecordingStop()
+            }
+        )
+        googleOAuthService = oauth
+        googleCalendarClient = client
+        calendarMeetingScheduler = scheduler
+        meetingsState.isGoogleConnected = oauth.isConnected
+        googleCalendarSyncTokens = loadGoogleCalendarSyncTokens()
+        refreshArmedMeetingState()
+        Task { @MainActor [weak self, weak scheduler] in
+            guard let self, let scheduler else { return }
+            do {
+                try await scheduler.restoreArmedSchedules()
+                self.refreshArmedMeetingState()
+            } catch {
+                Log.app.error("Failed to restore scheduled meetings: \(error.localizedDescription)")
+            }
+        }
+
+        calendarWakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                await self?.refreshGoogleCalendar()
+            }
+        }
+    }
+
+    private func meetingPreflightReport() async -> MeetingPreflightReport {
+        let preflight = MeetingPreflightService(
+            permissionProvider: permissionManager,
+            modelManager: modelManager,
+            diarizationLoader: {
+                let diarizer = FluidSpeakerDiarizer()
+                try await diarizer.loadModels()
+                await diarizer.unloadModels()
+            }
+        )
+        return await preflight.run(selectedTranscriptionModel: settingsStore.selectedModel)
+    }
+
+    func connectGoogleCalendar() {
+        guard let googleOAuthService else {
+            meetingsState.errorMessage = "Google Calendar is not configured in this build."
+            return
+        }
+        meetingsState.isRefreshing = true
+        meetingsState.errorMessage = nil
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await googleOAuthService.connect()
+                self.meetingsState.isGoogleConnected = true
+                await self.refreshGoogleCalendar()
+                self.startGoogleCalendarRefreshLoop()
+            } catch {
+                self.meetingsState.errorMessage = error.localizedDescription
+            }
+            self.meetingsState.isRefreshing = false
+        }
+    }
+
+    func enableLaunchAtLoginForCalendarMeetings() {
+        do {
+            try launchAtLoginManager.setEnabled(true)
+        } catch {
+            meetingsState.errorMessage = error.localizedDescription
+        }
+
+        let enabled = launchAtLoginManager.isEnabled
+        settingsStore.launchAtLogin = enabled
+        meetingsState.isLaunchAtLoginEnabled = enabled
+        if enabled {
+            meetingsState.errorMessage = nil
+        }
+    }
+
+    func disconnectGoogleCalendar() {
+        guard let googleOAuthService else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await googleOAuthService.disconnect()
+                self.meetingsState.isGoogleConnected = false
+                self.meetingsState.replaceEvents([])
+                self.googleCalendarSyncTokens = [:]
+                self.saveGoogleCalendarSyncTokens()
+                self.calendarRefreshTask?.cancel()
+                self.calendarRefreshTask = nil
+            } catch {
+                self.meetingsState.errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    func refreshGoogleCalendar() async {
+        guard meetingsState.isGoogleConnected, let googleCalendarClient else { return }
+        meetingsState.isRefreshing = true
+        meetingsState.errorMessage = nil
+        defer { meetingsState.isRefreshing = false }
+
+        do {
+            let now = Date()
+            let horizon = now.addingTimeInterval(30 * 24 * 60 * 60)
+            let calendars = try await googleCalendarClient.calendars().filter {
+                $0.primary == true || $0.selected != false
+            }
+            var cached = Dictionary(
+                uniqueKeysWithValues: meetingsState.calendarEvents.map { ($0.persistentIdentity, $0) }
+            )
+
+            for calendar in calendars {
+                // A durable sync token is useful only with a matching in-memory baseline.
+                // On a cold launch perform one full 30-day read, then use deltas while running.
+                let hasBaseline = cached.values.contains { $0.calendarID == calendar.id }
+                let token = hasBaseline ? googleCalendarSyncTokens[calendar.id] : nil
+                let result = try await googleCalendarClient.eventsRecoveringInvalidSyncToken(
+                    calendarID: calendar.id,
+                    from: now,
+                    through: horizon,
+                    syncToken: token
+                )
+                if token == nil {
+                    cached = cached.filter { $0.value.calendarID != calendar.id }
+                }
+
+                var identitiesReturnedByFullSync = Set<String>()
+                for event in result.events {
+                    let identity = ["google", calendar.id, event.id].joined(separator: ":")
+                    identitiesReturnedByFullSync.insert(identity)
+                    if event.status == "cancelled" {
+                        cached[identity] = nil
+                        if let armed = try meetingStore.occurrence(calendarIdentity: identity), armed.isArmed {
+                            await calendarMeetingScheduler?.eventWasDeleted(id: armed.id)
+                        }
+                        continue
+                    }
+                    guard let snapshot = MeetingJoinURLResolver.snapshot(event: event, calendarID: calendar.id) else {
+                        continue
+                    }
+                    cached[snapshot.persistentIdentity] = snapshot
+                    if let armed = try meetingStore.occurrence(calendarIdentity: snapshot.persistentIdentity), armed.isArmed {
+                        try calendarMeetingScheduler?.eventWasUpdated(snapshot)
+                    }
+                }
+
+                if token == nil {
+                    let armedInCalendar = try meetingStore.fetchOccurrences().filter {
+                        $0.isArmed && $0.providerRawValue == "google" && $0.calendarID == calendar.id
+                    }
+                    for armed in armedInCalendar {
+                        guard let identity = armed.calendarOccurrenceIdentity,
+                              !identitiesReturnedByFullSync.contains(identity) else { continue }
+                        await calendarMeetingScheduler?.eventWasDeleted(id: armed.id)
+                    }
+                }
+                if let next = result.nextSyncToken { googleCalendarSyncTokens[calendar.id] = next }
+            }
+            saveGoogleCalendarSyncTokens()
+            meetingsState.replaceEvents(Array(cached.values).filter {
+                $0.start <= horizon && ($0.end ?? $0.start) >= now
+            })
+            refreshArmedMeetingState()
+        } catch {
+            meetingsState.errorMessage = error.localizedDescription
+        }
+    }
+
+    func armCalendarMeeting(_ snapshot: MeetingOccurrenceSnapshot) {
+        Task { @MainActor [weak self] in
+            guard let self, let scheduler = self.calendarMeetingScheduler else { return }
+            do {
+                _ = try await scheduler.arm(snapshot)
+                self.refreshArmedMeetingState()
+            } catch {
+                self.meetingsState.errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    func disarmCalendarMeeting(identity: String) {
+        do {
+            guard let occurrence = try meetingStore.occurrence(calendarIdentity: identity) else { return }
+            try calendarMeetingScheduler?.disarm(id: occurrence.id)
+            refreshArmedMeetingState()
+        } catch {
+            meetingsState.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func refreshArmedMeetingState() {
+        do {
+            meetingsState.armedOccurrenceIDsByIdentity = Dictionary(
+                uniqueKeysWithValues: try meetingStore.fetchOccurrences().compactMap {
+                    guard $0.isArmed, let identity = $0.calendarOccurrenceIdentity else { return nil }
+                    return (identity, $0.id)
+                }
+            )
+        } catch {
+            Log.app.error("Failed to refresh armed meeting state: \(error.localizedDescription)")
+        }
+    }
+
+    private func startGoogleCalendarRefreshLoop() {
+        guard meetingsState.isGoogleConnected, calendarRefreshTask == nil else { return }
+        calendarRefreshTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                await self?.refreshGoogleCalendar()
+                do {
+                    try await Task.sleep(for: .seconds(15 * 60))
+                } catch {
+                    return
+                }
+            }
+        }
+    }
+
+    private func loadGoogleCalendarSyncTokens() -> [String: String] {
+        guard let data = UserDefaults.standard.data(forKey: Self.googleCalendarSyncTokenDefaultsKey) else {
+            return [:]
+        }
+        return (try? JSONDecoder().decode([String: String].self, from: data)) ?? [:]
+    }
+
+    private func saveGoogleCalendarSyncTokens() {
+        let data = try? JSONEncoder().encode(googleCalendarSyncTokens)
+        UserDefaults.standard.set(data, forKey: Self.googleCalendarSyncTokenDefaultsKey)
+    }
     
     // MARK: - Lifecycle
     
@@ -1130,6 +1462,7 @@ final class AppCoordinator {
         }
 
         await startNormalOperation()
+        startGoogleCalendarRefreshLoop()
 
         if shouldOrderMainWindowFront {
             splashController.dismiss { [weak self] in
@@ -1781,6 +2114,46 @@ final class AppCoordinator {
             }
         }
 
+        if !settingsStore.recordingIndicatorHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Show Recording Indicator",
+               hotkeyString: settingsStore.recordingIndicatorHotkey,
+               keyCodeValue: settingsStore.recordingIndicatorHotkeyCode,
+               modifiersValue: settingsStore.recordingIndicatorHotkeyModifiers
+           ) {
+            let slot = HotkeySlot.toggleRecordingIndicator
+            if canRegisterHotkey(
+                identifier: slot.registrationIdentifier,
+                displayName: slot.displayName,
+                hotkeyString: settingsStore.recordingIndicatorHotkey,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
+                registrationState: &registrationState
+            ) {
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
+                    identifier: slot.registrationIdentifier,
+                    mode: .toggle,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            guard let self else { return }
+                            self.settingsStore.floatingIndicatorEnabled.toggle()
+                            self.updateFloatingIndicatorVisibility()
+                            self.statusBarController.updateMenuState()
+                        }
+                    },
+                    onKeyUp: nil
+                )
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(
+                        displayName: slot.displayName,
+                        hotkeyString: settingsStore.recordingIndicatorHotkey
+                    )
+                }
+            }
+        }
+
         if !settingsStore.copyLastTranscriptHotkey.isEmpty,
            let binding = validatedHotkeyBinding(
                displayName: "Copy Last Transcript",
@@ -2018,6 +2391,8 @@ final class AppCoordinator {
             return "Toggle Recording"
         case "toggle-meeting-capture":
             return "Toggle Meeting Capture"
+        case "toggle-recording-indicator":
+            return "Show Recording Indicator"
         case "push-to-talk":
             return "Push-to-Talk"
         case "copy-last-transcript":
@@ -2067,6 +2442,11 @@ final class AppCoordinator {
                     hotkey: settingsStore.meetingHotkey,
                     keyCode: settingsStore.meetingHotkeyCode,
                     modifiers: settingsStore.meetingHotkeyModifiers
+                ),
+                recordingIndicator: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.recordingIndicatorHotkey,
+                    keyCode: settingsStore.recordingIndicatorHotkeyCode,
+                    modifiers: settingsStore.recordingIndicatorHotkeyModifiers
                 ),
                 copyLastTranscript: HotkeyBindingSnapshot(
                     hotkey: settingsStore.copyLastTranscriptHotkey,
@@ -2235,6 +2615,8 @@ final class AppCoordinator {
             .floatingIndicatorStart
         case .bubble:
             .bubbleIndicatorStart
+        case .waveform:
+            .floatingIndicatorStart
         }
     }
 
@@ -2248,6 +2630,8 @@ final class AppCoordinator {
             .floatingIndicatorStop
         case .bubble:
             .bubbleIndicatorStop
+        case .waveform:
+            .floatingIndicatorStop
         }
     }
 
@@ -4540,6 +4924,12 @@ final class AppCoordinator {
     private func teardownModifierKeyMonitor() {
         modifierEventTapRecoveryTask?.cancel()
         modifierEventTapRecoveryTask = nil
+        calendarRefreshTask?.cancel()
+        calendarRefreshTask = nil
+        if let calendarWakeObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(calendarWakeObserver)
+            self.calendarWakeObserver = nil
+        }
 
         if let source = modifierRunLoopSource {
             let eventTap = modifierEventTap
@@ -4924,6 +5314,9 @@ final class AppCoordinator {
         recordingState.clearCurrentJob()
 
         audioRecorder.resetAudioEngine()
+        markActiveMeetingFailed(
+            "Meeting capture was canceled. Recoverable audio remains available for retry."
+        )
         mediaPauseService.endRecordingSession()
         isRecording = false
         isProcessing = false
@@ -4944,6 +5337,12 @@ final class AppCoordinator {
         statusBarController.updateMenuState()
 
         finishIndicatorSession()
+    }
+
+    private func markActiveMeetingFailed(_ message: String) {
+        guard let occurrenceID = activeMeetingOccurrenceID else { return }
+        try? meetingStore.markFailedPreservingWorkspace(id: occurrenceID, message: message)
+        activeMeetingOccurrenceID = nil
     }
 
     private func handleAudioCaptureFailure(_ failure: Error) {
@@ -4986,6 +5385,8 @@ final class AppCoordinator {
         statusBarController.setIdleState()
         statusBarController.updateMenuState()
         finishIndicatorSession()
+
+        markActiveMeetingFailed(captureFailureMessage)
 
         toastService.show(
             ToastPayload(message: captureFailureMessage, style: .error)
@@ -5306,16 +5707,26 @@ final class AppCoordinator {
             }
 
             do {
-                try await self.modelManager.downloadFeatureModel(.diarization) { [weak self] progress in
+                let readiness = self.modelManager.offlineDiarizationReadiness(
+                    at: self.modelManager.fluidAudioModelsRootURL
+                )
+                let progressHandler: (Double) -> Void = { [weak self] progress in
                     guard let self else { return }
                     self.mediaTranscriptionState.diarizationModelDownloadProgress = progress
                     self.recordingState.diarizationModelDownloadProgress = progress
                 }
+                if readiness.requiresRepair {
+                    try await self.modelManager.repairOfflineDiarizationModel(onProgress: progressHandler)
+                } else {
+                    try await self.modelManager.downloadFeatureModel(.diarization, onProgress: progressHandler)
+                }
                 await self.modelManager.refreshDownloadedFeatureModels()
                 self.settingsStore.diarizationFeatureEnabled = true
                 self.mediaTranscriptionState.setupIssue = nil
+                self.mediaTranscriptionState.diarizationIssueNeedsRepair = false
                 self.toastService.show(ToastPayload(message: localized("Speaker diarization is ready.", locale: self.settingsStore.selectedAppLocale.locale)))
                 self.recordingState.setupIssue = nil
+                self.recordingState.diarizationIssueNeedsRepair = false
                 self.recordingState.message = localized("Speaker diarization is ready.", locale: self.settingsStore.selectedAppLocale.locale)
             } catch {
                 self.mediaTranscriptionState.diarizationModelDownloadProgress = 0.0
@@ -5391,28 +5802,69 @@ final class AppCoordinator {
 
     private func startManualTranscriptionRecording(
         mode: AudioRecordingMode,
-        expectedSpeakerCount: Int? = nil
+        expectedSpeakerCount: Int? = nil,
+        existingOccurrenceID: UUID? = nil
     ) async throws {
         guard !isRecording && !isProcessing else {
             recordingState.message = "Finish the active transcription before starting another one."
             return
         }
 
-        await modelManager.refreshDownloadedFeatureModels()
-        guard modelManager.isFeatureModelDownloaded(.diarization) else {
-            recordingState.setSetupIssue(
-                localized(
-                    "Download the speaker diarization model before starting recording.",
-                    locale: settingsStore.selectedAppLocale.locale
+        let preflight = MeetingPreflightService(
+            permissionProvider: permissionManager,
+            modelManager: modelManager,
+            diarizationLoader: {
+                let diarizer = FluidSpeakerDiarizer()
+                try await diarizer.loadModels()
+                await diarizer.unloadModels()
+            }
+        )
+        let report = await preflight.run(selectedTranscriptionModel: settingsStore.selectedModel)
+        guard report.isReady else {
+            if let issue = report.primaryIssue {
+                recordingState.setSetupIssue(
+                    issue.localizedMessage(locale: settingsStore.selectedAppLocale.locale),
+                    requiresRepair: issue.requiresDiarizationRepair
                 )
-            )
+            }
             return
         }
 
-        let didStartRecording = try await audioRecorder.startRecording(
-            configuration: AudioRecordingConfiguration(mode: mode)
-        )
-        guard didStartRecording else { return }
+        let occurrence: MeetingOccurrence
+        if let existingOccurrenceID,
+           let existing = try meetingStore.occurrence(id: existingOccurrenceID) {
+            occurrence = existing
+            try meetingStore.transition(id: existing.id, to: .preparing)
+        } else {
+            occurrence = try meetingStore.createManualOccurrence(
+                expectedSpeakerCount: expectedSpeakerCount
+            )
+        }
+        activeMeetingOccurrenceID = occurrence.id
+        audioRecorder.persistentSpoolDirectoryURL = occurrence.workspaceURL
+
+        let didStartRecording: Bool
+        do {
+            didStartRecording = try await audioRecorder.startRecording(
+                configuration: AudioRecordingConfiguration(mode: mode)
+            )
+        } catch {
+            try? meetingStore.markFailedPreservingWorkspace(
+                id: occurrence.id,
+                message: error.localizedDescription
+            )
+            activeMeetingOccurrenceID = nil
+            throw error
+        }
+        guard didStartRecording else {
+            try meetingStore.markFailedPreservingWorkspace(
+                id: occurrence.id,
+                message: "Meeting capture did not start."
+            )
+            activeMeetingOccurrenceID = nil
+            return
+        }
+        try meetingStore.transition(id: occurrence.id, to: .recording)
         manualExpectedSpeakerCount = expectedSpeakerCount
 
         isRecording = true
@@ -5432,7 +5884,20 @@ final class AppCoordinator {
 
         let mode = recordingState.selectedCaptureMode
         let duration = recordingStartTime.map { Date().timeIntervalSince($0) } ?? 0
-        let audioData = try await audioRecorder.stopRecording()
+        let occurrenceID = activeMeetingOccurrenceID
+        let audioData: Data
+        do {
+            audioData = try await audioRecorder.stopRecording()
+        } catch {
+            if let occurrenceID {
+                try? meetingStore.markFailedPreservingWorkspace(
+                    id: occurrenceID,
+                    message: error.localizedDescription
+                )
+            }
+            activeMeetingOccurrenceID = nil
+            throw error
+        }
         // Ownership check immediately after the first await — before any global
         // mutation/store that would clobber a newer session started after cancel.
         try ensureOperationCurrent(token)
@@ -5446,6 +5911,9 @@ final class AppCoordinator {
         isProcessing = true
         let expectedSpeakerCount = manualExpectedSpeakerCount
         manualExpectedSpeakerCount = nil
+        if let occurrenceID {
+            try meetingStore.transition(id: occurrenceID, to: .processing)
+        }
 
         let job = MediaTranscriptionJobState(
             request: .manualCapture(mode),
@@ -5477,10 +5945,37 @@ final class AppCoordinator {
         do {
             let managedAsset = try mediaIngestionService.storeRecordedAudio(
                 audioData,
-                jobID: job.id,
+                jobID: occurrenceID ?? job.id,
                 displayName: mode.libraryDisplayName,
                 sourceKind: .manualCapture
             )
+            if let occurrenceID,
+               let occurrence = try meetingStore.occurrence(id: occurrenceID) {
+                let recoveryAudioURLs = (try? FileManager.default.contentsOfDirectory(
+                    at: occurrence.workspaceURL,
+                    includingPropertiesForKeys: nil
+                ))?.filter { $0.pathExtension.lowercased() == "pcm" } ?? []
+                let sourceHealth = audioRecorder.lastMeetingSourceHealth
+                try meetingStore.preserveAudio(
+                    id: occurrenceID,
+                    managedAudioURL: managedAsset.mediaURL,
+                    recoveryAudioURLs: recoveryAudioURLs,
+                    microphoneHealth: sourceHealth?.microphone,
+                    systemAudioHealth: sourceHealth?.systemAudio,
+                    warning: sourceHealth?.warning
+                )
+                if let warning = sourceHealth?.warning {
+                    recordingState.message = localized(
+                        warning,
+                        locale: settingsStore.selectedAppLocale.locale
+                    )
+                }
+                if sourceHealth?.bothEmpty == true {
+                    throw MediaPreparationError.readFailed(
+                        "No speech was detected in either microphone or system audio. The audio was preserved for retry."
+                    )
+                }
+            }
             try ensureOperationCurrent(token)
 
             recordingState.updateJob(
@@ -5512,11 +6007,12 @@ final class AppCoordinator {
                 throw MediaPreparationError.readFailed("No speech could be transcribed from this recording.")
             }
 
-            let transcriptionMetadata = await generateTranscriptionMetadataIfNeeded(
-                from: finalText,
-                managedAsset: managedAsset
-            )
-            try ensureOperationCurrent(token)
+            let workspaceTitle: String?
+            if let occurrenceID {
+                workspaceTitle = try meetingStore.occurrence(id: occurrenceID)?.calendarTitle
+            } else {
+                workspaceTitle = nil
+            }
 
             let record = try historyStore.save(
                 text: finalText,
@@ -5526,15 +6022,25 @@ final class AppCoordinator {
                 enhancedWith: nil,
                 diarizationSegmentsJSON: diarizationSegmentsJSON,
                 sourceKind: managedAsset.sourceKind,
-                sourceDisplayName: managedAsset.displayName,
-                generatedTitle: transcriptionMetadata.generatedTitle,
-                aiSummary: transcriptionMetadata.summary,
+                sourceDisplayName: workspaceTitle ?? managedAsset.displayName,
+                generatedTitle: nil,
+                aiSummary: nil,
                 sourceTitleOrigin: managedAsset.hasSourceMetadataTitle ? .sourceMetadata : .fallback,
                 originalSourceURL: managedAsset.originalSourceURL,
                 managedMediaPath: managedAsset.mediaURL.path,
                 thumbnailPath: managedAsset.thumbnailURL?.path,
                 folderID: job.destinationFolderID
             )
+            if let occurrenceID {
+                try meetingStore.attachTranscript(id: occurrenceID, transcript: record)
+                try meetingStore.transition(id: occurrenceID, to: .ready)
+                await generateMeetingInsightsIfAllowed(
+                    occurrenceID: occurrenceID,
+                    transcript: finalText,
+                    reportErrorsInRecordingState: false
+                )
+            }
+            activeMeetingOccurrenceID = nil
             updateRecentTranscriptsMenu()
 
             if operationController.isCurrent(token) {
@@ -5560,6 +6066,13 @@ final class AppCoordinator {
             didResetProcessingState = true
             recordingState.clearCurrentJob()
             recordingState.message = localized("Recording canceled.", locale: settingsStore.selectedAppLocale.locale)
+            if let occurrenceID {
+                try? meetingStore.markFailedPreservingWorkspace(
+                    id: occurrenceID,
+                    message: "Meeting processing was canceled. Retry processing from the saved audio."
+                )
+            }
+            activeMeetingOccurrenceID = nil
         } catch {
             // Stale cancelled work completing after a newer session started: no state mutation.
             guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else { return }
@@ -5567,7 +6080,149 @@ final class AppCoordinator {
             resetProcessingState()
             didResetProcessingState = true
             recordingState.failCurrentJob(error.localizedDescription)
+            if let occurrenceID {
+                try? meetingStore.markFailedPreservingWorkspace(
+                    id: occurrenceID,
+                    message: error.localizedDescription
+                )
+            }
+            activeMeetingOccurrenceID = nil
         }
+    }
+
+    func retryMeetingProcessing(_ occurrenceID: UUID) {
+        guard !isRecording && !isProcessing else {
+            meetingsState.errorMessage = "Finish the active recording or transcription before retrying this meeting."
+            return
+        }
+        Task { @MainActor [weak self] in
+            await self?.processPreservedMeeting(occurrenceID)
+        }
+    }
+
+    func regenerateMeetingInsights(_ occurrenceID: UUID) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                guard self.settingsStore.onDeviceMeetingAIAllowed else {
+                    throw LocalMeetingModelError.missingWeights
+                }
+                guard let transcript = try self.meetingStore.occurrence(id: occurrenceID)?.transcript?.text,
+                      !transcript.isEmpty else {
+                    throw MediaPreparationError.readFailed("This meeting does not have a transcript yet.")
+                }
+                try await self.generateAndSaveMeetingInsights(
+                    occurrenceID: occurrenceID,
+                    transcript: transcript
+                )
+            } catch {
+                self.meetingsState.errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func processPreservedMeeting(_ occurrenceID: UUID) async {
+        do {
+            guard let occurrence = try meetingStore.occurrence(id: occurrenceID) else {
+                throw MeetingStore.StoreError.occurrenceNotFound
+            }
+            let candidates = [occurrence.managedAudioURL].compactMap { $0 } + occurrence.recoveryAudioURLs
+            guard let sourceURL = candidates.first(where: { FileManager.default.fileExists(atPath: $0.path) }) else {
+                throw MediaPreparationError.readFailed("No recoverable meeting audio was found.")
+            }
+            try meetingStore.transition(id: occurrenceID, to: .processing)
+            isProcessing = true
+            statusBarController.setProcessingState()
+            statusBarController.updateMenuState()
+            transitionRecordingIndicatorToProcessing()
+
+            let prepared: PreparedMediaAudio
+            if sourceURL.pathExtension.lowercased() == "pcm" {
+                let data = try Data(contentsOf: sourceURL)
+                prepared = PreparedMediaAudio(
+                    audioData: data,
+                    duration: Double(data.count) / Double(MemoryLayout<Float>.size * 16_000)
+                )
+            } else {
+                prepared = try await mediaPreparationService.prepareAudio(from: sourceURL)
+            }
+
+            let output = try await transcriptionService.transcribe(
+                audioData: prepared.audioData,
+                diarizationEnabled: true,
+                options: makeTranscriptionOptions(),
+                diarizationOptions: .init(expectedSpeakerCount: occurrence.expectedSpeakerCount),
+                diarizationFailurePolicy: .required
+            )
+            let text = normalizedTranscriptionText(output.text)
+            guard !isTranscriptionEffectivelyEmpty(text) else {
+                throw MediaPreparationError.readFailed("No speech could be transcribed from the preserved audio.")
+            }
+
+            let record = try historyStore.save(
+                text: text,
+                originalText: nil,
+                duration: prepared.duration,
+                modelUsed: settingsStore.selectedModel,
+                enhancedWith: nil,
+                diarizationSegmentsJSON: encodeDiarizationSegmentsJSON(output.diarizedSegments),
+                sourceKind: .manualCapture,
+                sourceDisplayName: occurrence.calendarTitle ?? occurrence.series?.displayName,
+                generatedTitle: nil,
+                aiSummary: nil,
+                sourceTitleOrigin: .fallback,
+                originalSourceURL: nil,
+                managedMediaPath: occurrence.managedAudioPath,
+                thumbnailPath: nil,
+                folderID: nil
+            )
+            try meetingStore.attachTranscript(id: occurrenceID, transcript: record)
+            try meetingStore.transition(id: occurrenceID, to: .ready)
+            await generateMeetingInsightsIfAllowed(
+                occurrenceID: occurrenceID,
+                transcript: text,
+                reportErrorsInRecordingState: false
+            )
+            updateRecentTranscriptsMenu()
+            meetingsState.errorMessage = nil
+        } catch {
+            try? meetingStore.markFailedPreservingWorkspace(
+                id: occurrenceID,
+                message: error.localizedDescription
+            )
+            meetingsState.errorMessage = error.localizedDescription
+        }
+        resetProcessingState()
+    }
+
+    private func generateMeetingInsightsIfAllowed(
+        occurrenceID: UUID,
+        transcript: String,
+        reportErrorsInRecordingState: Bool
+    ) async {
+        guard settingsStore.onDeviceMeetingAIAllowed else { return }
+        do {
+            try await generateAndSaveMeetingInsights(
+                occurrenceID: occurrenceID,
+                transcript: transcript
+            )
+        } catch {
+            Log.aiEnhancement.error("On-device meeting insights failed: \(error.localizedDescription)")
+            if reportErrorsInRecordingState {
+                recordingState.message = error.localizedDescription
+            }
+        }
+    }
+
+    private func generateAndSaveMeetingInsights(
+        occurrenceID: UUID,
+        transcript: String
+    ) async throws {
+        guard case .ready = await modelManager.localMeetingModelService.readiness() else {
+            throw LocalMeetingModelError.missingWeights
+        }
+        let insights = try await meetingInsightGenerator.generate(from: transcript)
+        try meetingStore.saveInsights(id: occurrenceID, insights: insights)
     }
 
     private func startMediaTranscriptionTask(for job: MediaTranscriptionJobState) {
@@ -6008,6 +6663,9 @@ final class AppCoordinator {
         recordingStopAdmission.invalidateCurrentClaim()
 
         audioRecorder.cancelRecording()
+        markActiveMeetingFailed(
+            "Meeting capture was canceled. Recoverable audio remains available for retry."
+        )
         if streamingSession.isSessionActive {
             await streamingSession.cancel()
         } else {

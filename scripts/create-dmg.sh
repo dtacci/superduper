@@ -1,11 +1,12 @@
 #!/bin/bash
 set -e
 
-# Pindrop DMG Creation Script
+# Superduper Dictation DMG Creation Script
 # Creates a distributable DMG with custom background and layout
 
 # Configuration
-APP_NAME="Pindrop"
+APP_NAME="Superduper Dictation"
+APP_ICON_NAME="SuperduperDictation.icns"
 APP_BUNDLE="DerivedData/Build/Products/Release/${APP_NAME}.app"
 DMG_DIR="dist"
 DMG_NAME="${APP_NAME}.dmg"
@@ -58,7 +59,7 @@ if [ -f "${BACKGROUND_IMG}" ]; then
     echo -e "${GREEN}🖼️  Using custom DMG background${NC}"
     create-dmg \
         --volname "${VOLUME_NAME}" \
-        --volicon "${APP_BUNDLE}/Contents/Resources/${APP_NAME}.icns" \
+        --volicon "${APP_BUNDLE}/Contents/Resources/${APP_ICON_NAME}" \
         --window-pos 200 120 \
         --window-size 800 400 \
         --background "${BACKGROUND_IMG}" \
@@ -73,7 +74,7 @@ else
     echo -e "${YELLOW}⚠️  No custom background found, using default layout${NC}"
     create-dmg \
         --volname "${VOLUME_NAME}" \
-        --volicon "${APP_BUNDLE}/Contents/Resources/${APP_NAME}.icns" \
+        --volicon "${APP_BUNDLE}/Contents/Resources/${APP_ICON_NAME}" \
         --window-pos 200 120 \
         --window-size 600 400 \
         --icon-size 100 \

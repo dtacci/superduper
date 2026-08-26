@@ -36,5 +36,9 @@
 	<string>Superduper Dictation needs microphone access to transcribe your voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Superduper Dictation uses on-device speech recognition to transcribe your audio without sending data to any server.</string>
+	<!-- Supply a Google desktop OAuth client ID in distribution builds. Developers
+	     can override this with PINDROP_GOOGLE_CLIENT_ID. -->
+	<key>GoogleCalendarClientID</key>
+	<string></string>
 </dict>
 </plist>

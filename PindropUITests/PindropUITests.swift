@@ -9,7 +9,7 @@ import AppKit
 import XCTest
 
 final class PindropUITests: XCTestCase {
-    private let targetBundleIdentifier = "tech.watzon.pindrop"
+    private let targetBundleIdentifier = "com.dantacci.superduper-dictation"
     private let testModeKey = "PINDROP_TEST_MODE"
     private let uiTestModeKey = "PINDROP_UI_TEST_MODE"
     private let uiTestSurfaceKey = "PINDROP_UI_TEST_SURFACE"
@@ -75,6 +75,56 @@ final class PindropUITests: XCTestCase {
         )
         XCTAssertTrue(app.staticTexts["Theme Mode"].exists)
         XCTAssertTrue(app.staticTexts["Recording indicator"].exists)
+    }
+
+    @MainActor
+    func testMeetingsFixtureArmsAndDisarmsOnlyTheSelectedOccurrence() throws {
+        try skipIfTargetAppIsAlreadyRunning()
+
+        let app = configuredApplication(surface: "meetings")
+        launchedApplication = app
+        app.launch()
+
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["meetings.page"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Design review"].exists)
+
+        let armButton = app.buttons["meeting.calendar.arm"]
+        XCTAssertTrue(armButton.waitForExistence(timeout: 2))
+        armButton.click()
+
+        let disarmButton = app.buttons["meeting.calendar.disarm"]
+        XCTAssertTrue(disarmButton.waitForExistence(timeout: 2))
+        disarmButton.click()
+        XCTAssertTrue(armButton.waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testGoogleCalendarSetupWizardCompletesPrivacyConnectionAndReadiness() throws {
+        try skipIfTargetAppIsAlreadyRunning()
+
+        let app = configuredApplication(surface: "calendarSetup")
+        launchedApplication = app
+        app.launch()
+
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
+        XCTAssertTrue(
+            app.descendants(matching: .any)["googleCalendar.setupWizard"]
+                .waitForExistence(timeout: 5)
+        )
+
+        app.buttons["Continue"].click()
+
+        let connectButton = app.buttons["googleCalendar.setup.connect"]
+        XCTAssertTrue(connectButton.waitForExistence(timeout: 2))
+        connectButton.click()
+
+        let enableButton = app.buttons["googleCalendar.setup.enableLaunchAtLogin"]
+        XCTAssertTrue(enableButton.waitForExistence(timeout: 2))
+        enableButton.click()
+
+        let finishButton = app.buttons["googleCalendar.setup.finish"]
+        XCTAssertTrue(finishButton.isEnabled)
     }
 
     private func configuredApplication(

@@ -113,9 +113,24 @@ struct AudioPCMFile {
     let fileURL: URL
     let byteCount: Int
     let sampleRate: Double
+    let deleteWhenConsumed: Bool
+
+    init(
+        fileURL: URL,
+        byteCount: Int,
+        sampleRate: Double,
+        deleteWhenConsumed: Bool = true
+    ) {
+        self.fileURL = fileURL
+        self.byteCount = byteCount
+        self.sampleRate = sampleRate
+        self.deleteWhenConsumed = deleteWhenConsumed
+    }
 
     func consumeData(maximumByteCount: Int) throws -> Data {
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer {
+            if deleteWhenConsumed { try? FileManager.default.removeItem(at: fileURL) }
+        }
         guard byteCount <= maximumByteCount else {
             throw AudioRecorderError.recordingTooLong(
                 maximumDuration: Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size)
@@ -128,7 +143,26 @@ struct AudioPCMFile {
     }
 
     func discard() {
-        try? FileManager.default.removeItem(at: fileURL)
+        if deleteWhenConsumed { try? FileManager.default.removeItem(at: fileURL) }
+    }
+}
+
+struct MeetingAudioSourceHealthSnapshot: Equatable, Sendable {
+    let microphone: MeetingAudioSourceHealth
+    let systemAudio: MeetingAudioSourceHealth
+
+    var bothEmpty: Bool {
+        [microphone, systemAudio].allSatisfy { $0 == .silent || $0 == .failed }
+    }
+
+    var warning: String? {
+        if microphone == .silent || microphone == .failed {
+            return "Microphone audio was silent; the transcript uses system audio."
+        }
+        if systemAudio == .silent || systemAudio == .failed {
+            return "System audio was silent; the transcript uses microphone audio."
+        }
+        return nil
     }
 }
 
@@ -139,6 +173,10 @@ protocol AudioCaptureBackend: AnyObject {
     /// When true, capture also accumulates buffers at the device's native sample
     /// rate for retention-quality encoding. Set before `startCapture`.
     var retainsNativeAudio: Bool { get set }
+    /// When set, the ASR spool is written directly into this durable meeting
+    /// workspace and is not removed during finalization or failure cleanup.
+    var persistentSpoolDirectoryURL: URL? { get set }
+    var meetingSourceHealth: MeetingAudioSourceHealthSnapshot? { get }
 
     func startCapture(
         onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
@@ -162,6 +200,13 @@ extension AudioCaptureBackend {
     }
 
     func collectNativeAudio() -> AudioCaptureNativeAudio? { nil }
+
+    var persistentSpoolDirectoryURL: URL? {
+        get { nil }
+        set {}
+    }
+
+    var meetingSourceHealth: MeetingAudioSourceHealthSnapshot? { nil }
 }
 
 private enum AudioCaptureUtilities {
@@ -391,8 +436,14 @@ extension AudioCaptureUtilities {
             system.discard()
         }
 
-        let outputURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("pindrop-mixed-audio-\(UUID().uuidString).pcm")
+        let isPersistent = !microphone.deleteWhenConsumed || !system.deleteWhenConsumed
+        let outputURL = isPersistent
+            ? microphone.fileURL.deletingLastPathComponent().appendingPathComponent("capture-mixed.pcm")
+            : FileManager.default.temporaryDirectory
+                .appendingPathComponent("pindrop-mixed-audio-\(UUID().uuidString).pcm")
+        if FileManager.default.fileExists(atPath: outputURL.path) {
+            try FileManager.default.removeItem(at: outputURL)
+        }
         guard FileManager.default.createFile(atPath: outputURL.path, contents: nil) else {
             throw AudioRecorderError.engineStartFailed("Unable to create mixed audio spool")
         }
@@ -437,7 +488,8 @@ extension AudioCaptureUtilities {
             return AudioPCMFile(
                 fileURL: outputURL,
                 byteCount: outputByteCount,
-                sampleRate: microphone.sampleRate
+                sampleRate: microphone.sampleRate,
+                deleteWhenConsumed: !isPersistent
             )
         } catch {
             try? FileManager.default.removeItem(at: outputURL)
@@ -501,6 +553,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     private var onWriteFailure: ((Error) -> Void)?
     private var onLimitReached: ((TimeInterval) -> Void)?
     private var limitReached = false
+    private var preservesFileOnDiscard = false
     private let writerQueue = DispatchQueue(label: "tech.watzon.pindrop.audio-pcm-writer")
     private let writerQueueIdentifier = UUID()
     private let slabs: [PCMStorageSlab]
@@ -543,13 +596,26 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     }
 
     func start(
+        at persistentURL: URL? = nil,
         onWriteFailure: @escaping (Error) -> Void = { _ in },
         onLimitReached: @escaping (TimeInterval) -> Void = { _ in }
     ) throws {
         try writerQueue.sync {
             closeAndRemoveFile()
-            let url = FileManager.default.temporaryDirectory
-                .appendingPathComponent("pindrop-audio-\(UUID().uuidString).pcm")
+            let url: URL
+            if let persistentURL {
+                try FileManager.default.createDirectory(
+                    at: persistentURL.deletingLastPathComponent(),
+                    withIntermediateDirectories: true
+                )
+                if FileManager.default.fileExists(atPath: persistentURL.path) {
+                    try FileManager.default.removeItem(at: persistentURL)
+                }
+                url = persistentURL
+            } else {
+                url = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("pindrop-audio-\(UUID().uuidString).pcm")
+            }
             guard FileManager.default.createFile(atPath: url.path, contents: nil) else {
                 throw AudioRecorderError.engineStartFailed("Unable to create temporary audio spool")
             }
@@ -566,6 +632,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             self.onWriteFailure = onWriteFailure
             self.onLimitReached = onLimitReached
             limitReached = false
+            preservesFileOnDiscard = persistentURL != nil
             isDiscarded = false
         }
     }
@@ -621,8 +688,14 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             fileHandle = nil
             self.fileURL = nil
             self.sampleRate = nil
-            let result = AudioPCMFile(fileURL: fileURL, byteCount: byteCount, sampleRate: sampleRate)
+            let result = AudioPCMFile(
+                fileURL: fileURL,
+                byteCount: byteCount,
+                sampleRate: sampleRate,
+                deleteWhenConsumed: !preservesFileOnDiscard
+            )
             byteCount = 0
+            preservesFileOnDiscard = false
             isDiscarded = true
             return result
             }
@@ -692,13 +765,20 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     private func discardOnWriterQueue() {
         guard !isDiscarded else { return }
         isDiscarded = true
-        closeAndRemoveFile()
+        if preservesFileOnDiscard {
+            try? fileHandle?.close()
+            fileHandle = nil
+            fileURL = nil
+        } else {
+            closeAndRemoveFile()
+        }
         sampleRate = nil
         byteCount = 0
         writeFailure = nil
         onWriteFailure = nil
         onLimitReached = nil
         limitReached = false
+        preservesFileOnDiscard = false
     }
 
     private func recordWriteFailure(_ error: Error) {
@@ -724,6 +804,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     /// Reused across tap callbacks; rebuilt when the engine reinstalls a tap with a new format.
     private let audioConverter = ReusableAudioConverter()
     var retainsNativeAudio = false
+    var persistentSpoolDirectoryURL: URL?
     private var preferredInputDeviceUID: String?
     private var configurationChangeObserver: NSObjectProtocol?
     private var onBufferCallback: ((AVAudioPCMBuffer) -> Void)?
@@ -763,6 +844,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         self.onErrorCallback = onError
         do {
             try audioStorage.start(
+                at: persistentSpoolDirectoryURL?.appendingPathComponent("capture-microphone.pcm"),
                 onWriteFailure: onError,
                 onLimitReached: { onError(AudioRecorderError.recordingLimitReached(maximumDuration: $0)) }
             )
@@ -1234,6 +1316,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
     private let asrConverter = ReusableAudioConverter()
     private let nativeConverter = ReusableAudioConverter()
     var retainsNativeAudio = false
+    var persistentSpoolDirectoryURL: URL?
     private let targetFormatStorage: AVAudioFormat
     private let callbackQueue = DispatchQueue(label: "tech.watzon.pindrop.microphone-input")
     private let callbackQueueKey = DispatchSpecificKey<Bool>()
@@ -1282,6 +1365,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         guard !isCapturing else { return }
         do {
             try audioStorage.start(
+                at: persistentSpoolDirectoryURL?.appendingPathComponent("capture-microphone.pcm"),
                 onWriteFailure: onError,
                 onLimitReached: { onError(AudioRecorderError.recordingLimitReached(maximumDuration: $0)) }
             )
@@ -2026,6 +2110,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     private var ioProcID: AudioDeviceIOProcID?
 
     private(set) var isCapturing = false
+    var persistentSpoolDirectoryURL: URL?
 
     var targetFormat: AVAudioFormat {
         if targetFormatStorage.sampleRate == 0 ||
@@ -2076,6 +2161,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     ) throws {
         guard !isCapturing else { return }
         try audioStorage.start(
+            at: persistentSpoolDirectoryURL?.appendingPathComponent("capture-system.pcm"),
             onWriteFailure: onError,
             onLimitReached: { onError(AudioRecorderError.recordingLimitReached(maximumDuration: $0)) }
         )
@@ -2358,6 +2444,12 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
 final class MixedAudioCaptureBackend: AudioCaptureBackend {
     private let microphoneBackend: AudioCaptureBackend
     private let systemAudioBackend: AudioCaptureBackend
+    private let healthLock = NSLock()
+    private var currentMicrophoneLevel: Float = 0
+    private var currentSystemAudioLevel: Float = 0
+    private var maximumMicrophoneLevel: Float = 0
+    private var maximumSystemAudioLevel: Float = 0
+    private(set) var meetingSourceHealth: MeetingAudioSourceHealthSnapshot?
 
     private(set) var isCapturing = false
 
@@ -2370,6 +2462,14 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
         set { microphoneBackend.retainsNativeAudio = newValue }
     }
 
+    var persistentSpoolDirectoryURL: URL? {
+        get { microphoneBackend.persistentSpoolDirectoryURL }
+        set {
+            microphoneBackend.persistentSpoolDirectoryURL = newValue
+            systemAudioBackend.persistentSpoolDirectoryURL = newValue
+        }
+    }
+
     init(microphoneBackend: AudioCaptureBackend, systemAudioBackend: AudioCaptureBackend) {
         self.microphoneBackend = microphoneBackend
         self.systemAudioBackend = systemAudioBackend
@@ -2380,13 +2480,22 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
         onAudioLevel: @escaping (Float) -> Void,
         onError: @escaping (Error) -> Void
     ) throws {
-        var microphoneLevel: Float = 0
-        var systemLevel: Float = 0
+        healthLock.withLock {
+            currentMicrophoneLevel = 0
+            currentSystemAudioLevel = 0
+            maximumMicrophoneLevel = 0
+            maximumSystemAudioLevel = 0
+        }
+        meetingSourceHealth = nil
 
         do {
             try microphoneBackend.startCapture(onBuffer: { _ in }, onAudioLevel: { level in
-                microphoneLevel = level
-                onAudioLevel(max(microphoneLevel, systemLevel))
+                let mixedLevel = self.healthLock.withLock {
+                    self.currentMicrophoneLevel = level
+                    self.maximumMicrophoneLevel = max(self.maximumMicrophoneLevel, level)
+                    return max(self.currentMicrophoneLevel, self.currentSystemAudioLevel)
+                }
+                onAudioLevel(mixedLevel)
             }, onError: onError)
         } catch {
             throw error
@@ -2394,8 +2503,12 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
 
         do {
             try systemAudioBackend.startCapture(onBuffer: { _ in }, onAudioLevel: { level in
-                systemLevel = level
-                onAudioLevel(max(microphoneLevel, systemLevel))
+                let mixedLevel = self.healthLock.withLock {
+                    self.currentSystemAudioLevel = level
+                    self.maximumSystemAudioLevel = max(self.maximumSystemAudioLevel, level)
+                    return max(self.currentMicrophoneLevel, self.currentSystemAudioLevel)
+                }
+                onAudioLevel(mixedLevel)
             }, onError: onError)
         } catch {
             microphoneBackend.cancelCapture()
@@ -2411,26 +2524,32 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
             throw AudioRecorderError.notRecording
         }
 
-        let microphoneAudio: AudioPCMFile
-        do {
-            microphoneAudio = try microphoneBackend.stopCapture()
-        } catch {
-            systemAudioBackend.cancelCapture()
-            isCapturing = false
-            throw error
-        }
-        let systemAudio: AudioPCMFile
-        do {
-            systemAudio = try systemAudioBackend.stopCapture()
-        } catch {
-            microphoneAudio.discard()
-            systemAudioBackend.cancelCapture()
-            isCapturing = false
-            throw error
-        }
+        let microphoneResult = Result { try microphoneBackend.stopCapture() }
+        let systemAudioResult = Result { try systemAudioBackend.stopCapture() }
         isCapturing = false
 
-        return try AudioCaptureUtilities.mixPCMFiles(microphoneAudio, systemAudio)
+        let levels = healthLock.withLock { (maximumMicrophoneLevel, maximumSystemAudioLevel) }
+        let microphoneHealth = Self.health(for: microphoneResult, maximumLevel: levels.0)
+        let systemAudioHealth = Self.health(for: systemAudioResult, maximumLevel: levels.1)
+        meetingSourceHealth = MeetingAudioSourceHealthSnapshot(
+            microphone: microphoneHealth,
+            systemAudio: systemAudioHealth
+        )
+
+        switch (microphoneResult, systemAudioResult) {
+        case (.success(let microphoneAudio), .success(let systemAudio)):
+            return try AudioCaptureUtilities.mixPCMFiles(microphoneAudio, systemAudio)
+        case (.success(let microphoneAudio), .failure):
+            systemAudioBackend.cancelCapture()
+            return microphoneAudio
+        case (.failure, .success(let systemAudio)):
+            microphoneBackend.cancelCapture()
+            return systemAudio
+        case (.failure(let microphoneError), .failure):
+            microphoneBackend.cancelCapture()
+            systemAudioBackend.cancelCapture()
+            throw microphoneError
+        }
     }
 
     func cancelCapture() {
@@ -2451,6 +2570,18 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
 
     func collectNativeAudio() -> AudioCaptureNativeAudio? {
         microphoneBackend.collectNativeAudio()
+    }
+
+    private static func health(
+        for result: Result<AudioPCMFile, Error>,
+        maximumLevel: Float
+    ) -> MeetingAudioSourceHealth {
+        switch result {
+        case .failure:
+            return .failed
+        case .success(let audio):
+            return audio.byteCount > 0 && maximumLevel > 0.01 ? .healthy : .silent
+        }
     }
 }
 
@@ -2601,10 +2732,16 @@ private final class CaptureFinalizationHandoff: @unchecked Sendable {
 private final class CaptureFinalizationResult: @unchecked Sendable {
     let audioData: Data
     let nativeAudio: AudioCaptureNativeAudio?
+    let sourceHealth: MeetingAudioSourceHealthSnapshot?
 
-    init(audioData: Data, nativeAudio: AudioCaptureNativeAudio?) {
+    init(
+        audioData: Data,
+        nativeAudio: AudioCaptureNativeAudio?,
+        sourceHealth: MeetingAudioSourceHealthSnapshot?
+    ) {
         self.audioData = audioData
         self.nativeAudio = nativeAudio
+        self.sourceHealth = sourceHealth
     }
 }
 
@@ -2618,9 +2755,14 @@ private enum CaptureFinalization {
     ) throws -> CaptureFinalizationResult {
         let capturedAudio = try backend.stopCapture()
         let nativeAudio = backend.collectNativeAudio()
+        let sourceHealth = backend.meetingSourceHealth
         do {
             let audioData = try capturedAudio.consumeData(maximumByteCount: maximumByteCount)
-            return CaptureFinalizationResult(audioData: audioData, nativeAudio: nativeAudio)
+            return CaptureFinalizationResult(
+                audioData: audioData,
+                nativeAudio: nativeAudio,
+                sourceHealth: sourceHealth
+            )
         } catch {
             nativeAudio?.discard()
             // consumeData removes the ASR spool in both success and failure paths.
@@ -2720,6 +2862,10 @@ final class AudioRecorder {
     var retainNativeAudioForSession = false
     /// Native-rate spool from the most recent stopped recording, if kept.
     private var lastNativeAudio: AudioCaptureNativeAudio?
+    /// Set for mixed meeting captures after both sources have been finalized.
+    private(set) var lastMeetingSourceHealth: MeetingAudioSourceHealthSnapshot?
+    /// A UUID-based meeting workspace set by the coordinator before capture.
+    var persistentSpoolDirectoryURL: URL?
     var onAudioBandLevels: ((AudioBandLevels) -> Void)?
     var onCaptureError: ((Error) -> Void)?
 
@@ -2787,6 +2933,8 @@ final class AudioRecorder {
         lastNativeAudio?.discard()
         lastNativeAudio = nil
         captureBackend.retainsNativeAudio = retainNativeAudioForSession
+        captureBackend.persistentSpoolDirectoryURL = persistentSpoolDirectoryURL
+        lastMeetingSourceHealth = nil
         isLimitStopRequested = false
 
         bandLevelAnalyzer.reset()
@@ -2869,6 +3017,8 @@ final class AudioRecorder {
             endCaptureFinalization(handoff)
             lastNativeAudio?.discard()
             lastNativeAudio = result.nativeAudio
+            lastMeetingSourceHealth = result.sourceHealth
+            persistentSpoolDirectoryURL = nil
             Log.audio.info("Recording stopped, \(result.audioData.count) bytes captured")
             return result.audioData
         } catch {
@@ -2884,6 +3034,7 @@ final class AudioRecorder {
             endCaptureFinalization(handoff)
             lastNativeAudio?.discard()
             lastNativeAudio = nil
+            persistentSpoolDirectoryURL = nil
             throw error
         }
     }
@@ -2901,6 +3052,8 @@ final class AudioRecorder {
         meterDelivery.reset()
         lastNativeAudio?.discard()
         lastNativeAudio = nil
+        lastMeetingSourceHealth = nil
+        persistentSpoolDirectoryURL = nil
 
         Log.audio.info("Recording cancelled, audio discarded")
     }
@@ -2914,11 +3067,13 @@ final class AudioRecorder {
             activeCaptureBackend = nil
             lastNativeAudio?.discard()
             lastNativeAudio = nil
+            lastMeetingSourceHealth = nil
         }
         currentConfiguration = .microphone
         isRecording = false
         isLimitStopRequested = false
         meterDelivery.reset()
+        persistentSpoolDirectoryURL = nil
         Log.audio.info("Audio engine reset")
     }
 

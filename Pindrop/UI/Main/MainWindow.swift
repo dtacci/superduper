@@ -15,6 +15,7 @@ enum MainNavItem: String, Identifiable {
     case home = "Home"
     case stats = "Stats"
     case history = "History"
+    case meetings = "Meetings"
     case notes = "Notes"
     /// Unrouted as of U2 — kept for API compatibility; navigation redirects to History.
     case transcribe = "Transcribe"
@@ -22,11 +23,12 @@ enum MainNavItem: String, Identifiable {
     case dictionary = "Dictionary"
 
     /// Primary sidebar destinations after U2 restructure.
-    /// Order: Home, Stats, History, Notes, Dictionary, Models (⌘1–6).
+    /// Order: Home, Stats, History, Meetings, Notes, Dictionary, Models (⌘1–7).
     static let primaryNavigationItems: [MainNavItem] = [
         .home,
         .stats,
         .history,
+        .meetings,
         .notes,
         .dictionary,
         .models
@@ -62,6 +64,7 @@ enum MainNavItem: String, Identifiable {
         case .home: return "house"
         case .stats: return "chart.xyaxis.line"
         case .history: return "books.vertical"
+        case .meetings: return "person.2.wave.2"
         case .notes: return "note.text"
         case .transcribe: return "waveform"
         case .models: return "cpu"
@@ -100,6 +103,7 @@ struct MainWindow: View {
     let floatingIndicatorState: FloatingIndicatorState?
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let recordingState: RecordingFeatureState?
+    let meetingsState: MeetingsFeatureState?
     let modelManager: ModelManager?
     let onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
     let onSubmitMediaLink: ((String, TranscriptionJobOptions) -> Void)?
@@ -107,6 +111,14 @@ struct MainWindow: View {
     let onDownloadDiarizationModel: (() -> Void)?
     let onNewTranscription: (() -> Void)?
     let onStartMeetingCapture: ((Int?) -> Void)?
+    let onConnectGoogleCalendar: (() -> Void)?
+    let onEnableCalendarLaunchAtLogin: (() -> Void)?
+    let onDisconnectGoogleCalendar: (() -> Void)?
+    let onRefreshGoogleCalendar: (() -> Void)?
+    let onArmCalendarMeeting: ((MeetingOccurrenceSnapshot) -> Void)?
+    let onDisarmCalendarMeeting: ((String) -> Void)?
+    let onRetryMeetingProcessing: ((UUID) -> Void)?
+    let onRegenerateMeetingInsights: ((UUID) -> Void)?
     let onStartNoteCapture: (() -> Void)?
     let onOpenSettings: (SettingsTab) -> Void
 
@@ -244,6 +256,23 @@ struct MainWindow: View {
                 onStartMeetingCapture: onStartMeetingCapture,
                 onDownloadDiarizationModel: onDownloadDiarizationModel
             )
+        case .meetings:
+            if let meetingsState {
+                MeetingsView(
+                    meetingsState: meetingsState,
+                    onConnect: onConnectGoogleCalendar ?? {},
+                    onEnableLaunchAtLogin: onEnableCalendarLaunchAtLogin ?? {},
+                    onDisconnect: onDisconnectGoogleCalendar ?? {},
+                    onRefresh: onRefreshGoogleCalendar ?? {},
+                    onRecordMeeting: { onStartMeetingCapture?(nil) },
+                    onArm: onArmCalendarMeeting ?? { _ in },
+                    onDisarm: onDisarmCalendarMeeting ?? { _ in },
+                    onRetryProcessing: onRetryMeetingProcessing ?? { _ in },
+                    onRegenerateInsights: onRegenerateMeetingInsights ?? { _ in }
+                )
+            } else {
+                comingSoonView(for: selectedNav)
+            }
         case .notes:
             NotesView()
         case .transcribe:
@@ -683,6 +712,7 @@ final class MainWindowController {
     private var floatingIndicatorState: FloatingIndicatorState?
     private var mediaTranscriptionState: MediaTranscriptionFeatureState?
     private var recordingState: RecordingFeatureState?
+    private var meetingsState: MeetingsFeatureState?
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
     private var navObserver: Any?
@@ -694,6 +724,14 @@ final class MainWindowController {
     var onDownloadDiarizationModel: (() -> Void)?
     var onNewTranscription: (() -> Void)?
     var onStartMeetingCapture: ((Int?) -> Void)?
+    var onConnectGoogleCalendar: (() -> Void)?
+    var onEnableCalendarLaunchAtLogin: (() -> Void)?
+    var onDisconnectGoogleCalendar: (() -> Void)?
+    var onRefreshGoogleCalendar: (() -> Void)?
+    var onArmCalendarMeeting: ((MeetingOccurrenceSnapshot) -> Void)?
+    var onDisarmCalendarMeeting: ((String) -> Void)?
+    var onRetryMeetingProcessing: ((UUID) -> Void)?
+    var onRegenerateMeetingInsights: ((UUID) -> Void)?
     var onStartNoteCapture: (() -> Void)?
     var onOpenSettings: ((SettingsTab) -> Void)?
 
@@ -744,6 +782,28 @@ final class MainWindowController {
         self.onSubmitMediaLink = onSubmitMediaLink
         self.onClearMediaQueue = onClearMediaQueue
         self.onDownloadDiarizationModel = onDownloadDiarizationModel
+    }
+
+    func configureMeetingsFeature(
+        state: MeetingsFeatureState,
+        onConnect: @escaping () -> Void,
+        onEnableLaunchAtLogin: @escaping () -> Void,
+        onDisconnect: @escaping () -> Void,
+        onRefresh: @escaping () -> Void,
+        onArm: @escaping (MeetingOccurrenceSnapshot) -> Void,
+        onDisarm: @escaping (String) -> Void,
+        onRetryProcessing: @escaping (UUID) -> Void,
+        onRegenerateInsights: @escaping (UUID) -> Void
+    ) {
+        meetingsState = state
+        onConnectGoogleCalendar = onConnect
+        onEnableCalendarLaunchAtLogin = onEnableLaunchAtLogin
+        onDisconnectGoogleCalendar = onDisconnect
+        onRefreshGoogleCalendar = onRefresh
+        onArmCalendarMeeting = onArm
+        onDisarmCalendarMeeting = onDisarm
+        onRetryMeetingProcessing = onRetryProcessing
+        onRegenerateMeetingInsights = onRegenerateInsights
     }
 
     func show() {
@@ -802,6 +862,7 @@ final class MainWindowController {
                 floatingIndicatorState: floatingIndicatorState,
                 mediaTranscriptionState: mediaTranscriptionState,
                 recordingState: recordingState,
+                meetingsState: meetingsState,
                 modelManager: modelManager,
                 onImportMediaFiles: onImportMediaFiles,
                 onSubmitMediaLink: onSubmitMediaLink,
@@ -809,6 +870,14 @@ final class MainWindowController {
                 onDownloadDiarizationModel: onDownloadDiarizationModel,
                 onNewTranscription: onNewTranscription,
                 onStartMeetingCapture: onStartMeetingCapture,
+                onConnectGoogleCalendar: onConnectGoogleCalendar,
+                onEnableCalendarLaunchAtLogin: onEnableCalendarLaunchAtLogin,
+                onDisconnectGoogleCalendar: onDisconnectGoogleCalendar,
+                onRefreshGoogleCalendar: onRefreshGoogleCalendar,
+                onArmCalendarMeeting: onArmCalendarMeeting,
+                onDisarmCalendarMeeting: onDisarmCalendarMeeting,
+                onRetryMeetingProcessing: onRetryMeetingProcessing,
+                onRegenerateMeetingInsights: onRegenerateMeetingInsights,
                 onStartNoteCapture: onStartNoteCapture,
                 onOpenSettings: onOpenSettings ?? { _ in
                     Log.ui.error("Settings presenter not set - cannot show settings")
@@ -941,6 +1010,7 @@ final class MainWindowController {
         floatingIndicatorState: nil,
         mediaTranscriptionState: nil,
         recordingState: nil,
+        meetingsState: nil,
         modelManager: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
@@ -948,6 +1018,14 @@ final class MainWindowController {
         onDownloadDiarizationModel: nil,
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
+        onConnectGoogleCalendar: nil,
+        onEnableCalendarLaunchAtLogin: nil,
+        onDisconnectGoogleCalendar: nil,
+        onRefreshGoogleCalendar: nil,
+        onArmCalendarMeeting: nil,
+        onDisarmCalendarMeeting: nil,
+        onRetryMeetingProcessing: nil,
+        onRegenerateMeetingInsights: nil,
         onStartNoteCapture: nil,
         onOpenSettings: { _ in }
     )
@@ -962,6 +1040,7 @@ final class MainWindowController {
         floatingIndicatorState: nil,
         mediaTranscriptionState: nil,
         recordingState: nil,
+        meetingsState: nil,
         modelManager: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
@@ -969,6 +1048,14 @@ final class MainWindowController {
         onDownloadDiarizationModel: nil,
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
+        onConnectGoogleCalendar: nil,
+        onEnableCalendarLaunchAtLogin: nil,
+        onDisconnectGoogleCalendar: nil,
+        onRefreshGoogleCalendar: nil,
+        onArmCalendarMeeting: nil,
+        onDisarmCalendarMeeting: nil,
+        onRetryMeetingProcessing: nil,
+        onRegenerateMeetingInsights: nil,
         onStartNoteCapture: nil,
         onOpenSettings: { _ in }
     )

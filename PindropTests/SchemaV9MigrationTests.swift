@@ -21,7 +21,7 @@ struct SchemaV9MigrationTests {
 
         let fetched = try context.fetch(FetchDescriptor<ParticipantProfile>())
         #expect(fetched.first?.embeddingSpaceIdentifier == nil)
-        #expect(TranscriptionRecordSchemaV12.models.contains { $0 == ParticipantProfile.self })
+        #expect(TranscriptionRecordSchemaV13.models.contains { $0 == ParticipantProfile.self })
     }
 
     @Test func migrationPlanIncludesV9ToV10LightweightStage() {

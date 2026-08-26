@@ -1,7 +1,7 @@
 # Build guide
 
-The Xcode project and scheme retain the inherited name `Pindrop`; the built
-product displays as Superduper Dictation.
+The Xcode project, scheme, and Swift module retain the inherited name `Pindrop`;
+the built application is `Superduper Dictation.app`.
 
 ## Prerequisites
 

@@ -47,6 +47,7 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
     case vad = "vad"
     case diarization = "diarization"
     case streaming = "streaming"
+    case meetingNotes = "meetingNotes"
 
     var id: String { rawValue }
 
@@ -58,6 +59,8 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
             return "Speaker Diarization"
         case .streaming:
             return "Streaming Transcription"
+        case .meetingNotes:
+            return "On-Device Meeting Notes"
         }
     }
 
@@ -69,6 +72,8 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
             return "Identifies different speakers in recordings"
         case .streaming:
             return "Real-time transcription as you speak"
+        case .meetingNotes:
+            return "Creates private summaries, decisions, and action items on this Mac"
         }
     }
 
@@ -81,6 +86,9 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
         case .streaming:
             // Nemotron 0.6B per chunk variant (int8-quantized encoder).
             return 650
+        case .meetingNotes:
+            // Qwen3-4B-MLX-4bit pinned download size (approximately 2.15 GB).
+            return 2_150
         }
     }
 
@@ -104,6 +112,8 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
             return "person.2.wave.2"
         case .streaming:
             return "text.bubble"
+        case .meetingNotes:
+            return "brain.head.profile"
         }
     }
 
@@ -118,6 +128,8 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
             return "speaker-diarization-coreml"
         case .streaming:
             return StreamingChunkProfile.standard.repoFolderName
+        case .meetingNotes:
+            return "Qwen3-4B-MLX-4bit"
         }
     }
 

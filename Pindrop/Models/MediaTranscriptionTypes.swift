@@ -244,6 +244,7 @@ final class MediaTranscriptionFeatureState {
     var librarySearchText: String = ""
     var librarySortMode: MediaLibrarySortMode = .newest
     var setupIssue: String?
+    var diarizationIssueNeedsRepair = false
     var isDiarizationModelDownloading = false
     var diarizationModelDownloadProgress: Double = 0.0
     var libraryMessage: String?
@@ -251,6 +252,7 @@ final class MediaTranscriptionFeatureState {
     func beginJob(_ job: MediaTranscriptionJobState) {
         currentJob = job
         setupIssue = nil
+        diarizationIssueNeedsRepair = false
         libraryMessage = nil
         route = .processing(job.id)
     }
@@ -363,8 +365,9 @@ final class MediaTranscriptionFeatureState {
         route = .library
     }
 
-    func setSetupIssue(_ message: String) {
+    func setSetupIssue(_ message: String, requiresRepair: Bool = false) {
         setupIssue = message
+        diarizationIssueNeedsRepair = requiresRepair
         route = .library
     }
 
@@ -387,6 +390,7 @@ final class RecordingFeatureState {
     var diarizationModelDownloadProgress: Double = 0.0
     var currentJob: MediaTranscriptionJobState?
     var setupIssue: String?
+    var diarizationIssueNeedsRepair = false
     var message: String?
     var lastCompletedRecordID: UUID?
 
@@ -396,6 +400,7 @@ final class RecordingFeatureState {
         recordingStartedAt = startedAt
         lastCompletedRecordID = nil
         setupIssue = nil
+        diarizationIssueNeedsRepair = false
         message = nil
     }
 
@@ -445,7 +450,8 @@ final class RecordingFeatureState {
         self.message = message
     }
 
-    func setSetupIssue(_ message: String) {
+    func setSetupIssue(_ message: String, requiresRepair: Bool = false) {
         setupIssue = message
+        diarizationIssueNeedsRepair = requiresRepair
     }
 }

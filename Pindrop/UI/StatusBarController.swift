@@ -30,6 +30,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var recordingStatusItem: NSMenuItem?
     private var toggleRecordingItem: NSMenuItem?
     private var toggleMeetingCaptureItem: NSMenuItem?
+    private var toggleRecordingIndicatorItem: NSMenuItem?
     private var clearAudioBufferItem: NSMenuItem?
     private var cancelOperationItem: NSMenuItem?
     private var contextualItemsInserted = false
@@ -51,6 +52,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     var onToggleRecording: (() async -> Void)?
     var onToggleMeetingCapture: (() async -> Void)?
+    var onToggleRecordingIndicator: (() -> Void)?
     var onShowApp: (() -> Void)?
     var onCopyLastTranscript: (() async -> Void)?
     var onPasteLastTranscript: (() async -> Void)?
@@ -205,6 +207,18 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         )
         configureMeetingShortcutDisplay()
         menu.addItem(toggleMeetingCaptureItem!)
+
+        toggleRecordingIndicatorItem = NSMenuItem(
+            title: localized("Show Recording Indicator", locale: locale),
+            action: #selector(toggleRecordingIndicator),
+            keyEquivalent: ""
+        )
+        toggleRecordingIndicatorItem?.target = self
+        toggleRecordingIndicatorItem?.image = NSImage(
+            systemSymbolName: "waveform",
+            accessibilityDescription: nil
+        )
+        menu.addItem(toggleRecordingIndicatorItem!)
 
         // Contextual items (Clear Audio Buffer / Cancel Operation) are created here but only
         // inserted into the menu while recording/processing — see updateMenuState().
@@ -450,6 +464,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         updateStatusRow()
         updatePromptPresetItems()
         configureMeetingShortcutDisplay()
+        toggleRecordingIndicatorItem?.state = settingsStore.floatingIndicatorEnabled ? .on : .off
     }
 
     private func startInputDeviceCacheObservation() {
@@ -512,6 +527,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     func updateMenuState() {
+        toggleRecordingIndicatorItem?.state = settingsStore.floatingIndicatorEnabled ? .on : .off
         switch currentState {
         case .recording:
             if isMeetingCaptureActive {
@@ -607,6 +623,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         Task {
             await onToggleMeetingCapture?()
         }
+    }
+
+    @objc private func toggleRecordingIndicator() {
+        onToggleRecordingIndicator?()
+        toggleRecordingIndicatorItem?.state = settingsStore.floatingIndicatorEnabled ? .on : .off
     }
 
     @objc private func copyLastTranscript() {
@@ -838,6 +859,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     func recordingMenuItemForTesting() -> NSMenuItem? {
         toggleRecordingItem
+    }
+
+    func recordingIndicatorMenuItemForTesting() -> NSMenuItem? {
+        toggleRecordingIndicatorItem
     }
 
     func showWelcomePopover() {

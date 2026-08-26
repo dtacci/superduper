@@ -267,7 +267,8 @@ struct HistoryView: View {
                 diarizationSetupIssueBanner(
                     message: setupIssue,
                     isDownloading: isDiarizationModelDownloading,
-                    progress: diarizationModelDownloadProgress
+                    progress: diarizationModelDownloadProgress,
+                    requiresRepair: diarizationIssueNeedsRepair
                 )
                     .padding(.horizontal, 40)
                     .padding(.bottom, 8)
@@ -315,10 +316,16 @@ struct HistoryView: View {
             ?? 0.0
     }
 
+    private var diarizationIssueNeedsRepair: Bool {
+        (mediaTranscriptionState?.diarizationIssueNeedsRepair ?? false)
+            || (recordingState?.diarizationIssueNeedsRepair ?? false)
+    }
+
     private func diarizationSetupIssueBanner(
         message: String,
         isDownloading: Bool,
-        progress: Double
+        progress: Double,
+        requiresRepair: Bool
     ) -> some View {
         HStack(spacing: 12) {
             Image(systemName: isDownloading ? "arrow.down.circle" : "exclamationmark.triangle")
@@ -348,7 +355,7 @@ struct HistoryView: View {
             Spacer(minLength: 8)
 
             if !isDownloading, onDownloadDiarizationModel != nil {
-                Button(localized("Download model", locale: locale)) {
+                Button(localized(requiresRepair ? "Repair diarization model" : "Download model", locale: locale)) {
                     onDownloadDiarizationModel?()
                 }
                 .buttonStyle(.plain)

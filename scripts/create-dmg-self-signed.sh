@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_NAME="Pindrop"
+APP_NAME="Superduper Dictation"
 APP_BUNDLE="DerivedData/Build/Products/Release/${APP_NAME}.app"
 DMG_NAME="${APP_NAME}.dmg"
 DIST_DIR="dist"

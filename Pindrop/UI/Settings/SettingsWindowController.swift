@@ -53,17 +53,26 @@ struct SettingsPaneContent: View {
     let tab: SettingsTab
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
+    let meetingsState: MeetingsFeatureState?
+    let onConnectGoogleCalendar: () -> Void
+    let onDisconnectGoogleCalendar: () -> Void
 
     init(
         settings: SettingsStore,
         tab: SettingsTab,
         launchAtLoginManager: LaunchAtLoginManager,
-        updateService: UpdateService
+        updateService: UpdateService,
+        meetingsState: MeetingsFeatureState? = nil,
+        onConnectGoogleCalendar: @escaping () -> Void = {},
+        onDisconnectGoogleCalendar: @escaping () -> Void = {}
     ) {
         self.settings = settings
         self.tab = tab
         self.launchAtLoginManager = launchAtLoginManager
         self.updateService = updateService
+        self.meetingsState = meetingsState
+        self.onConnectGoogleCalendar = onConnectGoogleCalendar
+        self.onDisconnectGoogleCalendar = onDisconnectGoogleCalendar
     }
 
     @MainActor
@@ -83,7 +92,10 @@ struct SettingsPaneContent: View {
             GeneralSettingsView(
                 settings: settings,
                 launchAtLoginManager: launchAtLoginManager,
-                updateService: updateService
+                updateService: updateService,
+                meetingsState: meetingsState,
+                onConnectGoogleCalendar: onConnectGoogleCalendar,
+                onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
             )
         case .dictation:
             DictationSettingsView(settings: settings)
@@ -114,6 +126,9 @@ final class SettingsWindowController: NSWindowController {
     private let modelContainer: ModelContainer
     private let launchAtLoginManager: LaunchAtLoginManager
     private let updateService: UpdateService
+    private let meetingsState: MeetingsFeatureState
+    private var onConnectGoogleCalendar: () -> Void
+    private var onDisconnectGoogleCalendar: () -> Void
     private let windowModel = SettingsWindowModel()
     private var settingsObservation: AnyCancellable?
     private var tabObservation: AnyCancellable?
@@ -123,12 +138,18 @@ final class SettingsWindowController: NSWindowController {
         settings: SettingsStore,
         modelContainer: ModelContainer,
         launchAtLoginManager: LaunchAtLoginManager,
-        updateService: UpdateService
+        updateService: UpdateService,
+        meetingsState: MeetingsFeatureState,
+        onConnectGoogleCalendar: @escaping () -> Void = {},
+        onDisconnectGoogleCalendar: @escaping () -> Void = {}
     ) {
         self.settings = settings
         self.modelContainer = modelContainer
         self.launchAtLoginManager = launchAtLoginManager
         self.updateService = updateService
+        self.meetingsState = meetingsState
+        self.onConnectGoogleCalendar = onConnectGoogleCalendar
+        self.onDisconnectGoogleCalendar = onDisconnectGoogleCalendar
         self.lastLocalizedAppLocale = settings.selectedAppLocale
         super.init(window: nil)
 
@@ -147,6 +168,14 @@ final class SettingsWindowController: NSWindowController {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func configureGoogleCalendar(
+        onConnect: @escaping () -> Void,
+        onDisconnect: @escaping () -> Void
+    ) {
+        onConnectGoogleCalendar = onConnect
+        onDisconnectGoogleCalendar = onDisconnect
     }
 
     func show(tab: SettingsTab = .general) {
@@ -177,7 +206,10 @@ final class SettingsWindowController: NSWindowController {
             model: windowModel,
             modelContainer: modelContainer,
             launchAtLoginManager: launchAtLoginManager,
-            updateService: updateService
+            updateService: updateService,
+            meetingsState: meetingsState,
+            onConnectGoogleCalendar: onConnectGoogleCalendar,
+            onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
         )
         let hostingController = NSHostingController(rootView: AnyView(rootView))
 
@@ -304,13 +336,19 @@ private struct SettingsRootHostingView: View {
     let modelContainer: ModelContainer
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
+    let meetingsState: MeetingsFeatureState
+    let onConnectGoogleCalendar: () -> Void
+    let onDisconnectGoogleCalendar: () -> Void
 
     var body: some View {
         SettingsShellView(
             settings: settings,
             model: model,
             launchAtLoginManager: launchAtLoginManager,
-            updateService: updateService
+            updateService: updateService,
+            meetingsState: meetingsState,
+            onConnectGoogleCalendar: onConnectGoogleCalendar,
+            onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .environment(\.locale, settings.selectedAppLocale.locale)

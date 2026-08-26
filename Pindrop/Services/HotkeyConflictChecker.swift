@@ -12,6 +12,7 @@ import Carbon
 enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
     case toggleRecording
     case toggleMeetingCapture
+    case toggleRecordingIndicator
     case pushToTalk
     case copyLastTranscript
     case quickCapturePTT
@@ -26,6 +27,8 @@ enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
             return "Toggle Recording"
         case .toggleMeetingCapture:
             return "Toggle Meeting Capture"
+        case .toggleRecordingIndicator:
+            return "Show Recording Indicator"
         case .pushToTalk:
             return "Push-to-Talk"
         case .copyLastTranscript:
@@ -48,6 +51,8 @@ enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
             return "toggle-recording"
         case .toggleMeetingCapture:
             return "toggle-meeting-capture"
+        case .toggleRecordingIndicator:
+            return "toggle-recording-indicator"
         case .pushToTalk:
             return "push-to-talk"
         case .copyLastTranscript:
