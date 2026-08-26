@@ -12,6 +12,32 @@ import FluidAudio
 @MainActor
 @Observable
 class ModelManager {
+    enum DiarizationModelLayout: String, Equatable, Sendable {
+        /// FluidAudio 0.15.4's offline loader materializes Community-1 here.
+        case current = "speaker-diarization"
+        /// Older FluidAudio builds used the repository slug as the cache folder.
+        case legacy = "speaker-diarization-coreml"
+    }
+
+    enum DiarizationReadiness: Equatable, Sendable {
+        case ready(layout: DiarizationModelLayout)
+        case missing
+        case incomplete(layout: DiarizationModelLayout, missing: [String])
+        case corrupt(layout: DiarizationModelLayout, assets: [String])
+
+        var isReady: Bool {
+            if case .ready = self { return true }
+            return false
+        }
+
+        var requiresRepair: Bool {
+            switch self {
+            case .incomplete, .corrupt: return true
+            case .ready, .missing: return false
+            }
+        }
+    }
+
     /// Optional telemetry peer, injected by AppCoordinator after construction.
     /// Download start/failure signals are dropped entirely when nil or opted out.
     @ObservationIgnored var telemetryService: TelemetryService?
@@ -648,6 +674,9 @@ class ModelManager {
     private(set) var downloadedFeatureModels: Set<FeatureModelType> = []
     
     private let fileManager = FileManager.default
+    let localMeetingModelService = LocalMeetingModelService(
+        rootURL: ModelManager.meetingNotesModelRootURL
+    )
     
     /// Last decile (0...10) logged for WhisperKit file download progress to avoid log spam.
     private var whisperKitDownloadLastLoggedDecile: Int = -1
@@ -1186,34 +1215,126 @@ class ModelManager {
     /// remain valid — forcing PLDA only under coreml would make the other two
     /// documented locations unreachable.
     func isOfflineDiarizationReady() -> Bool {
-        isOfflineDiarizationModelsReady(at: fluidAudioModelsURL)
+        offlineDiarizationReadiness(at: fluidAudioModelsURL).isReady
     }
 
     /// Reusable complete-asset check used by refresh, download completion, and preflight.
     func isOfflineDiarizationModelsReady(at modelsRoot: URL) -> Bool {
-        let coremlFolder = modelsRoot
-            .appendingPathComponent(FeatureModelType.diarization.repoFolderName, isDirectory: true)
+        offlineDiarizationReadiness(at: modelsRoot).isReady
+    }
 
-        let coremlRequiredModels = ModelNames.OfflineDiarizer.requiredModels.subtracting([
+    /// Diagnoses both the FluidAudio 0.15.4 layout and the legacy repository-slug
+    /// layout. A compiled model directory must contain at least one non-empty file;
+    /// PLDA must be non-empty JSON. This prevents a partial interrupted download from
+    /// being advertised as ready merely because its directories exist.
+    func offlineDiarizationReadiness(at modelsRoot: URL) -> DiarizationReadiness {
+        let layouts: [(DiarizationModelLayout, URL)] = [
+            (.current, modelsRoot.appendingPathComponent(DiarizationModelLayout.current.rawValue, isDirectory: true)),
+            (.legacy, modelsRoot.appendingPathComponent(DiarizationModelLayout.legacy.rawValue, isDirectory: true)),
+        ]
+        let requiredModels = ModelNames.OfflineDiarizer.requiredModels.subtracting([
             ModelNames.OfflineDiarizer.pldaParameters
-        ])
-        for modelName in coremlRequiredModels {
-            let modelURL = coremlFolder.appendingPathComponent(modelName)
-            guard fileManager.fileExists(atPath: modelURL.path) else {
-                return false
+        ]).sorted()
+
+        var firstProblem: DiarizationReadiness?
+        for (layout, folder) in layouts {
+            var isDirectory: ObjCBool = false
+            guard fileManager.fileExists(atPath: folder.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+                continue
             }
+
+            let missing = requiredModels.filter {
+                !fileManager.fileExists(atPath: folder.appendingPathComponent($0).path)
+            }
+            if !missing.isEmpty {
+                firstProblem = firstProblem ?? .incomplete(layout: layout, missing: missing)
+                continue
+            }
+
+            let corruptModels = requiredModels.filter {
+                !isNonemptyAsset(at: folder.appendingPathComponent($0))
+            }
+            if !corruptModels.isEmpty {
+                firstProblem = firstProblem ?? .corrupt(layout: layout, assets: corruptModels)
+                continue
+            }
+
+            let pldaCandidates = [
+                modelsRoot.appendingPathComponent("plda-parameters.json", isDirectory: false),
+                folder.appendingPathComponent(ModelNames.OfflineDiarizer.pldaParameters, isDirectory: false),
+                modelsRoot
+                    .appendingPathComponent("speaker-diarization-offline", isDirectory: true)
+                    .appendingPathComponent(ModelNames.OfflineDiarizer.pldaParameters, isDirectory: false),
+            ]
+            guard let pldaURL = pldaCandidates.first(where: { fileManager.fileExists(atPath: $0.path) }) else {
+                firstProblem = firstProblem ?? .incomplete(
+                    layout: layout,
+                    missing: [ModelNames.OfflineDiarizer.pldaParameters]
+                )
+                continue
+            }
+            guard isValidPLDAFile(at: pldaURL) else {
+                firstProblem = firstProblem ?? .corrupt(
+                    layout: layout,
+                    assets: [ModelNames.OfflineDiarizer.pldaParameters]
+                )
+                continue
+            }
+            return .ready(layout: layout)
         }
 
-        // FluidAudio accepts PLDA params at the models root, inside the online/offline
-        // shared coreml folder, or under the offline-specific sibling folder.
-        let pldaCandidates = [
-            modelsRoot.appendingPathComponent("plda-parameters.json", isDirectory: false),
-            coremlFolder.appendingPathComponent("plda-parameters.json", isDirectory: false),
-            modelsRoot
-                .appendingPathComponent("speaker-diarization-offline", isDirectory: true)
-                .appendingPathComponent("plda-parameters.json", isDirectory: false),
+        return firstProblem ?? .missing
+    }
+
+    /// Removes diarization-owned cache entries only. Transcription, VAD, and
+    /// streaming assets under the same FluidAudio model root are left untouched.
+    func removeOfflineDiarizationAssets(at modelsRoot: URL) throws {
+        let targets = [
+            modelsRoot.appendingPathComponent(DiarizationModelLayout.current.rawValue, isDirectory: true),
+            modelsRoot.appendingPathComponent(DiarizationModelLayout.legacy.rawValue, isDirectory: true),
+            modelsRoot.appendingPathComponent("speaker-diarization-offline", isDirectory: true),
+            modelsRoot.appendingPathComponent(ModelNames.OfflineDiarizer.pldaParameters, isDirectory: false),
         ]
-        return pldaCandidates.contains { fileManager.fileExists(atPath: $0.path) }
+        for target in targets where fileManager.fileExists(atPath: target.path) {
+            try fileManager.removeItem(at: target)
+        }
+    }
+
+    func repairOfflineDiarizationModel(
+        onProgress: ((Double) -> Void)? = nil
+    ) async throws {
+        try removeOfflineDiarizationAssets(at: fluidAudioModelsURL)
+        downloadedFeatureModels.remove(.diarization)
+        try await downloadFeatureModel(.diarization, onProgress: onProgress)
+    }
+
+    private func isNonemptyAsset(at url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory) else { return false }
+        if !isDirectory.boolValue {
+            let size = (try? fileManager.attributesOfItem(atPath: url.path)[.size] as? NSNumber)?.int64Value ?? 0
+            return size > 0
+        }
+        guard let enumerator = fileManager.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else { return false }
+        for case let candidate as URL in enumerator {
+            guard let values = try? candidate.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]) else {
+                continue
+            }
+            if values.isRegularFile == true, (values.fileSize ?? 0) > 0 { return true }
+        }
+        return false
+    }
+
+    private func isValidPLDAFile(at url: URL) -> Bool {
+        guard let data = try? Data(contentsOf: url), !data.isEmpty,
+              (try? JSONSerialization.jsonObject(with: data)) != nil else {
+            return false
+        }
+        return true
     }
 
     func refreshDownloadedFeatureModels() async {
@@ -1230,6 +1351,10 @@ class ModelManager {
                 }
             case .diarization:
                 if isOfflineDiarizationModelsReady(at: fluidAudioModelsURL) {
+                    downloaded.insert(type)
+                }
+            case .meetingNotes:
+                if case .ready = await localMeetingModelService.readiness() {
                     downloaded.insert(type)
                 }
             case .vad:
@@ -1255,6 +1380,13 @@ class ModelManager {
     ) async throws {
         guard !isDownloadingFeature else {
             throw ModelError.downloadFailed("Another feature download is in progress")
+        }
+
+        if type == .diarization, isOfflineDiarizationReady() {
+            featureDownloadProgress = 1.0
+            onProgress?(1.0)
+            downloadedFeatureModels.insert(.diarization)
+            return
         }
 
         isDownloadingFeature = true
@@ -1319,6 +1451,16 @@ class ModelManager {
                     repo,
                     to: fluidAudioModelsURL
                 )
+            case .meetingNotes:
+                _ = try await localMeetingModelService.download { [weak self] progress in
+                    Task { @MainActor in
+                        guard let self,
+                              self.isDownloadingFeature,
+                              self.currentDownloadingFeature == .meetingNotes else { return }
+                        self.featureDownloadProgress = progress
+                        onProgress?(progress)
+                    }
+                }
             }
 
             featureDownloadProgress = 1.0
@@ -1344,5 +1486,186 @@ class ModelManager {
             }
             throw ModelError.downloadFailed(error.localizedDescription)
         }
+    }
+}
+
+// MARK: - Meeting preflight
+
+protocol MeetingDiskSpaceProviding: Sendable {
+    func availableBytes(at url: URL) throws -> Int64
+}
+
+struct SystemMeetingDiskSpaceProvider: MeetingDiskSpaceProviding {
+    func availableBytes(at url: URL) throws -> Int64 {
+        let values = try url.resourceValues(forKeys: [
+            .volumeAvailableCapacityForImportantUsageKey,
+            .volumeAvailableCapacityKey,
+        ])
+        if let capacity = values.volumeAvailableCapacityForImportantUsage { return capacity }
+        return Int64(values.volumeAvailableCapacity ?? 0)
+    }
+}
+
+enum MeetingPreflightIssue: Equatable, Sendable {
+    case microphonePermission
+    case systemAudioPermission
+    case diarizationMissing
+    case diarizationNeedsRepair
+    case diarizationLoad(String)
+    case insufficientDiskSpace(requiredBytes: Int64, availableBytes: Int64)
+    case transcriptionModelMissing(String)
+
+    var requiresDiarizationRepair: Bool {
+        if case .diarizationNeedsRepair = self { return true }
+        return false
+    }
+
+    var message: String {
+        switch self {
+        case .microphonePermission:
+            return "Microphone permission is required for meeting recording."
+        case .systemAudioPermission:
+            return "System audio permission is required for meeting recording."
+        case .diarizationMissing:
+            return "Download the speaker diarization model before starting recording."
+        case .diarizationNeedsRepair:
+            return "The speaker diarization model is incomplete or corrupt. Repair it before recording."
+        case .diarizationLoad(let detail):
+            return "The speaker diarization model could not be loaded: \(detail)"
+        case .insufficientDiskSpace(let required, let available):
+            let requiredGB = Double(required) / 1_000_000_000
+            let availableGB = Double(max(0, available)) / 1_000_000_000
+            return String(format: "Meeting recording needs %.1f GB free; %.1f GB is available.", requiredGB, availableGB)
+        case .transcriptionModelMissing(let model):
+            return "Download the selected transcription model (\(model)) before starting the meeting."
+        }
+    }
+
+    func localizedMessage(locale: Locale) -> String {
+        switch self {
+        case .microphonePermission:
+            return localized("Microphone permission is required for meeting recording.", locale: locale)
+        case .systemAudioPermission:
+            return localized("System audio permission is required for meeting recording.", locale: locale)
+        case .diarizationMissing:
+            return localized("Download the speaker diarization model before starting recording.", locale: locale)
+        case .diarizationNeedsRepair:
+            return localized(
+                "The speaker diarization model is incomplete or corrupt. Repair it before recording.",
+                locale: locale
+            )
+        case .diarizationLoad(let detail):
+            return String(
+                format: localized("The speaker diarization model could not be loaded: %@", locale: locale),
+                detail
+            )
+        case .insufficientDiskSpace(let required, let available):
+            return String(
+                format: localized("Meeting recording needs %.1f GB free; %.1f GB is available.", locale: locale),
+                Double(required) / 1_000_000_000,
+                Double(max(0, available)) / 1_000_000_000
+            )
+        case .transcriptionModelMissing(let model):
+            return String(
+                format: localized(
+                    "Download the selected transcription model (%@) before starting the meeting.",
+                    locale: locale
+                ),
+                model
+            )
+        }
+    }
+}
+
+struct MeetingPreflightReport: Equatable, Sendable {
+    let issues: [MeetingPreflightIssue]
+    var isReady: Bool { issues.isEmpty }
+    var primaryIssue: MeetingPreflightIssue? { issues.first }
+}
+
+@MainActor
+final class MeetingPreflightService {
+    static let minimumAvailableDiskBytes: Int64 = 1_000_000_000
+
+    private let permissionProvider: any PermissionProviding
+    private let modelManager: ModelManager
+    private let diskSpaceProvider: any MeetingDiskSpaceProviding
+    private let workspaceURL: URL
+    private let diarizationLoader: () async throws -> Void
+
+    init(
+        permissionProvider: any PermissionProviding,
+        modelManager: ModelManager,
+        diskSpaceProvider: any MeetingDiskSpaceProviding = SystemMeetingDiskSpaceProvider(),
+        workspaceURL: URL = ManagedMediaLibrary.libraryBaseURL,
+        diarizationLoader: @escaping () async throws -> Void
+    ) {
+        self.permissionProvider = permissionProvider
+        self.modelManager = modelManager
+        self.diskSpaceProvider = diskSpaceProvider
+        self.workspaceURL = workspaceURL
+        self.diarizationLoader = diarizationLoader
+    }
+
+    func run(selectedTranscriptionModel: String) async -> MeetingPreflightReport {
+        var issues: [MeetingPreflightIssue] = []
+
+        if !(await permissionProvider.requestPermission()) {
+            issues.append(.microphonePermission)
+        }
+        if !(await permissionProvider.requestSystemAudioPermission()) {
+            issues.append(.systemAudioPermission)
+        }
+
+        await modelManager.refreshDownloadedFeatureModels()
+        switch modelManager.offlineDiarizationReadiness(at: modelManager.fluidAudioModelsRootURL) {
+        case .ready:
+            do {
+                try await diarizationLoader()
+            } catch {
+                issues.append(.diarizationLoad(error.localizedDescription))
+            }
+        case .missing:
+            issues.append(.diarizationMissing)
+        case .incomplete, .corrupt:
+            issues.append(.diarizationNeedsRepair)
+        }
+
+        await modelManager.refreshDownloadedModels()
+        if !modelManager.isModelDownloaded(selectedTranscriptionModel) {
+            issues.append(.transcriptionModelMissing(selectedTranscriptionModel))
+        }
+
+        do {
+            try FileManager.default.createDirectory(at: workspaceURL, withIntermediateDirectories: true)
+            let available = try diskSpaceProvider.availableBytes(at: workspaceURL)
+            if available < Self.minimumAvailableDiskBytes {
+                issues.append(.insufficientDiskSpace(
+                    requiredBytes: Self.minimumAvailableDiskBytes,
+                    availableBytes: available
+                ))
+            }
+        } catch {
+            issues.append(.insufficientDiskSpace(
+                requiredBytes: Self.minimumAvailableDiskBytes,
+                availableBytes: 0
+            ))
+        }
+
+        return MeetingPreflightReport(issues: issues)
+    }
+}
+
+extension ModelManager {
+    var fluidAudioModelsRootURL: URL { fluidAudioModelsURL }
+
+    nonisolated static var meetingNotesModelRootURL: URL {
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        return support
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
+            .appendingPathComponent("Models", isDirectory: true)
+            .appendingPathComponent("MeetingNotes", isDirectory: true)
+            .appendingPathComponent("Qwen3-4B-MLX-4bit", isDirectory: true)
     }
 }

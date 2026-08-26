@@ -12,9 +12,13 @@ struct GeneralSettingsView: View {
     @ObservedObject var settings: SettingsStore
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
+    var meetingsState: MeetingsFeatureState? = nil
+    var onConnectGoogleCalendar: () -> Void = {}
+    var onDisconnectGoogleCalendar: () -> Void = {}
 
     @Environment(\.locale) private var locale
     @State private var showingResetConfirmation = false
+    @State private var showingGoogleCalendarSetup = false
     @State private var launchAtLoginError: String?
 
     var body: some View {
@@ -71,6 +75,36 @@ struct GeneralSettingsView: View {
                 }
             }
 
+            if let meetingsState {
+                SettingsGroupCard {
+                    SettingsRow(showSeparator: false) {
+                        SettingsRowLabel(
+                            title: localized("Google Calendar", locale: locale),
+                            subtitle: localized(
+                                "Connect one account to browse events. Pindrop only records occurrences you explicitly arm.",
+                                locale: locale
+                            )
+                        )
+                    } control: {
+                        if !meetingsState.isGoogleConfigured {
+                            Text(localized("Not configured", locale: locale))
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.textTertiary)
+                        } else if meetingsState.isGoogleConnected {
+                            Button(localized("Disconnect", locale: locale), action: onDisconnectGoogleCalendar)
+                                .buttonStyle(.bordered)
+                        } else {
+                            Button(localized("Set Up…", locale: locale)) {
+                                showingGoogleCalendarSetup = true
+                            }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(meetingsState.isRefreshing)
+                                .accessibilityIdentifier("settings.button.connectGoogleCalendar")
+                        }
+                    }
+                }
+            }
+
             SettingsDestructiveFooter(
                 title: localized("Reset all settings…", locale: locale)
             ) {
@@ -80,6 +114,15 @@ struct GeneralSettingsView: View {
         }
         .onAppear {
             synchronizeLaunchAtLoginState()
+        }
+        .sheet(isPresented: $showingGoogleCalendarSetup) {
+            if let meetingsState {
+                GoogleCalendarSetupWizard(
+                    meetingsState: meetingsState,
+                    onConnect: onConnectGoogleCalendar,
+                    onEnableLaunchAtLogin: { updateLaunchAtLogin(true) }
+                )
+            }
         }
         .alert(
             localized("Reset All Settings?", locale: locale),
@@ -125,6 +168,7 @@ struct GeneralSettingsView: View {
 
     private func synchronizeLaunchAtLoginState() {
         let actualState = launchAtLoginManager.isEnabled
+        meetingsState?.isLaunchAtLoginEnabled = actualState
         guard settings.launchAtLogin != actualState else { return }
         settings.launchAtLogin = actualState
         Log.app.info("Synced launch at login setting from system state: \(actualState)")
@@ -140,6 +184,7 @@ struct GeneralSettingsView: View {
 
         let actualState = launchAtLoginManager.isEnabled
         settings.launchAtLogin = actualState
+        meetingsState?.isLaunchAtLoginEnabled = actualState
         if actualState != requestedState {
             Log.app.warning(
                 "Launch at login requested=\(requestedState) actual=\(actualState); restored UI to system state"

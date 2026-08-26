@@ -1900,6 +1900,353 @@ enum TranscriptionRecordSchemaV12: VersionedSchema {
     }
 }
 
+// V13: Adds durable meeting series and occurrence workspaces.
+enum TranscriptionRecordSchemaV13: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 12)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self,
+            TrainingContribution.self,
+            MeetingSeries.self,
+            MeetingOccurrence.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var notes: String?
+        var isCurrentUser: Bool = false
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var embeddingSpaceIdentifier: String?
+        var needsVoiceRetraining: Bool = false
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            notes: String? = nil,
+            isCurrentUser: Bool = false,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            embeddingSpaceIdentifier: String? = nil,
+            needsVoiceRetraining: Bool = false,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.notes = notes
+            self.isCurrentUser = isCurrentUser
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.needsVoiceRetraining = needsVoiceRetraining
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var embeddingSpaceIdentifier: String?
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            embeddingSpaceIdentifier: String? = nil,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        var destinationAppName: String?
+        var destinationAppBundleID: String?
+        var wordCount: Int?
+        var userEditedAt: Date?
+        var pipelineMetricsJSON: String?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil,
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil,
+            wordCount: Int? = nil,
+            userEditedAt: Date? = nil,
+            pipelineMetricsJSON: String? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.destinationAppName = destinationAppName
+            self.destinationAppBundleID = destinationAppBundleID
+            self.wordCount = wordCount
+            self.userEditedAt = userEditedAt
+            self.pipelineMetricsJSON = pipelineMetricsJSON
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+
+    @Model
+    final class MeetingSeries {
+        @Attribute(.unique) var id: UUID
+        /// Google recurring-event identity. Nil for one-off and manual meetings.
+        @Attribute(.unique) var recurringEventIdentity: String?
+        var displayName: String
+        var createdAt: Date
+        var updatedAt: Date
+        @Relationship(deleteRule: .cascade, inverse: \MeetingOccurrence.series)
+        var occurrences: [MeetingOccurrence]
+
+        init(
+            id: UUID = UUID(),
+            recurringEventIdentity: String? = nil,
+            displayName: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            occurrences: [MeetingOccurrence] = []
+        ) {
+            self.id = id
+            self.recurringEventIdentity = recurringEventIdentity
+            self.displayName = displayName
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.occurrences = occurrences
+        }
+    }
+
+    @Model
+    final class MeetingOccurrence {
+        @Attribute(.unique) var id: UUID
+        /// Stable provider-qualified identity (for example `google:<calendar>:<event>`).
+        @Attribute(.unique) var calendarOccurrenceIdentity: String?
+        var providerRawValue: String?
+        var calendarID: String?
+        var calendarEventID: String?
+        var recurringEventID: String?
+        var calendarTitle: String?
+        var calendarSnapshotJSON: String?
+        var scheduledStart: Date
+        var scheduledEnd: Date?
+        var joinURLString: String?
+        var isArmed: Bool
+        var stateRawValue: String
+        /// UUID-based directory within the managed media library.
+        var workspacePath: String
+        var managedAudioPath: String?
+        var recoveryAudioPathsJSON: String?
+        var microphoneHealthRawValue: String?
+        var systemAudioHealthRawValue: String?
+        var sourceHealthWarning: String?
+        var notesMarkdown: String
+        var summaryMarkdown: String?
+        var decisionsJSON: String?
+        var actionItemsJSON: String?
+        var speakerLabelsJSON: String?
+        var failureMessage: String?
+        var expectedSpeakerCount: Int?
+        var createdAt: Date
+        var updatedAt: Date
+        var series: MeetingSeries?
+        var transcript: TranscriptionRecord?
+
+        init(
+            id: UUID = UUID(),
+            calendarOccurrenceIdentity: String? = nil,
+            providerRawValue: String? = nil,
+            calendarID: String? = nil,
+            calendarEventID: String? = nil,
+            recurringEventID: String? = nil,
+            calendarTitle: String? = nil,
+            calendarSnapshotJSON: String? = nil,
+            scheduledStart: Date = Date(),
+            scheduledEnd: Date? = nil,
+            joinURLString: String? = nil,
+            isArmed: Bool = false,
+            stateRawValue: String = "scheduled",
+            workspacePath: String,
+            managedAudioPath: String? = nil,
+            recoveryAudioPathsJSON: String? = nil,
+            microphoneHealthRawValue: String? = nil,
+            systemAudioHealthRawValue: String? = nil,
+            sourceHealthWarning: String? = nil,
+            notesMarkdown: String = "",
+            summaryMarkdown: String? = nil,
+            decisionsJSON: String? = nil,
+            actionItemsJSON: String? = nil,
+            speakerLabelsJSON: String? = nil,
+            failureMessage: String? = nil,
+            expectedSpeakerCount: Int? = nil,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            series: MeetingSeries? = nil,
+            transcript: TranscriptionRecord? = nil
+        ) {
+            self.id = id
+            self.calendarOccurrenceIdentity = calendarOccurrenceIdentity
+            self.providerRawValue = providerRawValue
+            self.calendarID = calendarID
+            self.calendarEventID = calendarEventID
+            self.recurringEventID = recurringEventID
+            self.calendarTitle = calendarTitle
+            self.calendarSnapshotJSON = calendarSnapshotJSON
+            self.scheduledStart = scheduledStart
+            self.scheduledEnd = scheduledEnd
+            self.joinURLString = joinURLString
+            self.isArmed = isArmed
+            self.stateRawValue = stateRawValue
+            self.workspacePath = workspacePath
+            self.managedAudioPath = managedAudioPath
+            self.recoveryAudioPathsJSON = recoveryAudioPathsJSON
+            self.microphoneHealthRawValue = microphoneHealthRawValue
+            self.systemAudioHealthRawValue = systemAudioHealthRawValue
+            self.sourceHealthWarning = sourceHealthWarning
+            self.notesMarkdown = notesMarkdown
+            self.summaryMarkdown = summaryMarkdown
+            self.decisionsJSON = decisionsJSON
+            self.actionItemsJSON = actionItemsJSON
+            self.speakerLabelsJSON = speakerLabelsJSON
+            self.failureMessage = failureMessage
+            self.expectedSpeakerCount = expectedSpeakerCount
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.series = series
+            self.transcript = transcript
+        }
+    }
+}
+
 // Migration Plan
 enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
@@ -1915,7 +2262,8 @@ enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
             TranscriptionRecordSchemaV9.self,
             TranscriptionRecordSchemaV10.self,
             TranscriptionRecordSchemaV11.self,
-            TranscriptionRecordSchemaV12.self
+            TranscriptionRecordSchemaV12.self,
+            TranscriptionRecordSchemaV13.self
         ]
     }
 
@@ -1931,7 +2279,8 @@ enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
             migrateV8toV9,
             migrateV9toV10,
             migrateV10toV11,
-            migrateV11toV12
+            migrateV11toV12,
+            migrateV12toV13
         ]
     }
 
@@ -2013,5 +2362,10 @@ enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
     static let migrateV11toV12 = MigrationStage.lightweight(
         fromVersion: TranscriptionRecordSchemaV11.self,
         toVersion: TranscriptionRecordSchemaV12.self
+    )
+
+    static let migrateV12toV13 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV12.self,
+        toVersion: TranscriptionRecordSchemaV13.self
     )
 }

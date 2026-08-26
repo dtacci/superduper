@@ -1,10 +1,80 @@
 import Foundation
 import SwiftData
 
-typealias TranscriptionRecord = TranscriptionRecordSchemaV12.TranscriptionRecord
-typealias MediaFolder = TranscriptionRecordSchemaV12.MediaFolder
-typealias ParticipantProfile = TranscriptionRecordSchemaV12.ParticipantProfile
-typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV12.ParticipantTrainingEvidence
+typealias TranscriptionRecord = TranscriptionRecordSchemaV13.TranscriptionRecord
+typealias MediaFolder = TranscriptionRecordSchemaV13.MediaFolder
+typealias ParticipantProfile = TranscriptionRecordSchemaV13.ParticipantProfile
+typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV13.ParticipantTrainingEvidence
+typealias MeetingSeries = TranscriptionRecordSchemaV13.MeetingSeries
+typealias MeetingOccurrence = TranscriptionRecordSchemaV13.MeetingOccurrence
+
+enum MeetingRecordingState: String, CaseIterable, Codable, Sendable {
+    case scheduled
+    case preparing
+    case recording
+    case processing
+    case ready
+    case failed
+    case missed
+    case canceled
+}
+
+enum MeetingAudioSourceHealth: String, Codable, Sendable {
+    case notRequested
+    case healthy
+    case silent
+    case failed
+}
+
+extension MeetingOccurrence {
+    var state: MeetingRecordingState {
+        get { MeetingRecordingState(rawValue: stateRawValue) ?? .failed }
+        set { stateRawValue = newValue.rawValue }
+    }
+
+    var joinURL: URL? {
+        guard let joinURLString else { return nil }
+        return URL(string: joinURLString)
+    }
+
+    var workspaceURL: URL { URL(fileURLWithPath: workspacePath, isDirectory: true) }
+
+    var managedAudioURL: URL? {
+        guard let managedAudioPath else { return nil }
+        return URL(fileURLWithPath: managedAudioPath)
+    }
+
+    var canRetryProcessing: Bool {
+        state == .failed && (managedAudioURL != nil || !recoveryAudioURLs.isEmpty)
+    }
+
+    var recoveryAudioURLs: [URL] {
+        guard let recoveryAudioPathsJSON,
+              let data = recoveryAudioPathsJSON.data(using: .utf8),
+              let paths = try? JSONDecoder().decode([String].self, from: data) else {
+            return []
+        }
+        return paths.map { URL(fileURLWithPath: $0) }
+    }
+
+    var decisions: [String] {
+        guard let decisionsJSON,
+              let data = decisionsJSON.data(using: .utf8) else { return [] }
+        return (try? JSONDecoder().decode([String].self, from: data)) ?? []
+    }
+
+    var actionItems: [MeetingActionItem] {
+        guard let actionItemsJSON,
+              let data = actionItemsJSON.data(using: .utf8) else { return [] }
+        return (try? JSONDecoder().decode([MeetingActionItem].self, from: data)) ?? []
+    }
+
+    var speakerLabels: [String: String] {
+        guard let speakerLabelsJSON,
+              let data = speakerLabelsJSON.data(using: .utf8) else { return [:] }
+        return (try? JSONDecoder().decode([String: String].self, from: data)) ?? [:]
+    }
+}
 
 enum TranscriptionTitleOrigin: String {
     case sourceMetadata

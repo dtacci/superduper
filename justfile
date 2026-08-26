@@ -6,7 +6,7 @@ default:
     @just --list
 
 # Variables
-app_name := "Pindrop"
+app_name := "Superduper Dictation"
 scheme := "Pindrop"
 build_dir := "DerivedData/Build/Products"
 release_dir := build_dir / "Release"
@@ -79,7 +79,7 @@ build-release-unsigned:
 # local certificate keeps the app's TCC/Accessibility identity stable across builds.
 build-self-signed: build-release-unsigned
     @echo "🔏 Re-signing with explicit nested order (required for macOS TCC permissions)..."
-    ./scripts/sign-app-bundle.sh {{app_bundle}} local
+    ./scripts/sign-app-bundle.sh "{{app_bundle}}" local
     @echo "✅ Self-signed build complete"
 
 # Self-signed DMG (no developer account needed)
@@ -152,7 +152,7 @@ archive:
         -project {{xcode_project}} \
         -scheme {{scheme}} \
         -configuration Release \
-        -archivePath {{build_dir}}/{{app_name}}.xcarchive \
+        -archivePath "{{build_dir}}/{{app_name}}.xcarchive" \
         -allowProvisioningUpdates
     @echo "✅ Archive created: {{build_dir}}/{{app_name}}.xcarchive"
 
@@ -160,7 +160,7 @@ archive:
 export-app: archive
     @echo "📤 Exporting app..."
     xcodebuild -exportArchive \
-        -archivePath {{build_dir}}/{{app_name}}.xcarchive \
+        -archivePath "{{build_dir}}/{{app_name}}.xcarchive" \
         -exportPath {{release_dir}} \
         -exportOptionsPlist scripts/ExportOptions.plist \
         -allowProvisioningUpdates
@@ -169,14 +169,14 @@ export-app: archive
 # Sign the app bundle (requires Developer ID certificate)
 sign:
     @echo "✍️  Signing app bundle..."
-    ./scripts/sign-app-bundle.sh {{app_bundle}} "Developer ID Application"
+    ./scripts/sign-app-bundle.sh "{{app_bundle}}" "Developer ID Application"
     @echo "✅ App signed"
 
 # Verify code signature
 verify-signature:
     @echo "🔍 Verifying signature..."
-    codesign --verify --deep --strict --verbose=2 {{app_bundle}}
-    spctl --assess --type execute --verbose=2 {{app_bundle}}
+    codesign --verify --deep --strict --verbose=2 "{{app_bundle}}"
+    spctl --assess --type execute --verbose=2 "{{app_bundle}}"
     @echo "✅ Signature verified"
 
 # Notarize the DMG (requires Apple Developer account)
@@ -543,7 +543,7 @@ release-notes-html version:
     echo "✅ Rendered release notes HTML: ${NOTES_HTML_PATH}"
 
 # Generate appcast.xml for Sparkle updates
-# Usage: just appcast dist/Pindrop.dmg
+# Usage: just appcast 'dist/Superduper Dictation.dmg'
 appcast dmg_path: _public-release-disabled
     @echo "📡 Generating appcast.xml..."
     @if [ ! -f "{{dmg_path}}" ]; then \

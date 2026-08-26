@@ -576,6 +576,17 @@ struct FloatingIndicatorWaveformStyle {
         animationInterval: 0.05
     )
 
+    static let waveformIndicator = FloatingIndicatorWaveformStyle(
+        layout: .fixed(count: 11, heightScale: [0.42, 0.64, 0.82, 0.58, 0.92, 1.0, 0.78, 0.52, 0.86, 0.6, 0.4]),
+        barWidth: 3,
+        barSpacing: 3,
+        minimumHeight: 3,
+        maximumHeight: 26,
+        idleHeight: 3,
+        color: AppColors.recording,
+        animationInterval: 0.05
+    )
+
 }
 
 /// Waveform bars sample the latest meter level on the visual timeline only.
@@ -877,6 +888,229 @@ protocol FloatingIndicatorPresenting: AnyObject {
 extension FloatingIndicatorPresenting {
     func toastAnchor() -> FloatingIndicatorToastAnchor? {
         nil
+    }
+}
+
+// MARK: - Compact waveform indicator
+
+/// Transient corner presenter containing only live bars (or processing dots).
+/// The transparent panel supplies a forgiving pointer target without adding orb,
+/// pill, timer, or transcript chrome to the visible indicator.
+@MainActor
+final class WaveformFloatingIndicatorController: NSObject, FloatingIndicatorPresenting,
+                                                  FloatingIndicatorPanelInteractionHandling {
+    let type: FloatingIndicatorType = .waveform
+    let state: FloatingIndicatorState
+
+    private let settingsStore: SettingsStore
+    private var actions = FloatingIndicatorActions()
+    private var panel: FloatingIndicatorInteractivePanel?
+    private var hostingView: NSHostingView<AnyView>?
+    private var dragOrigin: NSPoint?
+    private var dragStartOffset: CGSize = .zero
+    private var isDragging = false
+    private var isVisible = false
+
+    private static let panelSize = CGSize(width: 126, height: 42)
+    private static let screenInset: CGFloat = 18
+
+    init(state: FloatingIndicatorState, settingsStore: SettingsStore) {
+        self.state = state
+        self.settingsStore = settingsStore
+        super.init()
+    }
+
+    func configure(actions: FloatingIndicatorActions) {
+        self.actions = actions
+    }
+
+    func toastAnchor() -> FloatingIndicatorToastAnchor? {
+        guard isVisible, let panel, let screen = panel.screen ?? NSScreen.main else { return nil }
+        return FloatingIndicatorToastAnchor(
+            rect: panel.frame,
+            visibleFrame: screen.visibleFrame,
+            edge: .automatic
+        )
+    }
+
+    func showIdleIndicator() { hide() }
+
+    func showForCurrentState() {
+        if state.isRecording || state.isProcessing { show() } else { hide() }
+    }
+
+    func startRecording() {
+        state.startRecording()
+        show()
+    }
+
+    func transitionToProcessing() {
+        state.transitionToProcessing()
+        show()
+    }
+
+    func finishProcessing() {
+        state.finishSession()
+        hide()
+    }
+
+    func hide() {
+        guard isVisible || panel != nil else { return }
+        isVisible = false
+        panel?.orderOut(nil)
+        panel?.close()
+        panel = nil
+        hostingView = nil
+        isDragging = false
+        dragOrigin = nil
+        actions.onToastAnchorChanged?()
+    }
+
+    func panelDidReceiveLeftMouseEvent(_ event: NSEvent) {
+        switch event.type {
+        case .leftMouseDown:
+            dragOrigin = event.pindrop_screenLocation
+            dragStartOffset = settingsStore.waveformFloatingIndicatorOffset
+            isDragging = false
+        case .leftMouseDragged:
+            guard let dragOrigin else { return }
+            let point = event.pindrop_screenLocation
+            let delta = CGSize(width: point.x - dragOrigin.x, height: point.y - dragOrigin.y)
+            if !isDragging,
+               hypot(delta.width, delta.height) >= FloatingIndicatorInteractivePanel.dragActivationDistance {
+                isDragging = true
+            }
+            guard isDragging else { return }
+            settingsStore.waveformFloatingIndicatorOffset = CGSize(
+                width: dragStartOffset.width + delta.width,
+                height: dragStartOffset.height + delta.height
+            )
+            repositionPanel()
+        case .leftMouseUp:
+            let shouldStop = !isDragging && state.isRecording
+            dragOrigin = nil
+            isDragging = false
+            if shouldStop { actions.onStopRecording?(type) }
+        default:
+            break
+        }
+    }
+
+    func panelDidReceiveRightMouseDown(_ event: NSEvent) -> Bool {
+        guard let hostingView else { return false }
+        let locale = settingsStore.selectedAppLocale.locale
+        let menu = NSMenu(title: localized("Recording indicator", locale: locale))
+        if state.isRecording {
+            let stop = NSMenuItem(
+                title: localized("Stop Recording", locale: locale),
+                action: #selector(stopFromMenu),
+                keyEquivalent: ""
+            )
+            stop.target = self
+            menu.addItem(stop)
+            menu.addItem(.separator())
+        }
+        let hide = NSMenuItem(
+            title: localized("Hide this for 1 hour", locale: locale),
+            action: #selector(hideForOneHourFromMenu),
+            keyEquivalent: ""
+        )
+        hide.target = self
+        menu.addItem(hide)
+        let settings = NSMenuItem(
+            title: localized("Go to settings", locale: locale),
+            action: #selector(openSettingsFromMenu),
+            keyEquivalent: ""
+        )
+        settings.target = self
+        menu.addItem(settings)
+        applyInterfaceLayoutDirection(to: menu, locale: locale)
+        menu.popUp(positioning: nil, at: event.locationInWindow, in: hostingView)
+        return true
+    }
+
+    @objc private func stopFromMenu() { actions.onStopRecording?(type) }
+    @objc private func hideForOneHourFromMenu() { actions.onHideForOneHour?() }
+    @objc private func openSettingsFromMenu() { actions.onGoToSettings?() }
+
+    private func show() {
+        if panel == nil { makePanel() }
+        repositionPanel()
+        isVisible = true
+        panel?.alphaValue = 1
+        panel?.orderFrontRegardless()
+        actions.onToastAnchorChanged?()
+    }
+
+    private func makePanel() {
+        let frame = NSRect(origin: .zero, size: Self.panelSize)
+        let panel = FloatingIndicatorInteractivePanel(
+            contentRect: frame,
+            styleMask: [.borderless, .nonactivatingPanel, .utilityWindow],
+            backing: .buffered,
+            defer: false
+        )
+        panel.interactionHandler = self
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = false
+        panel.level = .floating
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
+        panel.isReleasedWhenClosed = false
+        panel.acceptsMouseMovedEvents = true
+
+        let root = AnyView(
+            WaveformFloatingIndicatorView(state: state)
+                .frame(width: Self.panelSize.width, height: Self.panelSize.height)
+                .environment(\.locale, settingsStore.selectedAppLocale.locale)
+        )
+        let hostingView = NSHostingView(rootView: root)
+        hostingView.frame = frame
+        panel.contentView = hostingView
+        self.panel = panel
+        self.hostingView = hostingView
+    }
+
+    private func repositionPanel() {
+        guard let panel else { return }
+        let screen = actions.preferredScreenProvider?() ?? NSScreen.screenUnderMouse()
+        let visible = screen.visibleFrame
+        let offset = settingsStore.waveformFloatingIndicatorOffset
+        let preferred = CGPoint(
+            x: visible.maxX - Self.panelSize.width - Self.screenInset + offset.width,
+            y: visible.minY + Self.screenInset + offset.height
+        )
+        let origin = CGPoint(
+            x: min(max(preferred.x, visible.minX), visible.maxX - Self.panelSize.width),
+            y: min(max(preferred.y, visible.minY), visible.maxY - Self.panelSize.height)
+        )
+        panel.setFrame(NSRect(origin: origin, size: Self.panelSize), display: true)
+        actions.onToastAnchorChanged?()
+    }
+}
+
+private struct WaveformFloatingIndicatorView: View {
+    @Environment(\.locale) private var locale
+    @ObservedObject var state: FloatingIndicatorState
+
+    var body: some View {
+        Group {
+            if state.isProcessing {
+                IndicatorProcessingView(dotCount: 3, dotDiameter: 6, spacing: 5)
+                    .accessibilityLabel(localized("Processing recording", locale: locale))
+            } else {
+                FloatingIndicatorWaveformView(
+                    audioLevel: { state.audioLevel },
+                    isRecording: state.isRecording,
+                    style: .waveformIndicator
+                )
+                .frame(width: 74, height: 28)
+                .accessibilityLabel(localized("Recording in progress", locale: locale))
+                .accessibilityHint(localized("Click to stop recording. Drag to reposition.", locale: locale))
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
     }
 }
 

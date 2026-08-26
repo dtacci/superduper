@@ -616,7 +616,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// persistent history can otherwise defer an option mismatch until the
     /// first fetch, which is where Library and stop-recording surface it.
     static func makeModelContainer(at storeURL: URL) throws -> ModelContainer {
-        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV12.self)
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
         let configuration = ModelConfiguration(schema: schema, url: storeURL)
         let container = try ModelContainer(
             for: schema,
@@ -642,6 +642,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         try validateStoreAccess(Note.self)
         try validateStoreAccess(PromptPreset.self)
         try validateStoreAccess(TrainingContribution.self)
+        try validateStoreAccess(MeetingSeries.self)
+        try validateStoreAccess(MeetingOccurrence.self)
         return container
     }
 
@@ -677,6 +679,7 @@ final class SwiftDataStoreRepairService {
         case v10 = "1.0.9"
         case v11 = "1.0.10"
         case v12 = "1.0.11"
+        case v13 = "1.0.12"
 
         var versionedSchema: any VersionedSchema.Type {
             switch self {
@@ -692,6 +695,7 @@ final class SwiftDataStoreRepairService {
             case .v10: return TranscriptionRecordSchemaV10.self
             case .v11: return TranscriptionRecordSchemaV11.self
             case .v12: return TranscriptionRecordSchemaV12.self
+            case .v13: return TranscriptionRecordSchemaV13.self
             }
         }
     }
@@ -883,6 +887,10 @@ final class SwiftDataStoreRepairService {
 
             // Newest first: every check below is a feature the next-older
             // version lacks, so the first hit is the store's actual version.
+            if try tableExists(named: "ZMEETINGOCCURRENCE", on: database) {
+                return .v13
+            }
+
             if columns.contains("ZPIPELINEMETRICSJSON") {
                 return .v12
             }

@@ -16,6 +16,8 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
     case bubble = "bubble"
     /// Always-on liquid-glass orb in the corner of the screen (default; successor to Dot).
     case orb = "orb"
+    /// Transient, audio-reactive bars in a draggable screen corner.
+    case waveform = "waveform"
 
     var id: String { rawValue }
 
@@ -25,7 +27,7 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
         switch self {
         case .pill, .orb:
             return true
-        case .notch, .bubble:
+        case .notch, .bubble, .waveform:
             return false
         }
     }
@@ -50,6 +52,8 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
             return localized("Bubble", locale: locale)
         case .orb:
             return localized("Orb", locale: locale)
+        case .waveform:
+            return localized("Waveform", locale: locale)
         }
     }
 
@@ -67,6 +71,8 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
             return localized("Shows beside the focused text field/caret", locale: locale)
         case .orb:
             return localized("Shows as a liquid glass orb in the corner of the screen", locale: locale)
+        case .waveform:
+            return localized("Shows compact audio-reactive bars in the corner of the screen", locale: locale)
         }
     }
 }

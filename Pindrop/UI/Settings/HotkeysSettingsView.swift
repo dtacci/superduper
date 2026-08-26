@@ -49,6 +49,16 @@ struct HotkeysSettingsView: View {
                     lastConflictStatusBySlot[.toggleMeetingCapture] = nil
                 }
             ),
+            (
+                .toggleRecordingIndicator,
+                localized("Show recording indicator", locale: locale),
+                localized("Show or hide floating recording windows without affecting capture.", locale: locale),
+                settings.recordingIndicatorHotkey,
+                {
+                    settings.updateRecordingIndicatorHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.toggleRecordingIndicator] = nil
+                }
+            ),
         ]
     }
 
@@ -269,6 +279,8 @@ struct HotkeysSettingsView: View {
             settings.updateToggleHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
         case .toggleMeetingCapture:
             settings.updateMeetingHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
+        case .toggleRecordingIndicator:
+            settings.updateRecordingIndicatorHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
         case .pushToTalk:
             settings.updatePushToTalkHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
         case .copyLastTranscript:

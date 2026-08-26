@@ -1,7 +1,8 @@
 # Scripts
 
-Build and packaging helpers for Superduper Dictation. The Xcode target and raw
-build product still use the inherited `Pindrop` name.
+Build and packaging helpers for Superduper Dictation. The Xcode target and
+Swift module retain the inherited `Pindrop` name internally, while the built
+application is `Superduper Dictation.app`.
 
 ## Local signing
 
@@ -10,7 +11,7 @@ runtime, and applies `Pindrop/Pindrop.entitlements`. Pass `local` to use the
 login-keychain certificate named `Superduper Dictation Local Signing`:
 
 ```sh
-./scripts/sign-app-bundle.sh /path/to/Pindrop.app local
+./scripts/sign-app-bundle.sh "/path/to/Superduper Dictation.app" local
 ```
 
 If that certificate is missing, the script falls back to ad-hoc signing and

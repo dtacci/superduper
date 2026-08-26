@@ -34,6 +34,16 @@ about network access and automation.
 - Records Meetings from the menu bar, Home, History, or `Option+Shift+Space`.
 - Captures microphone plus system audio for Meetings, with optional local
   speaker diarization.
+- Preserves meeting audio in a managed workspace so failed processing can be
+  retried without recording the meeting again.
+- Provides diarized transcripts, editable speaker names and notes, summaries,
+  decisions, and action items in local meeting workspaces.
+- Can generate meeting insights entirely on-device on Apple Silicon with an
+  optional, separately downloaded local model.
+- Connects one Google Calendar account through a guided browser sign-in, then
+  lets you explicitly arm individual meeting occurrences for scheduled capture.
+- Includes a persistent recording-indicator privacy toggle and a compact,
+  audio-reactive waveform indicator.
 - Imports local audio/video and supported HTTPS media links.
 - Provides a configurable global-hotkey editor and a native macOS settings UI.
 
@@ -44,8 +54,8 @@ about network access and automation.
 When a public release is available, download the signed and notarized `.dmg`
 from the repository’s **Releases** page, open it, and drag Superduper Dictation
 to Applications. **You do not need Xcode to install or use a release build.**
-The first launch downloads the selected on-device speech model; that is the
-only normal setup download.
+The first launch downloads the selected on-device speech model. The optional
+meeting-insights model is a separate download of roughly 2.15 GB.
 
 This repository is currently source-first, so a public release artifact has not
 been published yet. Until then, the instructions below are for building from
@@ -77,8 +87,10 @@ Meetings are a separate workflow, not a label applied to ordinary dictation.
    records microphone and system audio together.
 4. Press `Option+Shift+Space` again, choose **Stop Meeting**, or use the visible
    recording control to finish.
-5. The recording is transcribed locally and opened in History with audio,
-   transcript, and speaker turns available for review.
+5. The recording is preserved, transcribed locally, and opened as a meeting
+   workspace with audio, speaker turns, editable notes, and optional on-device
+   insights. If processing fails, use **Retry Processing**; the captured audio
+   remains available.
 
 Meeting capture automatically stops and finalizes at 90 minutes. This protects
 against an unattended recording running indefinitely. The recording indicator
@@ -103,9 +115,9 @@ The Meeting path adds system-audio capture and speaker diarization:
 ```text
 Meeting hotkey/menu action
     → microphone + system audio capture
-    → file-backed 90-minute-safe recording
+    → persistent, file-backed meeting workspace
     → local transcription + optional diarization
-    → History record with replayable source media
+    → editable transcript/notes + optional on-device insights
 ```
 
 The app is a SwiftUI/AppKit menu-bar application. Carbon global hotkeys route
@@ -115,14 +127,17 @@ History persists records under the app’s local Application Support directory.
 
 ## Privacy and security
 
-The supported app experience is deliberately local-only:
+The supported app experience is deliberately local-first:
 
 - No telemetry or analytics backend is configured.
 - Cloud transcription models are excluded from the selectable model catalog.
 - External AI enhancement and the inherited MCP server are disabled at runtime,
   including when old preferences are present.
-- Transcribed text is treated as data, not as an instruction or command. No LLM
-  or agent consumes it in the supported build.
+- Meeting transcripts are never sent to configured HTTP AI providers. Optional
+  meeting insights use a separately downloaded local model on Apple Silicon and
+  can be disabled independently.
+- Google Calendar integration sends only OAuth and read-only calendar metadata
+  to Google; recordings, transcripts, notes, and insights remain local.
 - Ordinary dictation audio retention defaults to **Off**. Transcripts remain in
   History; Meetings and imported media retain their source audio/video.
 - App data is created with owner-only filesystem permissions.
@@ -198,6 +213,21 @@ The first onboarding run downloads the selected model. Dictation can run
 offline after that download completes. See [BUILD.md](BUILD.md) for stable
 local signing and public distribution requirements.
 
+## Google Calendar setup
+
+Google Calendar is optional. A distribution build must contain a publisher-owned
+Google **Desktop app** OAuth client ID in `GoogleCalendarClientID` in
+`Pindrop/Info.plist`; contributors can instead set `PINDROP_GOOGLE_CLIENT_ID`
+when launching a development build. Desktop clients use PKCE and do not embed a
+client secret.
+
+Once a build is configured, open **Meetings → Set Up Google Calendar**. The
+wizard explains the two read-only scopes, opens Google sign-in in the system
+browser, and checks Launch at Login. Connecting never arms meetings
+automatically: select and arm each occurrence explicitly. Public distribution
+also requires the repository owner to configure the OAuth consent screen and
+complete any Google verification required for those scopes.
+
 ## Optional media-link tools
 
 **History → Paste Link** requires `yt-dlp` and `ffmpeg` for non-direct media
@@ -256,7 +286,10 @@ See [BUILD.md](BUILD.md), [RELEASING.md](RELEASING.md), and
 
 - Meeting transcription is local and post-capture; live meeting notes are not
   generated.
-- Crash-resilient, resumable transcription is not implemented yet.
+- Scheduled recording requires the app to be running, the Mac to be awake, and
+  Launch at Login to be enabled; no privileged wake daemon is installed.
+- Automated meeting insights require Apple Silicon and the optional local model;
+  Intel Macs retain the full workspace, transcript, audio, and manual notes.
 - A public downloadable release is not currently provided by this repository.
   Local self-signed artifacts are for development only and are not notarized.
 - The app has no universal sandbox because its core features require global

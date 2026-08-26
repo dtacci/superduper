@@ -66,6 +66,51 @@ struct AudioRecorderTests {
         #expect(fixture.mockSystemBackend.startCaptureCallCount == 1)
     }
 
+    @Test func mixedRecordingReportsMicrophoneSpeechAndSilentSystemAudio() async throws {
+        let fixture = try makeFixture()
+        fixture.mockBackend.simulatedBuffers = [try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(format: fixture.mockBackend.targetFormat)
+        )]
+
+        try await fixture.sut.startRecording(configuration: .init(mode: .microphoneAndSystemAudio))
+        fixture.mockBackend.capturedOnAudioLevel?(0.6)
+        fixture.mockSystemBackend.capturedOnAudioLevel?(0)
+        let data = try await fixture.sut.stopRecording()
+
+        #expect(!data.isEmpty)
+        #expect(fixture.sut.lastMeetingSourceHealth?.microphone == .healthy)
+        #expect(fixture.sut.lastMeetingSourceHealth?.systemAudio == .silent)
+        #expect(fixture.sut.lastMeetingSourceHealth?.bothEmpty == false)
+    }
+
+    @Test func mixedRecordingKeepsSystemSpeechWhenMicrophoneWriterFails() async throws {
+        let fixture = try makeFixture()
+        fixture.mockBackend.shouldThrowOnStop = AudioRecorderError.engineStartFailed("microphone writer failed")
+        fixture.mockSystemBackend.simulatedBuffers = [try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(format: fixture.mockSystemBackend.targetFormat)
+        )]
+
+        try await fixture.sut.startRecording(configuration: .init(mode: .microphoneAndSystemAudio))
+        fixture.mockSystemBackend.capturedOnAudioLevel?(0.5)
+        let data = try await fixture.sut.stopRecording()
+
+        #expect(!data.isEmpty)
+        #expect(fixture.sut.lastMeetingSourceHealth?.microphone == .failed)
+        #expect(fixture.sut.lastMeetingSourceHealth?.systemAudio == .healthy)
+        #expect(fixture.sut.lastMeetingSourceHealth?.bothEmpty == false)
+    }
+
+    @Test func mixedRecordingMarksBothEmptyWithoutDiscardingStopResult() async throws {
+        let fixture = try makeFixture()
+        try await fixture.sut.startRecording(configuration: .init(mode: .microphoneAndSystemAudio))
+        let data = try await fixture.sut.stopRecording()
+
+        #expect(data.isEmpty)
+        #expect(fixture.sut.lastMeetingSourceHealth?.microphone == .silent)
+        #expect(fixture.sut.lastMeetingSourceHealth?.systemAudio == .silent)
+        #expect(fixture.sut.lastMeetingSourceHealth?.bothEmpty == true)
+    }
+
     @Test func startRecordingSetsIsRecordingFlag() async throws {
         let fixture = try makeFixture()
         fixture.mockPermission.grantPermission = true

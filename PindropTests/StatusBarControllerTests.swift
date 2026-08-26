@@ -12,6 +12,34 @@ import Testing
 @MainActor
 @Suite(.serialized)
 struct StatusBarControllerTests {
+    @Test func recordingIndicatorMenuIsCheckmarkedAndDoesNotChangeRecordingState() throws {
+        let settingsStore = SettingsStore()
+        settingsStore.resetAllSettings()
+        defer { settingsStore.resetAllSettings() }
+        let recorder = try AudioRecorder(
+            permissionManager: MockPermissionProvider(),
+            captureBackend: MockAudioCaptureBackend(identifier: "microphone"),
+            systemAudioCaptureBackend: MockAudioCaptureBackend(identifier: "system")
+        )
+        let sut = StatusBarController(audioRecorder: recorder, settingsStore: settingsStore)
+        let item = try #require(sut.recordingIndicatorMenuItemForTesting())
+
+        #expect(item.state == .on)
+        #expect(item.title == localized("Show Recording Indicator", locale: settingsStore.selectedAppLocale.locale))
+
+        var toggleCount = 0
+        sut.onToggleRecordingIndicator = {
+            toggleCount += 1
+            settingsStore.floatingIndicatorEnabled.toggle()
+        }
+        item.menu?.performActionForItem(at: item.menu?.index(of: item) ?? -1)
+        sut.updateMenuState()
+
+        #expect(toggleCount == 1)
+        #expect(item.state == .off)
+        #expect(!recorder.isRecording)
+    }
+
     @Test func meetingCaptureMenuReflectsShortcutAndRecordingState() throws {
         let settingsStore = SettingsStore()
         settingsStore.resetAllSettings()

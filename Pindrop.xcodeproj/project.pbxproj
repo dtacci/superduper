@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		GCALSVCBUILD01A2B3C4D5E6F /* GoogleCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = GCALSVCFILE01A2B3C4D5E6F /* GoogleCalendarService.swift */; };
+		MLXLLMBUILD01A2B3C4D5E6F /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = MLXLLMDEP01A2B3C4D5E6F /* MLXLLM */; };
+		MLXCOMMONBUILD01A2B3C4D5E /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = MLXCOMMONDEP01A2B3C4D5E /* MLXLMCommon */; };
+		HUBBUILD01A2B3C4D5E6F700 /* Hub in Frameworks */ = {isa = PBXBuildFile; productRef = HUBDEP01A2B3C4D5E6F700 /* Hub */; };
+		TOKENIZERBUILD01A2B3C4D5 /* Tokenizers in Frameworks */ = {isa = PBXBuildFile; productRef = TOKENIZERDEP01A2B3C4D5 /* Tokenizers */; };
+		LOCALMEETBUILD01A2B3C4D5E /* LocalMeetingModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = LOCALMEETFILE01A2B3C4D5E /* LocalMeetingModelService.swift */; };
 		FONTSFOLDERBUILD01A2 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = FONTSFOLDER01A2B3C4D5 /* Fonts */; };
 		ACKFOLDERBUILD01A2B3 /* Acknowledgements in Resources */ = {isa = PBXBuildFile; fileRef = ACKFOLDER01A2B3C4D5 /* Acknowledgements */; };
 		COLORCONTRASTBUILDCOLORCONTRAS /* ColorContrast.swift in Sources */ = {isa = PBXBuildFile; fileRef = COLORCONTRASTFILECOLORCONTRAS /* ColorContrast.swift */; };
@@ -98,6 +104,9 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		CONTRIBUPLDBUILD01A2B3C4D5E6F /* ContributionUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBUPLDFILE01A2B3C4D5E6F /* ContributionUploader.swift */; };
 		SCHEMAV11TESTBUILD01A2B3C4D5E6F /* SchemaV11MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */; };
 		SCHEMAV12TESTBUILD01A2B3C4D5E6F /* SchemaV12MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMAV12TESTFILE01A2B3C4D5E6F /* SchemaV12MigrationTests.swift */; };
+		SCHEMAV13TESTBUILD01A2B3C4D5E6F /* SchemaV13MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMAV13TESTFILE01A2B3C4D5E6F /* SchemaV13MigrationTests.swift */; };
+		GOOGLECALTESTBUILD01A2B3C4D5E6 /* GoogleCalendarServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = GOOGLECALTESTFILE01A2B3C4D5E6 /* GoogleCalendarServiceTests.swift */; };
+		LOCALMEETTESTBUILD01A2B3C4D5E6 /* LocalMeetingModelServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LOCALMEETTESTFILE01A2B3C4D5E6 /* LocalMeetingModelServiceTests.swift */; };
 		TRAINREDACTTESTBUILD01A2B3C4D5F /* TrainingTextRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */; };
 		CONTRIBSVCTESTBUILD01A2B3C4D5EF /* ContributionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */; };
 		MUTEMONBUILD01A2B3C4D5E6F /* InputMuteMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */; };
@@ -203,6 +212,7 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		STARTUPWINPOLTESTBUILD01A2B3C4 /* StartupWindowPresentationPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STARTUPWINPOLTESTFILE01A2B3C4 /* StartupWindowPresentationPolicyTests.swift */; };
 		LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = LOGGER001A2B3C4D5E6F71 /* Logger.swift */; };
 		MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */; };
+		MEETVIEWBUILD01A2B3C4D5E6 /* MeetingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEETVIEWFILE01A2B3C4D5E6 /* MeetingsView.swift */; };
 		MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */; };
 		MEDIAINGESTBUILD01A2B3C4D5E6F /* MediaIngestionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAINGESTFILE01A2B3C4D5E6F /* MediaIngestionService.swift */; };
 		MEDIAINGESTTESTBUILD01A2B3C4D5E6F /* MediaIngestionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAINGESTTESTFILE01A2B3C4D5E6F /* MediaIngestionServiceTests.swift */; };
@@ -351,7 +361,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		GENLOCMETA01A2B3C4D5E6F0 /* LocalizationMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationMetadata.swift; sourceTree = "<group>"; };
 		GENL10NKEYS01A2B3C4D5E6F0 /* L10nKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10nKeys.swift; sourceTree = "<group>"; };
 		049276EAC4FEBCA2F91F807E /* CopyButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CopyButton.swift; sourceTree = "<group>"; };
-		05406A418EF343BAA525028E /* Pindrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pindrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		05406A418EF343BAA525028E /* Superduper Dictation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Superduper Dictation.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
 		31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRecord.swift; sourceTree = "<group>"; };
 		440249056D0941BF82CA74EB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -398,6 +408,9 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		CONTRIBUPLDFILE01A2B3C4D5E6F /* ContributionUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributionUploader.swift; sourceTree = "<group>"; };
 		SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV11MigrationTests.swift; sourceTree = "<group>"; };
 		SCHEMAV12TESTFILE01A2B3C4D5E6F /* SchemaV12MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV12MigrationTests.swift; sourceTree = "<group>"; };
+		SCHEMAV13TESTFILE01A2B3C4D5E6F /* SchemaV13MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV13MigrationTests.swift; sourceTree = "<group>"; };
+		GOOGLECALTESTFILE01A2B3C4D5E6 /* GoogleCalendarServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarServiceTests.swift; sourceTree = "<group>"; };
+		LOCALMEETTESTFILE01A2B3C4D5E6 /* LocalMeetingModelServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMeetingModelServiceTests.swift; sourceTree = "<group>"; };
 		TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingTextRedactorTests.swift; sourceTree = "<group>"; };
 		CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributionServiceTests.swift; sourceTree = "<group>"; };
 		MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMuteMonitor.swift; sourceTree = "<group>"; };
@@ -446,6 +459,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		C017B84CBC554D8192D38FFA /* PindropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PindropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB05E1BC11534652810B091F /* OutputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputManager.swift; sourceTree = "<group>"; };
 		CDDC77E732664A859279FEC9 /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
+		GCALSVCFILE01A2B3C4D5E6F /* GoogleCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarService.swift; sourceTree = "<group>"; };
+		LOCALMEETFILE01A2B3C4D5E /* LocalMeetingModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMeetingModelService.swift; sourceTree = "<group>"; };
 		COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorContextFlowTests.swift; sourceTree = "<group>"; };
 		CTXADAPT02A2B3C4D5E6F /* AppContextAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContextAdapter.swift; sourceTree = "<group>"; };
 		CTXADAPTTEST02A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContextAdapterRegistryTests.swift; sourceTree = "<group>"; };
@@ -511,6 +526,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		STARTUPWINPOLTESTFILE01A2B3C4 /* StartupWindowPresentationPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupWindowPresentationPolicyTests.swift; sourceTree = "<group>"; };
 		LOGGER001A2B3C4D5E6F71 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
+		MEETVIEWFILE01A2B3C4D5E6 /* MeetingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingsView.swift; sourceTree = "<group>"; };
 		MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditor.swift; sourceTree = "<group>"; };
 		MEDIAINGESTFILE01A2B3C4D5E6F /* MediaIngestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaIngestionService.swift; sourceTree = "<group>"; };
 		MEDIAINGESTTESTFILE01A2B3C4D5E6F /* MediaIngestionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaIngestionServiceTests.swift; sourceTree = "<group>"; };
@@ -613,6 +629,10 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			files = (
 				E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */,
 				FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */,
+				MLXLLMBUILD01A2B3C4D5E6F /* MLXLLM in Frameworks */,
+				MLXCOMMONBUILD01A2B3C4D5E /* MLXLMCommon in Frameworks */,
+				HUBBUILD01A2B3C4D5E6F700 /* Hub in Frameworks */,
+				TOKENIZERBUILD01A2B3C4D5 /* Tokenizers in Frameworks */,
 			);
 		};
 		CBC1B6398AC040CF9417EDEC /* Frameworks */ = {
@@ -645,7 +665,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		34D7D79B92CD42AA8CBA1057 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				05406A418EF343BAA525028E /* Pindrop.app */,
+				05406A418EF343BAA525028E /* Superduper Dictation.app */,
 				C017B84CBC554D8192D38FFA /* PindropTests.xctest */,
 				A86FA888CC0924010269F5D5 /* PindropUITests.xctest */,
 			);
@@ -723,6 +743,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				a2189a034cf447e08e86f24b /* PermissionManager.swift */,
 				CB05E1BC11534652810B091F /* OutputManager.swift */,
 				CDDC77E732664A859279FEC9 /* HistoryStore.swift */,
+				GCALSVCFILE01A2B3C4D5E6F /* GoogleCalendarService.swift */,
+				LOCALMEETFILE01A2B3C4D5E /* LocalMeetingModelService.swift */,
 				TRXPRTFILE01A2B3C4D5E6 /* TranscriptExportService.swift */,
 				NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */,
 				NOTEAPPLISTENFILE01A2B3 /* NoteAppendListeningState.swift */,
@@ -889,6 +911,9 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TELEMCONTESTFILE01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift */,
 				SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */,
 				SCHEMAV12TESTFILE01A2B3C4D5E6F /* SchemaV12MigrationTests.swift */,
+				SCHEMAV13TESTFILE01A2B3C4D5E6F /* SchemaV13MigrationTests.swift */,
+				GOOGLECALTESTFILE01A2B3C4D5E6 /* GoogleCalendarServiceTests.swift */,
+				LOCALMEETTESTFILE01A2B3C4D5E6 /* LocalMeetingModelServiceTests.swift */,
 				TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */,
 				CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */,
 				AICFGV2TESTFILE1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift */,
@@ -1038,6 +1063,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			isa = PBXGroup;
 			children = (
 				MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */,
+				MEETVIEWFILE01A2B3C4D5E6 /* MeetingsView.swift */,
 				MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */,
 				HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */,
 				NOTEROWFILE01A2B3C4D5E6F /* NoteHistoryRow.swift */,
@@ -1163,9 +1189,13 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			packageProductDependencies = (
 				563D563B8CE142449E7030FB /* WhisperKit */,
 				FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */,
+				MLXLLMDEP01A2B3C4D5E6F /* MLXLLM */,
+				MLXCOMMONDEP01A2B3C4D5E /* MLXLMCommon */,
+				HUBDEP01A2B3C4D5E6F700 /* Hub */,
+				TOKENIZERDEP01A2B3C4D5 /* Tokenizers */,
 			);
-			productName = Pindrop;
-			productReference = 05406A418EF343BAA525028E /* Pindrop.app */;
+			productName = "Superduper Dictation";
+			productReference = 05406A418EF343BAA525028E /* Superduper Dictation.app */;
 			productType = "com.apple.product-type.application";
 		};
 		34DFA0DE5A5849FB8E573465 /* PindropTests */ = {
@@ -1248,6 +1278,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			packageReferences = (
 				CFD28D45C1FE4DF09ED8A269 /* XCRemoteSwiftPackageReference "WhisperKit" */,
 				FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */,
+				MLXLMREF01A2B3C4D5E6F70 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */,
+				TRANSFORMERSREF01A2B3C4D /* XCRemoteSwiftPackageReference "swift-transformers" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 34D7D79B92CD42AA8CBA1057 /* Products */;
@@ -1324,6 +1356,9 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TELEMCONTESTBUILD01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift in Sources */,
 				SCHEMAV11TESTBUILD01A2B3C4D5E6F /* SchemaV11MigrationTests.swift in Sources */,
 				SCHEMAV12TESTBUILD01A2B3C4D5E6F /* SchemaV12MigrationTests.swift in Sources */,
+				SCHEMAV13TESTBUILD01A2B3C4D5E6F /* SchemaV13MigrationTests.swift in Sources */,
+				GOOGLECALTESTBUILD01A2B3C4D5E6 /* GoogleCalendarServiceTests.swift in Sources */,
+				LOCALMEETTESTBUILD01A2B3C4D5E6 /* LocalMeetingModelServiceTests.swift in Sources */,
 				TRAINREDACTTESTBUILD01A2B3C4D5F /* TrainingTextRedactorTests.swift in Sources */,
 				CONTRIBSVCTESTBUILD01A2B3C4D5EF /* ContributionServiceTests.swift in Sources */,
 				AICFGV2TESTBUILD1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift in Sources */,
@@ -1410,6 +1445,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				PROPMODEL1A2B3C4D5E6F /* PromptPreset.swift in Sources */,
 				BUILTINPRESETS1A2B3C4D5E6F /* BuiltInPresets.swift in Sources */,
 				BC44C77F1DDD43BFAD8A88BD /* HistoryStore.swift in Sources */,
+				GCALSVCBUILD01A2B3C4D5E6F /* GoogleCalendarService.swift in Sources */,
+				LOCALMEETBUILD01A2B3C4D5E /* LocalMeetingModelService.swift in Sources */,
 				TRXPRTBUILD01A2B3C4D5E6 /* TranscriptExportService.swift in Sources */,
 				TRXDTLACCESSBUILD01A2B3 /* TranscriptionDetailAccess.swift in Sources */,
 				DICTSTORE2A2B3C4D5E6F70 /* DictionaryStore.swift in Sources */,
@@ -1498,6 +1535,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */,
 				SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */,
 				MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */,
+				MEETVIEWBUILD01A2B3C4D5E6 /* MeetingsView.swift in Sources */,
 				MEDIADETAILBUILD01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift in Sources */,
 				HISTROWBUILD01A2B3C4D5E6F /* TranscriptionHistoryRow.swift in Sources */,
 				NOTEROWBUILD01A2B3C4D5E6F /* NoteHistoryRow.swift in Sources */,
@@ -1615,7 +1653,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pindrop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pindrop";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Superduper Dictation.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Superduper Dictation";
 			};
 			name = Debug;
 		};
@@ -1647,7 +1685,8 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				);
 				MARKETING_VERSION = 1.22.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dantacci.superduper-dictation;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = Pindrop;
+				PRODUCT_NAME = "Superduper Dictation";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1819,7 +1858,8 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				);
 				MARKETING_VERSION = 1.22.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dantacci.superduper-dictation;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = Pindrop;
+				PRODUCT_NAME = "Superduper Dictation";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1856,7 +1896,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pindrop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pindrop";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Superduper Dictation.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Superduper Dictation";
 			};
 			name = Release;
 		};
@@ -1915,6 +1955,22 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				version = 0.15.4;
 			};
 		};
+		MLXLMREF01A2B3C4D5E6F70 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ml-explore/mlx-swift-lm.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.30.6;
+			};
+		};
+		TRANSFORMERSREF01A2B3C4D /* XCRemoteSwiftPackageReference "swift-transformers" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/huggingface/swift-transformers";
+			requirement = {
+				kind = exactVersion;
+				version = 1.1.6;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1927,6 +1983,26 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			isa = XCSwiftPackageProductDependency;
 			package = FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */;
 			productName = FluidAudio;
+		};
+		MLXLLMDEP01A2B3C4D5E6F /* MLXLLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = MLXLMREF01A2B3C4D5E6F70 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */;
+			productName = MLXLLM;
+		};
+		MLXCOMMONDEP01A2B3C4D5E /* MLXLMCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = MLXLMREF01A2B3C4D5E6F70 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */;
+			productName = MLXLMCommon;
+		};
+		HUBDEP01A2B3C4D5E6F700 /* Hub */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = TRANSFORMERSREF01A2B3C4D /* XCRemoteSwiftPackageReference "swift-transformers" */;
+			productName = Hub;
+		};
+		TOKENIZERDEP01A2B3C4D5 /* Tokenizers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = TRANSFORMERSREF01A2B3C4D /* XCRemoteSwiftPackageReference "swift-transformers" */;
+			productName = Tokenizers;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

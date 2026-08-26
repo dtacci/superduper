@@ -11,6 +11,7 @@ import AppKit
 
 extension Notification.Name {
     static let historyStoreDidChange = Notification.Name("tech.watzon.pindrop.historyStoreDidChange")
+    static let meetingStoreDidChange = Notification.Name("tech.watzon.pindrop.meetingStoreDidChange")
 }
 
 @MainActor
@@ -2320,4 +2321,370 @@ private actor HistoryAggregationWorker {
 private struct HistorySearchResult: Sendable {
     let matchingIDs: [UUID]
     let spokenDuration: TimeInterval
+}
+
+// MARK: - Meeting workspaces
+
+struct MeetingOccurrenceSnapshot: Codable, Equatable, Sendable, Identifiable {
+    let id: String
+    let provider: String
+    let calendarID: String?
+    let eventID: String?
+    let recurringEventID: String?
+    let title: String
+    let start: Date
+    let end: Date?
+    let joinURL: URL?
+    let rawSnapshotJSON: String?
+
+    var persistentIdentity: String {
+        [provider, calendarID ?? "", eventID ?? id].joined(separator: ":")
+    }
+}
+
+struct MeetingActionItem: Codable, Equatable, Sendable, Identifiable {
+    let id: UUID
+    var text: String
+    var owner: String?
+    var dueDate: String?
+    var isComplete: Bool
+
+    init(
+        id: UUID = UUID(),
+        text: String,
+        owner: String? = nil,
+        dueDate: String? = nil,
+        isComplete: Bool = false
+    ) {
+        self.id = id
+        self.text = text
+        self.owner = owner
+        self.dueDate = dueDate
+        self.isComplete = isComplete
+    }
+}
+
+struct MeetingInsights: Codable, Equatable, Sendable {
+    var summaryMarkdown: String
+    var decisions: [String]
+    var actionItems: [MeetingActionItem]
+}
+
+@MainActor
+final class MeetingStore {
+    enum StoreError: Error, LocalizedError {
+        case occurrenceNotFound
+        case invalidTransition(MeetingRecordingState, MeetingRecordingState)
+        case encodingFailed
+
+        var errorDescription: String? {
+            switch self {
+            case .occurrenceNotFound:
+                return "The meeting workspace could not be found."
+            case .invalidTransition(let from, let to):
+                return "The meeting cannot move from \(from.rawValue) to \(to.rawValue)."
+            case .encodingFailed:
+                return "Meeting metadata could not be saved."
+            }
+        }
+    }
+
+    private let modelContext: ModelContext
+    private let mediaLibrary: any MediaLibraryManaging
+    private let fileManager: FileManager
+
+    init(
+        modelContext: ModelContext,
+        mediaLibrary: any MediaLibraryManaging = ManagedMediaLibrary(),
+        fileManager: FileManager = .default
+    ) {
+        self.modelContext = modelContext
+        self.mediaLibrary = mediaLibrary
+        self.fileManager = fileManager
+    }
+
+    @discardableResult
+    func createManualOccurrence(
+        title: String? = nil,
+        scheduledStart: Date = Date(),
+        expectedSpeakerCount: Int? = nil
+    ) throws -> MeetingOccurrence {
+        let id = UUID()
+        let workspaceURL = try mediaLibrary.makeJobDirectory(for: id)
+        let resolvedTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let series = MeetingSeries(
+            displayName: resolvedTitle?.isEmpty == false
+                ? resolvedTitle!
+                : scheduledStart.formatted(date: .abbreviated, time: .shortened)
+        )
+        let occurrence = MeetingOccurrence(
+            id: id,
+            calendarTitle: resolvedTitle,
+            scheduledStart: scheduledStart,
+            stateRawValue: MeetingRecordingState.preparing.rawValue,
+            workspacePath: workspaceURL.path,
+            expectedSpeakerCount: expectedSpeakerCount,
+            series: series
+        )
+        series.occurrences.append(occurrence)
+        modelContext.insert(series)
+        modelContext.insert(occurrence)
+        try save()
+        return occurrence
+    }
+
+    @discardableResult
+    func arm(_ snapshot: MeetingOccurrenceSnapshot) throws -> MeetingOccurrence {
+        if let existing = try occurrence(calendarIdentity: snapshot.persistentIdentity) {
+            apply(snapshot, to: existing)
+            existing.isArmed = true
+            if existing.state == .canceled || existing.state == .missed {
+                existing.state = .scheduled
+                existing.failureMessage = nil
+            }
+            try save()
+            return existing
+        }
+
+        let recurringIdentity = snapshot.recurringEventID.map { "\(snapshot.provider):\($0)" }
+        let series: MeetingSeries
+        if let existing = try existingSeries(recurringIdentity: recurringIdentity) {
+            series = existing
+        } else {
+            series = MeetingSeries(
+                recurringEventIdentity: recurringIdentity,
+                displayName: snapshot.title
+            )
+            modelContext.insert(series)
+        }
+
+        let id = UUID()
+        let workspaceURL = try mediaLibrary.makeJobDirectory(for: id)
+        let occurrence = MeetingOccurrence(
+            id: id,
+            calendarOccurrenceIdentity: snapshot.persistentIdentity,
+            providerRawValue: snapshot.provider,
+            calendarID: snapshot.calendarID,
+            calendarEventID: snapshot.eventID,
+            recurringEventID: snapshot.recurringEventID,
+            calendarTitle: snapshot.title,
+            calendarSnapshotJSON: snapshot.rawSnapshotJSON,
+            scheduledStart: snapshot.start,
+            scheduledEnd: snapshot.end,
+            joinURLString: snapshot.joinURL?.absoluteString,
+            isArmed: true,
+            stateRawValue: MeetingRecordingState.scheduled.rawValue,
+            workspacePath: workspaceURL.path,
+            series: series
+        )
+        series.occurrences.append(occurrence)
+        modelContext.insert(occurrence)
+        try save()
+        return occurrence
+    }
+
+    func disarm(id: UUID, canceled: Bool = false, message: String? = nil) throws {
+        let occurrence = try requireOccurrence(id: id)
+        occurrence.isArmed = false
+        occurrence.failureMessage = message
+        if canceled {
+            occurrence.state = .canceled
+        }
+        occurrence.updatedAt = Date()
+        try save()
+    }
+
+    func transition(id: UUID, to next: MeetingRecordingState, message: String? = nil) throws {
+        let occurrence = try requireOccurrence(id: id)
+        guard Self.allowedTransitions[occurrence.state, default: []].contains(next)
+                || occurrence.state == next else {
+            throw StoreError.invalidTransition(occurrence.state, next)
+        }
+        occurrence.state = next
+        occurrence.failureMessage = message
+        occurrence.updatedAt = Date()
+        if [.ready, .failed, .missed, .canceled].contains(next) {
+            occurrence.isArmed = false
+        }
+        try save()
+    }
+
+    func markFailedPreservingWorkspace(id: UUID, message: String) throws {
+        let occurrence = try requireOccurrence(id: id)
+        occurrence.state = .failed
+        occurrence.isArmed = false
+        occurrence.failureMessage = message
+        occurrence.updatedAt = Date()
+        refreshRecoveryPaths(for: occurrence)
+        try save()
+    }
+
+    func preserveAudio(
+        id: UUID,
+        managedAudioURL: URL?,
+        recoveryAudioURLs: [URL],
+        microphoneHealth: MeetingAudioSourceHealth? = nil,
+        systemAudioHealth: MeetingAudioSourceHealth? = nil,
+        warning: String? = nil
+    ) throws {
+        let occurrence = try requireOccurrence(id: id)
+        occurrence.managedAudioPath = managedAudioURL?.path
+        let paths = recoveryAudioURLs.map(\.path)
+        occurrence.recoveryAudioPathsJSON = paths.isEmpty ? nil : try encode(paths)
+        occurrence.microphoneHealthRawValue = microphoneHealth?.rawValue
+        occurrence.systemAudioHealthRawValue = systemAudioHealth?.rawValue
+        occurrence.sourceHealthWarning = warning
+        occurrence.updatedAt = Date()
+        try save()
+    }
+
+    func attachTranscript(id: UUID, transcript: TranscriptionRecord) throws {
+        let occurrence = try requireOccurrence(id: id)
+        occurrence.transcript = transcript
+        occurrence.updatedAt = Date()
+        try save()
+    }
+
+    func saveNotes(id: UUID, markdown: String) throws {
+        let occurrence = try requireOccurrence(id: id)
+        occurrence.notesMarkdown = markdown
+        occurrence.updatedAt = Date()
+        try save()
+    }
+
+    func saveInsights(id: UUID, insights: MeetingInsights) throws {
+        let occurrence = try requireOccurrence(id: id)
+        occurrence.summaryMarkdown = insights.summaryMarkdown
+        occurrence.decisionsJSON = try encode(insights.decisions)
+        occurrence.actionItemsJSON = try encode(insights.actionItems)
+        occurrence.updatedAt = Date()
+        try save()
+    }
+
+    func saveSpeakerLabels(id: UUID, labels: [String: String]) throws {
+        let occurrence = try requireOccurrence(id: id)
+        occurrence.speakerLabelsJSON = try encode(labels)
+        occurrence.updatedAt = Date()
+        try save()
+    }
+
+    func renameSeries(id: UUID, displayName: String) throws {
+        guard let occurrence = try occurrence(id: id), let series = occurrence.series else {
+            throw StoreError.occurrenceNotFound
+        }
+        let trimmed = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        series.displayName = trimmed
+        series.updatedAt = Date()
+        try save()
+    }
+
+    func occurrence(id: UUID) throws -> MeetingOccurrence? {
+        var descriptor = FetchDescriptor<MeetingOccurrence>(
+            predicate: #Predicate { $0.id == id }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    func occurrence(calendarIdentity: String) throws -> MeetingOccurrence? {
+        try occurrenceForCalendarIdentity(calendarIdentity)
+    }
+
+    func fetchOccurrences() throws -> [MeetingOccurrence] {
+        try modelContext.fetch(FetchDescriptor<MeetingOccurrence>(
+            sortBy: [SortDescriptor(\.scheduledStart, order: .reverse)]
+        ))
+    }
+
+    func fetchArmedOccurrences(from start: Date, through end: Date) throws -> [MeetingOccurrence] {
+        try modelContext.fetch(FetchDescriptor<MeetingOccurrence>(
+            predicate: #Predicate {
+                $0.isArmed && $0.scheduledStart >= start && $0.scheduledStart <= end
+            },
+            sortBy: [SortDescriptor(\.scheduledStart)]
+        ))
+    }
+
+    /// Converts interrupted active states to recoverable failures on launch. Files
+    /// remain untouched and can be reprocessed from the workspace.
+    @discardableResult
+    func recoverInterruptedOccurrences() throws -> [MeetingOccurrence] {
+        let all = try fetchOccurrences()
+        let interrupted = all.filter { [.preparing, .recording, .processing].contains($0.state) }
+        for occurrence in interrupted {
+            occurrence.state = .failed
+            occurrence.isArmed = false
+            occurrence.failureMessage = "Pindrop stopped before meeting processing completed."
+            occurrence.updatedAt = Date()
+            refreshRecoveryPaths(for: occurrence)
+        }
+        if !interrupted.isEmpty { try save() }
+        return interrupted
+    }
+
+    private func occurrenceForCalendarIdentity(_ calendarIdentity: String) throws -> MeetingOccurrence? {
+        var descriptor = FetchDescriptor<MeetingOccurrence>(
+            predicate: #Predicate { $0.calendarOccurrenceIdentity == calendarIdentity }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func existingSeries(recurringIdentity: String?) throws -> MeetingSeries? {
+        guard let recurringIdentity else { return nil }
+        var descriptor = FetchDescriptor<MeetingSeries>(
+            predicate: #Predicate { $0.recurringEventIdentity == recurringIdentity }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func requireOccurrence(id: UUID) throws -> MeetingOccurrence {
+        guard let occurrence = try occurrence(id: id) else { throw StoreError.occurrenceNotFound }
+        return occurrence
+    }
+
+    private func apply(_ snapshot: MeetingOccurrenceSnapshot, to occurrence: MeetingOccurrence) {
+        occurrence.calendarTitle = snapshot.title
+        occurrence.calendarSnapshotJSON = snapshot.rawSnapshotJSON
+        occurrence.scheduledStart = snapshot.start
+        occurrence.scheduledEnd = snapshot.end
+        occurrence.joinURLString = snapshot.joinURL?.absoluteString
+        occurrence.updatedAt = Date()
+    }
+
+    private func refreshRecoveryPaths(for occurrence: MeetingOccurrence) {
+        guard let contents = try? fileManager.contentsOfDirectory(
+            at: occurrence.workspaceURL,
+            includingPropertiesForKeys: nil
+        ) else { return }
+        let recoverable = contents.filter {
+            ["pcm", "caf", "wav", "m4a"].contains($0.pathExtension.lowercased())
+        }
+        occurrence.recoveryAudioPathsJSON = recoverable.isEmpty ? nil : try? encode(recoverable.map(\.path))
+    }
+
+    private func encode<T: Encodable>(_ value: T) throws -> String {
+        guard let string = String(data: try JSONEncoder().encode(value), encoding: .utf8) else {
+            throw StoreError.encodingFailed
+        }
+        return string
+    }
+
+    private func save() throws {
+        try modelContext.save()
+        NotificationCenter.default.post(name: .meetingStoreDidChange, object: nil)
+    }
+
+    private static let allowedTransitions: [MeetingRecordingState: Set<MeetingRecordingState>] = [
+        .scheduled: [.preparing, .missed, .canceled],
+        .preparing: [.recording, .failed, .missed, .canceled],
+        .recording: [.processing, .failed, .canceled],
+        .processing: [.ready, .failed, .canceled],
+        .ready: [.processing],
+        .failed: [.processing, .preparing, .canceled],
+        .missed: [.scheduled, .canceled],
+        .canceled: [.scheduled]
+    ]
 }

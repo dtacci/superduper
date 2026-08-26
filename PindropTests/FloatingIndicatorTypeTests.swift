@@ -13,7 +13,7 @@ import Testing
 @Suite
 struct FloatingIndicatorTypeTests {
     @Test func allCasesIncludeTransientAndAlwaysOnStyles() {
-        #expect(FloatingIndicatorType.allCases == [.notch, .pill, .bubble, .orb])
+        #expect(FloatingIndicatorType.allCases == [.notch, .pill, .bubble, .orb, .waveform])
     }
 
     @Test func alwaysOnFlagsMatchStyleContract() {
@@ -21,6 +21,7 @@ struct FloatingIndicatorTypeTests {
         #expect(FloatingIndicatorType.pill.isAlwaysOn)
         #expect(!FloatingIndicatorType.notch.isAlwaysOn)
         #expect(!FloatingIndicatorType.bubble.isAlwaysOn)
+        #expect(!FloatingIndicatorType.waveform.isAlwaysOn)
     }
 
     @Test func toastAnchoringMatchesStyleContract() {
@@ -28,6 +29,7 @@ struct FloatingIndicatorTypeTests {
         #expect(FloatingIndicatorType.pill.anchorsToastsToIndicator)
         #expect(!FloatingIndicatorType.bubble.anchorsToastsToIndicator)
         #expect(FloatingIndicatorType.orb.anchorsToastsToIndicator)
+        #expect(FloatingIndicatorType.waveform.anchorsToastsToIndicator)
     }
 
     @Test func rawValuesRoundTrip() {
@@ -42,6 +44,7 @@ struct FloatingIndicatorTypeTests {
         #expect(FloatingIndicatorType.pill.displayName(locale: locale) == "Pill")
         #expect(FloatingIndicatorType.bubble.displayName(locale: locale) == "Bubble")
         #expect(FloatingIndicatorType.orb.displayName(locale: locale) == "Orb")
+        #expect(FloatingIndicatorType.waveform.displayName(locale: locale) == "Waveform")
     }
 
     @Test func descriptionsResolveEnglishKeys() {
@@ -61,6 +64,10 @@ struct FloatingIndicatorTypeTests {
         #expect(
             FloatingIndicatorType.orb.description(locale: locale)
                 == "Shows as a liquid glass orb in the corner of the screen"
+        )
+        #expect(
+            FloatingIndicatorType.waveform.description(locale: locale)
+                == "Shows compact audio-reactive bars in the corner of the screen"
         )
     }
 }

@@ -263,13 +263,14 @@ struct ModelManagerTests {
         // FluidAudio's `Repo.nemotronStreaming*.folderName` values — that's where
         // DownloadUtils.downloadRepo materializes each chunk variant.
         #expect(FeatureModelType.streaming.repoFolderName == "nemotron-streaming/1120ms")
+        #expect(FeatureModelType.meetingNotes.repoFolderName == "Qwen3-4B-MLX-4bit")
         #expect(FeatureModelType.streamingRepoFolderName(for: .standard) == "nemotron-streaming/1120ms")
         #expect(FeatureModelType.streamingRepoFolderName(for: .lowLatency) == "nemotron-streaming/560ms")
     }
-    @Test func offlineDiarizationReadinessRequiresAllArtifacts() throws {
+    @Test func offlineDiarizationReadinessRecognizesCurrentFluidAudioLayout() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("pindrop-diarization-readiness-\(UUID().uuidString)", isDirectory: true)
-        let coreml = root.appendingPathComponent(FeatureModelType.diarization.repoFolderName, isDirectory: true)
+        let coreml = root.appendingPathComponent("speaker-diarization", isDirectory: true)
         let offlineSibling = root.appendingPathComponent("speaker-diarization-offline", isDirectory: true)
         try FileManager.default.createDirectory(at: coreml, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -283,23 +284,22 @@ struct ModelManagerTests {
         #expect(!coremlRequired.contains(ModelNames.OfflineDiarizer.pldaParameters))
 
         for path in coremlRequired {
-            FileManager.default.createFile(
-                atPath: coreml.appendingPathComponent(path).path,
-                contents: Data()
-            )
+            let model = coreml.appendingPathComponent(path, isDirectory: true)
+            try FileManager.default.createDirectory(at: model, withIntermediateDirectories: true)
+            FileManager.default.createFile(atPath: model.appendingPathComponent("coremldata.bin").path, contents: Data([1]))
         }
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root) == false)
 
         // Root candidate
         let rootPlda = root.appendingPathComponent("plda-parameters.json")
-        FileManager.default.createFile(atPath: rootPlda.path, contents: Data("{}".utf8))
+        FileManager.default.createFile(atPath: rootPlda.path, contents: Data("{\"tensors\":{}}".utf8))
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
         try FileManager.default.removeItem(at: rootPlda)
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root) == false)
 
         // CoreML-folder candidate
         let coremlPlda = coreml.appendingPathComponent("plda-parameters.json")
-        FileManager.default.createFile(atPath: coremlPlda.path, contents: Data("{}".utf8))
+        FileManager.default.createFile(atPath: coremlPlda.path, contents: Data("{\"tensors\":{}}".utf8))
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
         try FileManager.default.removeItem(at: coremlPlda)
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root) == false)
@@ -307,7 +307,72 @@ struct ModelManagerTests {
         // Offline sibling-folder candidate
         try FileManager.default.createDirectory(at: offlineSibling, withIntermediateDirectories: true)
         let siblingPlda = offlineSibling.appendingPathComponent("plda-parameters.json")
-        FileManager.default.createFile(atPath: siblingPlda.path, contents: Data("{}".utf8))
+        FileManager.default.createFile(atPath: siblingPlda.path, contents: Data("{\"tensors\":{}}".utf8))
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
+    }
+
+    @Test func offlineDiarizationReadinessRetainsLegacyCompatibility() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-diarization-legacy-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let legacy = root.appendingPathComponent("speaker-diarization-coreml", isDirectory: true)
+        try FileManager.default.createDirectory(at: legacy, withIntermediateDirectories: true)
+        for path in ModelNames.OfflineDiarizer.requiredModels.subtracting([ModelNames.OfflineDiarizer.pldaParameters]) {
+            let model = legacy.appendingPathComponent(path, isDirectory: true)
+            try FileManager.default.createDirectory(at: model, withIntermediateDirectories: true)
+            FileManager.default.createFile(atPath: model.appendingPathComponent("model.mil").path, contents: Data([1]))
+        }
+        FileManager.default.createFile(
+            atPath: legacy.appendingPathComponent(ModelNames.OfflineDiarizer.pldaParameters).path,
+            contents: Data("{}".utf8)
+        )
+
+        #expect(modelManager.offlineDiarizationReadiness(at: root) == .ready(layout: .legacy))
+    }
+
+    @Test func offlineDiarizationReadinessDiagnosesPartialAndCorruptCaches() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-diarization-corrupt-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let current = root.appendingPathComponent("speaker-diarization", isDirectory: true)
+        try FileManager.default.createDirectory(at: current, withIntermediateDirectories: true)
+
+        let readiness = modelManager.offlineDiarizationReadiness(at: root)
+        guard case .incomplete(layout: .current, let missing) = readiness else {
+            Issue.record("Expected an incomplete current-layout cache, got \(readiness)")
+            return
+        }
+        #expect(!missing.isEmpty)
+
+        for path in ModelNames.OfflineDiarizer.requiredModels.subtracting([ModelNames.OfflineDiarizer.pldaParameters]) {
+            try FileManager.default.createDirectory(
+                at: current.appendingPathComponent(path, isDirectory: true),
+                withIntermediateDirectories: true
+            )
+        }
+        FileManager.default.createFile(
+            atPath: current.appendingPathComponent(ModelNames.OfflineDiarizer.pldaParameters).path,
+            contents: Data("not-json".utf8)
+        )
+        guard case .corrupt(layout: .current, let assets) = modelManager.offlineDiarizationReadiness(at: root) else {
+            Issue.record("Expected corrupt current-layout assets")
+            return
+        }
+        #expect(!assets.isEmpty)
+    }
+
+    @Test func diarizationRepairRemovalDoesNotTouchOtherFeatureModels() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-diarization-repair-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let diarization = root.appendingPathComponent("speaker-diarization", isDirectory: true)
+        let vad = root.appendingPathComponent(FeatureModelType.vad.repoFolderName, isDirectory: true)
+        try FileManager.default.createDirectory(at: diarization, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: vad, withIntermediateDirectories: true)
+
+        try modelManager.removeOfflineDiarizationAssets(at: root)
+
+        #expect(!FileManager.default.fileExists(atPath: diarization.path))
+        #expect(FileManager.default.fileExists(atPath: vad.path))
     }
 }
