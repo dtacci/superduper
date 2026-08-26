@@ -1952,7 +1952,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			repositoryURL = "https://github.com/FluidInference/FluidAudio.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.15.4;
+				version = 0.15.6;
 			};
 		};
 		MLXLMREF01A2B3C4D5E6F70 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */ = {
