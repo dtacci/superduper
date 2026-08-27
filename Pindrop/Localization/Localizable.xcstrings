@@ -130754,6 +130754,390 @@
         }
       }
     },
+    "permission_repair_action": {
+      "comment": "Repair Permission",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Permission"
+          }
+        }
+      }
+    },
+    "permission_repair_explanation": {
+      "comment": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS is not granting Accessibility access to this exact copy of Superduper Dictation, even if an older entry appears enabled in System Settings.\n\nRepair Permission removes only this app's stale Accessibility entry and requests a fresh grant. You will still choose Allow in macOS. Without permission, transcripts are copied to the clipboard instead of inserted."
+          }
+        }
+      }
+    },
     "permissions": {
       "comment": "permissions",
       "extractionState": "manual",

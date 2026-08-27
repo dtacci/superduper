@@ -6741,9 +6741,40 @@ final class AppCoordinator {
 
         if showFallbackAlert && !hasShownAccessibilityFallbackAlertThisLaunch {
             hasShownAccessibilityFallbackAlertThisLaunch = true
-            AlertManager.shared.showAccessibilityPermissionAlert()
+            let action = AlertManager.shared.showAccessibilityPermissionAlert()
+            if action == .repairPermission {
+                repairAccessibilityPermission()
+            }
         }
 
+    }
+
+    private func repairAccessibilityPermission() {
+        do {
+            try permissionManager.repairAccessibilityPermission()
+            hasRequestedAccessibilityPermissionThisLaunch = true
+            hasShownAccessibilityFallbackAlertThisLaunch = false
+
+            let grantedImmediately = permissionManager.requestAccessibilityPermission(showPrompt: true)
+            Log.app.info(
+                "Reset stale Accessibility permission and requested a fresh grant "
+                    + "(grantedImmediately=\(grantedImmediately))"
+            )
+
+            if !grantedImmediately {
+                AlertManager.shared.revealAppInFinder()
+                AlertManager.shared.openAccessibilitySettings()
+            }
+        } catch {
+            Log.app.error("Failed to repair Accessibility permission: \(error.localizedDescription)")
+            AlertManager.shared.showGenericErrorAlert(
+                title: localized(
+                    "Accessibility Permission Required",
+                    locale: settingsStore.selectedAppLocale.locale
+                ),
+                message: error.localizedDescription
+            )
+        }
     }
 
     private func ensureGlobalKeyMonitorsIfPossible() {

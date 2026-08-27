@@ -10,6 +10,62 @@ import Foundation
 import Testing
 @testable import Pindrop
 
+private final class MockAccessibilityPermissionResetter: AccessibilityPermissionResetting {
+    var receivedBundleIdentifier: String?
+    var error: Error?
+
+    func reset(bundleIdentifier: String) throws {
+        if let error {
+            throw error
+        }
+        receivedBundleIdentifier = bundleIdentifier
+    }
+}
+
+@MainActor
+@Suite
+struct AccessibilityPermissionRepairTests {
+    @Test func repairResetsOnlyTheCurrentBundleIdentifier() throws {
+        let resetter = MockAccessibilityPermissionResetter()
+        let sut = PermissionManager(
+            accessibilityPermissionResetter: resetter,
+            bundleIdentifierProvider: { "com.dantacci.superduper-dictation" }
+        )
+
+        try sut.repairAccessibilityPermission()
+
+        #expect(resetter.receivedBundleIdentifier == "com.dantacci.superduper-dictation")
+        #expect(!sut.accessibilityPermissionGranted)
+    }
+
+    @Test func repairRejectsAMissingBundleIdentifier() {
+        let sut = PermissionManager(
+            accessibilityPermissionResetter: MockAccessibilityPermissionResetter(),
+            bundleIdentifierProvider: { nil }
+        )
+
+        #expect(throws: AccessibilityPermissionRepairError.self) {
+            try sut.repairAccessibilityPermission()
+        }
+    }
+
+    @Test func repairPropagatesResetFailures() {
+        let resetter = MockAccessibilityPermissionResetter()
+        resetter.error = AccessibilityPermissionRepairError.resetFailed(
+            status: 1,
+            detail: "denied"
+        )
+        let sut = PermissionManager(
+            accessibilityPermissionResetter: resetter,
+            bundleIdentifierProvider: { "com.dantacci.superduper-dictation" }
+        )
+
+        #expect(throws: AccessibilityPermissionRepairError.self) {
+            try sut.repairAccessibilityPermission()
+        }
+    }
+}
+
 @MainActor
 @Suite(.enabled(if: ProcessInfo.processInfo.environment["PINDROP_RUN_INTEGRATION_TESTS"] == "1", "PermissionManager integration tests are disabled by default. Run `just test-integration` to execute them."))
 struct PermissionManagerTests {
