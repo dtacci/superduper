@@ -475,7 +475,8 @@ class TranscriptionService {
         diarizationEnabled: Bool,
         options: TranscriptionOptions,
         diarizationOptions: DiarizationOptions = .init(),
-        diarizationFailurePolicy: DiarizationFailurePolicy = .bestEffort
+        diarizationFailurePolicy: DiarizationFailurePolicy = .bestEffort,
+        progressHandler: TranscriptionProgressHandler? = nil
     ) async throws -> TranscriptionOutput {
         Log.transcription.debug("Transcribe called with \(audioData.count) bytes, state: \(String(describing: self.state))")
 
@@ -512,7 +513,16 @@ class TranscriptionService {
                 diarizationEnabled: diarizationEnabled,
                 options: options,
                 diarizationOptions: diarizationOptions,
-                diarizationFailurePolicy: diarizationFailurePolicy
+                diarizationFailurePolicy: diarizationFailurePolicy,
+                progressHandler: progressHandler
+            )
+
+            progressHandler?(
+                TranscriptionProgressUpdate(
+                    fractionCompleted: 1,
+                    elapsed: Date().timeIntervalSince(startTime),
+                    estimatedRemaining: 0
+                )
             )
 
             let elapsed = Date().timeIntervalSince(startTime)
@@ -1206,13 +1216,25 @@ class TranscriptionService {
         diarizationEnabled: Bool,
         options: TranscriptionOptions,
         diarizationOptions: DiarizationOptions,
-        diarizationFailurePolicy: DiarizationFailurePolicy
+        diarizationFailurePolicy: DiarizationFailurePolicy,
+        progressHandler: TranscriptionProgressHandler?
     ) async throws -> TranscriptionOutput {
         guard diarizationEnabled else {
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+            return try await transcribeWithoutDiarization(
+                engine: engine,
+                audioData: audioData,
+                options: options,
+                progressHandler: progressHandler
+            )
         }
 
         Log.transcription.info("Speaker diarization enabled for current transcription")
+        let progressStartedAt = Date()
+        reportOverallProgress(
+            fractionCompleted: 0,
+            startedAt: progressStartedAt,
+            handler: progressHandler
+        )
 
         do {
             try Task.checkCancellation()
@@ -1223,6 +1245,11 @@ class TranscriptionService {
             try Task.checkCancellation()
             try await diarizer.loadModels()
             try Task.checkCancellation()
+            reportOverallProgress(
+                fractionCompleted: 0.05,
+                startedAt: progressStartedAt,
+                handler: progressHandler
+            )
 
             let diarizationStarted = CFAbsoluteTimeGetCurrent()
             let diarizationResult = try await diarizeWithWatchdog(
@@ -1233,6 +1260,11 @@ class TranscriptionService {
             )
             let processingDuration = CFAbsoluteTimeGetCurrent() - diarizationStarted
             try Task.checkCancellation()
+            reportOverallProgress(
+                fractionCompleted: 0.20,
+                startedAt: progressStartedAt,
+                handler: progressHandler
+            )
 
             let normalizedSegments = normalizedDiarizationSegments(
                 diarizationResult.segments,
@@ -1252,7 +1284,9 @@ class TranscriptionService {
                     audioData: audioData,
                     options: options,
                     policy: diarizationFailurePolicy,
-                    reason: "Speaker diarization returned no usable segments."
+                    reason: "Speaker diarization returned no usable segments.",
+                    progressHandler: progressHandler,
+                    progressStartedAt: progressStartedAt
                 )
             }
 
@@ -1261,7 +1295,9 @@ class TranscriptionService {
                 samples: samples,
                 sampleRate: sampleRate,
                 segments: normalizedSegments,
-                options: options
+                options: options,
+                progressHandler: progressHandler,
+                progressStartedAt: progressStartedAt
             )
 
             if let diarizedSegments = output.diarizedSegments, !diarizedSegments.isEmpty {
@@ -1274,7 +1310,9 @@ class TranscriptionService {
                 audioData: audioData,
                 options: options,
                 policy: diarizationFailurePolicy,
-                reason: "Speaker diarization produced no transcript text."
+                reason: "Speaker diarization produced no transcript text.",
+                progressHandler: progressHandler,
+                progressStartedAt: progressStartedAt
             )
         } catch is CancellationError {
             Log.transcription.info("Speaker diarization canceled")
@@ -1287,7 +1325,9 @@ class TranscriptionService {
                 audioData: audioData,
                 options: options,
                 policy: diarizationFailurePolicy,
-                reason: error.localizedDescription
+                reason: error.localizedDescription,
+                progressHandler: progressHandler,
+                progressStartedAt: progressStartedAt
             )
         }
     }
@@ -1297,7 +1337,9 @@ class TranscriptionService {
         audioData: Data,
         options: TranscriptionOptions,
         policy: DiarizationFailurePolicy,
-        reason: String
+        reason: String,
+        progressHandler: TranscriptionProgressHandler?,
+        progressStartedAt: Date
     ) async throws -> TranscriptionOutput {
         switch policy {
         case .required:
@@ -1305,7 +1347,17 @@ class TranscriptionService {
             throw TranscriptionError.diarizationFailed(reason)
         case .bestEffort:
             Log.transcription.warning("Speaker diarization unavailable, falling back to plain transcript: \(reason)")
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+            return try await transcribeWithoutDiarization(
+                engine: engine,
+                audioData: audioData,
+                options: options,
+                progressHandler: scaledProgressHandler(
+                    progressHandler,
+                    lowerBound: 0.20,
+                    upperBound: 0.99,
+                    startedAt: progressStartedAt
+                )
+            )
         }
     }
 
@@ -1336,9 +1388,14 @@ class TranscriptionService {
     private func transcribeWithoutDiarization(
         engine: any TranscriptionEngine,
         audioData: Data,
-        options: TranscriptionOptions
+        options: TranscriptionOptions,
+        progressHandler: TranscriptionProgressHandler? = nil
     ) async throws -> TranscriptionOutput {
-        let text = try await engine.transcribe(audioData: audioData, options: options)
+        let text = try await engine.transcribe(
+            audioData: audioData,
+            options: options,
+            progressHandler: progressHandler
+        )
         return TranscriptionOutput(text: text, diarizedSegments: nil)
     }
 
@@ -1347,7 +1404,9 @@ class TranscriptionService {
         samples: [Float],
         sampleRate: Int,
         segments: [SpeakerSegment],
-        options: TranscriptionOptions
+        options: TranscriptionOptions,
+        progressHandler: TranscriptionProgressHandler?,
+        progressStartedAt: Date
     ) async throws -> TranscriptionOutput {
         let identityMatchesByID = try matchedSpeakerIdentitiesByID(from: segments)
         var genericLabelsByID: [String: String] = [:]
@@ -1377,7 +1436,19 @@ class TranscriptionService {
                 continue
             }
 
-            let segmentText = try await engine.transcribe(audioData: segmentData, options: segmentOptions)
+            let segmentCount = max(1, segments.count)
+            let lowerBound = 0.20 + (0.79 * Double(index) / Double(segmentCount))
+            let upperBound = 0.20 + (0.79 * Double(index + 1) / Double(segmentCount))
+            let segmentText = try await engine.transcribe(
+                audioData: segmentData,
+                options: segmentOptions,
+                progressHandler: scaledProgressHandler(
+                    progressHandler,
+                    lowerBound: lowerBound,
+                    upperBound: upperBound,
+                    startedAt: progressStartedAt
+                )
+            )
             let trimmed = segmentText.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty else { continue }
 
@@ -1443,6 +1514,49 @@ class TranscriptionService {
             text: mergedText,
             diarizedSegments: visibleSegments.isEmpty ? nil : visibleSegments
         )
+    }
+
+    private func reportOverallProgress(
+        fractionCompleted: Double,
+        startedAt: Date,
+        handler: TranscriptionProgressHandler?
+    ) {
+        guard let handler else { return }
+        let elapsed = Date().timeIntervalSince(startedAt)
+        let estimatedRemaining = fractionCompleted > 0
+            ? elapsed * (1 - fractionCompleted) / fractionCompleted
+            : nil
+        handler(
+            TranscriptionProgressUpdate(
+                fractionCompleted: fractionCompleted,
+                elapsed: elapsed,
+                estimatedRemaining: estimatedRemaining
+            )
+        )
+    }
+
+    private func scaledProgressHandler(
+        _ handler: TranscriptionProgressHandler?,
+        lowerBound: Double,
+        upperBound: Double,
+        startedAt: Date
+    ) -> TranscriptionProgressHandler? {
+        guard let handler else { return nil }
+        return { update in
+            let span = max(0, upperBound - lowerBound)
+            let fraction = lowerBound + (span * update.fractionCompleted)
+            let elapsed = Date().timeIntervalSince(startedAt)
+            let estimatedRemaining = fraction > 0
+                ? elapsed * (1 - fraction) / fraction
+                : nil
+            handler(
+                TranscriptionProgressUpdate(
+                    fractionCompleted: fraction,
+                    elapsed: elapsed,
+                    estimatedRemaining: estimatedRemaining
+                )
+            )
+        }
     }
 
     private func transcriptionOptionsForDiarizedSegments(

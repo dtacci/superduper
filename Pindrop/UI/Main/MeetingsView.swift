@@ -337,6 +337,7 @@ struct GoogleCalendarSetupWizard: View {
                 step = .readiness
             }
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("googleCalendar.setupWizard")
     }
 

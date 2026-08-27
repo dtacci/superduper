@@ -345,6 +345,26 @@ struct IndicatorProcessingView: View {
     }
 }
 
+enum TranscriptionProgressFormatting {
+    static func text(
+        fractionCompleted: Double,
+        estimatedRemaining: TimeInterval?,
+        locale: Locale
+    ) -> String {
+        let percent = Int((min(1, max(0, fractionCompleted)) * 100).rounded())
+        guard fractionCompleted < 1, let estimatedRemaining else {
+            return String(format: localized("%d%%", locale: locale), locale: locale, percent)
+        }
+        let minutes = max(1, Int(ceil(estimatedRemaining / 60)))
+        return String(
+            format: localized("%d%% · ~%dm left", locale: locale),
+            locale: locale,
+            percent,
+            minutes
+        )
+    }
+}
+
 private struct _IndicatorProcessingDot: View {
     let index: Int
     let diameter: CGFloat
@@ -1128,6 +1148,8 @@ final class FloatingIndicatorState: ObservableObject {
     /// canvas, which polls at its own timeline cadence.
     private(set) var bandLevels = AudioBandLevels.zero
     @Published var isProcessing = false
+    @Published var processingProgress: Double?
+    @Published var processingEstimatedRemaining: TimeInterval?
     /// Selected input device mute/volume state from `InputMuteMonitor`.
     /// UI (orb/pill) can render a Muted state from this without observing CoreAudio directly.
     @Published var isInputMuted = false
@@ -1144,6 +1166,8 @@ final class FloatingIndicatorState: ObservableObject {
     func startRecording() {
         isRecording = true
         isProcessing = false
+        processingProgress = nil
+        processingEstimatedRemaining = nil
         recordingStartTime = Date()
         recordingDuration = 0
         startDurationTimer()
@@ -1153,6 +1177,8 @@ final class FloatingIndicatorState: ObservableObject {
     func transitionToProcessing() {
         isRecording = false
         isProcessing = true
+        processingProgress = 0
+        processingEstimatedRemaining = nil
         stopDurationTimer()
         announce(localized("Recording stopped. Processing transcription.", locale: AppLocale.currentSelection().locale))
     }
@@ -1162,6 +1188,8 @@ final class FloatingIndicatorState: ObservableObject {
         let wasProcessing = isProcessing
         isRecording = false
         isProcessing = false
+        processingProgress = nil
+        processingEstimatedRemaining = nil
         recordingDuration = 0
         audioLevel = 0
         bandLevels = .zero
@@ -1171,6 +1199,11 @@ final class FloatingIndicatorState: ObservableObject {
         } else if wasProcessing {
             announce(localized("Transcription complete", locale: AppLocale.currentSelection().locale))
         }
+    }
+
+    func updateProcessingProgress(_ update: TranscriptionProgressUpdate) {
+        processingProgress = update.fractionCompleted
+        processingEstimatedRemaining = update.estimatedRemaining
     }
 
     private func announce(_ message: String) {

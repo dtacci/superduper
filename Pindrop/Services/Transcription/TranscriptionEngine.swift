@@ -27,6 +27,24 @@ public enum TranscriptionEngineState: Equatable {
     case error
 }
 
+public struct TranscriptionProgressUpdate: Equatable, Sendable {
+    public let fractionCompleted: Double
+    public let elapsed: TimeInterval
+    public let estimatedRemaining: TimeInterval?
+
+    public init(
+        fractionCompleted: Double,
+        elapsed: TimeInterval,
+        estimatedRemaining: TimeInterval?
+    ) {
+        self.fractionCompleted = min(1, max(0, fractionCompleted))
+        self.elapsed = max(0, elapsed)
+        self.estimatedRemaining = estimatedRemaining.map { max(0, $0) }
+    }
+}
+
+public typealias TranscriptionProgressHandler = (TranscriptionProgressUpdate) -> Void
+
 /// Protocol abstraction for speech-to-text engines
 /// Allows TranscriptionService to work with multiple backends (WhisperKit, Parakeet, etc.)
 @MainActor
@@ -49,6 +67,14 @@ public protocol TranscriptionEngine: AnyObject {
     /// - Returns: Transcribed text
     func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String
 
+    /// Transcribe while reporting best-effort progress. Engines without native
+    /// callbacks use the default implementation and still report start/finish.
+    func transcribe(
+        audioData: Data,
+        options: TranscriptionOptions,
+        progressHandler: TranscriptionProgressHandler?
+    ) async throws -> String
+
     /// Detect the spoken language in raw samples, when supported.
     /// - Parameters:
     ///   - samples: Raw audio samples (expected format: 16kHz mono PCM Float32)
@@ -67,5 +93,23 @@ public extension TranscriptionEngine {
 
     func detectLanguage(samples: [Float], sampleRate: Int) async throws -> AppLanguage? {
         nil
+    }
+
+    func transcribe(
+        audioData: Data,
+        options: TranscriptionOptions,
+        progressHandler: TranscriptionProgressHandler?
+    ) async throws -> String {
+        let startedAt = Date()
+        progressHandler?(TranscriptionProgressUpdate(fractionCompleted: 0, elapsed: 0, estimatedRemaining: nil))
+        let text = try await transcribe(audioData: audioData, options: options)
+        progressHandler?(
+            TranscriptionProgressUpdate(
+                fractionCompleted: 1,
+                elapsed: Date().timeIntervalSince(startedAt),
+                estimatedRemaining: 0
+            )
+        )
+        return text
     }
 }

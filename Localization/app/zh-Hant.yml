@@ -1,3 +1,24 @@
+recording_recovery:
+  cancel_recording_title: "Cancel this recording?"
+  captured_audio_safe: "The captured audio will be kept so you can retry processing later."
+  keep_recording: "Keep Recording"
+  cancel_recording: "Cancel Recording"
+  cancel_transcription_title: "Cancel this transcription?"
+  transcription_audio_safe: "Your audio is safe. You can retry transcription later, but the current progress will stop."
+  keep_transcribing: "Keep Transcribing"
+  cancel_transcription: "Cancel Transcription"
+  percent: "%d%%"
+  percent_eta: "%d%% · ~%dm left"
+  canceled_audio_safe: "Recording canceled. The audio is safe and can be transcribed later."
+  interrupted_audio_safe: "An interrupted recording is safe and ready to resume."
+  retry_transcription: "Retry Transcription"
+  finish_active_before_retry: "Finish the active recording or transcription before retrying."
+  recovered_recording: "Recovered recording"
+  recovered_saved: "Recovered recording transcribed and saved to History."
+  calendar_match: "This looks like your calendar meeting: %@"
+  pin_recording: "Pin This Recording"
+  pinned_until_end: "Pinned to %@. Recording will stop at the scheduled end."
+
 permission_repair:
   action: "Repair Permission"
   explanation: |-

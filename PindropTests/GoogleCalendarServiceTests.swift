@@ -181,6 +181,175 @@ struct GoogleCalendarServiceTests {
         #expect(await notifier.titles == ["Meeting missed"])
     }
 
+    @Test func schedulerAdoptsActiveCaptureAndStopsAtCalendarEndWithoutRestarting() async throws {
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
+        let container = try ModelContainer(
+            for: schema,
+            configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        )
+        let now = Date(timeIntervalSince1970: 20_000)
+        let media = CalendarTestMediaLibrary(
+            root: FileManager.default.temporaryDirectory
+                .appendingPathComponent("calendar-adoption-\(UUID().uuidString)", isDirectory: true)
+        )
+        defer { try? FileManager.default.removeItem(at: media.root) }
+        let store = MeetingStore(modelContext: ModelContext(container), mediaLibrary: media)
+        let occurrence = try store.arm(MeetingOccurrenceSnapshot(
+            id: "active",
+            provider: "google",
+            calendarID: "primary",
+            eventID: "active",
+            recurringEventID: nil,
+            title: "Active call",
+            start: now.addingTimeInterval(-60),
+            end: now.addingTimeInterval(600),
+            joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
+            rawSnapshotJSON: nil
+        ))
+        let calls = MeetingCaptureCallSpy()
+        let sut = CalendarMeetingScheduler(
+            meetingStore: store,
+            clock: StaticMeetingClock(now: now),
+            launchAtLoginEnabled: { true },
+            readiness: { MeetingPreflightReport(issues: []) },
+            isBusy: { false },
+            startCapture: { id in await calls.started(id) },
+            stopCapture: { id in await calls.stopped(id) }
+        )
+
+        sut.adoptActiveCapture(id: occurrence.id, scheduledEnd: now.addingTimeInterval(600))
+
+        for _ in 0..<20 {
+            if !(await calls.stoppedIDs).isEmpty { break }
+            await Task.yield()
+        }
+        #expect(await calls.startedIDs.isEmpty)
+        #expect(await calls.stoppedIDs == [occurrence.id])
+    }
+
+    @Test func calendarRefreshMovesActiveCaptureStopDeadlineWithoutRestarting() async throws {
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
+        let container = try ModelContainer(
+            for: schema,
+            configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        )
+        let now = Date(timeIntervalSince1970: 30_000)
+        let media = CalendarTestMediaLibrary(
+            root: FileManager.default.temporaryDirectory
+                .appendingPathComponent("calendar-active-refresh-\(UUID().uuidString)", isDirectory: true)
+        )
+        defer { try? FileManager.default.removeItem(at: media.root) }
+        let store = MeetingStore(modelContext: ModelContext(container), mediaLibrary: media)
+        let original = MeetingOccurrenceSnapshot(
+            id: "active-refresh",
+            provider: "google",
+            calendarID: "primary",
+            eventID: "active-refresh",
+            recurringEventID: nil,
+            title: "Active refreshed call",
+            start: now.addingTimeInterval(-60),
+            end: now.addingTimeInterval(600),
+            joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
+            rawSnapshotJSON: nil
+        )
+        let occurrence = try store.arm(original)
+        try store.transition(id: occurrence.id, to: .preparing)
+        try store.transition(id: occurrence.id, to: .recording)
+        let clock = ControllableMeetingClock(now: now)
+        let calls = MeetingCaptureCallSpy()
+        let sut = CalendarMeetingScheduler(
+            meetingStore: store,
+            clock: clock,
+            launchAtLoginEnabled: { true },
+            readiness: { MeetingPreflightReport(issues: []) },
+            isBusy: { false },
+            startCapture: { id in await calls.started(id) },
+            stopCapture: { id in await calls.stopped(id) }
+        )
+        sut.adoptActiveCapture(id: occurrence.id, scheduledEnd: original.end)
+
+        let updatedEnd = now.addingTimeInterval(1_200)
+        let updated = MeetingOccurrenceSnapshot(
+            id: original.id,
+            provider: original.provider,
+            calendarID: original.calendarID,
+            eventID: original.eventID,
+            recurringEventID: original.recurringEventID,
+            title: original.title,
+            start: original.start,
+            end: updatedEnd,
+            joinURL: original.joinURL,
+            rawSnapshotJSON: nil
+        )
+        try sut.eventWasUpdated(updated)
+
+        clock.advance(to: now.addingTimeInterval(601))
+        try await Task.sleep(for: .milliseconds(30))
+        #expect(await calls.stoppedIDs.isEmpty)
+
+        clock.advance(to: updatedEnd.addingTimeInterval(1))
+        for _ in 0..<20 {
+            if !(await calls.stoppedIDs).isEmpty { break }
+            try await Task.sleep(for: .milliseconds(5))
+        }
+        #expect(await calls.startedIDs.isEmpty)
+        #expect(await calls.stoppedIDs == [occurrence.id])
+    }
+
+    @Test func deletingActiveCalendarEventStopsAndProcessesCaptureInsteadOfLosingDeadline() async throws {
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
+        let container = try ModelContainer(
+            for: schema,
+            configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        )
+        let now = Date(timeIntervalSince1970: 40_000)
+        let media = CalendarTestMediaLibrary(
+            root: FileManager.default.temporaryDirectory
+                .appendingPathComponent("calendar-active-deletion-\(UUID().uuidString)", isDirectory: true)
+        )
+        defer { try? FileManager.default.removeItem(at: media.root) }
+        let store = MeetingStore(modelContext: ModelContext(container), mediaLibrary: media)
+        let occurrence = try store.arm(MeetingOccurrenceSnapshot(
+            id: "deleted-active",
+            provider: "google",
+            calendarID: "primary",
+            eventID: "deleted-active",
+            recurringEventID: nil,
+            title: "Deleted active call",
+            start: now.addingTimeInterval(-60),
+            end: now.addingTimeInterval(600),
+            joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
+            rawSnapshotJSON: nil
+        ))
+        try store.transition(id: occurrence.id, to: .preparing)
+        try store.transition(id: occurrence.id, to: .recording)
+        let calls = MeetingCaptureCallSpy()
+        let notifier = MeetingNotifierSpy()
+        let sut = CalendarMeetingScheduler(
+            meetingStore: store,
+            clock: StaticMeetingClock(now: now),
+            notifier: notifier,
+            launchAtLoginEnabled: { true },
+            readiness: { MeetingPreflightReport(issues: []) },
+            isBusy: { false },
+            startCapture: { id in await calls.started(id) },
+            stopCapture: { id in
+                await calls.stopped(id)
+                try store.transition(id: id, to: .processing)
+                try store.transition(id: id, to: .ready)
+            }
+        )
+        sut.adoptActiveCapture(id: occurrence.id, scheduledEnd: now.addingTimeInterval(600))
+
+        await sut.eventWasDeleted(id: occurrence.id)
+
+        #expect(await calls.startedIDs.isEmpty)
+        #expect(await calls.stoppedIDs == [occurrence.id])
+        #expect(try store.occurrence(id: occurrence.id)?.state == .ready)
+        #expect(try store.occurrence(id: occurrence.id)?.isArmed == false)
+        #expect(await notifier.titles == ["Calendar event removed"])
+    }
+
     private func makeCalendarClient(transport: CalendarAPITransportMock) -> GoogleCalendarClient {
         let credentials = OAuthCredentialMemoryStore()
         try! credentials.saveRefreshToken("refresh")
@@ -242,9 +411,38 @@ private struct StaticMeetingClock: MeetingClock {
     func sleep(until date: Date) async throws {}
 }
 
+private final class ControllableMeetingClock: MeetingClock, @unchecked Sendable {
+    private let lock = NSLock()
+    private var current: Date
+
+    init(now: Date) { current = now }
+
+    var now: Date {
+        lock.withLock { current }
+    }
+
+    func advance(to date: Date) {
+        lock.withLock { current = date }
+    }
+
+    func sleep(until date: Date) async throws {
+        while now < date {
+            try await Task.sleep(for: .milliseconds(5))
+        }
+    }
+}
+
 private actor MeetingNotifierSpy: MeetingNotifying {
     private(set) var titles: [String] = []
     func notify(title: String, body: String) async { titles.append(title) }
+}
+
+private actor MeetingCaptureCallSpy {
+    private(set) var startedIDs: [UUID] = []
+    private(set) var stoppedIDs: [UUID] = []
+
+    func started(_ id: UUID) { startedIDs.append(id) }
+    func stopped(_ id: UUID) { stoppedIDs.append(id) }
 }
 
 private final class CalendarTestMediaLibrary: MediaLibraryManaging {
