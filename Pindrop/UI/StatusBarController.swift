@@ -85,6 +85,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
     private var isMeetingCaptureActive = false
+    private var processingProgress: Double?
+    private var processingEstimatedRemaining: TimeInterval?
 
     init(audioRecorder: AudioRecorder, settingsStore: SettingsStore) {
         self.audioRecorder = audioRecorder
@@ -503,7 +505,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         case .recording:
             return localized("🔴 Recording", locale: locale)
         case .processing:
-            return localized("⏳ Processing", locale: locale)
+            guard let processingProgress else {
+                return localized("⏳ Processing", locale: locale)
+            }
+            return "⏳ " + TranscriptionProgressFormatting.text(
+                fractionCompleted: processingProgress,
+                estimatedRemaining: processingEstimatedRemaining,
+                locale: locale
+            )
         }
     }
 
@@ -840,16 +849,28 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     func setRecordingState(isMeetingCapture: Bool = false) {
         isMeetingCaptureActive = isMeetingCapture
+        processingProgress = nil
+        processingEstimatedRemaining = nil
         currentState = .recording
     }
 
     func setProcessingState() {
         isMeetingCaptureActive = false
+        processingProgress = 0
+        processingEstimatedRemaining = nil
         currentState = .processing
+    }
+
+    func setProcessingProgress(_ update: TranscriptionProgressUpdate) {
+        processingProgress = update.fractionCompleted
+        processingEstimatedRemaining = update.estimatedRemaining
+        updateStatusRow()
     }
 
     func setIdleState() {
         isMeetingCaptureActive = false
+        processingProgress = nil
+        processingEstimatedRemaining = nil
         currentState = .idle
     }
 

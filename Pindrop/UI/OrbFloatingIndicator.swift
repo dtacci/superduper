@@ -1532,7 +1532,7 @@ struct OrbIndicatorView: View {
         } else if state.isProcessing {
             HStack(spacing: 9) {
                 IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
-                Text(localized("Transcribing…", locale: locale))
+                Text(processingStatusText)
                     .font(FontLoader.font(family: .inter, size: 12, weight: .medium))
                     .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white))
                     .lineLimit(1)
@@ -1548,6 +1548,17 @@ struct OrbIndicatorView: View {
 
     private var formattedDuration: String {
         FloatingIndicatorTimeFormatting.elapsed(state.recordingDuration)
+    }
+
+    private var processingStatusText: String {
+        guard let progress = state.processingProgress else {
+            return localized("Transcribing…", locale: locale)
+        }
+        return TranscriptionProgressFormatting.text(
+            fractionCompleted: progress,
+            estimatedRemaining: state.processingEstimatedRemaining,
+            locale: locale
+        )
     }
 }
 

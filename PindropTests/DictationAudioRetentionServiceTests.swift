@@ -732,6 +732,88 @@ private actor ExtractionCancellationGate {
     }
 }
 
+@Suite
+struct DictationRecoveryStoreTests {
+    private func makeStore() throws -> (DictationRecoveryStore, URL) {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-recovery-tests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        return (DictationRecoveryStore(directoryURL: root), root)
+    }
+
+    @Test func beginCreatesDurableManifestAndRestartFindsAudio() throws {
+        let (sut, root) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let session = try sut.begin(startedAt: Date(timeIntervalSince1970: 1_700_000_000))
+        try Data(repeating: 7, count: 64).write(to: sut.audioURL(for: session.id))
+
+        let restarted = DictationRecoveryStore(directoryURL: root)
+        let recovered = restarted.recoverableSessions(includeCanceled: false)
+
+        #expect(recovered.map(\.id) == [session.id])
+        #expect(recovered.first?.state == .recording)
+        #expect(try restarted.audioData(id: session.id).count == 64)
+    }
+
+    @Test func cancellationKeepsAudioButExcludesItFromAutomaticResume() throws {
+        let (sut, root) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let session = try sut.begin()
+        try Data(repeating: 1, count: 32).write(to: sut.audioURL(for: session.id))
+        let canceled = try sut.markCanceled(id: session.id)
+
+        #expect(canceled.state == .canceled)
+        #expect(sut.recoverableSessions(includeCanceled: false).isEmpty)
+        #expect(sut.recoverableSessions(includeCanceled: true).map(\.id) == [session.id])
+        #expect(FileManager.default.fileExists(atPath: sut.audioURL(for: session.id).path))
+    }
+
+    @Test func failureAndProcessingTransitionsSurviveRestart() throws {
+        let (sut, root) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let session = try sut.begin()
+        try Data(repeating: 2, count: 32).write(to: sut.audioURL(for: session.id))
+        #expect(try sut.markProcessing(id: session.id).state == .processing)
+        #expect(try sut.markFailed(id: session.id, message: "decode failed").failureMessage == "decode failed")
+
+        let restarted = DictationRecoveryStore(directoryURL: root)
+        #expect(try restarted.session(id: session.id).state == .failed)
+    }
+
+    @Test func completeDeletesOnlyRequestedWorkspace() throws {
+        let (sut, root) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let first = try sut.begin()
+        let second = try sut.begin()
+        try Data(repeating: 3, count: 32).write(to: sut.audioURL(for: first.id))
+        try Data(repeating: 4, count: 32).write(to: sut.audioURL(for: second.id))
+
+        try sut.complete(id: first.id)
+
+        #expect(!FileManager.default.fileExists(atPath: sut.workspaceURL(for: first.id).path))
+        #expect(FileManager.default.fileExists(atPath: sut.workspaceURL(for: second.id).path))
+    }
+
+    @Test func malformedManifestIsIgnoredWithoutDeletingItsAudio() throws {
+        let (sut, root) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let workspace = root.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: workspace, withIntermediateDirectories: true)
+        let manifest = workspace.appendingPathComponent(DictationRecoveryStore.manifestFileName)
+        let audio = workspace.appendingPathComponent(DictationRecoveryStore.microphonePCMFileName)
+        try Data("not-json".utf8).write(to: manifest)
+        try Data(repeating: 5, count: 32).write(to: audio)
+
+        #expect(sut.recoverableSessions().isEmpty)
+        #expect(FileManager.default.fileExists(atPath: audio.path))
+    }
+}
+
 // MARK: - Settings
 
 @MainActor

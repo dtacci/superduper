@@ -187,6 +187,31 @@ final class AlertManager {
         alert.runModal()
     }
 
+    /// Returns true only when the user explicitly chooses the destructive action.
+    /// Escape and Return cannot select it because the safe action is the first/default button.
+    func confirmCancelOperation(isRecording: Bool) -> Bool {
+        let alert = makeAlert(style: .warning)
+        if isRecording {
+            alert.messageText = localized("Cancel this recording?", locale: locale)
+            alert.informativeText = localized(
+                "The captured audio will be kept so you can retry processing later.",
+                locale: locale
+            )
+            alert.addButton(withTitle: localized("Keep Recording", locale: locale))
+            alert.addButton(withTitle: localized("Cancel Recording", locale: locale))
+        } else {
+            alert.messageText = localized("Cancel this transcription?", locale: locale)
+            alert.informativeText = localized(
+                "Your audio is safe. You can retry transcription later, but the current progress will stop.",
+                locale: locale
+            )
+            alert.addButton(withTitle: localized("Keep Transcribing", locale: locale))
+            alert.addButton(withTitle: localized("Cancel Transcription", locale: locale))
+        }
+        alert.buttons.last?.hasDestructiveAction = true
+        return alert.runModal() == .alertSecondButtonReturn
+    }
+
     func showHotkeyConflictAlert(hotkey: String, firstAction: String, secondAction: String) {
         let alert = makeAlert(style: .warning)
         alert.messageText = localized("Hotkey Conflict", locale: locale)

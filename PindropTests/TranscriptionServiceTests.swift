@@ -399,6 +399,42 @@ struct TranscriptionServiceTests {
         ])
     }
 
+    @Test func diarizedTranscriptionReportsMonotonicProgressThroughCompletion() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["First speaker", "Second speaker"]
+        let speakerA = Speaker(id: "speaker-a", label: "A", embedding: nil)
+        let speakerB = Speaker(id: "speaker-b", label: "B", embedding: nil)
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.nextResult = DiarizationResult(
+            segments: [
+                SpeakerSegment(speaker: speakerA, startTime: 0, endTime: 1, confidence: 0.9),
+                SpeakerSegment(speaker: speakerB, startTime: 1, endTime: 2, confidence: 0.9)
+            ],
+            speakers: [speakerA, speakerB],
+            audioDuration: 2
+        )
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer }
+        )
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+
+        var progress: [TranscriptionProgressUpdate] = []
+        _ = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 2),
+            diarizationEnabled: true,
+            options: TranscriptionOptions(),
+            progressHandler: { progress.append($0) }
+        )
+
+        #expect(progress.first?.fractionCompleted == 0)
+        #expect(progress.last?.fractionCompleted == 1)
+        #expect(progress.contains { $0.fractionCompleted == 0.20 })
+        #expect(zip(progress, progress.dropFirst()).allSatisfy { pair in
+            pair.0.fractionCompleted <= pair.1.fractionCompleted
+        })
+    }
+
     @Test func transcribeWithoutDiarizationKeepsWholeClipAutomaticDetection() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.detectedLanguage = .german

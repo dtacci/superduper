@@ -519,6 +519,7 @@ final class AppCoordinator {
     let telemetryConsentService: TelemetryConsentService
     let contributionService: ContributionService
     let dictationAudioRetentionService: DictationAudioRetentionService
+    let dictationRecoveryStore: DictationRecoveryStore
     let recordingState: RecordingFeatureState
     let mediaTranscriptionState: MediaTranscriptionFeatureState
     private(set) var mcpServer: MCPServer?
@@ -528,6 +529,7 @@ final class AppCoordinator {
     private var calendarRefreshTask: Task<Void, Never>?
     private var calendarWakeObserver: NSObjectProtocol?
     private var googleCalendarSyncTokens: [String: String] = [:]
+    private var lastOfferedMeetingPinIdentity: String?
 
     // MARK: - UI Controllers
     
@@ -564,6 +566,7 @@ final class AppCoordinator {
     private var isRecordingFeatureCaptureActive = false
     private var manualExpectedSpeakerCount: Int?
     private var activeMeetingOccurrenceID: UUID?
+    private var activeDictationRecoveryID: UUID?
     private var quickCaptureTranscription: String?
     private var noteAppendEditorID: UUID?
     private var mediaTranscriptionTask: Task<Void, Never>? {
@@ -778,6 +781,7 @@ final class AppCoordinator {
             historyStore: historyStore,
             settingsStore: settingsStore
         )
+        self.dictationRecoveryStore = DictationRecoveryStore()
         self.recordingState = RecordingFeatureState()
         self.mediaTranscriptionState = MediaTranscriptionFeatureState()
 
@@ -1356,6 +1360,7 @@ final class AppCoordinator {
                 $0.start <= horizon && ($0.end ?? $0.start) >= now
             })
             refreshArmedMeetingState()
+            offerActiveRecordingMeetingPinIfNeeded()
         } catch {
             meetingsState.errorMessage = error.localizedDescription
         }
@@ -1393,6 +1398,89 @@ final class AppCoordinator {
             )
         } catch {
             Log.app.error("Failed to refresh armed meeting state: \(error.localizedDescription)")
+        }
+    }
+
+    static func activeCalendarMeetingCandidate(
+        in events: [MeetingOccurrenceSnapshot],
+        at now: Date
+    ) -> MeetingOccurrenceSnapshot? {
+        events
+            .filter { event in
+                guard event.joinURL != nil else { return false }
+                let effectiveEnd = event.end ?? event.start.addingTimeInterval(2 * 60 * 60)
+                return event.start.addingTimeInterval(-10 * 60) <= now
+                    && effectiveEnd.addingTimeInterval(10 * 60) >= now
+            }
+            .min { lhs, rhs in
+                abs(lhs.start.timeIntervalSince(now)) < abs(rhs.start.timeIntervalSince(now))
+            }
+    }
+
+    private func offerActiveRecordingMeetingPinIfNeeded() {
+        guard isRecording, !isRecordingFeatureCaptureActive,
+              meetingsState.isGoogleConnected,
+              let candidate = Self.activeCalendarMeetingCandidate(
+                in: meetingsState.calendarEvents,
+                at: Date()
+              ),
+              candidate.persistentIdentity != lastOfferedMeetingPinIdentity else { return }
+
+        lastOfferedMeetingPinIdentity = candidate.persistentIdentity
+        let locale = settingsStore.selectedAppLocale.locale
+        toastService.show(
+            ToastPayload(
+                message: String(
+                    format: localized("This looks like your calendar meeting: %@", locale: locale),
+                    locale: locale,
+                    candidate.title
+                ),
+                actions: [
+                    ToastAction(
+                        title: localized("Pin This Recording", locale: locale),
+                        role: .primary
+                    ) { [weak self] in
+                        self?.pinActiveRecording(to: candidate)
+                    }
+                ],
+                duration: 15
+            )
+        )
+    }
+
+    private func pinActiveRecording(to snapshot: MeetingOccurrenceSnapshot) {
+        guard isRecording, !isRecordingFeatureCaptureActive else { return }
+        do {
+            let occurrence = try meetingStore.arm(snapshot)
+            try meetingStore.transition(id: occurrence.id, to: .preparing)
+            try meetingStore.transition(id: occurrence.id, to: .recording)
+            activeMeetingOccurrenceID = occurrence.id
+            isRecordingFeatureCaptureActive = true
+            manualExpectedSpeakerCount = occurrence.expectedSpeakerCount
+            recordingState.beginRecording(
+                mode: .microphone,
+                startedAt: recordingStartTime ?? Date()
+            )
+            statusBarController.setRecordingState(isMeetingCapture: true)
+            statusBarController.updateMenuState()
+            calendarMeetingScheduler?.adoptActiveCapture(
+                id: occurrence.id,
+                scheduledEnd: snapshot.end
+            )
+            refreshArmedMeetingState()
+            let locale = settingsStore.selectedAppLocale.locale
+            toastService.show(
+                ToastPayload(
+                    message: String(
+                        format: localized("Pinned to %@. Recording will stop at the scheduled end.", locale: locale),
+                        locale: locale,
+                        snapshot.title
+                    )
+                )
+            )
+        } catch {
+            meetingsState.errorMessage = error.localizedDescription
+            toastService.show(ToastPayload(message: error.localizedDescription, style: .error))
         }
     }
 
@@ -1881,6 +1969,7 @@ final class AppCoordinator {
         updateVibeRuntimeStateFromSettings()
         applyMCPServerSettings()
         prewarmStreamingEngineIfEnabled()
+        resumeInterruptedDictationsIfNeeded()
         Log.boot.info("startNormalOperation complete")
     }
 
@@ -3164,6 +3253,16 @@ final class AppCoordinator {
             return
         }
 
+        let recoveryID = claim.route == .manualTranscription ? nil : activeDictationRecoveryID
+        if let recoveryID {
+            do {
+                try dictationRecoveryStore.markProcessing(id: recoveryID)
+            } catch {
+                recordingStopAdmission.release(claim)
+                throw error
+            }
+        }
+
         let token = operationController.begin()
         let operationTask = Task { @MainActor [weak self] in
             guard let self else { throw CancellationError() }
@@ -3182,10 +3281,26 @@ final class AppCoordinator {
 
         do {
             try await operationTask.value
+            if let recoveryID {
+                if try dictationRecoveryStore.session(id: recoveryID).state == .processing {
+                    try dictationRecoveryStore.complete(id: recoveryID)
+                } else if dictationRecoveryStore.hasAudio(id: recoveryID) {
+                    showRecoverableRecordingToast(id: recoveryID, wasExplicitlyCanceled: false)
+                }
+                if activeDictationRecoveryID == recoveryID {
+                    activeDictationRecoveryID = nil
+                }
+            }
         } catch {
             if Self.isTaskCancellation(error) {
-                Log.app.info("Recording stop cancelled")
+                Log.app.info("Recording stop interrupted; recoverable audio was preserved")
                 return
+            }
+            if let recoveryID {
+                _ = try? dictationRecoveryStore.markFailed(id: recoveryID, message: error.localizedDescription)
+                if activeDictationRecoveryID == recoveryID {
+                    activeDictationRecoveryID = nil
+                }
             }
             // A superseded generation was already cancelled; do not surface its failure.
             guard operationController.isCurrent(token) else { return }
@@ -3428,7 +3543,8 @@ final class AppCoordinator {
                 diarizationEnabled: diarizationEnabled,
                 options: makeTranscriptionOptions(),
                 diarizationOptions: .init(),
-                diarizationFailurePolicy: .bestEffort
+                diarizationFailurePolicy: .bestEffort,
+                progressHandler: makeTranscriptionProgressHandler()
             )
             try ensureOperationCurrent(token)
         } catch let error as TranscriptionService.TranscriptionError {
@@ -3535,7 +3651,8 @@ final class AppCoordinator {
                 diarizationEnabled: diarizationEnabled,
                 options: makeTranscriptionOptions(),
                 diarizationOptions: .init(),
-                diarizationFailurePolicy: .bestEffort
+                diarizationFailurePolicy: .bestEffort,
+                progressHandler: makeTranscriptionProgressHandler()
             )
             try ensureOperationCurrent(token)
         } catch let error as TranscriptionService.TranscriptionError {
@@ -3720,10 +3837,26 @@ final class AppCoordinator {
         audioRecorder.retainNativeAudioForSession =
             settingsStore.dictationAudioRetention != .off
 
+        let recoverySession: DictationRecoverySession
+        do {
+            recoverySession = try dictationRecoveryStore.begin()
+            activeDictationRecoveryID = recoverySession.id
+            audioRecorder.persistentSpoolDirectoryURL = dictationRecoveryStore.workspaceURL(
+                for: recoverySession.id
+            )
+        } catch {
+            Log.audio.error("Unable to create durable recording workspace: \(error.localizedDescription)")
+            throw error
+        }
+
         let didStartRecording: Bool
         do {
             didStartRecording = try await audioRecorder.startRecording()
         } catch {
+            try? dictationRecoveryStore.complete(id: recoverySession.id)
+            if activeDictationRecoveryID == recoverySession.id {
+                activeDictationRecoveryID = nil
+            }
             if streamingSession.isSessionActive {
                 await streamingSession.cancel()
             }
@@ -3732,6 +3865,10 @@ final class AppCoordinator {
         }
 
         guard didStartRecording else {
+            try? dictationRecoveryStore.complete(id: recoverySession.id)
+            if activeDictationRecoveryID == recoverySession.id {
+                activeDictationRecoveryID = nil
+            }
             if streamingSession.isSessionActive {
                 await streamingSession.cancel()
             }
@@ -3747,7 +3884,7 @@ final class AppCoordinator {
         }
         
         isRecording = true
-        recordingStartTime = Date()
+        recordingStartTime = recoverySession.startedAt
         capturedAdapterCapabilities = nil
         capturedRoutingSignal = nil
         cancelPendingContextSessionRefresh()
@@ -3809,6 +3946,8 @@ final class AppCoordinator {
         if source != .noteAppend {
             startRecordingIndicatorSession()
         }
+        lastOfferedMeetingPinIdentity = nil
+        offerActiveRecordingMeetingPinIfNeeded()
     }
 
     private func logRecordingStartAttempt(source: RecordingTriggerSource) {
@@ -3835,6 +3974,16 @@ final class AppCoordinator {
             language: language ?? settingsStore.selectedAppLanguage,
             vocabularyBiasWords: bias
         )
+    }
+
+    private func makeTranscriptionProgressHandler() -> TranscriptionProgressHandler {
+        { [weak self] update in
+            Task { @MainActor [weak self] in
+                guard let self, self.isProcessing else { return }
+                self.floatingIndicatorState.updateProcessingProgress(update)
+                self.statusBarController.setProcessingProgress(update)
+            }
+        }
     }
 
     private func normalizedTranscriptionText(_ text: String) -> String {
@@ -3950,6 +4099,12 @@ final class AppCoordinator {
 
     private func handleNoSpeechDetected(context: String) {
         Log.app.info("No speech detected for \(context); skipping output")
+        if let recoveryID = activeDictationRecoveryID {
+            _ = try? dictationRecoveryStore.markFailed(
+                id: recoveryID,
+                message: "No speech was detected. The audio was preserved for retry."
+            )
+        }
         telemetryService.send(
             .transcriptionEmptyResult,
             parameters: [
@@ -4255,6 +4410,9 @@ final class AppCoordinator {
             }
         } catch {
             Log.app.error("Failed to save streamed transcription to history: \(error)")
+            if let recoveryID = activeDictationRecoveryID {
+                _ = try? dictationRecoveryStore.markFailed(id: recoveryID, message: error.localizedDescription)
+            }
         }
     }
     
@@ -4322,7 +4480,8 @@ final class AppCoordinator {
                 diarizationEnabled: diarizationEnabled,
                 options: makeTranscriptionOptions(),
                 diarizationOptions: .init(),
-                diarizationFailurePolicy: .bestEffort
+                diarizationFailurePolicy: .bestEffort,
+                progressHandler: makeTranscriptionProgressHandler()
             )
             pipelineMetrics.transcriptionSeconds = transcriptionStart.duration(to: pipelineClock.now).pipelineSeconds
             try ensureOperationCurrent(token)
@@ -4739,6 +4898,9 @@ final class AppCoordinator {
             }
         } catch {
             Log.app.error("Failed to save to history: \(error)")
+            if let recoveryID = activeDictationRecoveryID {
+                _ = try? dictationRecoveryStore.markFailed(id: recoveryID, message: error.localizedDescription)
+            }
         }
     }
 
@@ -5261,7 +5423,7 @@ final class AppCoordinator {
             window: Self.doubleEscapeCancelWindow
         ) {
             escapeCancelArmedAt = nil
-            cancelCurrentOperation(source: "escape")
+            requestCancelCurrentOperation(source: "escape")
         } else {
             escapeCancelArmedAt = now
             Log.app.info("Escape armed for cancel — press again within \(Self.doubleEscapeCancelWindow)s")
@@ -5282,6 +5444,18 @@ final class AppCoordinator {
         return now.timeIntervalSince(armedAt) <= window
     }
 
+    private func requestCancelCurrentOperation(source: String) {
+        guard isRecording || isProcessing || activeOperationTask != nil else { return }
+        guard !isMediaTranscriptionOnlyWork else { return }
+
+        let wasRecording = isRecording
+        guard AlertManager.shared.confirmCancelOperation(isRecording: wasRecording) else {
+            Log.app.info("Cancel declined via \(source); operation will continue")
+            return
+        }
+        cancelCurrentOperation(source: source)
+    }
+
     private func cancelCurrentOperation(source: String = "cancel") {
         guard isRecording || isProcessing || activeOperationTask != nil else {
             Log.app.debug("Cancel requested (\(source)) but no operation in progress")
@@ -5297,7 +5471,13 @@ final class AppCoordinator {
             return
         }
 
-        Log.app.info("Cancelling current operation via \(source)")
+        Log.app.info("Cancelling current operation via explicit confirmation (source=\(source))")
+
+        let recoveryID = activeDictationRecoveryID
+        if let recoveryID {
+            _ = try? dictationRecoveryStore.markCanceled(id: recoveryID)
+            activeDictationRecoveryID = nil
+        }
 
         escapeCancelArmedAt = nil
         // Invalidate any in-flight stop/transcribe/enhance pipeline first so post-await
@@ -5337,6 +5517,10 @@ final class AppCoordinator {
         statusBarController.updateMenuState()
 
         finishIndicatorSession()
+
+        if let recoveryID, dictationRecoveryStore.hasAudio(id: recoveryID) {
+            showRecoverableRecordingToast(id: recoveryID, wasExplicitlyCanceled: true)
+        }
     }
 
     private func markActiveMeetingFailed(_ message: String) {
@@ -5352,6 +5536,12 @@ final class AppCoordinator {
         }
         error = failure
         Log.app.error("Audio capture failed: \(failure.localizedDescription)")
+
+        let recoveryID = activeDictationRecoveryID
+        if let recoveryID {
+            _ = try? dictationRecoveryStore.markFailed(id: recoveryID, message: failure.localizedDescription)
+            activeDictationRecoveryID = nil
+        }
 
         let hadStreamingSession = streamingSession.isSessionActive
         streamingSession.cancelDetached()
@@ -5391,6 +5581,9 @@ final class AppCoordinator {
         toastService.show(
             ToastPayload(message: captureFailureMessage, style: .error)
         )
+        if let recoveryID, dictationRecoveryStore.hasAudio(id: recoveryID) {
+            showRecoverableRecordingToast(id: recoveryID, wasExplicitlyCanceled: false)
+        }
     }
 
     /// The recorder has stopped accepting new PCM, but its valid spool remains
@@ -5433,6 +5626,180 @@ final class AppCoordinator {
         statusBarController.updateMenuState()
 
         finishIndicatorSession()
+    }
+
+    private func resumeInterruptedDictationsIfNeeded() {
+        let interrupted = dictationRecoveryStore.recoverableSessions(includeCanceled: false)
+        let canceled = dictationRecoveryStore.recoverableSessions(includeCanceled: true)
+            .filter { $0.state == .canceled }
+
+        if let canceledSession = canceled.last {
+            showRecoverableRecordingToast(id: canceledSession.id, wasExplicitlyCanceled: true)
+        }
+        guard !interrupted.isEmpty else { return }
+
+        Log.audio.warning("Found \(interrupted.count) interrupted recording(s); resuming transcription")
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            for session in interrupted {
+                guard !self.isRecording, !self.isProcessing else { return }
+                await self.processRecoverableRecording(id: session.id, automatic: true)
+            }
+        }
+    }
+
+    private func showRecoverableRecordingToast(id: UUID, wasExplicitlyCanceled: Bool) {
+        let locale = settingsStore.selectedAppLocale.locale
+        let message = wasExplicitlyCanceled
+            ? localized("Recording canceled. The audio is safe and can be transcribed later.", locale: locale)
+            : localized("An interrupted recording is safe and ready to resume.", locale: locale)
+        toastService.show(
+            ToastPayload(
+                message: message,
+                actions: [
+                    ToastAction(
+                        title: localized("Retry Transcription", locale: locale),
+                        role: .primary
+                    ) { [weak self] in
+                        Task { @MainActor [weak self] in
+                            await self?.processRecoverableRecording(id: id, automatic: false)
+                        }
+                    }
+                ],
+                duration: nil
+            )
+        )
+    }
+
+    private func processRecoverableRecording(id: UUID, automatic: Bool) async {
+        guard !isRecording, !isProcessing, activeOperationTask == nil else {
+            if !automatic {
+                toastService.show(
+                    ToastPayload(
+                        message: localized(
+                            "Finish the active recording or transcription before retrying.",
+                            locale: settingsStore.selectedAppLocale.locale
+                        ),
+                        style: .error
+                    )
+                )
+            }
+            return
+        }
+        guard activeModelName != nil else {
+            showRecoverableRecordingToast(id: id, wasExplicitlyCanceled: false)
+            return
+        }
+
+        let token = operationController.begin()
+        activeDictationRecoveryID = id
+        let operationTask = Task { @MainActor [weak self] in
+            guard let self else { throw CancellationError() }
+            try await self.performRecoverableRecordingProcessing(id: id, token: token)
+        }
+        activeOperationTask = operationTask
+
+        defer {
+            if activeOperationTask == operationTask {
+                activeOperationTask = nil
+            }
+        }
+
+        do {
+            try await operationTask.value
+        } catch {
+            if Self.isTaskCancellation(error) {
+                Log.audio.info("Recovered transcription canceled; audio remains safe")
+                return
+            }
+            _ = try? dictationRecoveryStore.markFailed(id: id, message: error.localizedDescription)
+            if activeDictationRecoveryID == id { activeDictationRecoveryID = nil }
+            resetProcessingState()
+            toastService.show(ToastPayload(message: error.localizedDescription, style: .error))
+        }
+    }
+
+    private func performRecoverableRecordingProcessing(
+        id: UUID,
+        token: DictationOperationToken
+    ) async throws {
+        try dictationRecoveryStore.markProcessing(id: id)
+        let session = try dictationRecoveryStore.session(id: id)
+        let pcmURL = dictationRecoveryStore.audioURL(for: id)
+        let audioData = try dictationRecoveryStore.audioData(id: id)
+        let duration = Double(audioData.count) / Double(16_000 * MemoryLayout<Float>.size)
+
+        isProcessing = true
+        statusBarController.setProcessingState()
+        startProcessingIndicatorSession()
+        defer {
+            if operationController.isCurrent(token) {
+                resetProcessingState()
+            }
+        }
+
+        let output = try await transcriptionService.transcribe(
+            audioData: audioData,
+            diarizationEnabled: false,
+            options: makeTranscriptionOptions(),
+            diarizationOptions: .init(),
+            diarizationFailurePolicy: .bestEffort,
+            progressHandler: makeTranscriptionProgressHandler()
+        )
+        try ensureOperationCurrent(token)
+
+        var (text, replacements) = try dictionaryStore.applyReplacements(to: output.text)
+        text = normalizedTranscriptionText(text)
+        guard !isTranscriptionEffectivelyEmpty(text) else {
+            throw TranscriptionService.TranscriptionError.transcriptionFailed("No speech was detected in the recovered audio.")
+        }
+        lastAppliedReplacements = replacements
+
+        let recoveryMediaDirectory = ManagedMediaLibrary.dictationAudioDirectoryURL
+        let encodeTask = Task.detached(priority: .utility) {
+            try DictationAudioRetentionService.encodeFileAndWritePeaks(
+                pcmFloatFileURL: pcmURL,
+                sampleRate: 16_000,
+                recordID: id,
+                directoryURL: recoveryMediaDirectory
+            )
+        }
+        let audioURL = try await withTaskCancellationHandler {
+            try await encodeTask.value
+        } onCancel: {
+            encodeTask.cancel()
+        }
+        do {
+            try ensureOperationCurrent(token)
+        } catch {
+            DictationAudioRetentionService.removeUnlinkedMedia(at: audioURL)
+            throw error
+        }
+
+        do {
+            _ = try historyStore.save(
+                text: text,
+                duration: duration,
+                modelUsed: settingsStore.selectedModel,
+                sourceKind: .voiceRecording,
+                sourceDisplayName: localized("Recovered recording", locale: settingsStore.selectedAppLocale.locale),
+                managedMediaPath: audioURL.path
+            )
+        } catch {
+            DictationAudioRetentionService.removeUnlinkedMedia(at: audioURL)
+            throw error
+        }
+        try dictationRecoveryStore.complete(id: session.id)
+        if activeDictationRecoveryID == id { activeDictationRecoveryID = nil }
+        updateRecentTranscriptsMenu()
+        toastService.show(
+            ToastPayload(
+                message: localized(
+                    "Recovered recording transcribed and saved to History.",
+                    locale: settingsStore.selectedAppLocale.locale
+                )
+            )
+        )
     }
 
     // MARK: - Floating Indicator Actions
@@ -5885,6 +6252,7 @@ final class AppCoordinator {
         let mode = recordingState.selectedCaptureMode
         let duration = recordingStartTime.map { Date().timeIntervalSince($0) } ?? 0
         let occurrenceID = activeMeetingOccurrenceID
+        let adoptedRecoveryID = activeDictationRecoveryID
         let audioData: Data
         do {
             audioData = try await audioRecorder.stopRecording()
@@ -5951,10 +6319,14 @@ final class AppCoordinator {
             )
             if let occurrenceID,
                let occurrence = try meetingStore.occurrence(id: occurrenceID) {
-                let recoveryAudioURLs = (try? FileManager.default.contentsOfDirectory(
+                var recoveryAudioURLs = (try? FileManager.default.contentsOfDirectory(
                     at: occurrence.workspaceURL,
                     includingPropertiesForKeys: nil
                 ))?.filter { $0.pathExtension.lowercased() == "pcm" } ?? []
+                if let adoptedRecoveryID,
+                   dictationRecoveryStore.hasAudio(id: adoptedRecoveryID) {
+                    recoveryAudioURLs.append(dictationRecoveryStore.audioURL(for: adoptedRecoveryID))
+                }
                 let sourceHealth = audioRecorder.lastMeetingSourceHealth
                 try meetingStore.preserveAudio(
                     id: occurrenceID,
@@ -5990,7 +6362,8 @@ final class AppCoordinator {
                 diarizationEnabled: job.options.diarizationEnabled,
                 options: makeTranscriptionOptions(),
                 diarizationOptions: .init(expectedSpeakerCount: job.options.expectedSpeakerCount),
-                diarizationFailurePolicy: .required
+                diarizationFailurePolicy: .required,
+                progressHandler: makeTranscriptionProgressHandler()
             )
             try ensureOperationCurrent(token)
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
@@ -6040,6 +6413,12 @@ final class AppCoordinator {
                     reportErrorsInRecordingState: false
                 )
             }
+            if let adoptedRecoveryID {
+                try dictationRecoveryStore.complete(id: adoptedRecoveryID)
+                if activeDictationRecoveryID == adoptedRecoveryID {
+                    activeDictationRecoveryID = nil
+                }
+            }
             activeMeetingOccurrenceID = nil
             updateRecentTranscriptsMenu()
 
@@ -6085,6 +6464,12 @@ final class AppCoordinator {
                     id: occurrenceID,
                     message: error.localizedDescription
                 )
+            }
+            if let adoptedRecoveryID {
+                _ = try? dictationRecoveryStore.markFailed(id: adoptedRecoveryID, message: error.localizedDescription)
+                if activeDictationRecoveryID == adoptedRecoveryID {
+                    activeDictationRecoveryID = nil
+                }
             }
             activeMeetingOccurrenceID = nil
         }
@@ -6152,7 +6537,8 @@ final class AppCoordinator {
                 diarizationEnabled: true,
                 options: makeTranscriptionOptions(),
                 diarizationOptions: .init(expectedSpeakerCount: occurrence.expectedSpeakerCount),
-                diarizationFailurePolicy: .required
+                diarizationFailurePolicy: .required,
+                progressHandler: makeTranscriptionProgressHandler()
             )
             let text = normalizedTranscriptionText(output.text)
             guard !isTranscriptionEffectivelyEmpty(text) else {
@@ -6654,7 +7040,17 @@ final class AppCoordinator {
             return
         }
 
+        guard AlertManager.shared.confirmCancelOperation(isRecording: true) else {
+            Log.app.info("Clear audio buffer declined; recording will continue")
+            return
+        }
+
         Log.app.info("Clearing audio buffer")
+        let recoveryID = activeDictationRecoveryID
+        if let recoveryID {
+            _ = try? dictationRecoveryStore.markCanceled(id: recoveryID)
+            activeDictationRecoveryID = nil
+        }
         // Mirror cancel's teardown: invalidate any in-flight operation and stop
         // admission so a half-dispatched stop can't run against the cleared audio.
         operationController.cancel()
@@ -6695,12 +7091,16 @@ final class AppCoordinator {
         statusBarController.updateMenuState()
 
         finishIndicatorSession()
+
+        if let recoveryID, dictationRecoveryStore.hasAudio(id: recoveryID) {
+            showRecoverableRecordingToast(id: recoveryID, wasExplicitlyCanceled: true)
+        }
     }
 
     // MARK: - Cancel Operation
 
     private func handleCancelOperation() async {
-        cancelCurrentOperation(source: "hotkey-or-menu")
+        requestCancelCurrentOperation(source: "hotkey-or-menu")
     }
 
     // MARK: - Toggle Output Mode

@@ -602,6 +602,78 @@ struct AppCoordinatorContextFlowTests {
         )
     }
 
+    @Test func whisperProgressReportsPercentAndETAWithoutPrematureCompletion() {
+        let update = WhisperKitEngine.progressUpdate(
+            windowID: 2,
+            audioDuration: 120,
+            elapsed: 60
+        )
+
+        #expect(update.fractionCompleted == 0.75)
+        #expect(update.estimatedRemaining == 20)
+        #expect(
+            TranscriptionProgressFormatting.text(
+                fractionCompleted: update.fractionCompleted,
+                estimatedRemaining: update.estimatedRemaining,
+                locale: Locale(identifier: "en_US")
+            ) == "75% · ~1m left"
+        )
+
+        let finalWindow = WhisperKitEngine.progressUpdate(
+            windowID: 100,
+            audioDuration: 60,
+            elapsed: 10
+        )
+        #expect(finalWindow.fractionCompleted == 0.99)
+    }
+
+    @Test func activeCalendarCandidateRequiresJoinLinkAndChoosesClosestEvent() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let farther = MeetingOccurrenceSnapshot(
+            id: "farther",
+            provider: "google",
+            calendarID: "primary",
+            eventID: "farther",
+            recurringEventID: nil,
+            title: "Earlier call",
+            start: now.addingTimeInterval(-30 * 60),
+            end: now.addingTimeInterval(30 * 60),
+            joinURL: URL(string: "https://meet.google.com/aaa-bbbb-ccc"),
+            rawSnapshotJSON: nil
+        )
+        let closest = MeetingOccurrenceSnapshot(
+            id: "closest",
+            provider: "google",
+            calendarID: "primary",
+            eventID: "closest",
+            recurringEventID: nil,
+            title: "Current call",
+            start: now.addingTimeInterval(-5 * 60),
+            end: now.addingTimeInterval(55 * 60),
+            joinURL: URL(string: "https://meet.google.com/ddd-eeee-fff"),
+            rawSnapshotJSON: nil
+        )
+        let noLink = MeetingOccurrenceSnapshot(
+            id: "no-link",
+            provider: "google",
+            calendarID: "primary",
+            eventID: "no-link",
+            recurringEventID: nil,
+            title: "No call link",
+            start: now,
+            end: now.addingTimeInterval(60 * 60),
+            joinURL: nil,
+            rawSnapshotJSON: nil
+        )
+
+        #expect(
+            AppCoordinator.activeCalendarMeetingCandidate(
+                in: [farther, noLink, closest],
+                at: now
+            )?.id == closest.id
+        )
+    }
+
     @Test func floatingIndicatorFocusTrackingModeUsesIdlePillWhenIdleAlwaysOnStyles() {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(

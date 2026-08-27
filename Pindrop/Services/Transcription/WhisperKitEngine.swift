@@ -140,6 +140,14 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
     
     /// Transcribe audio data to text
     public func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
+        try await transcribe(audioData: audioData, options: options, progressHandler: nil)
+    }
+
+    public func transcribe(
+        audioData: Data,
+        options: TranscriptionOptions,
+        progressHandler: TranscriptionProgressHandler?
+    ) async throws -> String {
         guard state == .ready else {
             throw EngineError.modelNotLoaded
         }
@@ -159,6 +167,15 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             let samples = audioData.withUnsafeBytes { bytes in
                 Array(bytes.bindMemory(to: Float.self))
             }
+            let audioDuration = Double(samples.count) / 16_000
+            let transcriptionStartedAt = Date()
+            progressHandler?(
+                TranscriptionProgressUpdate(
+                    fractionCompleted: 0,
+                    elapsed: 0,
+                    estimatedRemaining: nil
+                )
+            )
             
             guard let whisperKit = whisperKit else {
                 throw EngineError.modelNotLoaded
@@ -184,10 +201,31 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
                 }
             }
             
-            let results = try await whisperKit.transcribe(audioArray: samples, decodeOptions: decodeOptions)
+            let results = try await whisperKit.transcribe(
+                audioArray: samples,
+                decodeOptions: decodeOptions,
+                callback: { progress in
+                    progressHandler?(
+                        Self.progressUpdate(
+                            windowID: progress.windowId,
+                            audioDuration: audioDuration,
+                            elapsed: Date().timeIntervalSince(transcriptionStartedAt)
+                        )
+                    )
+                    return true
+                }
+            )
             guard let result = results.first else {
                 throw EngineError.transcriptionFailed("No transcription result")
             }
+
+            progressHandler?(
+                TranscriptionProgressUpdate(
+                    fractionCompleted: 1,
+                    elapsed: Date().timeIntervalSince(transcriptionStartedAt),
+                    estimatedRemaining: 0
+                )
+            )
             
             state = .ready
             return result.text
@@ -196,6 +234,31 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             self.error = error
             throw error
         }
+    }
+
+    static func progressUpdate(
+        windowID: Int,
+        audioDuration: TimeInterval,
+        elapsed: TimeInterval
+    ) -> TranscriptionProgressUpdate {
+        guard audioDuration > 0 else {
+            return TranscriptionProgressUpdate(
+                fractionCompleted: 0,
+                elapsed: elapsed,
+                estimatedRemaining: nil
+            )
+        }
+        // Whisper decodes approximately 30-second windows. Keep callbacks below
+        // 100% until the engine returns so post-decode assembly is represented.
+        let fraction = min(0.99, max(0.001, Double(windowID + 1) * 30 / audioDuration))
+        let remaining = elapsed > 0
+            ? elapsed * (1 - fraction) / fraction
+            : nil
+        return TranscriptionProgressUpdate(
+            fractionCompleted: fraction,
+            elapsed: elapsed,
+            estimatedRemaining: remaining
+        )
     }
 
     /// Detect the spoken language from full-clip samples so diarized segments can

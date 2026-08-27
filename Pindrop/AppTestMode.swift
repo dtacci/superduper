@@ -84,7 +84,13 @@ enum AppUITestFixture {
 
 @MainActor
 private struct GoogleCalendarSetupFixtureRootView: View {
-    @State private var state = MeetingsFeatureState()
+    @State private var state: MeetingsFeatureState
+
+    init() {
+        let state = MeetingsFeatureState()
+        state.isGoogleConfigured = true
+        _state = State(initialValue: state)
+    }
 
     var body: some View {
         GoogleCalendarSetupWizard(
@@ -92,15 +98,12 @@ private struct GoogleCalendarSetupFixtureRootView: View {
             onConnect: { state.isGoogleConnected = true },
             onEnableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true }
         )
-        .task {
-            state.isGoogleConfigured = true
-        }
     }
 }
 
 @MainActor
 private struct MeetingsFixtureRootView: View {
-    @State private var state = MeetingsFeatureState()
+    @State private var state: MeetingsFeatureState
 
     private static let modelContainer: ModelContainer = {
         let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
@@ -111,6 +114,28 @@ private struct MeetingsFixtureRootView: View {
             fatalError("Failed to create meetings UI-test fixture model container: \(error)")
         }
     }()
+
+    init() {
+        let state = MeetingsFeatureState()
+        state.isGoogleConfigured = true
+        state.isGoogleConnected = true
+        state.isLaunchAtLoginEnabled = true
+        state.replaceEvents([
+            MeetingOccurrenceSnapshot(
+                id: "fixture-event",
+                provider: "google",
+                calendarID: "primary",
+                eventID: "fixture-event",
+                recurringEventID: nil,
+                title: "Design review",
+                start: Date().addingTimeInterval(3_600),
+                end: Date().addingTimeInterval(5_400),
+                joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
+                rawSnapshotJSON: "{}"
+            )
+        ])
+        _state = State(initialValue: state)
+    }
 
     var body: some View {
         MeetingsView(
@@ -131,25 +156,6 @@ private struct MeetingsFixtureRootView: View {
         )
         .frame(minWidth: 900, minHeight: 620)
         .modelContainer(Self.modelContainer)
-        .task {
-            state.isGoogleConfigured = true
-            state.isGoogleConnected = true
-            state.isLaunchAtLoginEnabled = true
-            state.replaceEvents([
-                MeetingOccurrenceSnapshot(
-                    id: "fixture-event",
-                    provider: "google",
-                    calendarID: "primary",
-                    eventID: "fixture-event",
-                    recurringEventID: nil,
-                    title: "Design review",
-                    start: Date().addingTimeInterval(3_600),
-                    end: Date().addingTimeInterval(5_400),
-                    joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
-                    rawSnapshotJSON: "{}"
-                )
-            ])
-        }
     }
 }
 

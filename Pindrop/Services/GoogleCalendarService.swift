@@ -891,13 +891,72 @@ final class CalendarMeetingScheduler {
     func eventWasDeleted(id: UUID) async {
         tasks[id]?.cancel()
         tasks[id] = nil
+
+        let occurrence = try? meetingStore.occurrence(id: id)
+        if ownedOccurrenceID == id || occurrence?.state == .recording {
+            ownedOccurrenceID = nil
+            do {
+                try await stopCapture(id)
+                await notifier.notify(
+                    title: "Calendar event removed",
+                    body: "The active recording was stopped and sent to transcription."
+                )
+            } catch {
+                try? meetingStore.markFailedPreservingWorkspace(
+                    id: id,
+                    message: error.localizedDescription
+                )
+                await notifier.notify(
+                    title: "Meeting recording failed",
+                    body: error.localizedDescription
+                )
+            }
+            return
+        }
+
         try? meetingStore.disarm(id: id, canceled: true, message: "The calendar event was canceled or deleted.")
         await notifier.notify(title: "Meeting canceled", body: "An armed Google Calendar event was removed.")
     }
 
     func eventWasUpdated(_ snapshot: MeetingOccurrenceSnapshot) throws {
         let occurrence = try meetingStore.arm(snapshot)
-        schedule(occurrence)
+        // A periodic sync must never replace an active meeting's end-time owner
+        // with a fresh start-time task. Doing so after the start is more than a
+        // minute in the past would mark it missed and lose automatic stop.
+        if ownedOccurrenceID == occurrence.id || occurrence.state == .recording {
+            adoptActiveCapture(id: occurrence.id, scheduledEnd: occurrence.scheduledEnd)
+        } else if occurrence.state == .scheduled || occurrence.state == .preparing {
+            schedule(occurrence)
+        }
+    }
+
+    /// Transfers an already-running, user-started capture to the calendar owner.
+    /// It never opens the URL or starts another recorder; it only owns the scheduled stop.
+    func adoptActiveCapture(id: UUID, scheduledEnd: Date?) {
+        tasks[id]?.cancel()
+        ownedOccurrenceID = id
+        guard let scheduledEnd else { return }
+        tasks[id] = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await self.clock.sleep(until: scheduledEnd)
+                try Task.checkCancellation()
+                guard self.ownedOccurrenceID == id else { return }
+                try await self.stopCapture(id)
+                self.ownedOccurrenceID = nil
+            } catch is CancellationError {
+                return
+            } catch {
+                try? self.meetingStore.markFailedPreservingWorkspace(
+                    id: id,
+                    message: error.localizedDescription
+                )
+                await self.notifier.notify(
+                    title: "Meeting recording failed",
+                    body: error.localizedDescription
+                )
+            }
+        }
     }
 
     private func schedule(_ occurrence: MeetingOccurrence) {

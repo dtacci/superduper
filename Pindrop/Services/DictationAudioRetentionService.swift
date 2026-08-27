@@ -8,6 +8,173 @@
 import AVFoundation
 import Foundation
 
+enum DictationRecoveryState: String, Codable, Sendable {
+    case recording
+    case processing
+    case canceled
+    case failed
+}
+
+struct DictationRecoverySession: Codable, Equatable, Sendable, Identifiable {
+    let id: UUID
+    let startedAt: Date
+    var updatedAt: Date
+    var state: DictationRecoveryState
+    var failureMessage: String?
+}
+
+enum DictationRecoveryError: Error, LocalizedError {
+    case sessionMissing
+    case audioMissing
+
+    var errorDescription: String? {
+        switch self {
+        case .sessionMissing:
+            return "The recoverable recording could not be found."
+        case .audioMissing:
+            return "The recoverable recording contains no audio."
+        }
+    }
+}
+
+/// Owns the crash-safe raw PCM spools used by ordinary dictation, quick capture,
+/// and speak-to-append. A session is removed only after its transcript/note has
+/// been committed; cancellation and failures deliberately leave it recoverable.
+final class DictationRecoveryStore {
+    static let manifestFileName = "manifest.json"
+    static let microphonePCMFileName = "capture-microphone.pcm"
+
+    private let fileManager: FileManager
+    let directoryURL: URL
+    private let now: () -> Date
+
+    init(
+        fileManager: FileManager = .default,
+        directoryURL: URL? = nil,
+        now: @escaping () -> Date = { Date() }
+    ) {
+        self.fileManager = fileManager
+        self.directoryURL = directoryURL
+            ?? ManagedMediaLibrary.libraryBaseURL.appendingPathComponent("DictationRecovery", isDirectory: true)
+        self.now = now
+    }
+
+    @discardableResult
+    func begin(id: UUID = UUID(), startedAt: Date? = nil) throws -> DictationRecoverySession {
+        try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        let workspace = workspaceURL(for: id)
+        try fileManager.createDirectory(at: workspace, withIntermediateDirectories: true)
+        let timestamp = now()
+        let session = DictationRecoverySession(
+            id: id,
+            startedAt: startedAt ?? timestamp,
+            updatedAt: timestamp,
+            state: .recording,
+            failureMessage: nil
+        )
+        try write(session)
+        return session
+    }
+
+    @discardableResult
+    func markProcessing(id: UUID) throws -> DictationRecoverySession {
+        try transition(id: id, to: .processing, failureMessage: nil)
+    }
+
+    @discardableResult
+    func markCanceled(id: UUID) throws -> DictationRecoverySession {
+        try transition(id: id, to: .canceled, failureMessage: nil)
+    }
+
+    @discardableResult
+    func markFailed(id: UUID, message: String) throws -> DictationRecoverySession {
+        try transition(id: id, to: .failed, failureMessage: message)
+    }
+
+    func complete(id: UUID) throws {
+        let workspace = workspaceURL(for: id)
+        guard fileManager.fileExists(atPath: workspace.path) else { return }
+        try fileManager.removeItem(at: workspace)
+    }
+
+    func session(id: UUID) throws -> DictationRecoverySession {
+        let manifest = manifestURL(for: id)
+        guard fileManager.fileExists(atPath: manifest.path) else {
+            throw DictationRecoveryError.sessionMissing
+        }
+        return try decodeSession(at: manifest)
+    }
+
+    func recoverableSessions(includeCanceled: Bool = true) -> [DictationRecoverySession] {
+        guard let workspaces = try? fileManager.contentsOfDirectory(
+            at: directoryURL,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return [] }
+
+        return workspaces.compactMap { workspace in
+            guard let session = try? decodeSession(
+                at: workspace.appendingPathComponent(Self.manifestFileName)
+            ), includeCanceled || session.state != .canceled,
+            hasAudio(id: session.id) else { return nil }
+            return session
+        }
+        .sorted { $0.startedAt < $1.startedAt }
+    }
+
+    func workspaceURL(for id: UUID) -> URL {
+        directoryURL.appendingPathComponent(id.uuidString, isDirectory: true)
+    }
+
+    func audioURL(for id: UUID) -> URL {
+        workspaceURL(for: id).appendingPathComponent(Self.microphonePCMFileName)
+    }
+
+    func audioData(id: UUID) throws -> Data {
+        let url = audioURL(for: id)
+        guard hasAudio(id: id) else { throw DictationRecoveryError.audioMissing }
+        return try Data(contentsOf: url, options: [.mappedIfSafe])
+    }
+
+    func hasAudio(id: UUID) -> Bool {
+        let path = audioURL(for: id).path
+        guard fileManager.fileExists(atPath: path),
+              let attributes = try? fileManager.attributesOfItem(atPath: path),
+              let size = attributes[.size] as? NSNumber else { return false }
+        return size.int64Value > 0
+    }
+
+    private func transition(
+        id: UUID,
+        to state: DictationRecoveryState,
+        failureMessage: String?
+    ) throws -> DictationRecoverySession {
+        var session = try session(id: id)
+        session.state = state
+        session.failureMessage = failureMessage
+        session.updatedAt = now()
+        try write(session)
+        return session
+    }
+
+    private func manifestURL(for id: UUID) -> URL {
+        workspaceURL(for: id).appendingPathComponent(Self.manifestFileName)
+    }
+
+    private func write(_ session: DictationRecoverySession) throws {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(session)
+        try data.write(to: manifestURL(for: session.id), options: .atomic)
+    }
+
+    private func decodeSession(at url: URL) throws -> DictationRecoverySession {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(DictationRecoverySession.self, from: Data(contentsOf: url))
+    }
+}
+
 /// Encodes float32 PCM dictation buffers to AAC `.m4a` under the managed DictationAudio area.
 /// Preferred input is the native-rate copy kept by `AudioRecorder` (44.1/48 kHz) so retained
 /// audio isn't telephone-bandwidth; the 16 kHz ASR feed remains the fallback. Sub-32 kHz

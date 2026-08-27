@@ -1169,12 +1169,23 @@ struct PillIndicatorView: View {
             HStack(spacing: 9) {
                 IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
 
-                Text(localized("Transcribing…", locale: locale))
+                Text(processingStatusText)
                     .font(FontLoader.font(family: .inter, size: 12, weight: .medium))
                     .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white))
             }
             .padding(.horizontal, 14)
         }
+    }
+
+    private var processingStatusText: String {
+        guard let progress = state.processingProgress else {
+            return localized("Transcribing…", locale: locale)
+        }
+        return TranscriptionProgressFormatting.text(
+            fractionCompleted: progress,
+            estimatedRemaining: state.processingEstimatedRemaining,
+            locale: locale
+        )
     }
 
     private var compactPillShell: some View {
