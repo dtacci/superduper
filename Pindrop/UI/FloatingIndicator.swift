@@ -566,6 +566,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting, FloatingIn
 
 struct NotchIndicatorView: View {
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
+    @Environment(\.locale) private var locale
     @ObservedObject var state: FloatingIndicatorState
     @ObservedObject var transcript: LiveTranscriptState
     @ObservedObject private var theme = PindropThemeController.shared
@@ -654,12 +655,11 @@ struct NotchIndicatorView: View {
         HStack(spacing: 8) {
             if state.isRecording {
                 stopButton
+                timerDisplay
             } else {
                 IndicatorProcessingView(dotCount: 3, dotDiameter: 3.5, spacing: 2.5)
                     .frame(width: 18, height: 18)
             }
-
-            timerDisplay
             Spacer(minLength: 0)
         }
         .padding(.leading, NotchPanelMetrics.sidePadding)
@@ -668,14 +668,29 @@ struct NotchIndicatorView: View {
     }
 
     private var rightWing: some View {
-        FloatingIndicatorScrollingWaveformView(
-            audioLevel: { state.audioLevel },
-            isRecording: state.isRecording,
-            color: AppColors.overlayWaveform
-        )
-        .frame(height: 15)
-        .opacity(state.isRecording ? 1 : 0.4)
-        .animation(AppTheme.Animation.smooth, value: state.isRecording)
+        Group {
+            if state.isProcessing {
+                Text(processingStatusText)
+                    .font(.system(size: 10.5, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.92))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.68)
+                    .contentTransition(.numericText(countsDown: false))
+                    .animation(AppTheme.Animation.fast, value: state.processingProgress)
+                    .accessibilityLabel(
+                        localized("Transcribing…", locale: locale)
+                            + ": "
+                            + processingStatusText
+                    )
+            } else {
+                FloatingIndicatorScrollingWaveformView(
+                    audioLevel: { state.audioLevel },
+                    isRecording: state.isRecording,
+                    color: AppColors.overlayWaveform
+                )
+                .frame(height: 15)
+            }
+        }
         .padding(.leading, 8)
         .padding(.trailing, NotchPanelMetrics.sidePadding)
         .frame(width: sideWidth, height: height)
@@ -704,10 +719,21 @@ struct NotchIndicatorView: View {
     private var timerDisplay: some View {
         Text(formattedDuration)
             .font(.system(size: 12.5, weight: .semibold, design: .monospaced))
-            .foregroundStyle(AppColors.overlayTextPrimary.opacity(state.isProcessing ? 0.55 : 0.92))
+            .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.92))
             .contentTransition(.numericText(countsDown: false))
             .animation(AppTheme.Animation.fast, value: state.recordingDuration)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var processingStatusText: String {
+        guard let progress = state.processingProgress else {
+            return localized("Transcribing…", locale: locale)
+        }
+        return TranscriptionProgressFormatting.text(
+            fractionCompleted: progress,
+            estimatedRemaining: state.processingEstimatedRemaining,
+            locale: locale
+        )
     }
 }
 
@@ -776,6 +802,8 @@ private var notchProcessingPreview: some View {
     state.isRecording = false
     state.isProcessing = true
     state.recordingDuration = 12.7
+    state.processingProgress = 0.42
+    state.processingEstimatedRemaining = 94
     state.updateAudioLevel(0.0)
 
     return NotchIndicatorView(
