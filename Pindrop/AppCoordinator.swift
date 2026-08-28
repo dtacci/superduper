@@ -859,6 +859,9 @@ final class AppCoordinator {
         self.noteEditorWindowController.setModelContainer(modelContainer)
         self.settingsWindowController.configureGoogleCalendar(
             onConnect: { [weak self] in self?.connectGoogleCalendar() },
+            onConfigureClientID: { [weak self] clientID in
+                self?.configureGoogleCalendarClientID(clientID)
+            },
             onDisconnect: { [weak self] in self?.disconnectGoogleCalendar() }
         )
         self.mainWindowController.configureMeetingCapture(
@@ -881,10 +884,17 @@ final class AppCoordinator {
         self.mainWindowController.configureMeetingsFeature(
             state: meetingsState,
             onConnect: { [weak self] in self?.connectGoogleCalendar() },
+            onConfigureClientID: { [weak self] clientID in
+                self?.configureGoogleCalendarClientID(clientID)
+            },
             onEnableLaunchAtLogin: { [weak self] in self?.enableLaunchAtLoginForCalendarMeetings() },
             onDisconnect: { [weak self] in self?.disconnectGoogleCalendar() },
             onRefresh: { [weak self] in
                 Task { @MainActor in await self?.refreshGoogleCalendar() }
+            },
+            onReviewWeek: { [weak self] in self?.presentWeeklyMeetingReview() },
+            onApplyWeeklySelection: { [weak self] identities in
+                self?.applyWeeklyMeetingSelection(identities)
             },
             onArm: { [weak self] snapshot in self?.armCalendarMeeting(snapshot) },
             onDisarm: { [weak self] identity in self?.disarmCalendarMeeting(identity: identity) },
@@ -915,6 +925,10 @@ final class AppCoordinator {
 
         self.statusBarController.onToggleMeetingCapture = { [weak self] in
             await self?.handleMeetingCaptureToggle()
+        }
+
+        self.statusBarController.onReviewWeeklyMeetings = { [weak self] in
+            self?.presentWeeklyMeetingReview()
         }
 
         self.statusBarController.onToggleRecordingIndicator = { [weak self] in
@@ -1161,7 +1175,17 @@ final class AppCoordinator {
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let bundledClientID = (Bundle.main.object(forInfoDictionaryKey: "GoogleCalendarClientID") as? String)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let clientID = environmentClientID?.isEmpty == false ? environmentClientID : bundledClientID
+        let savedClientID = settingsStore.googleCalendarClientID
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        meetingsState.googleClientIDDraft = savedClientID
+        let clientID: String?
+        if environmentClientID?.isEmpty == false {
+            clientID = environmentClientID
+        } else if !savedClientID.isEmpty {
+            clientID = savedClientID
+        } else {
+            clientID = bundledClientID
+        }
         meetingsState.isGoogleConfigured = clientID?.isEmpty == false
         guard let clientID, !clientID.isEmpty else {
             meetingsState.readinessMessage = "Google Calendar requires a desktop OAuth client ID in this build."
@@ -1257,6 +1281,30 @@ final class AppCoordinator {
             }
             self.meetingsState.isRefreshing = false
         }
+    }
+
+    func configureGoogleCalendarClientID(_ value: String) {
+        let clientID = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard clientID.hasSuffix(".apps.googleusercontent.com") else {
+            meetingsState.errorMessage = localized(
+                "Enter a Google Desktop OAuth client ID ending in .apps.googleusercontent.com.",
+                locale: settingsStore.selectedAppLocale.locale
+            )
+            return
+        }
+        guard googleOAuthService == nil else {
+            meetingsState.errorMessage = localized(
+                "Disconnect Google Calendar before changing its OAuth client ID.",
+                locale: settingsStore.selectedAppLocale.locale
+            )
+            return
+        }
+
+        settingsStore.googleCalendarClientID = clientID
+        meetingsState.googleClientIDDraft = clientID
+        meetingsState.errorMessage = nil
+        meetingsState.readinessMessage = nil
+        setupGoogleCalendarIntegration()
     }
 
     func enableLaunchAtLoginForCalendarMeetings() {
@@ -1385,6 +1433,100 @@ final class AppCoordinator {
             refreshArmedMeetingState()
         } catch {
             meetingsState.errorMessage = error.localizedDescription
+        }
+    }
+
+    func presentWeeklyMeetingReview() {
+        mainWindowController.showNavigationItem(.meetings)
+        meetingsState.weeklyReviewErrorMessage = nil
+
+        guard meetingsState.isGoogleConfigured, meetingsState.isGoogleConnected else {
+            meetingsState.isGoogleSetupPresented = true
+            return
+        }
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.refreshGoogleCalendar()
+            guard self.meetingsState.errorMessage == nil else { return }
+            self.meetingsState.isWeeklyReviewPresented = true
+        }
+    }
+
+    func applyWeeklyMeetingSelection(_ selectedIdentities: Set<String>) {
+        guard !meetingsState.isApplyingWeeklySelection else { return }
+        meetingsState.isApplyingWeeklySelection = true
+        meetingsState.weeklyReviewErrorMessage = nil
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer { self.meetingsState.isApplyingWeeklySelection = false }
+
+            do {
+                guard let scheduler = self.calendarMeetingScheduler else {
+                    throw GoogleOAuthError.notConnected
+                }
+                let weeklyEvents = WeeklyMeetingReview.upcomingEvents(
+                    from: self.meetingsState.calendarEvents,
+                    now: Date()
+                )
+                let eventsByIdentity = Dictionary(
+                    uniqueKeysWithValues: weeklyEvents.map { ($0.persistentIdentity, $0) }
+                )
+                let selectedSnapshots = selectedIdentities.compactMap { eventsByIdentity[$0] }
+                let invalidSelection = selectedSnapshots.first {
+                    !WeeklyMeetingReview.assessment(for: $0).canScheduleAutomatically
+                }
+                if invalidSelection != nil {
+                    throw CalendarMeetingScheduler.ArmError.prerequisites(
+                        localized(
+                            "A checked event no longer has the calendar details needed for automatic recording.",
+                            locale: self.settingsStore.selectedAppLocale.locale
+                        )
+                    )
+                }
+
+                let currentlyArmed = Set(
+                    self.meetingsState.armedOccurrenceIDsByIdentity.keys
+                )
+                let snapshotsToArm = selectedSnapshots.filter {
+                    !currentlyArmed.contains($0.persistentIdentity)
+                }
+
+                // Preserve existing choices if readiness fails: arm additions first,
+                // then disarm occurrences the user unchecked.
+                _ = try await scheduler.arm(snapshotsToArm)
+
+                let weeklyIdentities = Set(eventsByIdentity.keys)
+                let identitiesToDisarm = currentlyArmed
+                    .intersection(weeklyIdentities)
+                    .subtracting(selectedIdentities)
+                for identity in identitiesToDisarm {
+                    guard let occurrence = try self.meetingStore.occurrence(calendarIdentity: identity) else {
+                        continue
+                    }
+                    try scheduler.disarm(id: occurrence.id)
+                }
+
+                self.refreshArmedMeetingState()
+                self.meetingsState.isWeeklyReviewPresented = false
+                let scheduledCount = selectedIdentities.intersection(weeklyIdentities).count
+                self.toastService.show(
+                    ToastPayload(
+                        message: String(
+                            format: localized(
+                                "%d meeting recordings scheduled for this week.",
+                                locale: self.settingsStore.selectedAppLocale.locale
+                            ),
+                            locale: self.settingsStore.selectedAppLocale.locale,
+                            scheduledCount
+                        )
+                    )
+                )
+            } catch {
+                self.meetingsState.weeklyReviewErrorMessage = error.localizedDescription
+                self.meetingsState.errorMessage = error.localizedDescription
+            }
         }
     }
 

@@ -88,6 +88,132 @@ struct GoogleCalendarServiceTests {
         #expect(snapshot.title == "Planning")
     }
 
+    @Test func weeklyReviewRecommendsMeetingsWithExternalParticipants() throws {
+        let event = makeEvent(
+            hangoutLink: "https://meet.google.com/abc-defg-hij",
+            organizer: .init(email: "me@example.com", displayName: "Me", self: true),
+            attendees: [
+                .init(
+                    email: "me@example.com",
+                    displayName: "Me",
+                    organizer: true,
+                    self: true,
+                    resource: false,
+                    responseStatus: "accepted",
+                    additionalGuests: nil
+                ),
+                .init(
+                    email: "coach@outside.com",
+                    displayName: "Coach",
+                    organizer: false,
+                    self: false,
+                    resource: false,
+                    responseStatus: "accepted",
+                    additionalGuests: nil
+                )
+            ]
+        )
+
+        let snapshot = try #require(MeetingJoinURLResolver.snapshot(
+            event: event,
+            calendarID: "me@example.com"
+        ))
+        let assessment = WeeklyMeetingReview.assessment(for: snapshot)
+
+        #expect(snapshot.otherParticipantCount == 1)
+        #expect(snapshot.externalParticipantCount == 1)
+        #expect(snapshot.expectedSpeakerCount == 2)
+        #expect(assessment.bucket == .recommended)
+        #expect(assessment.reason == .externalParticipants)
+        #expect(assessment.canScheduleAutomatically)
+    }
+
+    @Test func weeklyReviewSeparatesSoloAndCalendarIssueItems() {
+        let now = Date(timeIntervalSince1970: 100_000)
+        let solo = MeetingOccurrenceSnapshot(
+            id: "solo",
+            provider: "google",
+            calendarID: "primary",
+            eventID: "solo",
+            recurringEventID: nil,
+            title: "Prep",
+            start: now.addingTimeInterval(3_600),
+            end: now.addingTimeInterval(5_400),
+            joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
+            rawSnapshotJSON: nil
+        )
+        let noLink = MeetingOccurrenceSnapshot(
+            id: "commute",
+            provider: "google",
+            calendarID: "primary",
+            eventID: "commute",
+            recurringEventID: nil,
+            title: "Commute",
+            start: now.addingTimeInterval(7_200),
+            end: now.addingTimeInterval(9_000),
+            joinURL: nil,
+            rawSnapshotJSON: nil,
+            otherParticipantCount: 2,
+            externalParticipantCount: 1
+        )
+
+        #expect(WeeklyMeetingReview.assessment(for: solo).reason == .solo)
+        #expect(WeeklyMeetingReview.assessment(for: solo).canScheduleAutomatically)
+        #expect(WeeklyMeetingReview.assessment(for: noLink).reason == .noJoinLink)
+        #expect(WeeklyMeetingReview.assessment(for: noLink).canScheduleAutomatically)
+    }
+
+    @Test func weeklyReviewUsesTheNextSevenDaysAndOnlyPreselectsArmedEvents() {
+        let now = Date(timeIntervalSince1970: 200_000)
+        func snapshot(id: String, offset: TimeInterval) -> MeetingOccurrenceSnapshot {
+            MeetingOccurrenceSnapshot(
+                id: id,
+                provider: "google",
+                calendarID: "primary",
+                eventID: id,
+                recurringEventID: nil,
+                title: id,
+                start: now.addingTimeInterval(offset),
+                end: nil,
+                joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
+                rawSnapshotJSON: nil,
+                otherParticipantCount: 1
+            )
+        }
+
+        let events = WeeklyMeetingReview.upcomingEvents(
+            from: [
+                snapshot(id: "past", offset: -1),
+                snapshot(id: "tomorrow", offset: 24 * 60 * 60),
+                snapshot(id: "day-six", offset: 6 * 24 * 60 * 60),
+                snapshot(id: "day-eight", offset: 8 * 24 * 60 * 60)
+            ],
+            now: now
+        )
+
+        #expect(events.map(\.id) == ["tomorrow", "day-six"])
+        #expect(WeeklyMeetingReview.initiallySelectedIdentities(
+            events: events,
+            armedIdentities: ["google:primary:day-six", "google:primary:day-eight"]
+        ) == ["google:primary:day-six"])
+    }
+
+    @Test func declinedCalendarInvitationsAreNotReviewCandidates() {
+        let event = makeEvent(attendees: [
+            .init(
+                email: "me@example.com",
+                displayName: "Me",
+                organizer: false,
+                self: true,
+                resource: false,
+                responseStatus: "declined",
+                additionalGuests: nil
+            )
+        ])
+
+        #expect(MeetingJoinURLResolver.snapshot(event: event, calendarID: "me@example.com") == nil)
+    }
+
     @Test func calendarAndEventPaginationCarryPageTokensAndReturnSyncToken() async throws {
         let transport = CalendarAPITransportMock(results: [
             .success(Data(#"{"items":[{"id":"one","summary":"One","primary":true}],"nextPageToken":"cal-next"}"#.utf8)),
@@ -179,6 +305,58 @@ struct GoogleCalendarServiceTests {
         #expect(restored.state == .missed)
         #expect(!restored.isArmed)
         #expect(await notifier.titles == ["Meeting missed"])
+    }
+
+    @Test func weeklyBatchArmChecksReadinessOnceAndPersistsExpectedSpeakers() async throws {
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
+        let container = try ModelContainer(
+            for: schema,
+            configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        )
+        let now = Date(timeIntervalSince1970: 15_000)
+        let media = CalendarTestMediaLibrary(
+            root: FileManager.default.temporaryDirectory
+                .appendingPathComponent("calendar-weekly-arm-\(UUID().uuidString)", isDirectory: true)
+        )
+        defer { try? FileManager.default.removeItem(at: media.root) }
+        let store = MeetingStore(modelContext: ModelContext(container), mediaLibrary: media)
+        let clock = ControllableMeetingClock(now: now)
+        var readinessChecks = 0
+        let sut = CalendarMeetingScheduler(
+            meetingStore: store,
+            clock: clock,
+            launchAtLoginEnabled: { true },
+            readiness: {
+                readinessChecks += 1
+                return MeetingPreflightReport(issues: [])
+            },
+            isBusy: { false },
+            startCapture: { _ in },
+            stopCapture: { _ in }
+        )
+        let snapshots = (1...2).map { index in
+            MeetingOccurrenceSnapshot(
+                id: "weekly-\(index)",
+                provider: "google",
+                calendarID: "primary",
+                eventID: "weekly-\(index)",
+                recurringEventID: nil,
+                title: "Weekly \(index)",
+                start: now.addingTimeInterval(TimeInterval(index * 3_600)),
+                end: now.addingTimeInterval(TimeInterval(index * 3_600 + 1_800)),
+                joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
+                rawSnapshotJSON: nil,
+                otherParticipantCount: index
+            )
+        }
+
+        let armed = try await sut.arm(snapshots)
+
+        #expect(readinessChecks == 1)
+        #expect(armed.map(\.expectedSpeakerCount) == [2, 3])
+        for occurrence in armed {
+            try sut.disarm(id: occurrence.id)
+        }
     }
 
     @Test func schedulerAdoptsActiveCaptureAndStopsAtCalendarEndWithoutRestarting() async throws {
@@ -366,15 +544,22 @@ struct GoogleCalendarServiceTests {
         recurringEventID: String? = nil,
         hangoutLink: String? = nil,
         conferenceURL: String? = nil,
-        location: String? = nil
+        location: String? = nil,
+        organizer: GoogleCalendarEvent.Person? = nil,
+        attendees: [GoogleCalendarEvent.Attendee]? = nil,
+        attendeesOmitted: Bool? = nil
     ) -> GoogleCalendarEvent {
         GoogleCalendarEvent(
             id: "event-1",
             recurringEventId: recurringEventID,
             status: "confirmed",
+            eventType: "default",
             summary: "Planning",
             description: nil,
             location: location,
+            organizer: organizer,
+            attendees: attendees,
+            attendeesOmitted: attendeesOmitted,
             hangoutLink: hangoutLink,
             conferenceData: conferenceURL.map {
                 .init(entryPoints: [.init(entryPointType: "video", uri: $0)])

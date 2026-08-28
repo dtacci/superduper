@@ -40,6 +40,7 @@ enum AppUITestSurface: String {
     case settings
     case meetings
     case calendarSetup
+    case calendarSetupUnconfigured
 }
 
 enum AppUITestFixture {
@@ -69,7 +70,9 @@ enum AppUITestFixture {
         case .meetings:
             MeetingsFixtureRootView()
         case .calendarSetup:
-            GoogleCalendarSetupFixtureRootView()
+            GoogleCalendarSetupFixtureRootView(isConfigured: true)
+        case .calendarSetupUnconfigured:
+            GoogleCalendarSetupFixtureRootView(isConfigured: false)
         case nil:
             EmptyView()
         }
@@ -86,9 +89,9 @@ enum AppUITestFixture {
 private struct GoogleCalendarSetupFixtureRootView: View {
     @State private var state: MeetingsFeatureState
 
-    init() {
+    init(isConfigured: Bool) {
         let state = MeetingsFeatureState()
-        state.isGoogleConfigured = true
+        state.isGoogleConfigured = isConfigured
         _state = State(initialValue: state)
     }
 
@@ -96,6 +99,10 @@ private struct GoogleCalendarSetupFixtureRootView: View {
         GoogleCalendarSetupWizard(
             meetingsState: state,
             onConnect: { state.isGoogleConnected = true },
+            onConfigureClientID: { clientID in
+                state.googleClientIDDraft = clientID
+                state.isGoogleConfigured = true
+            },
             onEnableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true }
         )
     }
@@ -131,7 +138,9 @@ private struct MeetingsFixtureRootView: View {
                 start: Date().addingTimeInterval(3_600),
                 end: Date().addingTimeInterval(5_400),
                 joinURL: URL(string: "https://meet.google.com/abc-defg-hij"),
-                rawSnapshotJSON: "{}"
+                rawSnapshotJSON: "{}",
+                otherParticipantCount: 1,
+                externalParticipantCount: 1
             )
         ])
         _state = State(initialValue: state)
@@ -141,9 +150,12 @@ private struct MeetingsFixtureRootView: View {
         MeetingsView(
             meetingsState: state,
             onConnect: {},
+            onConfigureClientID: { _ in },
             onEnableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true },
             onDisconnect: {},
             onRefresh: {},
+            onReviewWeek: { state.isWeeklyReviewPresented = true },
+            onApplyWeeklySelection: { _ in state.isWeeklyReviewPresented = false },
             onRecordMeeting: {},
             onArm: { event in
                 state.armedOccurrenceIDsByIdentity[event.persistentIdentity] = UUID()

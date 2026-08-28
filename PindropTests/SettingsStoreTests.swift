@@ -231,6 +231,7 @@ struct SettingsStoreTests {
         #expect(store.copyLastTranscriptHotkey.isEmpty)
         #expect(store.quickCapturePTTHotkey.isEmpty)
         #expect(!store.cancelRequiresDoubleEscape)
+        #expect(store.googleCalendarClientID.isEmpty)
         #expect(store.configuredHotkeyAssignments().map(\.slot) == [.toggleRecording, .toggleMeetingCapture])
         #expect(store.outputMode == "directInsert")
         #expect(store.selectedAppLanguage == .automatic)

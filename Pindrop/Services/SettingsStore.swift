@@ -294,6 +294,7 @@ final class SettingsStore: ObservableObject {
          "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
       static let floatingIndicatorEnabled = true
       static let onDeviceMeetingAIAllowed = false
+      static let googleCalendarClientID = ""
       static let floatingIndicatorType = FloatingIndicatorType.orb.rawValue
       static let pillFloatingIndicatorOffsetX = 0.0
       static let pillFloatingIndicatorOffsetY = 0.0
@@ -466,6 +467,8 @@ final class SettingsStore: ObservableObject {
    var didMigrateToCleanTranscriptDefault: Bool = false
    @AppStorage("floatingIndicatorEnabled", store: SettingsStoreRuntime.appStorageStore)
    var floatingIndicatorEnabled: Bool = Defaults.floatingIndicatorEnabled
+   @AppStorage("googleCalendarClientID", store: SettingsStoreRuntime.appStorageStore)
+   var googleCalendarClientID: String = Defaults.googleCalendarClientID
    @AppStorage("floatingIndicatorType", store: SettingsStoreRuntime.appStorageStore)
    var floatingIndicatorType: String = Defaults.floatingIndicatorType
    @AppStorage("pillFloatingIndicatorOffsetX", store: SettingsStoreRuntime.appStorageStore)
@@ -1234,6 +1237,7 @@ final class SettingsStore: ObservableObject {
       }
       floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
       onDeviceMeetingAIAllowed = Defaults.onDeviceMeetingAIAllowed
+      googleCalendarClientID = Defaults.googleCalendarClientID
       floatingIndicatorType = Defaults.floatingIndicatorType
       waveformFloatingIndicatorOffsetX = Defaults.waveformFloatingIndicatorOffsetX
       waveformFloatingIndicatorOffsetY = Defaults.waveformFloatingIndicatorOffsetY
