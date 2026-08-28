@@ -355,9 +355,10 @@ final class SettingsStore: ObservableObject {
          static let cancelOperationHotkeyCode = 0
          static let cancelOperationHotkeyModifiers = 0
 
-         /// Escape-to-cancel requires a double press by default (the original
-         /// behavior most users are trained on); OFF cancels on a single press.
-         static let cancelRequiresDoubleEscape = true
+         /// A single Escape shows the explicit cancellation confirmation by
+         /// default. The operation continues unless the destructive button is
+         /// chosen, so requiring an invisible first Escape only hides feedback.
+         static let cancelRequiresDoubleEscape = false
       }
    }
 

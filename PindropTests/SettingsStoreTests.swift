@@ -230,6 +230,7 @@ struct SettingsStoreTests {
         #expect(store.pushToTalkHotkey.isEmpty)
         #expect(store.copyLastTranscriptHotkey.isEmpty)
         #expect(store.quickCapturePTTHotkey.isEmpty)
+        #expect(!store.cancelRequiresDoubleEscape)
         #expect(store.configuredHotkeyAssignments().map(\.slot) == [.toggleRecording, .toggleMeetingCapture])
         #expect(store.outputMode == "directInsert")
         #expect(store.selectedAppLanguage == .automatic)
