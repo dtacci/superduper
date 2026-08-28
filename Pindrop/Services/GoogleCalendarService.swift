@@ -289,7 +289,7 @@ final class LoopbackGoogleOAuthReceiver: GoogleOAuthCallbackReceiving {
                             connection.cancel()
                             return
                         }
-                        let body = "Pindrop is connected. You can close this window."
+                        let body = "Superduper Dictation is connected. You can close this window."
                         let response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: \(body.utf8.count)\r\nConnection: close\r\n\r\n\(body)"
                         connection.send(content: Data(response.utf8), completion: .contentProcessed { _ in
                             connection.cancel()
@@ -475,12 +475,32 @@ struct GoogleCalendarEvent: Codable, Equatable, Sendable, Identifiable {
         let entryPoints: [EntryPoint]?
     }
 
+    struct Person: Codable, Equatable, Sendable {
+        let email: String?
+        let displayName: String?
+        let `self`: Bool?
+    }
+
+    struct Attendee: Codable, Equatable, Sendable {
+        let email: String?
+        let displayName: String?
+        let organizer: Bool?
+        let `self`: Bool?
+        let resource: Bool?
+        let responseStatus: String?
+        let additionalGuests: Int?
+    }
+
     let id: String
     let recurringEventId: String?
     let status: String?
+    let eventType: String?
     let summary: String?
     let description: String?
     let location: String?
+    let organizer: Person?
+    let attendees: [Attendee]?
+    let attendeesOmitted: Bool?
     let hangoutLink: String?
     let conferenceData: ConferenceData?
     let start: DateValue
@@ -567,18 +587,114 @@ struct GoogleCalendarSyncResult: Equatable, Sendable {
 final class MeetingsFeatureState {
     var isGoogleConfigured = false
     var isGoogleConnected = false
+    var googleClientIDDraft = ""
     var isLaunchAtLoginEnabled = false
     var isRefreshing = false
     var errorMessage: String?
     var readinessMessage: String?
     var calendarEvents: [MeetingOccurrenceSnapshot] = []
     var armedOccurrenceIDsByIdentity: [String: UUID] = [:]
+    var isGoogleSetupPresented = false
+    var isWeeklyReviewPresented = false
+    var isApplyingWeeklySelection = false
+    var weeklyReviewErrorMessage: String?
 
     func replaceEvents(_ events: [MeetingOccurrenceSnapshot]) {
         calendarEvents = events.sorted { lhs, rhs in
             if lhs.start == rhs.start { return lhs.title < rhs.title }
             return lhs.start < rhs.start
         }
+    }
+}
+
+enum WeeklyMeetingReviewReason: Equatable, Sendable {
+    case externalParticipants
+    case multipleParticipants
+    case noJoinLink
+    case allDay
+    case attendeeDataUnavailable
+    case solo
+}
+
+struct WeeklyMeetingReviewAssessment: Equatable, Sendable {
+    enum Bucket: Equatable, Sendable {
+        case recommended
+        case other
+    }
+
+    let bucket: Bucket
+    let reason: WeeklyMeetingReviewReason
+    let canScheduleAutomatically: Bool
+}
+
+enum WeeklyMeetingReview {
+    static let reviewWindow: TimeInterval = 7 * 24 * 60 * 60
+
+    static func upcomingEvents(
+        from events: [MeetingOccurrenceSnapshot],
+        now: Date
+    ) -> [MeetingOccurrenceSnapshot] {
+        let end = now.addingTimeInterval(reviewWindow)
+        return events
+            .filter { $0.start > now && $0.start <= end }
+            .sorted { lhs, rhs in
+                if lhs.start == rhs.start { return lhs.title < rhs.title }
+                return lhs.start < rhs.start
+            }
+    }
+
+    static func assessment(for event: MeetingOccurrenceSnapshot) -> WeeklyMeetingReviewAssessment {
+        if event.isAllDay {
+            return WeeklyMeetingReviewAssessment(
+                bucket: .other,
+                reason: .allDay,
+                canScheduleAutomatically: false
+            )
+        }
+        if event.joinURL == nil {
+            return WeeklyMeetingReviewAssessment(
+                bucket: .other,
+                reason: .noJoinLink,
+                // Phone calls and other linkless events can still own a timed
+                // capture; the scheduler simply has no browser URL to open.
+                canScheduleAutomatically: true
+            )
+        }
+        if event.externalParticipantCount > 0 {
+            return WeeklyMeetingReviewAssessment(
+                bucket: .recommended,
+                reason: .externalParticipants,
+                canScheduleAutomatically: true
+            )
+        }
+        if event.otherParticipantCount > 0 {
+            return WeeklyMeetingReviewAssessment(
+                bucket: .recommended,
+                reason: .multipleParticipants,
+                canScheduleAutomatically: true
+            )
+        }
+        if event.attendeeDataIsIncomplete {
+            return WeeklyMeetingReviewAssessment(
+                bucket: .other,
+                reason: .attendeeDataUnavailable,
+                canScheduleAutomatically: true
+            )
+        }
+        return WeeklyMeetingReviewAssessment(
+            bucket: .other,
+            reason: .solo,
+            canScheduleAutomatically: true
+        )
+    }
+
+    /// Recommendations remain suggestions only. A review starts with occurrences
+    /// the user has already armed, never every event that looks recordable.
+    static func initiallySelectedIdentities(
+        events: [MeetingOccurrenceSnapshot],
+        armedIdentities: Set<String>
+    ) -> Set<String> {
+        armedIdentities.intersection(events.map(\.persistentIdentity))
     }
 }
 
@@ -676,6 +792,12 @@ final class GoogleCalendarClient {
 }
 
 enum MeetingJoinURLResolver {
+    private struct ParticipantAnalysis {
+        let otherParticipantCount: Int
+        let externalParticipantCount: Int
+        let attendeeDataIsIncomplete: Bool
+    }
+
     static func resolve(from event: GoogleCalendarEvent) -> URL? {
         if let hangoutLink = event.hangoutLink,
            let url = URL(string: hangoutLink), isRecognizedMeetingURL(url) {
@@ -691,6 +813,10 @@ enum MeetingJoinURLResolver {
 
     static func snapshot(event: GoogleCalendarEvent, calendarID: String) -> MeetingOccurrenceSnapshot? {
         guard let start = event.start.resolvedDate else { return nil }
+        guard event.attendees?.first(where: { $0.`self` == true })?.responseStatus != "declined" else {
+            return nil
+        }
+        let participants = participantAnalysis(event: event, calendarID: calendarID)
         let rawJSON = try? JSONEncoder().encode(event)
         return MeetingOccurrenceSnapshot(
             id: event.id,
@@ -702,8 +828,79 @@ enum MeetingJoinURLResolver {
             start: start,
             end: event.end.resolvedDate,
             joinURL: resolve(from: event),
-            rawSnapshotJSON: rawJSON.flatMap { String(data: $0, encoding: .utf8) }
+            rawSnapshotJSON: rawJSON.flatMap { String(data: $0, encoding: .utf8) },
+            otherParticipantCount: participants.otherParticipantCount,
+            externalParticipantCount: participants.externalParticipantCount,
+            attendeeDataIsIncomplete: participants.attendeeDataIsIncomplete,
+            isAllDay: event.start.dateTime == nil && event.start.date != nil
         )
+    }
+
+    private static func participantAnalysis(
+        event: GoogleCalendarEvent,
+        calendarID: String
+    ) -> ParticipantAnalysis {
+        let attendees = event.attendees ?? []
+        var selfEmails = Set(
+            attendees
+                .filter { $0.`self` == true }
+                .compactMap { normalizedEmail($0.email) }
+        )
+        if event.organizer?.`self` == true, let email = normalizedEmail(event.organizer?.email) {
+            selfEmails.insert(email)
+        }
+        if let calendarEmail = normalizedEmail(calendarID) {
+            selfEmails.insert(calendarEmail)
+        }
+
+        var otherEmails = Set<String>()
+        var anonymousParticipantCount = 0
+        var additionalGuestCount = 0
+        for attendee in attendees where attendee.`self` != true
+            && attendee.resource != true
+            && attendee.responseStatus != "declined" {
+            if let email = normalizedEmail(attendee.email) {
+                otherEmails.insert(email)
+            } else {
+                anonymousParticipantCount += 1
+            }
+            additionalGuestCount += max(0, attendee.additionalGuests ?? 0)
+        }
+
+        if event.organizer?.`self` != true,
+           let organizerEmail = normalizedEmail(event.organizer?.email),
+           !selfEmails.contains(organizerEmail) {
+            otherEmails.insert(organizerEmail)
+        }
+
+        let selfDomains = Set(selfEmails.compactMap(emailDomain))
+        let personalDomains: Set<String> = ["gmail.com", "googlemail.com"]
+        let isPersonalCalendar = !selfDomains.isDisjoint(with: personalDomains)
+        let externalCount = otherEmails.filter { email in
+            guard let domain = emailDomain(email) else { return false }
+            if isPersonalCalendar { return true }
+            guard !selfDomains.isEmpty else { return false }
+            return !selfDomains.contains(domain)
+        }.count
+
+        return ParticipantAnalysis(
+            otherParticipantCount: otherEmails.count + anonymousParticipantCount + additionalGuestCount,
+            externalParticipantCount: externalCount,
+            attendeeDataIsIncomplete: event.attendeesOmitted == true
+        )
+    }
+
+    private static func normalizedEmail(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard trimmed.contains("@"), !trimmed.hasSuffix("@group.calendar.google.com") else {
+            return nil
+        }
+        return trimmed
+    }
+
+    private static func emailDomain(_ email: String) -> String? {
+        email.split(separator: "@", maxSplits: 1).last.map(String.init)
     }
 
     private static func firstRecognizedURL(in text: String) -> URL? {
@@ -851,12 +1048,27 @@ final class CalendarMeetingScheduler {
 
     @discardableResult
     func arm(_ snapshot: MeetingOccurrenceSnapshot) async throws -> MeetingOccurrence {
+        guard let occurrence = try await arm([snapshot]).first else {
+            throw ArmError.prerequisites("No calendar meeting was selected.")
+        }
+        return occurrence
+    }
+
+    /// Arms a weekly selection after one shared readiness check. This avoids
+    /// repeatedly loading the diarization model for every checked occurrence.
+    @discardableResult
+    func arm(_ snapshots: [MeetingOccurrenceSnapshot]) async throws -> [MeetingOccurrence] {
+        guard !snapshots.isEmpty else { return [] }
         guard launchAtLoginEnabled() else { throw ArmError.launchAtLoginRequired }
         let report = await readiness()
         if let issue = report.primaryIssue { throw ArmError.prerequisites(issue.message) }
-        let occurrence = try meetingStore.arm(snapshot)
-        schedule(occurrence)
-        return occurrence
+        var occurrences: [MeetingOccurrence] = []
+        for snapshot in snapshots {
+            let occurrence = try meetingStore.arm(snapshot)
+            schedule(occurrence)
+            occurrences.append(occurrence)
+        }
+        return occurrences
     }
 
     func disarm(id: UUID) throws {
@@ -876,11 +1088,11 @@ final class CalendarMeetingScheduler {
                 try meetingStore.transition(
                     id: occurrence.id,
                     to: .missed,
-                    message: "Pindrop was not running at the scheduled start."
+                    message: "Superduper Dictation was not running at the scheduled start."
                 )
                 await notifier.notify(
                     title: "Meeting missed",
-                    body: "Pindrop was closed or the Mac was asleep at the scheduled start."
+                    body: "Superduper Dictation was closed or the Mac was asleep at the scheduled start."
                 )
             } else {
                 schedule(occurrence)
@@ -974,11 +1186,11 @@ final class CalendarMeetingScheduler {
                     try? self.meetingStore.transition(
                         id: id,
                         to: .missed,
-                        message: lateness > 60 ? "Pindrop was not running at the scheduled start." : "Another recording was active."
+                        message: lateness > 60 ? "Superduper Dictation was not running at the scheduled start." : "Another recording was active."
                     )
                     await self.notifier.notify(
                         title: "Meeting missed",
-                        body: "Pindrop did not interrupt the active recording or start late."
+                        body: "Superduper Dictation did not interrupt the active recording or start late."
                     )
                     return
                 }

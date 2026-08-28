@@ -56,6 +56,7 @@ struct StatusBarControllerTests {
         )
 
         let meetingItem = try #require(sut.meetingCaptureMenuItemForTesting())
+        let weeklyItem = try #require(sut.weeklyMeetingsMenuItemForTesting())
         let recordingItem = try #require(sut.recordingMenuItemForTesting())
         #expect(meetingItem.title == localized("Record Meeting", locale: settingsStore.selectedAppLocale.locale))
         #expect(meetingItem.isEnabled)
@@ -64,6 +65,14 @@ struct StatusBarControllerTests {
         #expect(meetingItem.keyEquivalent == " ")
         #expect(meetingItem.keyEquivalentModifierMask.contains(.option))
         #expect(meetingItem.keyEquivalentModifierMask.contains(.shift))
+
+        #expect(weeklyItem.title == localized("Check Weekly Meetings", locale: settingsStore.selectedAppLocale.locale))
+        #expect(weeklyItem.action != nil)
+        #expect(weeklyItem.target === sut)
+        var weeklyReviewCount = 0
+        sut.onReviewWeeklyMeetings = { weeklyReviewCount += 1 }
+        weeklyItem.menu?.performActionForItem(at: weeklyItem.menu?.index(of: weeklyItem) ?? -1)
+        #expect(weeklyReviewCount == 1)
 
         sut.setRecordingState(isMeetingCapture: true)
         #expect(meetingItem.title == localized("Stop Meeting", locale: settingsStore.selectedAppLocale.locale))

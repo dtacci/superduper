@@ -55,6 +55,7 @@ struct SettingsPaneContent: View {
     let updateService: UpdateService
     let meetingsState: MeetingsFeatureState?
     let onConnectGoogleCalendar: () -> Void
+    let onConfigureGoogleCalendarClientID: (String) -> Void
     let onDisconnectGoogleCalendar: () -> Void
 
     init(
@@ -64,6 +65,7 @@ struct SettingsPaneContent: View {
         updateService: UpdateService,
         meetingsState: MeetingsFeatureState? = nil,
         onConnectGoogleCalendar: @escaping () -> Void = {},
+        onConfigureGoogleCalendarClientID: @escaping (String) -> Void = { _ in },
         onDisconnectGoogleCalendar: @escaping () -> Void = {}
     ) {
         self.settings = settings
@@ -72,6 +74,7 @@ struct SettingsPaneContent: View {
         self.updateService = updateService
         self.meetingsState = meetingsState
         self.onConnectGoogleCalendar = onConnectGoogleCalendar
+        self.onConfigureGoogleCalendarClientID = onConfigureGoogleCalendarClientID
         self.onDisconnectGoogleCalendar = onDisconnectGoogleCalendar
     }
 
@@ -95,6 +98,7 @@ struct SettingsPaneContent: View {
                 updateService: updateService,
                 meetingsState: meetingsState,
                 onConnectGoogleCalendar: onConnectGoogleCalendar,
+                onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
                 onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
             )
         case .dictation:
@@ -128,6 +132,7 @@ final class SettingsWindowController: NSWindowController {
     private let updateService: UpdateService
     private let meetingsState: MeetingsFeatureState
     private var onConnectGoogleCalendar: () -> Void
+    private var onConfigureGoogleCalendarClientID: (String) -> Void
     private var onDisconnectGoogleCalendar: () -> Void
     private let windowModel = SettingsWindowModel()
     private var settingsObservation: AnyCancellable?
@@ -141,6 +146,7 @@ final class SettingsWindowController: NSWindowController {
         updateService: UpdateService,
         meetingsState: MeetingsFeatureState,
         onConnectGoogleCalendar: @escaping () -> Void = {},
+        onConfigureGoogleCalendarClientID: @escaping (String) -> Void = { _ in },
         onDisconnectGoogleCalendar: @escaping () -> Void = {}
     ) {
         self.settings = settings
@@ -149,6 +155,7 @@ final class SettingsWindowController: NSWindowController {
         self.updateService = updateService
         self.meetingsState = meetingsState
         self.onConnectGoogleCalendar = onConnectGoogleCalendar
+        self.onConfigureGoogleCalendarClientID = onConfigureGoogleCalendarClientID
         self.onDisconnectGoogleCalendar = onDisconnectGoogleCalendar
         self.lastLocalizedAppLocale = settings.selectedAppLocale
         super.init(window: nil)
@@ -172,9 +179,11 @@ final class SettingsWindowController: NSWindowController {
 
     func configureGoogleCalendar(
         onConnect: @escaping () -> Void,
+        onConfigureClientID: @escaping (String) -> Void,
         onDisconnect: @escaping () -> Void
     ) {
         onConnectGoogleCalendar = onConnect
+        onConfigureGoogleCalendarClientID = onConfigureClientID
         onDisconnectGoogleCalendar = onDisconnect
     }
 
@@ -209,6 +218,7 @@ final class SettingsWindowController: NSWindowController {
             updateService: updateService,
             meetingsState: meetingsState,
             onConnectGoogleCalendar: onConnectGoogleCalendar,
+            onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
             onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
         )
         let hostingController = NSHostingController(rootView: AnyView(rootView))
@@ -338,6 +348,7 @@ private struct SettingsRootHostingView: View {
     let updateService: UpdateService
     let meetingsState: MeetingsFeatureState
     let onConnectGoogleCalendar: () -> Void
+    let onConfigureGoogleCalendarClientID: (String) -> Void
     let onDisconnectGoogleCalendar: () -> Void
 
     var body: some View {
@@ -348,6 +359,7 @@ private struct SettingsRootHostingView: View {
             updateService: updateService,
             meetingsState: meetingsState,
             onConnectGoogleCalendar: onConnectGoogleCalendar,
+            onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
             onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

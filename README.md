@@ -219,18 +219,32 @@ local signing and public distribution requirements.
 
 ## Google Calendar setup
 
-Google Calendar is optional. A distribution build must contain a publisher-owned
-Google **Desktop app** OAuth client ID in `GoogleCalendarClientID` in
-`Pindrop/Info.plist`; contributors can instead set `PINDROP_GOOGLE_CLIENT_ID`
-when launching a development build. Desktop clients use PKCE and do not embed a
-client secret.
+Google Calendar is optional. Open **Meetings → Set Up Google Calendar** and
+follow the three-step wizard. A publisher build can include its Google **Desktop
+app** OAuth client ID in `GoogleCalendarClientID` in `Pindrop/Info.plist`. If it
+does not, the wizard links to Google Cloud and lets the user paste a Desktop app
+client ID without rebuilding the app. Contributors can also set
+`PINDROP_GOOGLE_CLIENT_ID` when launching a development build. Desktop clients
+use PKCE and do not embed a client secret.
 
-Once a build is configured, open **Meetings → Set Up Google Calendar**. The
-wizard explains the two read-only scopes, opens Google sign-in in the system
-browser, and checks Launch at Login. Connecting never arms meetings
-automatically: select and arm each occurrence explicitly. Public distribution
-also requires the repository owner to configure the OAuth consent screen and
-complete any Google verification required for those scopes.
+After connecting, choose **Check Weekly Meetings** from the menu bar or the
+Meetings page. The rolling seven-day review puts calls with other attendees and
+a supported join link in the recommended section. Solo, all-day, and unsupported
+events stay under **Other calls**. Nothing new is checked automatically: select
+the individual occurrences to arm, then save the week. Already armed meetings
+remain checked so the same screen can be used to disarm them.
+
+At an armed meeting's scheduled start, Superduper Dictation opens its join link
+when available and records microphone plus system audio. It stops at the event's
+scheduled end, preserves the audio, transcribes and diarizes it, and creates the
+local meeting workspace. The app must be running, the Mac must be awake, and
+Launch at Login should be enabled for dependable scheduling.
+
+For a zero-configuration public build, the repository owner must supply one
+publisher-owned client ID, configure the OAuth consent screen, and complete any
+Google verification required for the two read-only Calendar scopes. Until then,
+friends can use the wizard's client-ID field with credentials from their own
+Google Cloud project.
 
 ## Optional media-link tools
 

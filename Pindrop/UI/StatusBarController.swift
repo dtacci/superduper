@@ -30,6 +30,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var recordingStatusItem: NSMenuItem?
     private var toggleRecordingItem: NSMenuItem?
     private var toggleMeetingCaptureItem: NSMenuItem?
+    private var reviewWeeklyMeetingsItem: NSMenuItem?
     private var toggleRecordingIndicatorItem: NSMenuItem?
     private var clearAudioBufferItem: NSMenuItem?
     private var cancelOperationItem: NSMenuItem?
@@ -52,6 +53,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     var onToggleRecording: (() async -> Void)?
     var onToggleMeetingCapture: (() async -> Void)?
+    var onReviewWeeklyMeetings: (() -> Void)?
     var onToggleRecordingIndicator: (() -> Void)?
     var onShowApp: (() -> Void)?
     var onCopyLastTranscript: (() async -> Void)?
@@ -209,6 +211,18 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         )
         configureMeetingShortcutDisplay()
         menu.addItem(toggleMeetingCaptureItem!)
+
+        reviewWeeklyMeetingsItem = NSMenuItem(
+            title: localized("Check Weekly Meetings", locale: locale),
+            action: #selector(reviewWeeklyMeetings),
+            keyEquivalent: ""
+        )
+        reviewWeeklyMeetingsItem?.target = self
+        reviewWeeklyMeetingsItem?.image = NSImage(
+            systemSymbolName: "calendar.badge.clock",
+            accessibilityDescription: nil
+        )
+        menu.addItem(reviewWeeklyMeetingsItem!)
 
         toggleRecordingIndicatorItem = NSMenuItem(
             title: localized("Show Recording Indicator", locale: locale),
@@ -634,6 +648,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
 
+    @objc private func reviewWeeklyMeetings() {
+        onReviewWeeklyMeetings?()
+    }
+
     @objc private func toggleRecordingIndicator() {
         onToggleRecordingIndicator?()
         toggleRecordingIndicatorItem?.state = settingsStore.floatingIndicatorEnabled ? .on : .off
@@ -876,6 +894,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     func meetingCaptureMenuItemForTesting() -> NSMenuItem? {
         toggleMeetingCaptureItem
+    }
+
+    func weeklyMeetingsMenuItemForTesting() -> NSMenuItem? {
+        reviewWeeklyMeetingsItem
     }
 
     func recordingMenuItemForTesting() -> NSMenuItem? {

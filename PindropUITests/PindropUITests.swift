@@ -100,6 +100,32 @@ final class PindropUITests: XCTestCase {
     }
 
     @MainActor
+    func testWeeklyMeetingReviewStartsUnselectedAndAllowsExplicitSelection() throws {
+        try skipIfTargetAppIsAlreadyRunning()
+
+        let app = configuredApplication(surface: "meetings")
+        launchedApplication = app
+        app.launch()
+
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
+        let reviewButton = app.buttons["meetings.reviewWeek"]
+        XCTAssertTrue(reviewButton.waitForExistence(timeout: 5))
+        reviewButton.click()
+
+        XCTAssertTrue(
+            app.descendants(matching: .any)["meetings.weeklyReview"]
+                .waitForExistence(timeout: 3)
+        )
+        XCTAssertTrue(app.staticTexts["Recommended to record"].exists)
+        XCTAssertTrue(app.staticTexts["0 meeting recordings selected"].exists)
+
+        let eventToggle = app.descendants(matching: .any)["meetings.weeklyReview.google:primary:fixture-event"]
+        XCTAssertTrue(eventToggle.waitForExistence(timeout: 2))
+        eventToggle.click()
+        XCTAssertTrue(app.staticTexts["1 meeting recordings selected"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
     func testGoogleCalendarSetupWizardCompletesPrivacyConnectionAndReadiness() throws {
         try skipIfTargetAppIsAlreadyRunning()
 
@@ -117,7 +143,7 @@ final class PindropUITests: XCTestCase {
 
         let connectButton = app.buttons["googleCalendar.setup.connect"]
         XCTAssertTrue(connectButton.waitForExistence(timeout: 2))
-        connectButton.click()
+        connectButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).click()
 
         let enableButton = app.buttons["googleCalendar.setup.enableLaunchAtLogin"]
         XCTAssertTrue(enableButton.waitForExistence(timeout: 2))
@@ -125,6 +151,31 @@ final class PindropUITests: XCTestCase {
 
         let finishButton = app.buttons["googleCalendar.setup.finish"]
         XCTAssertTrue(finishButton.isEnabled)
+    }
+
+    @MainActor
+    func testGoogleCalendarSetupWizardAcceptsAClientIDWithoutRebuilding() throws {
+        try skipIfTargetAppIsAlreadyRunning()
+
+        let app = configuredApplication(surface: "calendarSetupUnconfigured")
+        launchedApplication = app
+        app.launch()
+
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
+        app.buttons["Continue"].click()
+
+        let clientIDField = app.textFields["googleCalendar.setup.clientID"]
+        XCTAssertTrue(clientIDField.waitForExistence(timeout: 2))
+        clientIDField.click()
+        clientIDField.typeText("friend.apps.googleusercontent.com")
+
+        let saveButton = app.buttons["googleCalendar.setup.saveClientID"]
+        XCTAssertTrue(saveButton.isEnabled)
+        saveButton.click()
+
+        let connectButton = app.buttons["googleCalendar.setup.connect"]
+        XCTAssertTrue(connectButton.waitForExistence(timeout: 2))
+        XCTAssertTrue(connectButton.isEnabled)
     }
 
     private func configuredApplication(

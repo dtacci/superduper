@@ -14,6 +14,7 @@ struct GeneralSettingsView: View {
     let updateService: UpdateService
     var meetingsState: MeetingsFeatureState? = nil
     var onConnectGoogleCalendar: () -> Void = {}
+    var onConfigureGoogleCalendarClientID: (String) -> Void = { _ in }
     var onDisconnectGoogleCalendar: () -> Void = {}
 
     @Environment(\.locale) private var locale
@@ -81,15 +82,17 @@ struct GeneralSettingsView: View {
                         SettingsRowLabel(
                             title: localized("Google Calendar", locale: locale),
                             subtitle: localized(
-                                "Connect one account to browse events. Pindrop only records occurrences you explicitly arm.",
+                                "Connect one account to browse events. Superduper Dictation only records occurrences you explicitly arm.",
                                 locale: locale
                             )
                         )
                     } control: {
                         if !meetingsState.isGoogleConfigured {
-                            Text(localized("Not configured", locale: locale))
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.textTertiary)
+                            Button(localized("Set Up…", locale: locale)) {
+                                showingGoogleCalendarSetup = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .accessibilityIdentifier("settings.button.connectGoogleCalendar")
                         } else if meetingsState.isGoogleConnected {
                             Button(localized("Disconnect", locale: locale), action: onDisconnectGoogleCalendar)
                                 .buttonStyle(.bordered)
@@ -120,6 +123,7 @@ struct GeneralSettingsView: View {
                 GoogleCalendarSetupWizard(
                     meetingsState: meetingsState,
                     onConnect: onConnectGoogleCalendar,
+                    onConfigureClientID: onConfigureGoogleCalendarClientID,
                     onEnableLaunchAtLogin: { updateLaunchAtLogin(true) }
                 )
             }

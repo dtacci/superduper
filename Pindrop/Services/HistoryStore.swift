@@ -2336,9 +2336,55 @@ struct MeetingOccurrenceSnapshot: Codable, Equatable, Sendable, Identifiable {
     let end: Date?
     let joinURL: URL?
     let rawSnapshotJSON: String?
+    /// Invitees other than the signed-in calendar user. Declined attendees and
+    /// room/resource entries are excluded.
+    let otherParticipantCount: Int
+    /// Invitees whose email domain differs from the signed-in calendar user.
+    /// Personal Gmail accounts treat every other invitee as external.
+    let externalParticipantCount: Int
+    /// Google may omit attendee details for restricted or very large events.
+    let attendeeDataIsIncomplete: Bool
+    let isAllDay: Bool
+
+    init(
+        id: String,
+        provider: String,
+        calendarID: String?,
+        eventID: String?,
+        recurringEventID: String?,
+        title: String,
+        start: Date,
+        end: Date?,
+        joinURL: URL?,
+        rawSnapshotJSON: String?,
+        otherParticipantCount: Int = 0,
+        externalParticipantCount: Int = 0,
+        attendeeDataIsIncomplete: Bool = false,
+        isAllDay: Bool = false
+    ) {
+        self.id = id
+        self.provider = provider
+        self.calendarID = calendarID
+        self.eventID = eventID
+        self.recurringEventID = recurringEventID
+        self.title = title
+        self.start = start
+        self.end = end
+        self.joinURL = joinURL
+        self.rawSnapshotJSON = rawSnapshotJSON
+        self.otherParticipantCount = otherParticipantCount
+        self.externalParticipantCount = externalParticipantCount
+        self.attendeeDataIsIncomplete = attendeeDataIsIncomplete
+        self.isAllDay = isAllDay
+    }
 
     var persistentIdentity: String {
         [provider, calendarID ?? "", eventID ?? id].joined(separator: ":")
+    }
+
+    var expectedSpeakerCount: Int? {
+        guard otherParticipantCount > 0 else { return nil }
+        return min(otherParticipantCount + 1, 20)
     }
 }
 
@@ -2475,6 +2521,7 @@ final class MeetingStore {
             isArmed: true,
             stateRawValue: MeetingRecordingState.scheduled.rawValue,
             workspacePath: workspaceURL.path,
+            expectedSpeakerCount: snapshot.expectedSpeakerCount,
             series: series
         )
         series.occurrences.append(occurrence)
@@ -2651,6 +2698,7 @@ final class MeetingStore {
         occurrence.scheduledStart = snapshot.start
         occurrence.scheduledEnd = snapshot.end
         occurrence.joinURLString = snapshot.joinURL?.absoluteString
+        occurrence.expectedSpeakerCount = snapshot.expectedSpeakerCount
         occurrence.updatedAt = Date()
     }
 

@@ -19,6 +19,7 @@ struct SettingsShellView: View {
     let updateService: UpdateService
     let meetingsState: MeetingsFeatureState?
     let onConnectGoogleCalendar: () -> Void
+    let onConfigureGoogleCalendarClientID: (String) -> Void
     let onDisconnectGoogleCalendar: () -> Void
 
     @Environment(\.locale) private var locale
@@ -36,6 +37,7 @@ struct SettingsShellView: View {
                     updateService: updateService,
                     meetingsState: meetingsState,
                     onConnectGoogleCalendar: onConnectGoogleCalendar,
+                    onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
                     onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
                 )
                 .padding(.top, SettingsLayoutMetrics.contentTopPadding)

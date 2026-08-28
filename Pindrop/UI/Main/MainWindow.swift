@@ -112,9 +112,12 @@ struct MainWindow: View {
     let onNewTranscription: (() -> Void)?
     let onStartMeetingCapture: ((Int?) -> Void)?
     let onConnectGoogleCalendar: (() -> Void)?
+    let onConfigureGoogleCalendarClientID: ((String) -> Void)?
     let onEnableCalendarLaunchAtLogin: (() -> Void)?
     let onDisconnectGoogleCalendar: (() -> Void)?
     let onRefreshGoogleCalendar: (() -> Void)?
+    let onReviewWeeklyMeetings: (() -> Void)?
+    let onApplyWeeklyMeetingSelection: ((Set<String>) -> Void)?
     let onArmCalendarMeeting: ((MeetingOccurrenceSnapshot) -> Void)?
     let onDisarmCalendarMeeting: ((String) -> Void)?
     let onRetryMeetingProcessing: ((UUID) -> Void)?
@@ -261,9 +264,12 @@ struct MainWindow: View {
                 MeetingsView(
                     meetingsState: meetingsState,
                     onConnect: onConnectGoogleCalendar ?? {},
+                    onConfigureClientID: onConfigureGoogleCalendarClientID ?? { _ in },
                     onEnableLaunchAtLogin: onEnableCalendarLaunchAtLogin ?? {},
                     onDisconnect: onDisconnectGoogleCalendar ?? {},
                     onRefresh: onRefreshGoogleCalendar ?? {},
+                    onReviewWeek: onReviewWeeklyMeetings ?? {},
+                    onApplyWeeklySelection: onApplyWeeklyMeetingSelection ?? { _ in },
                     onRecordMeeting: { onStartMeetingCapture?(nil) },
                     onArm: onArmCalendarMeeting ?? { _ in },
                     onDisarm: onDisarmCalendarMeeting ?? { _ in },
@@ -725,9 +731,12 @@ final class MainWindowController {
     var onNewTranscription: (() -> Void)?
     var onStartMeetingCapture: ((Int?) -> Void)?
     var onConnectGoogleCalendar: (() -> Void)?
+    var onConfigureGoogleCalendarClientID: ((String) -> Void)?
     var onEnableCalendarLaunchAtLogin: (() -> Void)?
     var onDisconnectGoogleCalendar: (() -> Void)?
     var onRefreshGoogleCalendar: (() -> Void)?
+    var onReviewWeeklyMeetings: (() -> Void)?
+    var onApplyWeeklyMeetingSelection: ((Set<String>) -> Void)?
     var onArmCalendarMeeting: ((MeetingOccurrenceSnapshot) -> Void)?
     var onDisarmCalendarMeeting: ((String) -> Void)?
     var onRetryMeetingProcessing: ((UUID) -> Void)?
@@ -787,9 +796,12 @@ final class MainWindowController {
     func configureMeetingsFeature(
         state: MeetingsFeatureState,
         onConnect: @escaping () -> Void,
+        onConfigureClientID: @escaping (String) -> Void,
         onEnableLaunchAtLogin: @escaping () -> Void,
         onDisconnect: @escaping () -> Void,
         onRefresh: @escaping () -> Void,
+        onReviewWeek: @escaping () -> Void,
+        onApplyWeeklySelection: @escaping (Set<String>) -> Void,
         onArm: @escaping (MeetingOccurrenceSnapshot) -> Void,
         onDisarm: @escaping (String) -> Void,
         onRetryProcessing: @escaping (UUID) -> Void,
@@ -797,9 +809,12 @@ final class MainWindowController {
     ) {
         meetingsState = state
         onConnectGoogleCalendar = onConnect
+        onConfigureGoogleCalendarClientID = onConfigureClientID
         onEnableCalendarLaunchAtLogin = onEnableLaunchAtLogin
         onDisconnectGoogleCalendar = onDisconnect
         onRefreshGoogleCalendar = onRefresh
+        onReviewWeeklyMeetings = onReviewWeek
+        onApplyWeeklyMeetingSelection = onApplyWeeklySelection
         onArmCalendarMeeting = onArm
         onDisarmCalendarMeeting = onDisarm
         onRetryMeetingProcessing = onRetryProcessing
@@ -871,9 +886,12 @@ final class MainWindowController {
                 onNewTranscription: onNewTranscription,
                 onStartMeetingCapture: onStartMeetingCapture,
                 onConnectGoogleCalendar: onConnectGoogleCalendar,
+                onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
                 onEnableCalendarLaunchAtLogin: onEnableCalendarLaunchAtLogin,
                 onDisconnectGoogleCalendar: onDisconnectGoogleCalendar,
                 onRefreshGoogleCalendar: onRefreshGoogleCalendar,
+                onReviewWeeklyMeetings: onReviewWeeklyMeetings,
+                onApplyWeeklyMeetingSelection: onApplyWeeklyMeetingSelection,
                 onArmCalendarMeeting: onArmCalendarMeeting,
                 onDisarmCalendarMeeting: onDisarmCalendarMeeting,
                 onRetryMeetingProcessing: onRetryMeetingProcessing,
@@ -1019,9 +1037,12 @@ final class MainWindowController {
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
         onConnectGoogleCalendar: nil,
+        onConfigureGoogleCalendarClientID: nil,
         onEnableCalendarLaunchAtLogin: nil,
         onDisconnectGoogleCalendar: nil,
         onRefreshGoogleCalendar: nil,
+        onReviewWeeklyMeetings: nil,
+        onApplyWeeklyMeetingSelection: nil,
         onArmCalendarMeeting: nil,
         onDisarmCalendarMeeting: nil,
         onRetryMeetingProcessing: nil,
@@ -1049,9 +1070,12 @@ final class MainWindowController {
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
         onConnectGoogleCalendar: nil,
+        onConfigureGoogleCalendarClientID: nil,
         onEnableCalendarLaunchAtLogin: nil,
         onDisconnectGoogleCalendar: nil,
         onRefreshGoogleCalendar: nil,
+        onReviewWeeklyMeetings: nil,
+        onApplyWeeklyMeetingSelection: nil,
         onArmCalendarMeeting: nil,
         onDisarmCalendarMeeting: nil,
         onRetryMeetingProcessing: nil,

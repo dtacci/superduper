@@ -16,9 +16,12 @@ struct MeetingsView: View {
 
     let meetingsState: MeetingsFeatureState
     let onConnect: () -> Void
+    let onConfigureClientID: (String) -> Void
     let onEnableLaunchAtLogin: () -> Void
     let onDisconnect: () -> Void
     let onRefresh: () -> Void
+    let onReviewWeek: () -> Void
+    let onApplyWeeklySelection: (Set<String>) -> Void
     let onRecordMeeting: () -> Void
     let onArm: (MeetingOccurrenceSnapshot) -> Void
     let onDisarm: (String) -> Void
@@ -26,7 +29,6 @@ struct MeetingsView: View {
     let onRegenerateInsights: (UUID) -> Void
 
     @State private var selectedOccurrenceID: UUID?
-    @State private var showingGoogleCalendarSetup = false
 
     var body: some View {
         @Bindable var state = meetingsState
@@ -94,11 +96,32 @@ struct MeetingsView: View {
             if let selectedOccurrenceID, ids.contains(selectedOccurrenceID) { return }
             self.selectedOccurrenceID = ids.first
         }
-        .sheet(isPresented: $showingGoogleCalendarSetup) {
+        .sheet(
+            isPresented: Binding(
+                get: { meetingsState.isGoogleSetupPresented },
+                set: { meetingsState.isGoogleSetupPresented = $0 }
+            )
+        ) {
             GoogleCalendarSetupWizard(
                 meetingsState: meetingsState,
                 onConnect: onConnect,
+                onConfigureClientID: onConfigureClientID,
                 onEnableLaunchAtLogin: onEnableLaunchAtLogin
+            )
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { meetingsState.isWeeklyReviewPresented },
+                set: { meetingsState.isWeeklyReviewPresented = $0 }
+            )
+        ) {
+            WeeklyMeetingReviewSheet(
+                events: meetingsState.calendarEvents,
+                armedOccurrenceIDsByIdentity: meetingsState.armedOccurrenceIDsByIdentity,
+                isApplying: meetingsState.isApplyingWeeklySelection,
+                errorMessage: meetingsState.weeklyReviewErrorMessage,
+                onRefresh: onRefresh,
+                onApply: onApplyWeeklySelection
             )
         }
     }
@@ -123,14 +146,16 @@ struct MeetingsView: View {
             SectionHeader(title: localized("Google Calendar", locale: locale), isFirst: true)
 
             if !state.isGoogleConfigured {
-                Text(localized("Google Calendar is not configured in this build.", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
+                SecondaryButton(
+                    title: localized("Set Up Google Calendar", locale: locale),
+                    systemImage: "calendar.badge.plus",
+                    action: { meetingsState.isGoogleSetupPresented = true }
+                )
             } else if !state.isGoogleConnected {
                 SecondaryButton(
                     title: localized("Set Up Google Calendar", locale: locale),
                     systemImage: "calendar.badge.plus",
-                    action: { showingGoogleCalendarSetup = true }
+                    action: { meetingsState.isGoogleSetupPresented = true }
                 )
             } else {
                 HStack {
@@ -143,6 +168,13 @@ struct MeetingsView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textSecondary)
                 }
+
+                SecondaryButton(
+                    title: localized("Check Weekly Meetings", locale: locale),
+                    systemImage: "calendar.badge.clock",
+                    action: onReviewWeek
+                )
+                .accessibilityIdentifier("meetings.reviewWeek")
 
                 if state.calendarEvents.isEmpty {
                     Text(state.isRefreshing
@@ -254,6 +286,306 @@ struct MeetingsView: View {
     }
 }
 
+struct WeeklyMeetingReviewSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
+
+    let events: [MeetingOccurrenceSnapshot]
+    let armedOccurrenceIDsByIdentity: [String: UUID]
+    let isApplying: Bool
+    let errorMessage: String?
+    let onRefresh: () -> Void
+    let onApply: (Set<String>) -> Void
+
+    @State private var reviewStartedAt = Date()
+    @State private var selectedIdentities = Set<String>()
+    @State private var didLoadInitialSelection = false
+    @State private var otherItemsExpanded = false
+
+    private var weeklyEvents: [MeetingOccurrenceSnapshot] {
+        WeeklyMeetingReview.upcomingEvents(from: events, now: reviewStartedAt)
+    }
+
+    private var recommendedEvents: [MeetingOccurrenceSnapshot] {
+        weeklyEvents.filter {
+            WeeklyMeetingReview.assessment(for: $0).bucket == .recommended
+        }
+    }
+
+    private var otherEvents: [MeetingOccurrenceSnapshot] {
+        weeklyEvents.filter {
+            WeeklyMeetingReview.assessment(for: $0).bucket == .other
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            header
+
+            Divider().overlay(AppColors.border)
+
+            if weeklyEvents.isEmpty {
+                ContentUnavailableView(
+                    localized("No upcoming calendar events this week", locale: locale),
+                    systemImage: "calendar",
+                    description: Text(localized("Refresh Google Calendar or check again later.", locale: locale))
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        recommendedSection
+                        otherSection
+                    }
+                    .padding(24)
+                }
+            }
+
+            if let errorMessage, !errorMessage.isEmpty {
+                HStack(alignment: .top, spacing: 9) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(AppColors.warning)
+                    Text(localized(errorMessage, locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textPrimary)
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(AppColors.windowBackground)
+            }
+
+            Divider().overlay(AppColors.border)
+            footer
+        }
+        .frame(width: 680, height: 640)
+        .background(AppColors.contentBackground)
+        .onAppear {
+            guard !didLoadInitialSelection else { return }
+            reviewStartedAt = Date()
+            selectedIdentities = WeeklyMeetingReview.initiallySelectedIdentities(
+                events: weeklyEvents,
+                armedIdentities: Set(armedOccurrenceIDsByIdentity.keys)
+            )
+            didLoadInitialSelection = true
+        }
+        .accessibilityIdentifier("meetings.weeklyReview")
+    }
+
+    private var header: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(localized("Plan this week's meeting recordings", locale: locale))
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.textPrimary)
+                Text(localized(
+                    "Recommended calls have other participants and a supported join link. Nothing records unless you check it and save.",
+                    locale: locale
+                ))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+            Button(action: onRefresh) {
+                Image(systemName: "arrow.clockwise")
+                    .frame(width: 28, height: 28)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(AppColors.textSecondary)
+            .disabled(isApplying)
+            .accessibilityLabel(localized("Refresh", locale: locale))
+
+            Button(action: { dismiss() }) {
+                Image(systemName: "xmark")
+                    .frame(width: 28, height: 28)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(AppColors.textSecondary)
+            .disabled(isApplying)
+            .accessibilityLabel(localized("Close", locale: locale))
+        }
+        .padding(24)
+    }
+
+    private var recommendedSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(localized("Recommended to record", locale: locale))
+                        .font(AppTypography.labelStrongSelected)
+                        .foregroundStyle(AppColors.textPrimary)
+                    Text(localized("Calls with another person, especially someone outside your organization.", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+                Spacer()
+                Text("\(recommendedEvents.count)")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+
+            if recommendedEvents.isEmpty {
+                Text(localized("No recommended calls in the next seven days.", locale: locale))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .padding(.vertical, 8)
+            } else {
+                ForEach(recommendedEvents, id: \.persistentIdentity) { event in
+                    meetingRow(event)
+                }
+            }
+        }
+    }
+
+    private var otherSection: some View {
+        DisclosureGroup(isExpanded: $otherItemsExpanded) {
+            VStack(alignment: .leading, spacing: 10) {
+                if otherEvents.isEmpty {
+                    Text(localized("No other calendar items this week.", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                } else {
+                    ForEach(otherEvents, id: \.persistentIdentity) { event in
+                        meetingRow(event)
+                    }
+                }
+            }
+            .padding(.top, 10)
+        } label: {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(localized("Other calls and calendar items", locale: locale))
+                    .font(AppTypography.labelStrongSelected)
+                    .foregroundStyle(AppColors.textPrimary)
+                Text(localized("Solo, all-day, or missing a supported join link.", locale: locale))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+        }
+        .tint(AppColors.textSecondary)
+    }
+
+    private func meetingRow(_ event: MeetingOccurrenceSnapshot) -> some View {
+        let assessment = WeeklyMeetingReview.assessment(for: event)
+        let isSelected = selectedIdentities.contains(event.persistentIdentity)
+        return Toggle(
+            isOn: Binding(
+                get: { selectedIdentities.contains(event.persistentIdentity) },
+                set: { selected in
+                    if selected {
+                        guard assessment.canScheduleAutomatically else { return }
+                        selectedIdentities.insert(event.persistentIdentity)
+                    } else {
+                        selectedIdentities.remove(event.persistentIdentity)
+                    }
+                }
+            )
+        ) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(event.title)
+                        .font(AppTypography.labelStrong)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .lineLimit(2)
+                    Text(eventTimeText(event))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                    Label(reasonText(assessment.reason), systemImage: reasonIcon(assessment.reason))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(reasonColor(assessment.reason))
+                }
+                Spacer(minLength: 8)
+                if armedOccurrenceIDsByIdentity[event.persistentIdentity] != nil {
+                    Text(localized("Armed", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.success)
+                }
+            }
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 10).fill(AppColors.windowBackground))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppColors.border, lineWidth: 1))
+        }
+        .toggleStyle(.checkbox)
+        .disabled(isApplying || (!assessment.canScheduleAutomatically && !isSelected))
+        .accessibilityIdentifier("meetings.weeklyReview.\(event.persistentIdentity)")
+    }
+
+    private var footer: some View {
+        HStack {
+            Text(String(
+                format: localized("%d meeting recordings selected", locale: locale),
+                locale: locale,
+                selectedIdentities.count
+            ))
+            .font(AppTypography.caption)
+            .foregroundStyle(AppColors.textSecondary)
+
+            Spacer()
+
+            Button(localized("Cancel", locale: locale)) { dismiss() }
+                .buttonStyle(.plain)
+                .disabled(isApplying)
+
+            Button {
+                onApply(selectedIdentities)
+            } label: {
+                if isApplying {
+                    ProgressView().controlSize(.small)
+                } else {
+                    Text(localized("Save weekly schedule", locale: locale))
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isApplying)
+            .accessibilityIdentifier("meetings.weeklyReview.save")
+        }
+        .padding(20)
+    }
+
+    private func eventTimeText(_ event: MeetingOccurrenceSnapshot) -> String {
+        let start = event.start.formatted(date: .abbreviated, time: .shortened)
+        guard let end = event.end else { return start }
+        return "\(start) – \(end.formatted(date: .omitted, time: .shortened))"
+    }
+
+    private func reasonText(_ reason: WeeklyMeetingReviewReason) -> String {
+        switch reason {
+        case .externalParticipants:
+            return localized("Includes an external participant", locale: locale)
+        case .multipleParticipants:
+            return localized("Includes other participants", locale: locale)
+        case .noJoinLink:
+            return localized("No supported join link", locale: locale)
+        case .allDay:
+            return localized("All-day calendar item", locale: locale)
+        case .attendeeDataUnavailable:
+            return localized("Attendee list unavailable", locale: locale)
+        case .solo:
+            return localized("Only you are invited", locale: locale)
+        }
+    }
+
+    private func reasonIcon(_ reason: WeeklyMeetingReviewReason) -> String {
+        switch reason {
+        case .externalParticipants: return "person.crop.circle.badge.checkmark"
+        case .multipleParticipants: return "person.2.fill"
+        case .noJoinLink: return "link.badge.plus"
+        case .allDay: return "calendar"
+        case .attendeeDataUnavailable: return "questionmark.circle"
+        case .solo: return "person.fill"
+        }
+    }
+
+    private func reasonColor(_ reason: WeeklyMeetingReviewReason) -> Color {
+        switch reason {
+        case .externalParticipants: return AppColors.accent
+        case .multipleParticipants: return AppColors.success
+        case .noJoinLink, .attendeeDataUnavailable: return AppColors.warning
+        case .allDay, .solo: return AppColors.textTertiary
+        }
+    }
+}
+
 struct GoogleCalendarSetupWizard: View {
     private enum Step: Int, CaseIterable {
         case privacy
@@ -266,6 +598,7 @@ struct GoogleCalendarSetupWizard: View {
 
     let meetingsState: MeetingsFeatureState
     let onConnect: () -> Void
+    let onConfigureClientID: (String) -> Void
     let onEnableLaunchAtLogin: () -> Void
 
     @State private var step: Step = .privacy
@@ -346,7 +679,7 @@ struct GoogleCalendarSetupWizard: View {
             wizardTitle(
                 localized("Connect Google Calendar", locale: locale),
                 subtitle: localized(
-                    "Pindrop uses read-only access to show upcoming meetings you can choose to arm.",
+                    "Superduper Dictation uses read-only access to show upcoming meetings you can choose to arm.",
                     locale: locale
                 )
             )
@@ -354,7 +687,7 @@ struct GoogleCalendarSetupWizard: View {
                 icon: "eye",
                 title: localized("Your calendar stays read-only", locale: locale),
                 detail: localized(
-                    "Pindrop asks Google only for permission to view your calendar list and event details.",
+                    "Superduper Dictation asks Google only for permission to view your calendar list and event details.",
                     locale: locale
                 )
             )
@@ -382,7 +715,7 @@ struct GoogleCalendarSetupWizard: View {
             wizardTitle(
                 localized("Sign in with Google", locale: locale),
                 subtitle: localized(
-                    "Your browser will open for Google sign-in and consent, then return you to Pindrop.",
+                    "Your browser will open for Google sign-in and consent, then return you to Superduper Dictation.",
                     locale: locale
                 )
             )
@@ -393,16 +726,48 @@ struct GoogleCalendarSetupWizard: View {
                     color: AppColors.warning,
                     title: localized("Setup required", locale: locale),
                     detail: localized(
-                        "This build does not include Pindrop's Google OAuth client ID. Official builds include it automatically.",
+                        "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account.",
                         locale: locale
                     )
                 )
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(localized("Google Desktop OAuth client ID", locale: locale))
+                        .font(AppTypography.labelStrong)
+                        .foregroundStyle(AppColors.textPrimary)
+                    TextField(
+                        localized("Client ID ending in .apps.googleusercontent.com", locale: locale),
+                        text: Binding(
+                            get: { state.googleClientIDDraft },
+                            set: { state.googleClientIDDraft = $0 }
+                        )
+                    )
+                    .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("googleCalendar.setup.clientID")
+
+                    HStack {
+                        Link(
+                            localized("Open Google OAuth setup", locale: locale),
+                            destination: URL(string: "https://console.cloud.google.com/auth/clients")!
+                        )
+                        .font(AppTypography.caption)
+                        Spacer()
+                        Button(localized("Save client ID", locale: locale)) {
+                            onConfigureClientID(state.googleClientIDDraft)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(!isValidClientID(state.googleClientIDDraft))
+                        .accessibilityIdentifier("googleCalendar.setup.saveClientID")
+                    }
+                }
+                .padding(16)
+                .background(RoundedRectangle(cornerRadius: 10).fill(AppColors.contentBackground))
             } else if state.isGoogleConnected {
                 wizardStatus(
                     icon: "checkmark.circle.fill",
                     color: AppColors.success,
                     title: localized("Google Calendar is connected.", locale: locale),
-                    detail: localized("Pindrop can now load your upcoming events.", locale: locale)
+                    detail: localized("Superduper Dictation can now load your upcoming events.", locale: locale)
                 )
             } else if state.isRefreshing {
                 HStack(spacing: 12) {
@@ -432,7 +797,7 @@ struct GoogleCalendarSetupWizard: View {
             wizardTitle(
                 localized("Ready for scheduled meetings", locale: locale),
                 subtitle: localized(
-                    "One final setting keeps Pindrop available when an armed meeting begins.",
+                    "One final setting keeps Superduper Dictation available when an armed meeting begins.",
                     locale: locale
                 )
             )
@@ -449,7 +814,7 @@ struct GoogleCalendarSetupWizard: View {
                     Text(localized("Launch at Login", locale: locale))
                         .font(AppTypography.labelStrong)
                         .foregroundStyle(AppColors.textPrimary)
-                    Text(localized("Required so Pindrop is running when an armed meeting starts.", locale: locale))
+                    Text(localized("Required so Superduper Dictation is running when an armed meeting starts.", locale: locale))
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -491,7 +856,6 @@ struct GoogleCalendarSetupWizard: View {
                     step = .account
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(!state.isGoogleConfigured)
             case .account:
                 if state.isGoogleConnected {
                     Button(localized("Continue", locale: locale)) {
@@ -525,6 +889,11 @@ struct GoogleCalendarSetupWizard: View {
                 .foregroundStyle(AppColors.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+
+    private func isValidClientID(_ value: String) -> Bool {
+        value.trimmingCharacters(in: .whitespacesAndNewlines)
+            .hasSuffix(".apps.googleusercontent.com")
     }
 
     private func wizardDetail(icon: String, title: String, detail: String) -> some View {
