@@ -36,6 +36,7 @@ struct StreamingSessionControllerTests {
         func show(
             payload: ToastPayload,
             onAction: @escaping (UUID) -> Void,
+            onDismiss: @escaping () -> Void,
             onHoverChange: @escaping (Bool) -> Void
         ) {
             payloads.append(payload)
