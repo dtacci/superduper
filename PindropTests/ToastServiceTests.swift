@@ -14,21 +14,25 @@ private final class MockToastPresenter: ToastPresenting {
     private(set) var shownPayloads: [ToastPayload] = []
     private(set) var hideCallCount = 0
     private(set) var currentActionHandler: ((UUID) -> Void)?
+    private(set) var currentDismissHandler: (() -> Void)?
     private(set) var currentHoverHandler: ((Bool) -> Void)?
 
     func show(
         payload: ToastPayload,
         onAction: @escaping (UUID) -> Void,
+        onDismiss: @escaping () -> Void,
         onHoverChange: @escaping (Bool) -> Void
     ) {
         shownPayloads.append(payload)
         currentActionHandler = onAction
+        currentDismissHandler = onDismiss
         currentHoverHandler = onHoverChange
     }
 
     func hide() {
         hideCallCount += 1
         currentActionHandler = nil
+        currentDismissHandler = nil
         currentHoverHandler = nil
     }
 }
@@ -103,6 +107,28 @@ struct ToastServiceTests {
         presenter.currentActionHandler?(payload.actions[0].id)
 
         #expect(actionTriggered)
+        #expect(presenter.hideCallCount == 1)
+    }
+
+    @Test func persistentToastCanBeDismissedWithoutInvokingItsAction() {
+        let presenter = MockToastPresenter()
+        let scheduler = ManualTaskScheduler()
+        let service = ToastService(presenter: presenter, scheduler: scheduler)
+        var actionTriggered = false
+        let payload = ToastPayload(
+            message: "Recording is safe",
+            actions: [
+                ToastAction(title: "Retry") {
+                    actionTriggered = true
+                }
+            ],
+            duration: nil
+        )
+
+        service.show(payload)
+        presenter.currentDismissHandler?()
+
+        #expect(!actionTriggered)
         #expect(presenter.hideCallCount == 1)
     }
 

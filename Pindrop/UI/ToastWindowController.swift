@@ -147,6 +147,7 @@ final class ToastWindowController: ToastPresenting {
     func show(
         payload: ToastPayload,
         onAction: @escaping (UUID) -> Void,
+        onDismiss: @escaping () -> Void,
         onHoverChange: @escaping (Bool) -> Void
     ) {
         presentationGeneration &+= 1
@@ -155,6 +156,7 @@ final class ToastWindowController: ToastPresenting {
         let rootView = AnyView(ToastView(
             payload: payload,
             onAction: onAction,
+            onDismiss: onDismiss,
             onHoverChange: { [weak self] (isHovering: Bool) in
                 onHoverChange(isHovering)
                 self?.updateToastFrame()
@@ -323,6 +325,7 @@ final class ToastWindowController: ToastPresenting {
 private struct ToastView: View {
     let payload: ToastPayload
     let onAction: (UUID) -> Void
+    let onDismiss: () -> Void
     let onHoverChange: (Bool) -> Void
 
     @State private var isHovering = false
@@ -371,6 +374,19 @@ private struct ToastView: View {
                         .buttonStyle(ToastActionButtonStyle(role: action.role))
                     }
                 }
+            }
+
+            if payload.duration == nil {
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .semibold))
+                        .frame(width: 18, height: 18)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#A59D8C") ?? .secondaryLabelColor))
+                .accessibilityLabel(localized("Dismiss", locale: locale))
+                .help(localized("Dismiss", locale: locale))
             }
         }
         .padding(.horizontal, ToastMetrics.horizontalPadding)

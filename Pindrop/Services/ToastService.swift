@@ -107,6 +107,7 @@ protocol ToastPresenting: AnyObject {
     func show(
         payload: ToastPayload,
         onAction: @escaping (UUID) -> Void,
+        onDismiss: @escaping () -> Void,
         onHoverChange: @escaping (Bool) -> Void
     )
     func hide()
@@ -160,6 +161,9 @@ final class ToastService: ToastShowing {
                 onAction: { [weak self] actionID in
                     self?.handleActionSelection(id: actionID)
                 },
+                onDismiss: { [weak self] in
+                    self?.dismissCurrentToast()
+                },
                 onHoverChange: { [weak self] isHovering in
                     self?.setTimerPaused(isHovering)
                 }
@@ -204,6 +208,9 @@ final class ToastService: ToastShowing {
             payload: nextToast,
             onAction: { [weak self] actionID in
                 self?.handleActionSelection(id: actionID)
+            },
+            onDismiss: { [weak self] in
+                self?.dismissCurrentToast()
             },
             onHoverChange: { [weak self] isHovering in
                 self?.setTimerPaused(isHovering)
