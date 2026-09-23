@@ -563,7 +563,14 @@ final class AppCoordinator {
     private var isQuickCaptureMode = false
     private var isNoteAppendMode = false
     private let recordingStopAdmission = RecordingStopAdmission()
-    private var isRecordingFeatureCaptureActive = false
+    private var isRecordingFeatureCaptureActive = false {
+        didSet { refreshEscapeSuppression() }
+    }
+    /// True for meetings started from the meeting shortcut/button (as opposed to a
+    /// dictation converted into a meeting). Dictation hotkeys never stop those.
+    private var isStandaloneMeetingCapture = false
+    private var longDictationOfferTask: Task<Void, Never>?
+    static let longDictationMeetingOfferDelay: Duration = .seconds(180)
     private var manualExpectedSpeakerCount: Int?
     private var activeMeetingOccurrenceID: UUID?
     private var activeDictationRecoveryID: UUID?
@@ -629,7 +636,8 @@ final class AppCoordinator {
             Self.shouldSuppressEscapeEvent(
                 isRecording: isRecording,
                 isProcessing: isProcessing,
-                isMediaTranscriptionOnly: isMediaTranscriptionOnlyWork
+                isMediaTranscriptionOnly: isMediaTranscriptionOnlyWork,
+                isMeetingRecording: isRecording && isRecordingFeatureCaptureActive
             )
         )
     }
@@ -3506,6 +3514,13 @@ final class AppCoordinator {
         }
     }
     
+    private func showMeetingStillRecordingHint() {
+        recordingState.message = localized(
+            "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it.",
+            locale: settingsStore.selectedAppLocale.locale
+        )
+    }
+
     private func handlePushToTalkEnd() async {
         // Note-append is not started by global PTT, so a PTT keyup must not
         // cancel an in-editor speak-to-append session.
@@ -3514,6 +3529,12 @@ final class AppCoordinator {
             return
         }
         guard isRecording else { return }
+        // A push-to-talk key-up during a meeting started from the meeting shortcut
+        // belongs to a tap of the dictation key, not to the meeting.
+        guard !isStandaloneMeetingCapture else {
+            Log.app.debug("Ignore global PTT end while a meeting is recording")
+            return
+        }
 
         do {
             try await dispatchRecordingStop()
@@ -3948,6 +3969,10 @@ final class AppCoordinator {
 
     private func handleToggleRecording(source: RecordingTriggerSource) async {
         if isRecording {
+            if source == .hotkeyToggle, isStandaloneMeetingCapture {
+                showMeetingStillRecordingHint()
+                return
+            }
             do {
                 if isNoteAppendMode {
                     guard noteAppendEditorID != nil else { return }
@@ -4106,6 +4131,75 @@ final class AppCoordinator {
         }
         lastOfferedMeetingPinIdentity = nil
         offerActiveRecordingMeetingPinIfNeeded()
+        if source != .noteAppend {
+            scheduleLongDictationMeetingOffer()
+        }
+    }
+
+    /// Long dictations are usually meetings recorded with the dictation hotkey.
+    /// After a few minutes, offer to save the recording as a meeting instead, which
+    /// gets speaker labels and notes rather than pasting thousands of words.
+    private func scheduleLongDictationMeetingOffer() {
+        longDictationOfferTask?.cancel()
+        let sessionStartedAt = recordingStartTime
+        longDictationOfferTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.longDictationMeetingOfferDelay)
+            guard !Task.isCancelled,
+                  let self,
+                  self.isRecording,
+                  !self.isRecordingFeatureCaptureActive,
+                  !self.isNoteAppendMode,
+                  !self.isQuickCaptureMode,
+                  self.recordingStartTime == sessionStartedAt else {
+                return
+            }
+            let locale = self.settingsStore.selectedAppLocale.locale
+            self.toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text.",
+                        locale: locale
+                    ),
+                    actions: [
+                        ToastAction(title: localized("Save as Meeting", locale: locale), role: .primary) { [weak self] in
+                            self?.convertActiveDictationToMeeting()
+                        }
+                    ],
+                    duration: 20
+                )
+            )
+        }
+    }
+
+    private func convertActiveDictationToMeeting() {
+        guard isRecording, !isRecordingFeatureCaptureActive else { return }
+        do {
+            let occurrence = try meetingStore.createManualOccurrence(
+                scheduledStart: recordingStartTime ?? Date()
+            )
+            try meetingStore.transition(id: occurrence.id, to: .recording)
+            activeMeetingOccurrenceID = occurrence.id
+            isRecordingFeatureCaptureActive = true
+            recordingState.beginRecording(
+                mode: .microphone,
+                startedAt: recordingStartTime ?? Date()
+            )
+            statusBarController.setRecordingState(isMeetingCapture: true)
+            statusBarController.updateMenuState()
+            let locale = settingsStore.selectedAppLocale.locale
+            toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants.",
+                        locale: locale
+                    ),
+                    duration: 8
+                )
+            )
+        } catch {
+            meetingsState.errorMessage = error.localizedDescription
+            toastService.show(ToastPayload(message: error.localizedDescription, style: .error))
+        }
     }
 
     private func logRecordingStartAttempt(source: RecordingTriggerSource) {
@@ -5115,6 +5209,16 @@ final class AppCoordinator {
                     variant: .copied
                 )
             )
+        case .screenLocked:
+            toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted.",
+                        locale: locale
+                    ),
+                    duration: nil
+                )
+            )
         case .pasteFailed, nil:
             toastService.show(
                 ToastPayload(
@@ -5436,12 +5540,15 @@ final class AppCoordinator {
         Log.hotkey.debug("Removed NSEvent global monitor fallback for modifier changes")
     }
     
+    /// Meetings run for up to 90 minutes while you work in other apps, so Escape is
+    /// left alone while one is recording; meetings stop from the indicator/shortcut.
     static func shouldSuppressEscapeEvent(
         isRecording: Bool,
         isProcessing: Bool,
-        isMediaTranscriptionOnly: Bool = false
+        isMediaTranscriptionOnly: Bool = false,
+        isMeetingRecording: Bool = false
     ) -> Bool {
-        (isRecording || isProcessing) && !isMediaTranscriptionOnly
+        (isRecording || isProcessing) && !isMediaTranscriptionOnly && !isMeetingRecording
     }
 
     /// Single Escape cancels while a recording/processing session is active.
@@ -5589,6 +5696,7 @@ final class AppCoordinator {
         // neither arms the double-press sequence nor pretends to act.
         guard isRecording || isProcessing || activeOperationTask != nil else { return }
         guard !isMediaTranscriptionOnlyWork else { return }
+        guard !(isRecording && isRecordingFeatureCaptureActive) else { return }
 
         let now = Date()
         if Self.escapeShouldCancel(
@@ -5676,6 +5784,9 @@ final class AppCoordinator {
         isRecording = false
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        isStandaloneMeetingCapture = false
+        longDictationOfferTask?.cancel()
+        longDictationOfferTask = nil
         isQuickCaptureMode = false
         clearNoteAppendMode()
         recordingStartTime = nil
@@ -5736,6 +5847,9 @@ final class AppCoordinator {
         isRecording = false
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        isStandaloneMeetingCapture = false
+        longDictationOfferTask?.cancel()
+        longDictationOfferTask = nil
         isQuickCaptureMode = false
         clearNoteAppendMode()
         recordingStartTime = nil
@@ -5784,6 +5898,9 @@ final class AppCoordinator {
         mediaPauseService.endRecordingSession()
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        isStandaloneMeetingCapture = false
+        longDictationOfferTask?.cancel()
+        longDictationOfferTask = nil
         // Note-append mode is cleared by the stop path after processing; only clear if not mid-append.
         if !isNoteAppendMode {
             NoteAppendListeningCoordinator.shared.state.finishSession()
@@ -6411,6 +6528,7 @@ final class AppCoordinator {
 
         isRecording = true
         isRecordingFeatureCaptureActive = true
+        isStandaloneMeetingCapture = true
         recordingStartTime = Date()
         recordingState.beginRecording(mode: mode, startedAt: recordingStartTime ?? Date())
         statusBarController.setRecordingState(isMeetingCapture: true)
@@ -6502,6 +6620,7 @@ final class AppCoordinator {
 
         isRecording = false
         isRecordingFeatureCaptureActive = false
+        isStandaloneMeetingCapture = false
         recordingState.endRecording()
         statusBarController.setProcessingState()
         statusBarController.updateMenuState()

@@ -125,6 +125,12 @@ struct AppCoordinatorContextFlowTests {
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: true, isProcessing: false))
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: true))
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: false) == false)
+        // Meetings run for a long time in the background; Escape stays with other apps.
+        #expect(AppCoordinator.shouldSuppressEscapeEvent(
+            isRecording: true,
+            isProcessing: false,
+            isMeetingRecording: true
+        ) == false)
     }
 
     @Test func contextTimeoutFallsBackWithoutBlockingTranscription() {
