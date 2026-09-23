@@ -292,6 +292,28 @@ struct WhisperKitEngineTests {
         #expect(error.errorDescription?.contains(message) ?? false,
                 "Error description should contain the failure message")
     }
+
+    // MARK: - VAD chunk merging
+
+    @Test func mergedTranscriptTextJoinsChunksInOrder() {
+        let merged = WhisperKitEngine.mergedTranscriptText([
+            " First chunk ends here.",
+            " Second chunk continues",
+            "and the third finishes."
+        ])
+
+        #expect(merged == "First chunk ends here. Second chunk continues and the third finishes.")
+    }
+
+    @Test func mergedTranscriptTextDropsSilentChunks() {
+        let merged = WhisperKitEngine.mergedTranscriptText([" Hello", "", "   ", " world"])
+        #expect(merged == "Hello world")
+    }
+
+    @Test func mergedTranscriptTextLeavesSingleWindowUnchanged() {
+        #expect(WhisperKitEngine.mergedTranscriptText([" Just one window."]) == "Just one window.")
+        #expect(WhisperKitEngine.mergedTranscriptText([]) == "")
+    }
 }
 
 // MARK: - Integration (network) — opt-in only

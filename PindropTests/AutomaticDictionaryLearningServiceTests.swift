@@ -119,7 +119,10 @@ struct AutomaticDictionaryLearningServiceTests {
         let service: AutomaticDictionaryLearningService
     }
 
-    private func makeFixture() -> Fixture {
+    private func makeFixture(
+        pollInterval: Duration = .milliseconds(10),
+        notificationDebounce: Duration = .zero
+    ) -> Fixture {
         let snapshotProvider = MockFocusedTextSnapshotProvider()
         let changeObserver = MockFocusedTextChangeObserver()
         let store = MockLearnedReplacementStore()
@@ -130,9 +133,10 @@ struct AutomaticDictionaryLearningServiceTests {
             dictionaryStore: store,
             toastService: toastService,
             configuration: AutomaticDictionaryLearningConfiguration(
-                pollInterval: .milliseconds(10),
+                pollInterval: pollInterval,
                 stabilityWindow: .milliseconds(20),
-                observationTimeout: .milliseconds(120)
+                observationTimeout: .milliseconds(120),
+                notificationDebounce: notificationDebounce
             )
         )
 
@@ -326,6 +330,37 @@ struct AutomaticDictionaryLearningServiceTests {
         #expect(fixture.store.undoCalls.count == 1)
         #expect(fixture.store.undoCalls.first?.learnedOriginal == "teh")
     }
+    @Test func testNotificationBurstCoalescesIntoOneSnapshotRead() async throws {
+        let fixture = makeFixture(notificationDebounce: .milliseconds(30))
+        let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
+        fixture.snapshotProvider.snapshots = [
+            makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0))
+        ]
+
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
+        for _ in 0..<5 {
+            fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        }
+        try await Task.sleep(for: .milliseconds(80))
+
+        #expect(fixture.snapshotProvider.captureCallCount == 1)
+    }
+
+    @Test func testFallbackPollingWaitsOneIntervalBeforeFirstRead() async throws {
+        let fixture = makeFixture(pollInterval: .milliseconds(50))
+        fixture.changeObserver.supportsChangeNotifications = false
+        let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
+        fixture.snapshotProvider.snapshots = [
+            makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0))
+        ]
+
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
+        try await Task.sleep(for: .milliseconds(15))
+
+        #expect(fixture.snapshotProvider.captureCallCount == 0)
+        fixture.service.cancelObservation()
+    }
+
     @Test func testFallbackPollingLearnsWhenChangeNotificationsAreUnavailable() async throws {
         let fixture = makeFixture()
         fixture.changeObserver.supportsChangeNotifications = false

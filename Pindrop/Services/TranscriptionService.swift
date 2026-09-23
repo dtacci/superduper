@@ -355,7 +355,7 @@ class TranscriptionService {
         error = nil
 
         let loadStarted = CFAbsoluteTimeGetCurrent()
-        Log.transcription.info("Loading model from path: \(modelPath) with prewarm enabled...")
+        Log.transcription.info("Loading model from path: \(modelPath)")
         Log.boot.info("TranscriptionService.loadModel(path) begin")
 
         do {
@@ -375,7 +375,7 @@ class TranscriptionService {
             engine = newEngine
             currentProvider = .whisperKit
             batchModelIdentity = .path(modelPath)
-            Log.transcription.info("Model loaded and prewarmed successfully")
+            Log.transcription.info("Model loaded successfully")
             Log.boot.info("TranscriptionService.loadModel(path) success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
             state = .ready
         } catch let error as TranscriptionError {

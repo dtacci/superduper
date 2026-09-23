@@ -75,6 +75,21 @@ final class MockKeySimulation: KeySimulationProtocol {
     }
 }
 
+/// Records requested delays without waiting, except the clipboard-restore delay,
+/// which can be given a real duration to hold a restore pending.
+final class RecordingSleeper {
+    var durations: [UInt64] = []
+    var restoreDelayNanoseconds: UInt64?
+
+    func sleep(_ nanoseconds: UInt64) async throws {
+        durations.append(nanoseconds)
+        if nanoseconds == OutputManager.clipboardRestoreDelayNanoseconds,
+           let restoreDelayNanoseconds {
+            try await Task.sleep(nanoseconds: restoreDelayNanoseconds)
+        }
+    }
+}
+
 @MainActor
 @Suite
 struct OutputManagerTests {
@@ -82,7 +97,9 @@ struct OutputManagerTests {
         outputMode: OutputMode = .clipboard,
         accessibilityPermissionChecker: @escaping () -> Bool = { true },
         frontmostApplicationProvider: @escaping () -> NSRunningApplication? = { nil },
-        virtualMachineHostChecker: @escaping (String?) -> Bool = { VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: $0) }
+        virtualMachineHostChecker: @escaping (String?) -> Bool = { VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: $0) },
+        sleeper: RecordingSleeper = RecordingSleeper(),
+        modifierFlagsProvider: @escaping () -> CGEventFlags = { [] }
     ) -> (outputManager: OutputManager, mockClipboard: MockClipboard, mockKeySimulation: MockKeySimulation) {
         let mockClipboard = MockClipboard()
         let mockKeySimulation = MockKeySimulation()
@@ -92,7 +109,9 @@ struct OutputManagerTests {
             keySimulation: mockKeySimulation,
             accessibilityPermissionChecker: accessibilityPermissionChecker,
             frontmostApplicationProvider: frontmostApplicationProvider,
-            virtualMachineHostChecker: virtualMachineHostChecker
+            virtualMachineHostChecker: virtualMachineHostChecker,
+            sleeper: { try await sleeper.sleep($0) },
+            modifierFlagsProvider: modifierFlagsProvider
         )
         return (outputManager, mockClipboard, mockKeySimulation)
     }
@@ -177,11 +196,114 @@ struct OutputManagerTests {
         fixture.mockClipboard.clipboardContent = "Previous clipboard content"
 
         let result = try await fixture.outputManager.output("Direct insert test")
+        await fixture.outputManager.awaitPendingClipboardRestore()
 
         #expect(result.kind == .pasted)
         #expect(fixture.mockKeySimulation.pasteSimulated)
         #expect(fixture.mockClipboard.restoreCount == 1)
         #expect(fixture.mockClipboard.clipboardContent == "Previous clipboard content")
+    }
+
+    // Only the short pre-paste settle and the deferred restore delay remain; the
+    // restore no longer blocks `output` from returning.
+    @Test func directInsertSleepsOnlyPrePasteAndDeferredRestoreDelays() async throws {
+        let sleeper = RecordingSleeper()
+        let fixture = makeSUT(outputMode: .directInsert, sleeper: sleeper)
+        fixture.mockClipboard.clipboardContent = "previous"
+
+        _ = try await fixture.outputManager.output("Fast words")
+        await fixture.outputManager.awaitPendingClipboardRestore()
+
+        #expect(sleeper.durations == [
+            OutputManager.prePasteDelayNanoseconds,
+            OutputManager.clipboardRestoreDelayNanoseconds,
+        ])
+    }
+
+    @Test func outputReturnsBeforeDeferredClipboardRestore() async throws {
+        let sleeper = RecordingSleeper()
+        sleeper.restoreDelayNanoseconds = 10_000_000_000
+        let fixture = makeSUT(outputMode: .directInsert, sleeper: sleeper)
+        fixture.mockClipboard.clipboardContent = "previous"
+
+        let result = try await fixture.outputManager.output("Pasted words")
+
+        #expect(result.kind == .pasted)
+        #expect(fixture.mockClipboard.restoreCount == 0)
+        #expect(fixture.mockClipboard.clipboardContent == "Pasted words")
+
+        fixture.outputManager.flushPendingClipboardRestore()
+        #expect(fixture.mockClipboard.restoreCount == 1)
+        #expect(fixture.mockClipboard.clipboardContent == "previous")
+    }
+
+    @Test func pasteWaitsForHeldHotkeyModifiers() async throws {
+        let sleeper = RecordingSleeper()
+        var heldPolls = 3
+        let fixture = makeSUT(
+            outputMode: .directInsert,
+            sleeper: sleeper,
+            modifierFlagsProvider: {
+                guard heldPolls > 0 else { return [] }
+                heldPolls -= 1
+                return .maskAlternate
+            }
+        )
+
+        _ = try await fixture.outputManager.output("Held modifier")
+
+        #expect(Array(sleeper.durations.prefix(4)) == [
+            OutputManager.modifierReleasePollNanoseconds,
+            OutputManager.modifierReleasePollNanoseconds,
+            OutputManager.modifierReleasePollNanoseconds,
+            OutputManager.prePasteDelayNanoseconds,
+        ])
+        #expect(fixture.mockKeySimulation.pasteSimulated)
+    }
+
+    @Test func pasteProceedsAfterModifierWaitCap() async throws {
+        let sleeper = RecordingSleeper()
+        let fixture = makeSUT(
+            outputMode: .directInsert,
+            sleeper: sleeper,
+            modifierFlagsProvider: { .maskAlternate }
+        )
+
+        _ = try await fixture.outputManager.output("Stuck modifier")
+
+        let pollCount = sleeper.durations.filter { $0 == OutputManager.modifierReleasePollNanoseconds }.count
+        #expect(UInt64(pollCount) == OutputManager.modifierReleaseMaxWaitNanoseconds / OutputManager.modifierReleasePollNanoseconds)
+        #expect(fixture.mockKeySimulation.pasteSimulated)
+    }
+
+    // Back-to-back dictations: the second paste must snapshot the user's clipboard,
+    // not the first transcript that is still waiting for its deferred restore.
+    @Test func nextPasteSnapshotsUserClipboardNotTransientTranscript() async throws {
+        let sleeper = RecordingSleeper()
+        sleeper.restoreDelayNanoseconds = 50_000_000
+        let fixture = makeSUT(outputMode: .directInsert, sleeper: sleeper)
+        fixture.mockClipboard.clipboardContent = "previous"
+
+        _ = try await fixture.outputManager.output("First transcript")
+        _ = try await fixture.outputManager.output("Second transcript")
+        await fixture.outputManager.awaitPendingClipboardRestore()
+
+        #expect(fixture.mockClipboard.restoreCount == 2)
+        #expect(fixture.mockClipboard.clipboardContent == "previous")
+    }
+
+    @Test func copyReplacingClipboardFlushesPendingRestore() async throws {
+        let sleeper = RecordingSleeper()
+        sleeper.restoreDelayNanoseconds = 10_000_000_000
+        let fixture = makeSUT(outputMode: .directInsert, sleeper: sleeper)
+        fixture.mockClipboard.clipboardContent = "previous"
+
+        _ = try await fixture.outputManager.output("Pasted words")
+        let snapshot = try fixture.outputManager.copyReplacingClipboard("Copied from history")
+
+        let data = try #require(snapshot.items.first?[NSPasteboard.PasteboardType.string.rawValue])
+        #expect(String(data: data, encoding: .utf8) == "previous")
+        #expect(fixture.mockClipboard.clipboardContent == "Copied from history")
     }
 
     @Test func directInsertCopiesOnlyWithoutAccessibility() async throws {
@@ -256,17 +378,18 @@ struct OutputManagerTests {
     // surrounding operation during the deferred restore window must neither fail
     // the output nor skip the clipboard restore.
     @Test func cancellationDuringRestoreWindowStillReportsPastedAndRestores() async throws {
-        let fixture = makeSUT(outputMode: .directInsert)
+        let sleeper = RecordingSleeper()
+        sleeper.restoreDelayNanoseconds = 100_000_000
+        let fixture = makeSUT(outputMode: .directInsert, sleeper: sleeper)
         fixture.mockClipboard.clipboardContent = "previous"
 
         let task = Task { @MainActor in
             try await fixture.outputManager.output("Committed words")
         }
-        // Paste keystroke fires ~200ms in; the restore runs ~500ms after that.
-        // Cancel in the middle of the restore window.
-        try await Task.sleep(nanoseconds: 400_000_000)
-        task.cancel()
         let result = try await task.value
+        // Cancel while the deferred restore is still pending.
+        task.cancel()
+        await fixture.outputManager.awaitPendingClipboardRestore()
 
         #expect(result.kind == .pasted)
         #expect(fixture.mockKeySimulation.pasteSimulated)
@@ -290,7 +413,8 @@ struct OutputManagerTests {
             keySimulation: BlockingKeySimulation(),
             accessibilityPermissionChecker: { true },
             frontmostApplicationProvider: { nil },
-            virtualMachineHostChecker: { _ in false }
+            virtualMachineHostChecker: { _ in false },
+            modifierFlagsProvider: { [] }
         )
         mockClipboard.clipboardContent = "previous"
 
@@ -411,8 +535,25 @@ struct OutputManagerTests {
             KeySimulationEvent(virtualKey: 0x09, keyDown: false, flags: .maskCommand),
             KeySimulationEvent(virtualKey: 0x37, keyDown: false, flags: []),
         ])
-        #expect(sleepDurations == [50_000_000, 50_000_000, 50_000_000])
+        #expect(sleepDurations == Array(repeating: SystemKeySimulation.nativeKeyEventGapNanoseconds, count: 3))
         #expect(systemEventsFallbackCalled == false)
+    }
+
+    // VM hosts (System Events fallback disabled) keep wide gaps; hypervisors drop
+    // modifier events that arrive too close together.
+    @Test func systemKeySimulationUsesWideGapsForVirtualMachines() async throws {
+        var sleepDurations: [UInt64] = []
+        let sut = SystemKeySimulation(
+            pasteScriptRunner: { false },
+            keyEventPoster: { _, _ in true },
+            sleeper: { duration in
+                sleepDurations.append(duration)
+            }
+        )
+
+        try await sut.simulatePaste(allowSystemEventsFallback: false)
+
+        #expect(sleepDurations == Array(repeating: SystemKeySimulation.virtualMachineKeyEventGapNanoseconds, count: 3))
     }
 
     @Test func systemKeySimulationFallsBackToSystemEventsWhenCGEventPostingFails() async throws {
@@ -508,6 +649,7 @@ struct OutputManagerTests {
         fixture.mockClipboard.clipboardContent = "previous"
 
         let result = try await fixture.outputManager.output("Hello from VM")
+        await fixture.outputManager.awaitPendingClipboardRestore()
 
         #expect(result.kind == .pasted)
         #expect(fixture.mockKeySimulation.pasteSimulated)

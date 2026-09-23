@@ -1982,6 +1982,17 @@ final class HistoryStore {
     }
 
 
+    /// Best-effort speaker learning for a dictation saved before its speaker segments
+    /// were extracted. Extraction runs after the paste so it never holds up the next
+    /// dictation; a record deleted in the meantime is skipped.
+    func learnSpeakerProfilesFromSavedDictation(
+        recordID: UUID,
+        segments: [DiarizedTranscriptSegment]
+    ) {
+        guard !segments.isEmpty, (try? fetchRecord(with: recordID)) != nil else { return }
+        learnFromDictationBestEffort(recordID: recordID, segments: segments)
+    }
+
     private func learnFromDictationBestEffort(
         recordID: UUID,
         segments: [DiarizedTranscriptSegment]

@@ -271,8 +271,9 @@ final class SettingsStore: ObservableObject {
    // MARK: - Default Values (Single Source of Truth)
 
     enum Defaults {
-       /// Best quality/latency default for Apple Silicon Macs with 16 GB+ RAM.
-       static let selectedModel = "openai_whisper-large-v3-v20240930_626MB"
+       /// Fastest high-accuracy English default: Parakeet TDT v2 runs on the Neural
+       /// Engine at ~100x real time. Whisper models remain selectable in Settings.
+       static let selectedModel = "parakeet-tdt-0.6b-v2"
         // "directInsert" (paste at cursor) has been the observed behavior of BOTH
         // modes since character-typing was removed; the default flipped from
         // "clipboard" when clipboard mode became truly copy-only (see

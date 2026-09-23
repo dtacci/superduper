@@ -41,7 +41,7 @@ struct ModelSelectionStepView: View {
                     "Smaller models are faster but less accurate.\nStart with Base for the best balance.",
                     locale: locale
                 )
-                .replacingOccurrences(of: "Base", with: "Large v3")
+                .replacingOccurrences(of: "Base", with: "Parakeet")
             )
                 .font(OnboardingType.stepSubtitle)
                 .lineSpacing(3)

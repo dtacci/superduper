@@ -73,13 +73,20 @@ protocol AXProviderProtocol: Sendable {
 /// Real Accessibility provider using macOS AX APIs.
 final class SystemAXProvider: AXProviderProtocol, @unchecked Sendable {
 
+    /// Per-element AX IPC timeout. These reads run on the main thread (e.g. right
+    /// before a paste), and the system default of ~6s lets a hung target app freeze
+    /// Pindrop; 0.5s still covers large Electron text fields.
+    static let messagingTimeoutSeconds: Float = 0.5
+
     func isProcessTrusted() -> Bool {
         AXIsProcessTrusted()
     }
 
     func copyFrontmostApplication() -> AXUIElement? {
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
-        return AXUIElementCreateApplication(app.processIdentifier)
+        let element = AXUIElementCreateApplication(app.processIdentifier)
+        AXUIElementSetMessagingTimeout(element, Self.messagingTimeoutSeconds)
+        return element
     }
 
     func stringAttribute(_ attribute: String, of element: AXUIElement) -> String? {
@@ -96,7 +103,9 @@ final class SystemAXProvider: AXProviderProtocol, @unchecked Sendable {
         // AXUIElement is a CFTypeRef — check dynamically
         let typeID = CFGetTypeID(value!)
         guard typeID == AXUIElementGetTypeID() else { return nil }
-        return (value as! AXUIElement)
+        let element = value as! AXUIElement
+        AXUIElementSetMessagingTimeout(element, Self.messagingTimeoutSeconds)
+        return element
     }
 
     func pointAttribute(_ attribute: String, of element: AXUIElement) -> CGPoint? {
