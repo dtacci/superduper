@@ -597,6 +597,112 @@ struct WeeklyMeetingReviewSheet: View {
     }
 }
 
+/// Step-by-step Google Cloud setup for the Desktop OAuth client the setup wizard asks for.
+struct GoogleCalendarSetupGuide: View {
+    @Environment(\.locale) private var locale
+
+    private struct GuideStep: Identifiable {
+        let id: Int
+        let text: String
+        var linkTitle: String?
+        var link: URL?
+    }
+
+    private var steps: [GuideStep] {
+        [
+            GuideStep(
+                id: 1,
+                text: localized(
+                    "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't).",
+                    locale: locale
+                )
+            ),
+            GuideStep(
+                id: 2,
+                text: localized("Enable the Google Calendar API.", locale: locale),
+                linkTitle: localized("Open the Calendar API", locale: locale),
+                link: URL(string: "https://console.cloud.google.com/apis/library/calendar-json.googleapis.com")
+            ),
+            GuideStep(
+                id: 3,
+                text: localized(
+                    "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days.",
+                    locale: locale
+                ),
+                linkTitle: localized("Open the consent screen", locale: locale),
+                link: URL(string: "https://console.cloud.google.com/auth/overview")
+            ),
+            GuideStep(
+                id: 4,
+                text: localized("Under Clients, create an OAuth client with the application type Desktop app.", locale: locale),
+                linkTitle: localized("Open OAuth clients", locale: locale),
+                link: URL(string: "https://console.cloud.google.com/auth/clients")
+            ),
+            GuideStep(
+                id: 5,
+                text: localized(
+                    "Copy the client ID and client secret, paste both here, and choose Save client ID.",
+                    locale: locale
+                )
+            ),
+        ]
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(localized("Get a Google client ID and secret", locale: locale))
+                    .font(AppTypography.labelStrong)
+                    .foregroundStyle(AppColors.textPrimary)
+                Text(localized(
+                    "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use.",
+                    locale: locale
+                ))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+
+            ForEach(steps) { step in
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("\(step.id).")
+                        .font(AppTypography.labelStrong)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .frame(width: 16, alignment: .trailing)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(step.text)
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if let linkTitle = step.linkTitle, let link = step.link {
+                            Link(linkTitle, destination: link)
+                                .font(AppTypography.caption)
+                        }
+                    }
+                }
+            }
+
+            Divider().overlay(AppColors.border)
+
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Image(systemName: "exclamationmark.shield")
+                    .foregroundStyle(AppColors.warning)
+                Text(localized(
+                    "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls.",
+                    locale: locale
+                ))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(18)
+        .frame(width: 400)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("googleCalendar.setupGuide")
+    }
+}
+
 struct GoogleCalendarSetupWizard: View {
     private enum Step: Int, CaseIterable {
         case privacy
@@ -613,6 +719,7 @@ struct GoogleCalendarSetupWizard: View {
     let onEnableLaunchAtLogin: () -> Void
 
     @State private var step: Step = .privacy
+    @State private var isShowingSetupGuide = false
 
     var body: some View {
         @Bindable var state = meetingsState
@@ -737,7 +844,7 @@ struct GoogleCalendarSetupWizard: View {
                     color: AppColors.warning,
                     title: localized("Setup required", locale: locale),
                     detail: localized(
-                        "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account.",
+                        "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account.",
                         locale: locale
                     )
                 )
@@ -756,7 +863,31 @@ struct GoogleCalendarSetupWizard: View {
                     .textFieldStyle(.roundedBorder)
                     .accessibilityIdentifier("googleCalendar.setup.clientID")
 
-                    HStack {
+                    Text(localized("Client secret", locale: locale))
+                        .font(AppTypography.labelStrong)
+                        .foregroundStyle(AppColors.textPrimary)
+                    SecureField(
+                        localized("Required for Desktop app clients (starts with GOCSPX-)", locale: locale),
+                        text: Binding(
+                            get: { state.googleClientSecretDraft },
+                            set: { state.googleClientSecretDraft = $0 }
+                        )
+                    )
+                    .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("googleCalendar.setup.clientSecret")
+
+                    HStack(spacing: 14) {
+                        Button {
+                            isShowingSetupGuide = true
+                        } label: {
+                            Label(localized("How do I get these?", locale: locale), systemImage: "questionmark.circle")
+                        }
+                        .buttonStyle(.link)
+                        .font(AppTypography.caption)
+                        .popover(isPresented: $isShowingSetupGuide, arrowEdge: .bottom) {
+                            GoogleCalendarSetupGuide()
+                        }
+                        .accessibilityIdentifier("googleCalendar.setup.guide")
                         Link(
                             localized("Open Google OAuth setup", locale: locale),
                             destination: URL(string: "https://console.cloud.google.com/auth/clients")!

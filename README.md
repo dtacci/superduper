@@ -220,12 +220,40 @@ local signing and public distribution requirements.
 ## Google Calendar setup
 
 Google Calendar is optional. Open **Meetings → Set Up Google Calendar** and
-follow the three-step wizard. A publisher build can include its Google **Desktop
-app** OAuth client ID in `GoogleCalendarClientID` in `Pindrop/Info.plist`. If it
-does not, the wizard links to Google Cloud and lets the user paste a Desktop app
-client ID without rebuilding the app. Contributors can also set
-`PINDROP_GOOGLE_CLIENT_ID` when launching a development build. Desktop clients
-use PKCE and do not embed a client secret.
+follow the three-step wizard. The wizard asks for a Google **Desktop app** OAuth
+client ID and client secret from your own Google Cloud project; choose **How do
+I get these?** in the wizard for the same steps as below. The secret is stored
+in the Keychain. Sign-in uses PKCE in your browser, so SSO works as usual.
+
+### Get a client ID and secret
+
+Do this once in [Google Cloud Console](https://console.cloud.google.com/),
+signed in with the Google account whose calendar you want to use.
+
+1. Create or pick a project. For a work account, create it inside your
+   company's organization (ask IT if you can't).
+2. [Enable the Google Calendar API](https://console.cloud.google.com/apis/library/calendar-json.googleapis.com).
+3. Set up the [consent screen](https://console.cloud.google.com/auth/overview):
+   - **Work (Google Workspace) account:** choose **Internal**. Only people in
+     your organization can use it, and Google verification isn't needed.
+   - **Personal Gmail:** choose **External** and add yourself as a test user.
+     Then publish the app: in testing mode Google expires the sign-in after 7
+     days. Google shows an "unverified app" warning you can continue past.
+4. Under [Clients](https://console.cloud.google.com/auth/clients), create an
+   OAuth client with the application type **Desktop app**.
+5. Copy the client ID (ends in `.apps.googleusercontent.com`) and the client
+   secret (starts with `GOCSPX-`), paste both into the wizard, choose **Save
+   client ID**, then sign in with Google.
+
+If Google says access is blocked, your Workspace admin needs to trust the
+client ID in the Admin console under **Security → API controls**.
+
+A publisher build can instead ship its client ID and secret in
+`GoogleCalendarClientID` and `GoogleCalendarClientSecret` in
+`Pindrop/Info.plist`. Contributors can set `PINDROP_GOOGLE_CLIENT_ID` and
+`PINDROP_GOOGLE_CLIENT_SECRET` when launching a development build.
+
+### Meeting schedule
 
 After connecting, choose **Check Weekly Meetings** from the menu bar or the
 Meetings page. The rolling seven-day review puts calls with other attendees and
@@ -240,11 +268,41 @@ scheduled end, preserves the audio, transcribes and diarizes it, and creates the
 local meeting workspace. The app must be running, the Mac must be awake, and
 Launch at Login should be enabled for dependable scheduling.
 
+Meeting transcripts boost the names of the calendar event's attendees, so
+"Russ D'Sa" isn't transcribed as "Rust DSA".
+
 For a zero-configuration public build, the repository owner must supply one
 publisher-owned client ID, configure the OAuth consent screen, and complete any
 Google verification required for the two read-only Calendar scopes. Until then,
 friends can use the wizard's client-ID field with credentials from their own
 Google Cloud project.
+
+## Vocabulary packs
+
+Packs are glossaries of names and jargon that Parakeet models spell correctly.
+They're on the **Dictionary** page and are turned on per Mac, so a work laptop
+can use a company glossary that a personal one doesn't. Starter packs cover
+Voice AI, LiveKit, and Hardware & synths. Import a pack from a file or a URL
+with **+**, and export one from its **…** menu to share it.
+
+A pack is a text file with one term per line. After a bar, list spellings the
+recognizer produces for the term:
+
+```text
+# name: Hardware
+# summary: Synth and microcontroller terms
+Teensy | TNC, teensie
+Arduino
+KiCad | key cad
+```
+
+JSON works too: `{"name": "Hardware", "terms": [{"text": "Teensy", "soundsLike": ["TNC"]}]}`.
+
+Pack terms fix spacing and capitals ("live kit" → "LiveKit"), the spellings you
+list, and spelled-out or made-up spellings that sound like a term ("T N C",
+"Tinsi" → "Teensy") when the on-device keyword spotter confirms it. Pack terms
+never replace ordinary words by guesswork, so a term heard as a real word
+("barge-in" as "bargain") needs that spelling listed.
 
 ## Optional media-link tools
 

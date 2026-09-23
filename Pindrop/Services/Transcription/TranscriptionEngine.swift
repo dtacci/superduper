@@ -9,12 +9,32 @@ import Foundation
 
 public struct TranscriptionOptions: Sendable, Equatable {
     public let language: AppLanguage
-    /// Vocabulary words for WhisperKit initial-prompt biasing. Empty = no bias.
+    /// Terms to favor: WhisperKit uses them as initial-prompt biasing, Parakeet as
+    /// vocabulary boosting, including acoustic checks of near-misspellings. Empty = no bias.
     public let vocabularyBiasWords: [String]
+    /// Glossary terms (vocabulary packs) that Parakeet only corrects deterministically:
+    /// spacing/case, "sounds like" spellings, and spelled-out letters. Large glossaries
+    /// full of near-common words ("KiCad", "Inworld") make fuzzy matching misfire.
+    public let vocabularyBoostTerms: [String]
+    /// Spellings speech recognition produces for a term ("TNC" for "Teensy"), keyed by
+    /// the term. Parakeet replaces them with the term.
+    public let vocabularySoundsLike: [String: [String]]
 
-    public init(language: AppLanguage = .automatic, vocabularyBiasWords: [String] = []) {
+    public init(
+        language: AppLanguage = .automatic,
+        vocabularyBiasWords: [String] = [],
+        vocabularyBoostTerms: [String] = [],
+        vocabularySoundsLike: [String: [String]] = [:]
+    ) {
         self.language = language
         self.vocabularyBiasWords = vocabularyBiasWords
+        self.vocabularyBoostTerms = vocabularyBoostTerms
+        self.vocabularySoundsLike = vocabularySoundsLike
+    }
+
+    /// Every term Parakeet should boost.
+    var allBoostTerms: [String] {
+        vocabularyBiasWords + vocabularyBoostTerms + vocabularySoundsLike.keys.sorted()
     }
 }
 

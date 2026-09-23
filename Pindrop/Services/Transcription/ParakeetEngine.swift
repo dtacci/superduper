@@ -5,6 +5,7 @@
 //  Created on 2026-01-30.
 //
 
+import AppKit
 import Foundation
 import FluidAudio
 
@@ -116,7 +117,7 @@ public final class ParakeetEngine: TimedTranscriptionEngine, CapabilityReporting
     }
     
     public func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
-        guard !options.vocabularyBiasWords.isEmpty else {
+        guard !options.allBoostTerms.isEmpty else {
             return try await recognize(audioData: audioData).text
         }
         return try await transcribeWords(audioData: audioData, options: options)
@@ -132,12 +133,14 @@ public final class ParakeetEngine: TimedTranscriptionEngine, CapabilityReporting
             return Self.evenlyTimedWords(text: result.text, duration: result.duration)
         }
         let words = Self.words(from: tokenTimings)
-        guard !options.vocabularyBiasWords.isEmpty else { return words }
+        guard !options.allBoostTerms.isEmpty else { return words }
         return await boostVocabulary(
             words: words,
             tokenTimings: tokenTimings,
             audioData: audioData,
-            terms: options.vocabularyBiasWords
+            terms: options.allBoostTerms,
+            nearMatchTerms: options.vocabularyBiasWords,
+            soundsLike: options.vocabularySoundsLike
         )
     }
 
@@ -147,33 +150,52 @@ public final class ParakeetEngine: TimedTranscriptionEngine, CapabilityReporting
     /// mishearing of a vocabulary term (and for any replacement to be accepted).
     nonisolated static let vocabularyMinimumSimilarity = 0.6
 
-    /// Two steps, both conservative:
-    /// 1. Spans that already spell a term apart from spacing/case/punctuation
-    ///    ("live kit", "russ") take the canonical spelling directly.
-    /// 2. Spans that are near-misspellings ("Desa" for "D'Sa") are checked acoustically
-    ///    with FluidAudio's CTC rescorer on a few seconds of audio around each, and
-    ///    only replacements that still resemble the original spelling are accepted.
-    /// Transcripts without near matches cost nothing; any failure leaves them unchanged.
+    /// Conservative, in order:
+    /// 1. Spans that already spell a term, or one of its "sounds like" spellings, apart
+    ///    from spacing/case/punctuation take the canonical term ("live kit" → "LiveKit",
+    ///    "TNC" → "Teensy" when listed). No audio needed.
+    /// 2. Near-misspellings of `nearMatchTerms` (names and dictionary words, e.g. "Desa"
+    ///    for "D'Sa") are verified with FluidAudio's CTC rescorer on a few seconds of
+    ///    audio around each, and the replacement must still resemble the original.
+    /// 3. Spelled-out letters or made-up spellings that sound like any term ("T N C",
+    ///    "Tinsi" ≈ "Teensy") are accepted only when the CTC keyword spotter detects the
+    ///    term at that spot. Glossary terms never replace real words by spelling alone;
+    ///    with hundreds of terms that misfires ("kind" → "KiCad").
+    /// Transcripts without candidates cost nothing; any failure leaves them unchanged.
     private func boostVocabulary(
         words: [TimedWord],
         tokenTimings: [TokenTiming],
         audioData: Data,
-        terms: [String]
+        terms: [String],
+        nearMatchTerms: [String],
+        soundsLike: [String: [String]]
     ) async -> [TimedWord] {
         let started = CFAbsoluteTimeGetCurrent()
         let boostable = Self.boostableTerms(terms)
         guard !boostable.isEmpty else { return words }
 
-        var result = Self.applyingExactTermSpellings(boostable, to: words)
-        let candidates = Self.vocabularyCandidates(in: result, terms: boostable)
+        var result = Self.applyingExactTermSpellings(boostable, soundsLike: soundsLike, to: words)
+        let nearMatchable = Self.boostableTerms(nearMatchTerms)
+        let nearMatchKeys = Set(nearMatchable.map(Self.spellingKey))
+        let glossaryTerms = Set(boostable.filter { !nearMatchKeys.contains(Self.spellingKey($0)) })
+        let spellingCandidates = Self.vocabularyCandidates(in: result, terms: nearMatchable)
+        let soundAlikes = Self.soundAlikeCandidates(in: result, terms: boostable, isWord: Self.isEverydayWord)
+        let candidates = spellingCandidates + soundAlikes
         guard !candidates.isEmpty else {
-            Log.transcription.info("Vocabulary boosting: \(boostable.count) term(s), no near matches")
+            Log.transcription.info(
+                "Vocabulary boosting: \(boostable.count) term(s), no near matches in \(String(format: "%.3f", CFAbsoluteTimeGetCurrent() - started))s"
+            )
             return result
         }
 
         var acousticReplacements = 0
         do {
-            guard let (spotter, vocabulary, rescorer) = try await preparedVocabularyBooster(terms: boostable) else {
+            // Only terms that could apply here go to the spotter; it scales with vocabulary size.
+            var acousticTerms = nearMatchable
+            for term in Set(soundAlikes.map(\.term)).sorted() where !acousticTerms.contains(term) {
+                acousticTerms.append(term)
+            }
+            guard let (spotter, vocabulary, rescorer) = try await preparedVocabularyBooster(terms: acousticTerms) else {
                 return result
             }
             let samples = audioData.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
@@ -213,6 +235,35 @@ public final class ParakeetEngine: TimedTranscriptionEngine, CapabilityReporting
                 )
                 guard !spot.logProbs.isEmpty else { continue }
 
+                // Sound-alike matches: replace by position when the spotter heard the term there.
+                var wordRange = window.wordRange
+                let confirmedSoundAlikes = soundAlikes
+                    .filter { wordRange.contains($0.wordRange.lowerBound) }
+                    .filter { candidate in
+                        let spanStart = result[candidate.wordRange.lowerBound].startTime - window.start
+                        let spanEnd = result[candidate.wordRange.upperBound - 1].endTime - window.start
+                        return spot.detections.contains { detection in
+                            detection.term.text.caseInsensitiveCompare(candidate.term) == .orderedSame
+                                && detection.score >= ContextBiasingConstants.defaultMinVocabCtcScore
+                                && detection.startTime < spanEnd + 0.3
+                                && detection.endTime > spanStart - 0.3
+                        }
+                    }
+                    .sorted { $0.wordRange.lowerBound > $1.wordRange.lowerBound }
+                var replacedSoundAlikeStart = Int.max
+                for candidate in confirmedSoundAlikes where candidate.wordRange.upperBound <= replacedSoundAlikeStart {
+                    let span = result[candidate.wordRange]
+                    result.replaceSubrange(candidate.wordRange, with: [TimedWord(
+                        text: candidate.term + Self.trailingPunctuation(of: span.last?.text ?? ""),
+                        startTime: span.first?.startTime ?? 0,
+                        endTime: span.last?.endTime ?? 0,
+                        confidence: span.map(\.confidence).max() ?? 0
+                    )])
+                    wordRange = wordRange.lowerBound..<(wordRange.upperBound - (candidate.wordRange.count - 1))
+                    replacedSoundAlikeStart = candidate.wordRange.lowerBound
+                    acousticReplacements += 1
+                }
+
                 let output = rescorer.ctcTokenRescore(
                     transcript: windowTokens.map(\.token).joined().trimmingCharacters(in: .whitespaces),
                     tokenTimings: windowTokens,
@@ -225,11 +276,15 @@ public final class ParakeetEngine: TimedTranscriptionEngine, CapabilityReporting
                 let accepted = output.replacements.compactMap { item -> VocabularyReplacement? in
                     guard item.shouldReplace, let replacement = item.replacementWord else { return nil }
                     let candidate = VocabularyReplacement(original: item.originalWord, replacement: replacement)
-                    return Self.isPlausibleReplacement(candidate) ? candidate : nil
+                    guard Self.isPlausibleReplacement(candidate) else { return nil }
+                    if glossaryTerms.contains(replacement),
+                       candidate.original.split(separator: " ").contains(where: { Self.isEverydayWord(String($0)) }) {
+                        return nil
+                    }
+                    return candidate
                 }
-                guard !accepted.isEmpty else { continue }
+                guard !accepted.isEmpty, !wordRange.isEmpty else { continue }
 
-                let wordRange = window.wordRange
                 let updated = Self.applying(accepted, to: Array(result[wordRange]))
                 result.replaceSubrange(wordRange, with: updated)
                 acousticReplacements += accepted.count
@@ -239,7 +294,7 @@ public final class ParakeetEngine: TimedTranscriptionEngine, CapabilityReporting
         }
 
         Log.transcription.info(
-            "Vocabulary boosting: \(boostable.count) term(s), \(candidates.count) near match(es), \(acousticReplacements) replacement(s) in \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - started))s"
+            "Vocabulary boosting: \(boostable.count) term(s), \(candidates.count) candidate(s), \(acousticReplacements) replacement(s) in \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - started))s"
         )
         return result
     }
@@ -340,66 +395,250 @@ public final class ParakeetEngine: TimedTranscriptionEngine, CapabilityReporting
         return similarity >= vocabularyMinimumSimilarity
     }
 
-    /// Word spans that spell a term exactly apart from spacing, case, and punctuation
-    /// take the term's canonical spelling ("live kit" → "LiveKit", "russ" → "Russ").
-    nonisolated static func applyingExactTermSpellings(_ terms: [String], to words: [TimedWord]) -> [TimedWord] {
-        let keyed = terms.map { (term: $0, key: spellingKey($0), span: max(1, $0.split(separator: " ").count + 1)) }
+    /// Word spans that spell a term, or one of its "sounds like" spellings, exactly
+    /// apart from spacing, case, and punctuation take the term's canonical spelling
+    /// ("live kit" → "LiveKit", "russ" → "Russ", "TNC" → "Teensy" when listed).
+    /// All-caps terms only match capitals: "sip" isn't "SIP", "a DC motor" isn't "ADC".
+    nonisolated static func applyingExactTermSpellings(
+        _ terms: [String],
+        soundsLike: [String: [String]] = [:],
+        to words: [TimedWord]
+    ) -> [TimedWord] {
+        var canonicalByKey: [String: (term: String, isAlias: Bool)] = [:]
+        var maxSpan = 1
+        func register(_ spelling: String, as term: String, isAlias: Bool) {
+            let key = spellingKey(spelling)
+            guard key.count >= 2 else { return }
+            // Acronyms may come out letter by letter ("B V C").
+            maxSpan = max(maxSpan, spelling.split(separator: " ").count + 1, isAcronym(spelling) ? key.count : 0)
+            if canonicalByKey[key] == nil {
+                canonicalByKey[key] = (term, isAlias)
+            }
+        }
+        terms.forEach { register($0, as: $0, isAlias: false) }
+        for term in soundsLike.keys.sorted() {
+            soundsLike[term]?.forEach { register($0, as: term, isAlias: true) }
+        }
+        guard !canonicalByKey.isEmpty else { return words }
+
+        let keys = words.map { spellingKey($0.text) }
         var result: [TimedWord] = []
         var index = 0
-        outer: while index < words.count {
-            for (term, key, maxSpan) in keyed {
-                for length in stride(from: min(maxSpan, words.count - index), through: 1, by: -1) {
-                    let span = words[index..<(index + length)]
-                    guard span.map({ spellingKey($0.text) }).joined() == key else { continue }
-                    let original = span.map(\.text).joined(separator: " ")
-                    let trailing = trailingPunctuation(of: span.last?.text ?? "")
-                    let canonical = term + trailing
-                    result.append(original == canonical ? span.first! : TimedWord(
+        while index < words.count {
+            var matched = false
+            for length in stride(from: min(maxSpan, words.count - index), through: 1, by: -1) {
+                guard let (term, isAlias) = canonicalByKey[keys[index..<(index + length)].joined()] else { continue }
+                let span = words[index..<(index + length)]
+                if !isAlias, isAcronym(term), !span.allSatisfy({ isWrittenInCapitals($0.text) }) {
+                    continue
+                }
+                let canonical = term + trailingPunctuation(of: span.last?.text ?? "")
+                if span.map(\.text).joined(separator: " ") == canonical {
+                    result.append(contentsOf: span)
+                } else {
+                    result.append(TimedWord(
                         text: canonical,
                         startTime: span.first!.startTime,
                         endTime: span.last!.endTime,
                         confidence: span.map(\.confidence).max() ?? 0
                     ))
-                    if length > 1, original == canonical {
-                        result.append(contentsOf: span.dropFirst())
-                    }
-                    index += length
-                    continue outer
                 }
+                index += length
+                matched = true
+                break
             }
-            result.append(words[index])
-            index += 1
+            if !matched {
+                result.append(words[index])
+                index += 1
+            }
         }
         return result
     }
 
     /// Spans (up to one word longer than the term) whose spelling is close to a term
-    /// but not already an exact spelling of it.
+    /// but not already an exact spelling of it. Only terms that start with the same
+    /// sound are compared ("Kristin"/"Christine"), which keeps large glossaries cheap.
     nonisolated static func vocabularyCandidates(
         in words: [TimedWord],
         terms: [String],
         minimumSimilarity: Double = vocabularyMinimumSimilarity
     ) -> [VocabularyCandidate] {
-        var candidates: [VocabularyCandidate] = []
-        let keys = words.map { spellingKey($0.text) }
+        var termsByInitial: [Character: [(term: String, key: String, maxSpan: Int)]] = [:]
         for term in terms {
-            let termKey = spellingKey(term)
-            let maxSpan = term.split(separator: " ").count + 1
-            for start in words.indices {
-                for length in 1...maxSpan where start + length <= words.count {
-                    let spanKeys = keys[start..<(start + length)]
-                    let spanKey = spanKeys.joined()
-                    guard spanKey != termKey,
-                          !spanKeys.contains(termKey),
-                          abs(spanKey.count - termKey.count) <= max(2, termKey.count / 2),
-                          spellingSimilarity(spanKey, termKey) >= minimumSimilarity else {
+            let key = spellingKey(term)
+            guard let initial = initialSound(of: key) else { continue }
+            termsByInitial[initial, default: []].append((term, key, term.split(separator: " ").count + 1))
+        }
+        let overallMaxSpan = termsByInitial.values.flatMap { $0 }.map(\.maxSpan).max() ?? 1
+        let keys = words.map { spellingKey($0.text) }
+
+        var candidates: [VocabularyCandidate] = []
+        for start in words.indices {
+            guard let initial = initialSound(of: keys[start]), let group = termsByInitial[initial] else { continue }
+            for length in 1...overallMaxSpan where start + length <= words.count {
+                let spanKeys = keys[start..<(start + length)]
+                let spanKey = spanKeys.joined()
+                for entry in group where length <= entry.maxSpan {
+                    guard spanKey != entry.key,
+                          !spanKeys.contains(entry.key),
+                          abs(spanKey.count - entry.key.count) <= max(2, entry.key.count / 2),
+                          spellingSimilarity(spanKey, entry.key) >= minimumSimilarity else {
                         continue
                     }
-                    candidates.append(VocabularyCandidate(wordRange: start..<(start + length), term: term))
+                    candidates.append(VocabularyCandidate(wordRange: start..<(start + length), term: entry.term))
                 }
             }
         }
         return candidates
+    }
+
+    /// First letter, with the hard "c"/"k"/"q" sound grouped together.
+    private nonisolated static func initialSound(of key: String) -> Character? {
+        guard let first = key.first else { return nil }
+        return first == "c" || first == "q" ? "k" : first
+    }
+
+    /// Spans that sound like a word term by consonant skeleton: spelled-out capitals
+    /// ("TNC", "T N C" ≈ "Teensy") or a made-up spelling ("Tinsi"). Real words never
+    /// qualify, letters that already spell a term are left alone, and acronym terms
+    /// aren't targets. The keyword spotter must confirm each one.
+    nonisolated static func soundAlikeCandidates(
+        in words: [TimedWord],
+        terms: [String],
+        isWord: (String) -> Bool
+    ) -> [VocabularyCandidate] {
+        var termsBySkeleton: [String: [String]] = [:]
+        for term in terms where !isAcronym(term) {
+            let skeleton = phoneticSkeleton(term)
+            guard skeleton.count >= 3 else { continue }
+            termsBySkeleton[skeleton, default: []].append(term)
+        }
+        guard !termsBySkeleton.isEmpty else { return [] }
+        let termKeys = Set(terms.map(spellingKey))
+
+        func letters(_ word: TimedWord) -> String? {
+            let stripped = word.text.filter { $0 != "." && $0 != "," && $0 != "?" && $0 != "!" }
+            guard (1...4).contains(stripped.count), stripped.allSatisfy({ $0.isASCII && $0.isUppercase }) else {
+                return nil
+            }
+            return stripped
+        }
+
+        var candidates: [VocabularyCandidate] = []
+        for start in words.indices {
+            let key = spellingKey(words[start].text)
+            if letters(words[start]) == nil, !termKeys.contains(key), let group = termsBySkeleton[phoneticSkeleton(key)] {
+                let matches = group.filter { initialSound(of: spellingKey($0)) == initialSound(of: key) }
+                if !matches.isEmpty, !isWord(words[start].text) {
+                    candidates += matches.map { VocabularyCandidate(wordRange: start..<(start + 1), term: $0) }
+                }
+                continue
+            }
+
+            var spelled = ""
+            for end in start..<min(words.count, start + 6) {
+                guard let next = letters(words[end]) else { break }
+                spelled += next
+                // Spans start and end on a consonant sound, so "I" or "A" next to the
+                // letters isn't swallowed.
+                guard (2...6).contains(spelled.count),
+                      !termKeys.contains(spelled.lowercased()),
+                      let first = spelled.first, let last = spelled.last,
+                      !phoneticSkeleton(spokenLetterNames(String(first))).isEmpty,
+                      !phoneticSkeleton(spokenLetterNames(String(last))).isEmpty else {
+                    continue
+                }
+                for term in termsBySkeleton[phoneticSkeleton(spokenLetterNames(spelled))] ?? [] {
+                    candidates.append(VocabularyCandidate(wordRange: start..<(end + 1), term: term))
+                }
+            }
+        }
+        return candidates
+    }
+
+    private nonisolated static let letterNames: [Character: String] = [
+        "a": "ay", "b": "bee", "c": "see", "d": "dee", "e": "ee", "f": "ef", "g": "jee",
+        "h": "aych", "i": "eye", "j": "jay", "k": "kay", "l": "el", "m": "em", "n": "en",
+        "o": "oh", "p": "pee", "q": "cue", "r": "ar", "s": "es", "t": "tee", "u": "you",
+        "v": "vee", "w": "doubleyou", "x": "ex", "y": "why", "z": "zee",
+    ]
+
+    /// "TNC" → "teeensee": how a string of letters is pronounced.
+    nonisolated static func spokenLetterNames(_ letters: String) -> String {
+        letters.lowercased().compactMap { letterNames[$0] }.joined()
+    }
+
+    /// Dictionary words (and numbers and single letters), which glossary terms never
+    /// replace: "kind" isn't a mishearing of "KiCad", but "Tinsi" is one of "Teensy".
+    static func isEverydayWord(_ word: String) -> Bool {
+        let trimmed = word.trimmingCharacters(in: .punctuationCharacters)
+        guard trimmed.filter(\.isLetter).count > 1 else { return true }
+        let misspelled = NSSpellChecker.shared.checkSpelling(
+            of: trimmed,
+            startingAt: 0,
+            language: "en",
+            wrap: false,
+            inSpellDocumentWithTag: 0,
+            wordCount: nil
+        )
+        return misspelled.location == NSNotFound
+    }
+
+    /// Words written as capitals ("DC", "i2S", "B", "32"), unlike everyday words
+    /// ("sip", "Sip", "a", "A", "I").
+    nonisolated static func isWrittenInCapitals(_ word: String) -> Bool {
+        let letters = word.filter(\.isLetter)
+        if letters.count == 1 {
+            return letters.allSatisfy(\.isUppercase) && letters != "A" && letters != "I"
+        }
+        return letters.isEmpty || letters.dropFirst().contains(where: \.isUppercase)
+    }
+
+    /// "STT", "I2S", "SGTL5000": capitals and digits only.
+    nonisolated static func isAcronym(_ term: String) -> Bool {
+        let letters = term.filter(\.isLetter)
+        return !letters.isEmpty && letters.allSatisfy(\.isUppercase) && !term.contains(" ")
+    }
+
+    /// A rough consonant skeleton for comparing pronunciations: vowels dropped, soft
+    /// "c" as "s", hard "c"/"q" as "k", "ph" as "f", repeats collapsed.
+    /// "Teensy" and "teeensee" both become "tns".
+    nonisolated static func phoneticSkeleton(_ text: String) -> String {
+        let letters = Array(text.lowercased().filter { $0.isASCII && $0.isLetter })
+        var skeleton: [Character] = []
+        var index = 0
+        while index < letters.count {
+            let letter = letters[index]
+            let next: Character? = index + 1 < letters.count ? letters[index + 1] : nil
+            var sounds: [Character] = []
+            switch letter {
+            case "a", "e", "i", "o", "u", "y", "h":
+                break
+            case "p" where next == "h":
+                sounds = ["f"]
+                index += 1
+            case "c" where next == "k":
+                sounds = ["k"]
+                index += 1
+            case "c":
+                sounds = [next == "e" || next == "i" || next == "y" ? "s" : "k"]
+            case "q":
+                sounds = ["k"]
+            case "z":
+                sounds = ["s"]
+            case "x":
+                sounds = ["k", "s"]
+            case "g" where next == "e" || next == "i":
+                sounds = ["j"]
+            default:
+                sounds = [letter]
+            }
+            for sound in sounds where skeleton.last != sound {
+                skeleton.append(sound)
+            }
+            index += 1
+        }
+        return String(skeleton)
     }
 
     /// Short audio windows (±2s) around candidate spans, merged when they overlap,

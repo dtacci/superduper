@@ -1933,7 +1933,9 @@ class TranscriptionService {
             Log.transcription.info("Pinned detected language for diarized transcription segments: \(detectedLanguage.rawValue)")
             return TranscriptionOptions(
                 language: detectedLanguage,
-                vocabularyBiasWords: options.vocabularyBiasWords
+                vocabularyBiasWords: options.vocabularyBiasWords,
+                vocabularyBoostTerms: options.vocabularyBoostTerms,
+                vocabularySoundsLike: options.vocabularySoundsLike
             )
         } catch {
             Log.transcription.warning(

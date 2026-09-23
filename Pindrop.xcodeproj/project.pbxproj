@@ -223,6 +223,9 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		PIPEMETRICSBUILD01A2B3 /* PipelineMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = PIPEMETRICSFILE01A2B3 /* PipelineMetrics.swift */; };
 		REPLMATCHMODEBUILD01 /* ReplacementMatchMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = REPLMATCHMODEFILE01 /* ReplacementMatchMode.swift */; };
 		VOCABBIASPROMPBUILD01 /* VocabularyBiasPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = VOCABBIASPROMPFILE01 /* VocabularyBiasPrompt.swift */; };
+		VOCABPACKSTOREBUILD01 /* VocabularyPackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = VOCABPACKSTOREFILE01 /* VocabularyPackStore.swift */; };
+		VOCABPACKSECTIONBUILD01 /* VocabularyPacksSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = VOCABPACKSECTIONFILE01 /* VocabularyPacksSection.swift */; };
+		VOCABPACKTESTSBUILD01 /* VocabularyPackStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = VOCABPACKTESTSFILE01 /* VocabularyPackStoreTests.swift */; };
 		VOCABBIASPROMPTESTBUILD01 /* VocabularyBiasPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = VOCABBIASPROMPTESTFILE01 /* VocabularyBiasPromptTests.swift */; };
 		STRWORDCOUNTBUILD01 /* String+WordCount.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRWORDCOUNTFILE01 /* String+WordCount.swift */; };
 		SCHEMV8TESTBUILD01 /* SchemaV8MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMV8TESTFILE01 /* SchemaV8MigrationTests.swift */; };
@@ -537,6 +540,9 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		PIPEMETRICSFILE01A2B3 /* PipelineMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineMetrics.swift; sourceTree = "<group>"; };
 		REPLMATCHMODEFILE01 /* ReplacementMatchMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplacementMatchMode.swift; sourceTree = "<group>"; };
 		VOCABBIASPROMPFILE01 /* VocabularyBiasPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyBiasPrompt.swift; sourceTree = "<group>"; };
+		VOCABPACKSTOREFILE01 /* VocabularyPackStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyPackStore.swift; sourceTree = "<group>"; };
+		VOCABPACKSECTIONFILE01 /* VocabularyPacksSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyPacksSection.swift; sourceTree = "<group>"; };
+		VOCABPACKTESTSFILE01 /* VocabularyPackStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyPackStoreTests.swift; sourceTree = "<group>"; };
 		VOCABBIASPROMPTESTFILE01 /* VocabularyBiasPromptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyBiasPromptTests.swift; sourceTree = "<group>"; };
 		STRWORDCOUNTFILE01 /* String+WordCount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+WordCount.swift"; sourceTree = "<group>"; };
 		SCHEMV8TESTFILE01 /* SchemaV8MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV8MigrationTests.swift; sourceTree = "<group>"; };
@@ -750,6 +756,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				NOTEAPPLISTENFILE01A2B3 /* NoteAppendListeningState.swift */,
 				DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */,
 				VOCABBIASPROMPFILE01 /* VocabularyBiasPrompt.swift */,
+				VOCABPACKSTOREFILE01 /* VocabularyPackStore.swift */,
 				PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */,
 				CTXCAPT02A2B3C4D5E6F7 /* ContextCaptureService.swift */,
 				CTXADAPT02A2B3C4D5E6F /* AppContextAdapter.swift */,
@@ -954,6 +961,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				MEDIAINGESTTESTFILE01A2B3C4D5E6F /* MediaIngestionServiceTests.swift */,
 				MEDIAPREPTESTFILE01A2B3C4D5E6F /* MediaPreparationServiceTests.swift */,
 				DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */,
+				VOCABPACKTESTSFILE01 /* VocabularyPackStoreTests.swift */,
 				PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */,
 				NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */,
 				TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */,
@@ -1079,6 +1087,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				HOMEPRESENTFILE01A2B3C4D5 /* HomePresentation.swift */,
 				LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */,
 				DICTVIEWMAIN1A2B3C4D5E6F71 /* DictionaryView.swift */,
+				VOCABPACKSECTIONFILE01 /* VocabularyPacksSection.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -1343,6 +1352,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				MEDIAINGESTTESTBUILD01A2B3C4D5E6F /* MediaIngestionServiceTests.swift in Sources */,
 				MEDIAPREPTESTBUILD01A2B3C4D5E6F /* MediaPreparationServiceTests.swift in Sources */,
 				DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */,
+				VOCABPACKTESTSBUILD01 /* VocabularyPackStoreTests.swift in Sources */,
 				PRESETSTORETEST1A2B3C4D5E6F70 /* PromptPresetStoreTests.swift in Sources */,
 				NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */,
 				TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */,
@@ -1451,6 +1461,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TRXDTLACCESSBUILD01A2B3 /* TranscriptionDetailAccess.swift in Sources */,
 				DICTSTORE2A2B3C4D5E6F70 /* DictionaryStore.swift in Sources */,
 				VOCABBIASPROMPBUILD01 /* VocabularyBiasPrompt.swift in Sources */,
+				VOCABPACKSTOREBUILD01 /* VocabularyPackStore.swift in Sources */,
 				PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */,
 				8D0F64A2A0A44CE9B6B5A002 /* SettingsWindowController.swift in Sources */,
 				8D0F64A2A0A44CE9B6B5A004 /* DictationSettingsView.swift in Sources */,
@@ -1549,6 +1560,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				SETTCHROMEBUILD01A2B3C /* SettingsChrome.swift in Sources */,
 				LIBEXPANDBUILD01A2B3C4D5 /* LibraryExpandedPlayerCard.swift in Sources */,
 				DICTVIEWMAIN1A2B3C4D5E6F70 /* DictionaryView.swift in Sources */,
+				VOCABPACKSECTIONBUILD01 /* VocabularyPacksSection.swift in Sources */,
 				FIXEDLAYOUT01A2B3C4D5E6F /* MainContentPageLayout.swift in Sources */,
 				CEACBC45493663E081E4B1FA /* CopyButton.swift in Sources */,
 				NOTESVIEW1A2B3C4D5E6F70 /* NotesView.swift in Sources */,

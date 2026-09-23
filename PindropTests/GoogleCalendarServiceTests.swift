@@ -43,6 +43,16 @@ struct GoogleCalendarServiceTests {
         #expect(sut.isConnected)
     }
 
+    // Google rejects Desktop-type clients at the token endpoint without their secret.
+    @Test func desktopClientSecretIsSentWithTokenRequests() {
+        #expect(GoogleOAuthConfiguration.desktop(clientID: "id", clientSecret: "GOCSPX-abc").clientCredentialFields == [
+            "client_id": "id",
+            "client_secret": "GOCSPX-abc",
+        ])
+        #expect(GoogleOAuthConfiguration.desktop(clientID: "id").clientCredentialFields == ["client_id": "id"])
+        #expect(GoogleOAuthConfiguration.desktop(clientID: "id", clientSecret: "").clientSecret == nil)
+    }
+
     @Test func oauthRejectsMismatchedCSRFStateBeforeTokenExchange() async {
         let transport = OAuthTransportMock()
         let callback = OAuthCallbackMock(returnMismatchedState: true)

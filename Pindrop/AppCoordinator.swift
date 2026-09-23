@@ -503,6 +503,7 @@ final class AppCoordinator {
     let meetingInsightGenerator: MeetingInsightGenerator
     let speakerIdentityService: SpeakerIdentityService
     let dictionaryStore: DictionaryStore
+    let vocabularyPackStore: VocabularyPackStore
     let settingsStore: SettingsStore
     let notesStore: NotesStore
     let contextCaptureService: ContextCaptureService
@@ -778,6 +779,7 @@ final class AppCoordinator {
             Log.app.error("Failed to recover interrupted meeting workspaces: \(error.localizedDescription)")
         }
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
+        self.vocabularyPackStore = VocabularyPackStore()
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()
         self.contextEngineService = ContextEngineService()
@@ -874,6 +876,7 @@ final class AppCoordinator {
         self.mainWindowController = MainWindowController()
         self.modelManager.telemetryService = telemetryService
         self.mainWindowController.setModelContainer(modelContainer)
+        self.mainWindowController.setVocabularyPackStore(vocabularyPackStore)
         self.noteEditorWindowController = NoteEditorWindowController()
         self.noteEditorWindowController.setModelContainer(modelContainer)
         self.settingsWindowController.configureGoogleCalendar(
@@ -1187,6 +1190,8 @@ final class AppCoordinator {
     // MARK: - Google Calendar meetings
 
     private static let googleCalendarSyncTokenDefaultsKey = "googleCalendarSyncTokens"
+    /// The Desktop OAuth client secret lives next to the refresh token in Keychain.
+    private static let googleClientSecretStore = GoogleOAuthKeychainStore(account: "google-calendar-client-secret")
 
     private func setupGoogleCalendarIntegration() {
         meetingsState.isLaunchAtLoginEnabled = launchAtLoginManager.isEnabled
@@ -1211,7 +1216,14 @@ final class AppCoordinator {
             return
         }
 
-        let oauth = GoogleOAuthService(configuration: .desktop(clientID: clientID))
+        let clientSecret = [
+            ProcessInfo.processInfo.environment["PINDROP_GOOGLE_CLIENT_SECRET"],
+            try? Self.googleClientSecretStore.loadRefreshToken(),
+            Bundle.main.object(forInfoDictionaryKey: "GoogleCalendarClientSecret") as? String
+        ]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { !$0.isEmpty }
+        let oauth = GoogleOAuthService(configuration: .desktop(clientID: clientID, clientSecret: clientSecret))
         let client = GoogleCalendarClient(oauth: oauth)
         let scheduler = CalendarMeetingScheduler(
             meetingStore: meetingStore,
@@ -1319,8 +1331,21 @@ final class AppCoordinator {
             return
         }
 
+        let clientSecret = meetingsState.googleClientSecretDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        do {
+            if clientSecret.isEmpty {
+                try Self.googleClientSecretStore.deleteRefreshToken()
+            } else {
+                try Self.googleClientSecretStore.saveRefreshToken(clientSecret)
+            }
+        } catch {
+            meetingsState.errorMessage = error.localizedDescription
+            return
+        }
+
         settingsStore.googleCalendarClientID = clientID
         meetingsState.googleClientIDDraft = clientID
+        meetingsState.googleClientSecretDraft = ""
         meetingsState.errorMessage = nil
         meetingsState.readinessMessage = nil
         setupGoogleCalendarIntegration()
@@ -4217,14 +4242,18 @@ final class AppCoordinator {
         )
     }
 
-    /// Builds transcription options including WhisperKit vocabulary bias words.
+    /// Builds transcription options: dictionary words for WhisperKit prompt biasing and
+    /// Parakeet boosting, plus this Mac's enabled vocabulary packs for Parakeet.
     private func makeTranscriptionOptions(
         language: AppLanguage? = nil
     ) -> TranscriptionOptions {
         let bias = (try? dictionaryStore.vocabularyBiasWords()) ?? []
+        let packs = vocabularyPackStore.activeVocabulary()
         return TranscriptionOptions(
             language: language ?? settingsStore.selectedAppLanguage,
-            vocabularyBiasWords: bias
+            vocabularyBiasWords: bias,
+            vocabularyBoostTerms: packs.terms,
+            vocabularySoundsLike: packs.soundsLike
         )
     }
 
@@ -4239,15 +4268,27 @@ final class AppCoordinator {
         if let profiles = try? speakerIdentityService.fetchAllProfiles() {
             candidates += profiles.filter { !$0.isCurrentUser }.map(\.displayName)
         }
-        candidates += Self.calendarAttendeeNames(fromEventJSON: occurrence?.calendarSnapshotJSON)
+        // Meetings armed from the calendar carry their event; ad-hoc ones (meeting
+        // shortcut, "Save as Meeting") use the calendar event they overlapped.
+        let eventJSON = occurrence?.calendarSnapshotJSON ?? Self.calendarEvent(
+            overlappingFrom: occurrence?.scheduledStart ?? Date(),
+            to: Date(),
+            in: meetingsState.calendarEvents
+        )?.rawSnapshotJSON
+        candidates += Self.calendarAttendeeNames(fromEventJSON: eventJSON)
 
         let terms = Self.meetingVocabulary(from: candidates)
-        if !terms.isEmpty {
-            Log.transcription.info("Meeting vocabulary boosting with \(terms.count) term(s)")
+        let packs = vocabularyPackStore.activeVocabulary()
+        if !terms.isEmpty || !packs.terms.isEmpty {
+            Log.transcription.info(
+                "Meeting vocabulary boosting with \(terms.count) name/term(s) and \(packs.terms.count) pack term(s)"
+            )
         }
         return TranscriptionOptions(
             language: settingsStore.selectedAppLanguage,
-            vocabularyBiasWords: terms
+            vocabularyBiasWords: terms,
+            vocabularyBoostTerms: packs.terms,
+            vocabularySoundsLike: packs.soundsLike
         )
     }
 
@@ -4282,8 +4323,9 @@ final class AppCoordinator {
         return Array(terms.prefix(limit))
     }
 
-    /// Attendee and organizer display names from a stored Google Calendar event,
-    /// excluding you and room resources.
+    /// Attendee and organizer names from a stored Google Calendar event, excluding
+    /// you and room resources. Workspace events often carry only email addresses,
+    /// so a name is derived from the address when there is no display name.
     nonisolated static func calendarAttendeeNames(fromEventJSON json: String?) -> [String] {
         guard let data = json?.data(using: .utf8),
               let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
@@ -4294,14 +4336,46 @@ final class AppCoordinator {
             people.append(organizer)
         }
         return people.compactMap { person in
-            guard person["self"] as? Bool != true,
-                  person["resource"] as? Bool != true,
-                  let name = person["displayName"] as? String,
-                  !name.trimmingCharacters(in: .whitespaces).isEmpty else {
-                return nil
+            guard person["self"] as? Bool != true, person["resource"] as? Bool != true else { return nil }
+            if let name = (person["displayName"] as? String)?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
+                return name
             }
-            return name
+            return (person["email"] as? String).flatMap(nameFromEmailAddress)
         }
+    }
+
+    /// "russ.dsa@livekit.io" → "Russ Dsa". Shared or numbered mailboxes yield nil.
+    nonisolated static func nameFromEmailAddress(_ email: String) -> String? {
+        guard let localPart = email.split(separator: "@").first.map(String.init),
+              !localPart.isEmpty,
+              localPart.rangeOfCharacter(from: .decimalDigits) == nil,
+              !Self.sharedMailboxNames.contains(localPart.lowercased()) else {
+            return nil
+        }
+        let parts = localPart
+            .split(whereSeparator: { ".-_+".contains($0) })
+            .map { $0.prefix(1).uppercased() + $0.dropFirst().lowercased() }
+        return parts.isEmpty ? nil : parts.joined(separator: " ")
+    }
+
+    private nonisolated static let sharedMailboxNames: Set<String> = [
+        "admin", "calendar", "contact", "events", "hello", "help", "hi", "info", "meetings",
+        "no-reply", "noreply", "office", "ops", "sales", "support", "team",
+    ]
+
+    /// The timed (not all-day) calendar event that overlaps a recording the most.
+    nonisolated static func calendarEvent(
+        overlappingFrom start: Date,
+        to end: Date,
+        in events: [MeetingOccurrenceSnapshot]
+    ) -> MeetingOccurrenceSnapshot? {
+        func overlap(_ event: MeetingOccurrenceSnapshot) -> TimeInterval {
+            let eventEnd = event.end ?? event.start.addingTimeInterval(60 * 60)
+            return min(end, eventEnd).timeIntervalSince(max(start, event.start))
+        }
+        return events
+            .filter { !$0.isAllDay && overlap($0) > 0 }
+            .max { overlap($0) < overlap($1) }
     }
 
     private func makeTranscriptionProgressHandler() -> TranscriptionProgressHandler {
