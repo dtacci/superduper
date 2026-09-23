@@ -737,7 +737,7 @@ struct GoogleCalendarSetupWizard: View {
                     color: AppColors.warning,
                     title: localized("Setup required", locale: locale),
                     detail: localized(
-                        "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account.",
+                        "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account.",
                         locale: locale
                     )
                 )
@@ -755,6 +755,19 @@ struct GoogleCalendarSetupWizard: View {
                     )
                     .textFieldStyle(.roundedBorder)
                     .accessibilityIdentifier("googleCalendar.setup.clientID")
+
+                    Text(localized("Client secret", locale: locale))
+                        .font(AppTypography.labelStrong)
+                        .foregroundStyle(AppColors.textPrimary)
+                    SecureField(
+                        localized("Required for Desktop app clients (starts with GOCSPX-)", locale: locale),
+                        text: Binding(
+                            get: { state.googleClientSecretDraft },
+                            set: { state.googleClientSecretDraft = $0 }
+                        )
+                    )
+                    .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("googleCalendar.setup.clientSecret")
 
                     HStack {
                         Link(

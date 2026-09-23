@@ -91586,6 +91586,390 @@
         }
       }
     },
+    "meeting_release_client_secret": {
+      "comment": "Client secret",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client secret"
+          }
+        }
+      }
+    },
+    "meeting_release_client_secret_placeholder": {
+      "comment": "Required for Desktop app clients (starts with GOCSPX-)",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required for Desktop app clients (starts with GOCSPX-)"
+          }
+        }
+      }
+    },
     "meeting_release_connect": {
       "comment": "Connect",
       "extractionState": "manual",
@@ -111363,193 +111747,193 @@
       }
     },
     "meeting_release_wizard_missing_client": {
-      "comment": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account.",
+      "comment": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a Google Desktop OAuth client ID once, then the normal browser sign-in flow handles your account."
+            "value": "Paste a Google Desktop OAuth client ID and secret once, then the normal browser sign-in flow handles your account."
           }
         }
       }
@@ -241150,6 +241534,2310 @@
           "stringUnit": {
             "state": "translated",
             "value": "詞彙"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_add_pack": {
+      "comment": "Add a vocabulary pack",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a vocabulary pack"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_enter_web_address": {
+      "comment": "Enter a web address that starts with https://",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a web address that starts with https://"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_error_title": {
+      "comment": "Vocabulary pack error",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary pack error"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_export": {
+      "comment": "Export…",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_file_formats": {
+      "comment": "A JSON pack, or a text file with one term per line.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON pack, or a text file with one term per line."
+          }
+        }
+      }
+    },
+    "vocabulary_packs_footnote": {
+      "comment": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Packs boost names and jargon with Parakeet models. In a pack file, write one term per line and add spellings the recognizer hears after a bar, like “Teensy | TNC”."
+          }
+        }
+      }
+    },
+    "vocabulary_packs_import_file": {
+      "comment": "Import pack file…",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack file…"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_import_url": {
+      "comment": "Import pack from URL…",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL…"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_import_url_title": {
+      "comment": "Import pack from URL",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import pack from URL"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_more": {
+      "comment": "More",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_section_meta": {
+      "comment": "Glossaries boosted on this Mac",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossaries boosted on this Mac"
+          }
+        }
+      }
+    },
+    "vocabulary_packs_title": {
+      "comment": "Vocabulary packs",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary packs"
           }
         }
       }

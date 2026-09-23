@@ -196,9 +196,11 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             // instead of seeking through the windows one after another.
             decodeOptions.chunkingStrategy = .vad
 
-            // Vocabulary biasing via decoder promptTokens. Cap is enforced by
+            // Vocabulary biasing via decoder promptTokens, capped at
             // VocabularyBiasPrompt.maxWordCount (~40); empty vocabulary is a no-op.
-            if let promptText = VocabularyBiasPrompt.assemblePrompt(words: options.vocabularyBiasWords),
+            if let promptText = VocabularyBiasPrompt.assemblePrompt(
+                words: Array(options.vocabularyBiasWords.prefix(VocabularyBiasPrompt.maxWordCount))
+            ),
                let tokenizer = whisperKit.tokenizer {
                 let encoded = tokenizer.encode(
                     text: " " + promptText.trimmingCharacters(in: .whitespaces)

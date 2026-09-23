@@ -406,6 +406,68 @@ struct ParakeetEngineTests {
         #expect(result[2].endTime == 3.8)
     }
 
+    // "Sounds like" spellings from vocabulary packs map straight to their term.
+    @Test func soundsLikeSpellingsTakeTheirTerm() {
+        let words = timed(["flashed", "the", "TNC", "and", "the", "T", "N", "C."])
+
+        let result = ParakeetEngine.applyingExactTermSpellings(
+            ["Teensy"],
+            soundsLike: ["Teensy": ["TNC", "T N C"]],
+            to: words
+        )
+
+        #expect(result.map(\.text) == ["flashed", "the", "Teensy", "and", "the", "Teensy."])
+        #expect(result[5].startTime == 5)
+        #expect(result[5].endTime == 7.8)
+    }
+
+    // Everyday words aren't turned into all-caps terms ("take a sip", "a DC motor"),
+    // but acronyms spelled out letter by letter are joined.
+    @Test func onlyCapitalsMatchAcronyms() {
+        let words = timed(["Sip", "on", "A", "DC", "motor", "and", "sip", "trunk", "B", "V", "C", "i2S"])
+
+        let result = ParakeetEngine.applyingExactTermSpellings(["SIP", "ADC", "SIP trunk", "BVC", "I2S"], to: words)
+
+        #expect(result.map(\.text) == ["Sip", "on", "A", "DC", "motor", "and", "SIP trunk", "BVC", "I2S"])
+    }
+
+    @Test func phoneticSkeletonsCompareHowWordsSound() {
+        #expect(ParakeetEngine.phoneticSkeleton("Teensy") == "tns")
+        #expect(ParakeetEngine.phoneticSkeleton(ParakeetEngine.spokenLetterNames("TNC")) == "tns")
+        #expect(ParakeetEngine.phoneticSkeleton("Christine") == ParakeetEngine.phoneticSkeleton("Kristine"))
+        #expect(ParakeetEngine.isAcronym("I2S"))
+        #expect(!ParakeetEngine.isAcronym("Teensy"))
+        #expect(ParakeetEngine.isEverydayWord("kind,"))
+        #expect(!ParakeetEngine.isEverydayWord("Tinsi"))
+    }
+
+    // Letters and made-up spellings that sound like a word term are candidates; the
+    // keyword spotter confirms them. Real words never are.
+    @Test func soundAlikesOfATermBecomeCandidates() {
+        let words = timed(["I", "T", "N", "C", "board", "and", "a", "VCA", "Tinsi", "tines"])
+        let realWords: Set<String> = ["tines"]
+
+        let candidates = ParakeetEngine.soundAlikeCandidates(
+            in: words,
+            terms: ["Teensy", "VCO", "VCA"],
+            isWord: { realWords.contains($0) }
+        )
+
+        #expect(candidates == [
+            ParakeetEngine.VocabularyCandidate(wordRange: 1..<4, term: "Teensy"),
+            ParakeetEngine.VocabularyCandidate(wordRange: 8..<9, term: "Teensy"),
+        ])
+    }
+
+    @Test func nearMisspellingsStartingWithTheSameSoundAreCandidates() {
+        let words = timed(["met", "Kristine", "and", "Zeke"])
+
+        let candidates = ParakeetEngine.vocabularyCandidates(in: words, terms: ["Christine", "Seek"])
+
+        #expect(candidates.contains(ParakeetEngine.VocabularyCandidate(wordRange: 1..<2, term: "Christine")))
+        #expect(!candidates.contains { $0.term == "Seek" })
+    }
+
     @Test func nearMisspellingsBecomeCandidatesButExactOnesDoNot() {
         let words = timed(["talked", "to", "Desa", "and", "LiveKit"])
 

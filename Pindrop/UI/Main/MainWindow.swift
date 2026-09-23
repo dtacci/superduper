@@ -124,6 +124,7 @@ struct MainWindow: View {
     let onRegenerateMeetingInsights: ((UUID) -> Void)?
     let onStartNoteCapture: (() -> Void)?
     let onOpenSettings: (SettingsTab) -> Void
+    var vocabularyPackStore: VocabularyPackStore? = nil
 
     private func navigateTo(_ item: MainNavItem) {
         let destination = item.resolvedDestination
@@ -300,7 +301,7 @@ struct MainWindow: View {
                 comingSoonView(for: selectedNav)
             }
         case .dictionary:
-            DictionaryView()
+            DictionaryView(vocabularyPackStore: vocabularyPackStore)
         }
     }
 
@@ -719,6 +720,7 @@ final class MainWindowController {
     private var mediaTranscriptionState: MediaTranscriptionFeatureState?
     private var recordingState: RecordingFeatureState?
     private var meetingsState: MeetingsFeatureState?
+    private var vocabularyPackStore: VocabularyPackStore?
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
     private var navObserver: Any?
@@ -759,6 +761,10 @@ final class MainWindowController {
 
     func setModelContainer(_ container: ModelContainer) {
         self.modelContainer = container
+    }
+
+    func setVocabularyPackStore(_ store: VocabularyPackStore) {
+        self.vocabularyPackStore = store
     }
 
     func configureMeetingCapture(
@@ -899,7 +905,8 @@ final class MainWindowController {
                 onStartNoteCapture: onStartNoteCapture,
                 onOpenSettings: onOpenSettings ?? { _ in
                     Log.ui.error("Settings presenter not set - cannot show settings")
-                }
+                },
+                vocabularyPackStore: vocabularyPackStore
             )
                 .modelContainer(container)
             // Standard hosting controller — full-size transparent titlebar provides

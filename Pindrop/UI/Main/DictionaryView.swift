@@ -224,6 +224,12 @@ struct DictionaryView: View {
     @State private var selectedRowID: UUID?
     @State private var addEntryMenuAnchorView: NSView?
     @State private var keyMonitor: Any?
+    private let vocabularyPackStore: VocabularyPackStore?
+
+    init(vocabularyPackStore: VocabularyPackStore? = nil) {
+        self.vocabularyPackStore = vocabularyPackStore
+    }
+
     private var isCompletelyEmpty: Bool {
         replacements.isEmpty && vocabularyWords.isEmpty
     }
@@ -239,6 +245,13 @@ struct DictionaryView: View {
             // One List is the sole vertical scroller so replacement rows
             // virtualize instead of expanding to full content height.
             List {
+                if let vocabularyPackStore {
+                    VocabularyPacksSection(store: vocabularyPackStore)
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                }
+
                 if isCompletelyEmpty {
                     emptyStateView
                         .frame(maxWidth: .infinity)
@@ -510,7 +523,7 @@ struct DictionaryView: View {
             SectionHeader(
                 title: localized("Vocabulary", locale: locale),
                 trailing: localized("Words the recognizer should trust", locale: locale),
-                isFirst: true
+                isFirst: vocabularyPackStore == nil
             )
             .padding(.horizontal, 20)
 

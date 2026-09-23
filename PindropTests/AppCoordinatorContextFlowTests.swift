@@ -819,7 +819,36 @@ struct AppCoordinatorContextFlowTests {
         ],"organizer":{"email":"ana@example.com","displayName":"Ana Lopez"}}
         """
 
-        #expect(AppCoordinator.calendarAttendeeNames(fromEventJSON: json) == ["Russ D'Sa", "Ana Lopez"])
+        #expect(AppCoordinator.calendarAttendeeNames(fromEventJSON: json) == ["Russ D'Sa", "Nameless", "Ana Lopez"])
         #expect(AppCoordinator.calendarAttendeeNames(fromEventJSON: nil).isEmpty)
+    }
+
+    // Workspace events often have emails but no display names.
+    @Test func namesAreDerivedFromPersonalEmailAddresses() {
+        #expect(AppCoordinator.nameFromEmailAddress("russ.dsa@livekit.io") == "Russ Dsa")
+        #expect(AppCoordinator.nameFromEmailAddress("ANA_LOPEZ@example.com") == "Ana Lopez")
+        #expect(AppCoordinator.nameFromEmailAddress("support@example.com") == nil)
+        #expect(AppCoordinator.nameFromEmailAddress("user1234@example.com") == nil)
+    }
+
+    @Test func adHocMeetingsUseTheCalendarEventTheyOverlapMost() {
+        let now = Date()
+        func event(_ id: String, start: TimeInterval, end: TimeInterval, allDay: Bool = false) -> MeetingOccurrenceSnapshot {
+            MeetingOccurrenceSnapshot(
+                id: id, provider: "google", calendarID: nil, eventID: id, recurringEventID: nil,
+                title: id, start: now.addingTimeInterval(start), end: now.addingTimeInterval(end),
+                joinURL: nil, rawSnapshotJSON: nil, otherParticipantCount: 1,
+                externalParticipantCount: 0, attendeeDataIsIncomplete: false, isAllDay: allDay
+            )
+        }
+        let events = [
+            event("standup", start: -3_600, end: -1_800),
+            event("sync", start: -1_200, end: 1_200),
+            event("offsite", start: -86_400, end: 86_400, allDay: true),
+        ]
+
+        let match = AppCoordinator.calendarEvent(overlappingFrom: now.addingTimeInterval(-900), to: now, in: events)
+
+        #expect(match?.id == "sync")
     }
 }

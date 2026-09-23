@@ -16,17 +16,29 @@ import UserNotifications
 
 struct GoogleOAuthConfiguration: Equatable, Sendable {
     let clientID: String
+    /// Google's token endpoint rejects Desktop-type clients without their client
+    /// secret ("client_secret is missing"), PKCE or not. Google documents that an
+    /// installed app's secret is not confidential. iOS-type clients have none.
+    var clientSecret: String?
     let authorizationEndpoint: URL
     let tokenEndpoint: URL
     let revocationEndpoint: URL
 
-    static func desktop(clientID: String) -> GoogleOAuthConfiguration {
+    static func desktop(clientID: String, clientSecret: String? = nil) -> GoogleOAuthConfiguration {
         GoogleOAuthConfiguration(
             clientID: clientID,
+            clientSecret: clientSecret?.isEmpty == false ? clientSecret : nil,
             authorizationEndpoint: URL(string: "https://accounts.google.com/o/oauth2/v2/auth")!,
             tokenEndpoint: URL(string: "https://oauth2.googleapis.com/token")!,
             revocationEndpoint: URL(string: "https://oauth2.googleapis.com/revoke")!
         )
+    }
+
+    /// Client credentials for token-endpoint requests.
+    var clientCredentialFields: [String: String] {
+        var fields = ["client_id": clientID]
+        if let clientSecret { fields["client_secret"] = clientSecret }
+        return fields
     }
 }
 
@@ -136,13 +148,12 @@ final class URLSessionGoogleOAuthTransport: GoogleOAuthTransporting, @unchecked 
     ) async throws -> GoogleOAuthToken {
         try await tokenRequest(
             endpoint: configuration.tokenEndpoint,
-            fields: [
-                "client_id": configuration.clientID,
+            fields: configuration.clientCredentialFields.merging([
                 "code": code,
                 "code_verifier": verifier,
                 "grant_type": "authorization_code",
                 "redirect_uri": redirectURI.absoluteString
-            ]
+            ]) { current, _ in current }
         )
     }
 
@@ -152,11 +163,10 @@ final class URLSessionGoogleOAuthTransport: GoogleOAuthTransporting, @unchecked 
     ) async throws -> GoogleOAuthToken {
         try await tokenRequest(
             endpoint: configuration.tokenEndpoint,
-            fields: [
-                "client_id": configuration.clientID,
+            fields: configuration.clientCredentialFields.merging([
                 "refresh_token": refreshToken,
                 "grant_type": "refresh_token"
-            ]
+            ]) { current, _ in current }
         )
     }
 
@@ -588,6 +598,7 @@ final class MeetingsFeatureState {
     var isGoogleConfigured = false
     var isGoogleConnected = false
     var googleClientIDDraft = ""
+    var googleClientSecretDraft = ""
     var isLaunchAtLoginEnabled = false
     var isRefreshing = false
     var errorMessage: String?
