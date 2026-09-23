@@ -42,6 +42,34 @@ struct LocalMeetingModelServiceTests {
         #expect(inference.prompts.last?.contains("CHUNK NOTES:") == true)
     }
 
+    // A chunk the model can't answer in valid JSON (even after the retry) must not
+    // throw away the notes from the chunks that did work.
+    @Test func failedChunkKeepsNotesFromTheOtherChunks() async throws {
+        let inference = MeetingInferenceMock(outputs: [
+            "not json",
+            "still not json",
+            #"{"summary":"Second half","decisions":["Keep the launch date"],"action_items":[]}"#,
+        ])
+        let sut = MeetingInsightGenerator(inference: inference, maximumChunkCharacters: 1_000)
+        let transcript = Array(repeating: "A concrete meeting sentence.", count: 60).joined(separator: " ")
+
+        let result = try await sut.generate(from: transcript)
+
+        #expect(inference.prompts.count == 3)
+        #expect(result.summaryMarkdown == "Second half")
+        #expect(result.decisions == ["Keep the launch date"])
+    }
+
+    @Test func everyChunkFailingStillThrows() async {
+        let inference = MeetingInferenceMock(outputs: Array(repeating: "not json", count: 4))
+        let sut = MeetingInsightGenerator(inference: inference, maximumChunkCharacters: 1_000)
+        let transcript = Array(repeating: "A concrete meeting sentence.", count: 60).joined(separator: " ")
+
+        await #expect(throws: LocalMeetingModelError.self) {
+            _ = try await sut.generate(from: transcript)
+        }
+    }
+
     @Test func pinnedModelIdentityAndLicenseSizedDownloadAreStable() {
         #expect(LocalMeetingModelService.repositoryID == "Qwen/Qwen3-4B-MLX-4bit")
         #expect(LocalMeetingModelService.pinnedRevision == "52a5ab34fa604bc8af6d3ce0cac0cab10b7eb495")

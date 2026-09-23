@@ -591,6 +591,10 @@ final class AppCoordinator {
     /// Watches a running meeting for a system-audio tap that only delivers silence
     /// while another app is playing audio (a missing System Audio Recording grant).
     private var systemAudioWatchdogTask: Task<Void, Never>?
+    /// Serial chain of background on-device meeting-notes jobs. Notes can take a
+    /// minute or more on long meetings, so they run after the processing state
+    /// resets instead of blocking dictation.
+    private var meetingInsightsTask: Task<Void, Never>?
     private var operationController = DictationOperationController()
     private var queueOriginalModelName: String?
 
@@ -6639,11 +6643,7 @@ final class AppCoordinator {
             if let occurrenceID {
                 try meetingStore.attachTranscript(id: occurrenceID, transcript: record)
                 try meetingStore.transition(id: occurrenceID, to: .ready)
-                await generateMeetingInsightsIfAllowed(
-                    occurrenceID: occurrenceID,
-                    transcript: finalText,
-                    reportErrorsInRecordingState: false
-                )
+                scheduleMeetingInsights(occurrenceID: occurrenceID, transcript: finalText)
             }
             if let adoptedRecoveryID {
                 try dictationRecoveryStore.complete(id: adoptedRecoveryID)
@@ -6659,16 +6659,22 @@ final class AppCoordinator {
                 didResetProcessingState = true
             }
             recordingState.completeCurrentJob(with: record.id, message: "Meeting recording transcribed successfully.")
-            let meetingRecordID = record.id
-            mainWindowController.showHistory()
-            // Post after nav so HistoryView is mounted and listening.
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 150_000_000)
-                NotificationCenter.default.post(
-                    name: .openHistoryRecord,
-                    object: nil,
-                    userInfo: ["recordID": meetingRecordID.uuidString]
-                )
+            if let occurrenceID {
+                // Meetings open on their workspace (transcript, notes, speakers).
+                meetingsState.requestedOccurrenceID = occurrenceID
+                mainWindowController.showNavigationItem(.meetings)
+            } else {
+                let meetingRecordID = record.id
+                mainWindowController.showHistory()
+                // Post after nav so HistoryView is mounted and listening.
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 150_000_000)
+                    NotificationCenter.default.post(
+                        name: .openHistoryRecord,
+                        object: nil,
+                        userInfo: ["recordID": meetingRecordID.uuidString]
+                    )
+                }
             }
         } catch is CancellationError {
             // Only the current operation may mutate shared RecordingState after cancel.
@@ -6717,24 +6723,60 @@ final class AppCoordinator {
         }
     }
 
+    /// "Generate notes" in a meeting workspace. When on-device notes are off (or the
+    /// model is missing) this downloads the model and turns the feature on first.
     func regenerateMeetingInsights(_ occurrenceID: UUID) {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                guard self.settingsStore.onDeviceMeetingAIAllowed else {
-                    throw LocalMeetingModelError.missingWeights
-                }
                 guard let transcript = try self.meetingStore.occurrence(id: occurrenceID)?.transcript?.text,
                       !transcript.isEmpty else {
                     throw MediaPreparationError.readFailed("This meeting does not have a transcript yet.")
                 }
-                try await self.generateAndSaveMeetingInsights(
-                    occurrenceID: occurrenceID,
-                    transcript: transcript
-                )
+                try await self.ensureMeetingNotesModelEnabled()
+                self.meetingsState.errorMessage = nil
+                self.scheduleMeetingInsights(occurrenceID: occurrenceID, transcript: transcript)
             } catch {
                 self.meetingsState.errorMessage = error.localizedDescription
             }
+        }
+    }
+
+    private func ensureMeetingNotesModelEnabled() async throws {
+        await modelManager.refreshDownloadedFeatureModels()
+        if !modelManager.isFeatureModelDownloaded(.meetingNotes) {
+            meetingsState.isDownloadingMeetingNotesModel = true
+            defer { meetingsState.isDownloadingMeetingNotesModel = false }
+            try await modelManager.downloadFeatureModel(
+                .meetingNotes,
+                streamingChunkProfile: settingsStore.streamingChunkProfile
+            )
+        }
+        if !settingsStore.onDeviceMeetingAIAllowed {
+            settingsStore.setFeatureEnabled(.meetingNotes, enabled: true)
+        }
+    }
+
+    private func scheduleMeetingInsights(occurrenceID: UUID, transcript: String) {
+        guard settingsStore.onDeviceMeetingAIAllowed else {
+            Log.aiEnhancement.info("On-device meeting notes are off; skipping notes for meeting \(occurrenceID)")
+            return
+        }
+        let previous = meetingInsightsTask
+        meetingInsightsTask = Task(priority: .utility) { @MainActor [weak self] in
+            await previous?.value
+            guard let self, !self.isShutdown, !Task.isCancelled else { return }
+            self.meetingsState.generatingInsightsOccurrenceIDs.insert(occurrenceID)
+            defer { self.meetingsState.generatingInsightsOccurrenceIDs.remove(occurrenceID) }
+            let started = CFAbsoluteTimeGetCurrent()
+            await self.generateMeetingInsightsIfAllowed(
+                occurrenceID: occurrenceID,
+                transcript: transcript,
+                reportErrorsInRecordingState: false
+            )
+            Log.aiEnhancement.info(
+                "On-device meeting notes finished in \(String(format: "%.1f", CFAbsoluteTimeGetCurrent() - started))s"
+            )
         }
     }
 
@@ -6799,11 +6841,7 @@ final class AppCoordinator {
             )
             try meetingStore.attachTranscript(id: occurrenceID, transcript: record)
             try meetingStore.transition(id: occurrenceID, to: .ready)
-            await generateMeetingInsightsIfAllowed(
-                occurrenceID: occurrenceID,
-                transcript: text,
-                reportErrorsInRecordingState: false
-            )
+            scheduleMeetingInsights(occurrenceID: occurrenceID, transcript: text)
             updateRecentTranscriptsMenu()
             meetingsState.errorMessage = nil
         } catch {
@@ -6831,6 +6869,8 @@ final class AppCoordinator {
             Log.aiEnhancement.error("On-device meeting insights failed: \(error.localizedDescription)")
             if reportErrorsInRecordingState {
                 recordingState.message = error.localizedDescription
+            } else if !Self.isTaskCancellation(error) {
+                meetingsState.errorMessage = error.localizedDescription
             }
         }
     }
@@ -7631,6 +7671,8 @@ final class AppCoordinator {
         speakerLearningTask = nil
         systemAudioWatchdogTask?.cancel()
         systemAudioWatchdogTask = nil
+        meetingInsightsTask?.cancel()
+        meetingInsightsTask = nil
         outputManager.flushPendingClipboardRestore()
 
         mediaTranscriptionGeneration &+= 1

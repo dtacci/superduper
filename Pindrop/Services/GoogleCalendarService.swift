@@ -598,6 +598,11 @@ final class MeetingsFeatureState {
     var isWeeklyReviewPresented = false
     var isApplyingWeeklySelection = false
     var weeklyReviewErrorMessage: String?
+    /// Meeting the Meetings page should select next (set after processing finishes).
+    var requestedOccurrenceID: UUID?
+    /// Meetings whose on-device notes are being generated in the background.
+    var generatingInsightsOccurrenceIDs: Set<UUID> = []
+    var isDownloadingMeetingNotesModel = false
 
     func replaceEvents(_ events: [MeetingOccurrenceSnapshot]) {
         calendarEvents = events.sorted { lhs, rhs in
