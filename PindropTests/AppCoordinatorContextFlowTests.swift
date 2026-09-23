@@ -798,4 +798,28 @@ struct AppCoordinatorContextFlowTests {
             ) == nil
         )
     }
+
+    // MARK: - Meeting vocabulary
+
+    @Test func meetingVocabularyKeepsNamesAndTheirParts() {
+        let terms = AppCoordinator.meetingVocabulary(from: [
+            "Russ D'Sa", "Speaker 2", "Me", "russ", "someone@example.com", "LiveKit", "Al"
+        ])
+
+        #expect(terms == ["Russ D'Sa", "Russ", "D'Sa", "LiveKit"])
+    }
+
+    @Test func calendarAttendeeNamesSkipYouAndRooms() {
+        let json = """
+        {"attendees":[
+            {"email":"me@example.com","displayName":"Dan","self":true},
+            {"email":"russ@example.com","displayName":"Russ D'Sa"},
+            {"email":"room@example.com","displayName":"Board Room","resource":true},
+            {"email":"nameless@example.com"}
+        ],"organizer":{"email":"ana@example.com","displayName":"Ana Lopez"}}
+        """
+
+        #expect(AppCoordinator.calendarAttendeeNames(fromEventJSON: json) == ["Russ D'Sa", "Ana Lopez"])
+        #expect(AppCoordinator.calendarAttendeeNames(fromEventJSON: nil).isEmpty)
+    }
 }

@@ -4228,6 +4228,82 @@ final class AppCoordinator {
         )
     }
 
+    /// Meetings boost more than the dictionary: names are what meeting transcripts get
+    /// wrong most, so include every name the app knows about.
+    private func makeMeetingTranscriptionOptions(occurrence: MeetingOccurrence?) -> TranscriptionOptions {
+        var candidates = (try? dictionaryStore.vocabularyBiasWords(limit: Self.meetingVocabularyLimit)) ?? []
+        // Names typed for speakers in earlier meetings and saved voice profiles.
+        if let meetings = try? meetingStore.fetchOccurrences() {
+            candidates += meetings.flatMap { $0.speakerLabels.values }
+        }
+        if let profiles = try? speakerIdentityService.fetchAllProfiles() {
+            candidates += profiles.filter { !$0.isCurrentUser }.map(\.displayName)
+        }
+        candidates += Self.calendarAttendeeNames(fromEventJSON: occurrence?.calendarSnapshotJSON)
+
+        let terms = Self.meetingVocabulary(from: candidates)
+        if !terms.isEmpty {
+            Log.transcription.info("Meeting vocabulary boosting with \(terms.count) term(s)")
+        }
+        return TranscriptionOptions(
+            language: settingsStore.selectedAppLanguage,
+            vocabularyBiasWords: terms
+        )
+    }
+
+    nonisolated static let meetingVocabularyLimit = 200
+
+    /// Distinct names and terms worth boosting. Full names are kept as phrases and
+    /// their parts are added too, since people are usually addressed by one name.
+    /// Generic speaker labels, "Me", and email addresses are dropped.
+    nonisolated static func meetingVocabulary(from candidates: [String], limit: Int = meetingVocabularyLimit) -> [String] {
+        var seen = Set<String>()
+        var terms: [String] = []
+
+        func add(_ term: String) {
+            guard term.count >= 3, seen.insert(term.lowercased()).inserted else { return }
+            terms.append(term)
+        }
+
+        for candidate in candidates {
+            let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+            let lowered = trimmed.lowercased()
+            guard !trimmed.contains("@"),
+                  lowered != "me",
+                  lowered.range(of: #"^speaker \d+$"#, options: .regularExpression) == nil else {
+                continue
+            }
+            add(trimmed)
+            let parts = trimmed.split(whereSeparator: \.isWhitespace)
+            if parts.count > 1 {
+                parts.forEach { add(String($0)) }
+            }
+        }
+        return Array(terms.prefix(limit))
+    }
+
+    /// Attendee and organizer display names from a stored Google Calendar event,
+    /// excluding you and room resources.
+    nonisolated static func calendarAttendeeNames(fromEventJSON json: String?) -> [String] {
+        guard let data = json?.data(using: .utf8),
+              let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return []
+        }
+        var people = (event["attendees"] as? [[String: Any]]) ?? []
+        if let organizer = event["organizer"] as? [String: Any] {
+            people.append(organizer)
+        }
+        return people.compactMap { person in
+            guard person["self"] as? Bool != true,
+                  person["resource"] as? Bool != true,
+                  let name = person["displayName"] as? String,
+                  !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+                return nil
+            }
+            return name
+        }
+    }
+
     private func makeTranscriptionProgressHandler() -> TranscriptionProgressHandler {
         { [weak self] update in
             Task { @MainActor [weak self] in
@@ -6716,7 +6792,9 @@ final class AppCoordinator {
                     microphoneHealth: sourceHealth?.microphone,
                     systemAudioHealth: sourceHealth?.systemAudio
                 ),
-                options: makeTranscriptionOptions(),
+                options: makeMeetingTranscriptionOptions(
+                    occurrence: occurrenceID.flatMap { try? meetingStore.occurrence(id: $0) }
+                ),
                 expectedSpeakerCount: job.options.expectedSpeakerCount,
                 progressHandler: makeTranscriptionProgressHandler()
             )
@@ -6932,7 +7010,7 @@ final class AppCoordinator {
                     microphoneHealth: occurrence.microphoneHealthRawValue.flatMap(MeetingAudioSourceHealth.init(rawValue:)),
                     systemAudioHealth: occurrence.systemAudioHealthRawValue.flatMap(MeetingAudioSourceHealth.init(rawValue:))
                 ),
-                options: makeTranscriptionOptions(),
+                options: makeMeetingTranscriptionOptions(occurrence: occurrence),
                 expectedSpeakerCount: occurrence.expectedSpeakerCount,
                 progressHandler: makeTranscriptionProgressHandler()
             )
