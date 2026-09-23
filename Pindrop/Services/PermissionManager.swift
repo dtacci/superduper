@@ -240,13 +240,33 @@ final class PermissionManager {
             return true
         }
 
-        // Creating a process tap is both the check and the request for the
-        // system-audio recording TCC grant (the first attempt shows the system
-        // consent prompt). Run it off the main actor: that first call can block
-        // until the user answers the prompt.
+        // Creating a process tap succeeds even without the system-audio TCC grant
+        // (the tap then delivers pure silence), so ask TCC directly first.
+        switch SystemAudioRecordingPermission.status() {
+        case .authorized:
+            return true
+        case .denied:
+            Log.audio.warning("System audio recording permission is denied for this app")
+            return false
+        case .undetermined:
+            if let granted = await SystemAudioRecordingPermission.request() {
+                Log.audio.info("System audio recording permission request answered: granted=\(granted)")
+                return granted
+            }
+        }
+
+        // TCC SPI unavailable: fall back to the tap probe, which can only detect
+        // hard failures. Silent capture is still caught live during the meeting.
         return await Task.detached(priority: .userInitiated) {
             SystemAudioTapCaptureBackend.probeSystemAudioTapAccess()
         }.value
+    }
+
+    func openSystemAudioRecordingPreferences() {
+        guard !Self.shouldSuppressSystemPermissionPrompts else { return }
+
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!
+        NSWorkspace.shared.open(url)
     }
 
     func microphoneAuthorizationSnapshot() -> MicrophoneAuthorizationSnapshot {
@@ -387,4 +407,61 @@ final class PermissionManager {
         NSWorkspace.shared.open(url)
     }
 
+}
+
+/// System-audio capture ("Screen & System Audio Recording") has no public status or
+/// request API: creating a Core Audio process tap succeeds without the grant and then
+/// delivers pure silence. These TCC calls are the ones audio-capture tools such as
+/// AudioCap use; every entry point degrades gracefully if the symbols are missing.
+enum SystemAudioRecordingPermission {
+    enum Status: Equatable {
+        case authorized
+        case denied
+        case undetermined
+    }
+
+    private typealias PreflightFunction = @convention(c) (CFString, CFDictionary?) -> Int
+    private typealias RequestFunction = @convention(c) (
+        CFString,
+        CFDictionary?,
+        @escaping @convention(block) (Bool) -> Void
+    ) -> Void
+
+    private static let service = "kTCCServiceAudioCapture" as CFString
+    private static let frameworkHandle: UnsafeMutableRawPointer? = dlopen(
+        "/System/Library/PrivateFrameworks/TCC.framework/Versions/A/TCC",
+        RTLD_NOW
+    )
+
+    static func status() -> Status {
+        guard let frameworkHandle,
+              let symbol = dlsym(frameworkHandle, "TCCAccessPreflight") else {
+            return .undetermined
+        }
+        let preflight = unsafeBitCast(symbol, to: PreflightFunction.self)
+        return status(fromPreflightResult: preflight(service, nil))
+    }
+
+    /// Shows the system consent prompt when the decision is still open. Returns nil
+    /// when the request API is unavailable.
+    static func request() async -> Bool? {
+        guard let frameworkHandle,
+              let symbol = dlsym(frameworkHandle, "TCCAccessRequest") else {
+            return nil
+        }
+        let request = unsafeBitCast(symbol, to: RequestFunction.self)
+        return await withCheckedContinuation { continuation in
+            request(service, nil) { granted in
+                continuation.resume(returning: granted)
+            }
+        }
+    }
+
+    static func status(fromPreflightResult result: Int) -> Status {
+        switch result {
+        case 0: return .authorized
+        case 1: return .denied
+        default: return .undetermined
+        }
+    }
 }

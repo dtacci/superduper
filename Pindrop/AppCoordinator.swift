@@ -588,6 +588,9 @@ final class AppCoordinator {
     /// `activeOperationTask`: the dictation it learns from is already committed, so
     /// cancelling a later session must not touch it.
     private var speakerLearningTask: Task<Void, Never>?
+    /// Watches a running meeting for a system-audio tap that only delivers silence
+    /// while another app is playing audio (a missing System Audio Recording grant).
+    private var systemAudioWatchdogTask: Task<Void, Never>?
     private var operationController = DictationOperationController()
     private var queueOriginalModelName: String?
 
@@ -6409,6 +6412,61 @@ final class AppCoordinator {
         statusBarController.setRecordingState(isMeetingCapture: true)
         statusBarController.updateMenuState()
         startRecordingIndicatorSession()
+        if mode.requiresSystemAudioPermission {
+            startSystemAudioWatchdog(occurrenceID: occurrence.id)
+        }
+    }
+
+    /// A process tap without the System Audio Recording grant records exact silence
+    /// and reports no error, which previously went unnoticed until the meeting was
+    /// over. Warn during the meeting once another app has been playing audio for a
+    /// while and the tap still hasn't delivered a single nonzero sample.
+    private func startSystemAudioWatchdog(occurrenceID: UUID) {
+        systemAudioWatchdogTask?.cancel()
+        systemAudioWatchdogTask = Task { @MainActor [weak self] in
+            var silentChecksWhileAudioPlays = 0
+            try? await Task.sleep(for: .seconds(6))
+            while !Task.isCancelled {
+                guard let self,
+                      self.isRecording,
+                      self.activeMeetingOccurrenceID == occurrenceID,
+                      let signal = self.audioRecorder.currentSystemAudioSignal,
+                      !signal.hasAudibleSignal else {
+                    return
+                }
+                guard #available(macOS 14.2, *) else { return }
+                if SystemAudioTapCaptureBackend.isAnotherProcessPlayingAudio() {
+                    silentChecksWhileAudioPlays += 1
+                } else {
+                    silentChecksWhileAudioPlays = 0
+                }
+                if silentChecksWhileAudioPlays >= 2 {
+                    self.warnSystemAudioNotCaptured()
+                    return
+                }
+                try? await Task.sleep(for: .seconds(4))
+            }
+        }
+    }
+
+    private func warnSystemAudioNotCaptured() {
+        Log.audio.warning("System audio tap is silent while other apps play audio; System Audio Recording is likely not granted")
+        let locale = settingsStore.selectedAppLocale.locale
+        toastService.show(
+            ToastPayload(
+                message: localized(
+                    "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting.",
+                    locale: locale
+                ),
+                actions: [
+                    ToastAction(title: localized("Open Settings", locale: locale), role: .primary) { [weak self] in
+                        self?.permissionManager.openSystemAudioRecordingPreferences()
+                    }
+                ],
+                duration: nil,
+                style: .error
+            )
+        )
     }
 
 
@@ -7562,6 +7620,8 @@ final class AppCoordinator {
         activeOperationTask = nil
         speakerLearningTask?.cancel()
         speakerLearningTask = nil
+        systemAudioWatchdogTask?.cancel()
+        systemAudioWatchdogTask = nil
         outputManager.flushPendingClipboardRestore()
 
         mediaTranscriptionGeneration &+= 1
