@@ -103106,6 +103106,2310 @@
         }
       }
     },
+    "meeting_release_setup_guide_blocked": {
+      "comment": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If Google says access is blocked, ask your Workspace admin to trust this client ID in the Admin console under Security → API controls."
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_button": {
+      "comment": "How do I get these?",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I get these?"
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_intro": {
+      "comment": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do this once in Google Cloud Console, signed in with the Google account whose calendar you want to use."
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_link_api": {
+      "comment": "Open the Calendar API",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Calendar API"
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_link_clients": {
+      "comment": "Open OAuth clients",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OAuth clients"
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_link_consent": {
+      "comment": "Open the consent screen",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the consent screen"
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_step_api": {
+      "comment": "Enable the Google Calendar API.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the Google Calendar API."
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_step_client": {
+      "comment": "Under Clients, create an OAuth client with the application type Desktop app.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Clients, create an OAuth client with the application type Desktop app."
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_step_consent": {
+      "comment": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the consent screen. Work (Google Workspace) accounts: choose Internal. Personal Gmail: choose External, add yourself as a test user, and publish the app so sign-in doesn't expire after 7 days."
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_step_paste": {
+      "comment": "Copy the client ID and client secret, paste both here, and choose Save client ID.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the client ID and client secret, paste both here, and choose Save client ID."
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_step_project": {
+      "comment": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't).",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create or pick a project. For a work account, create it inside your company's organization (ask IT if you can't)."
+          }
+        }
+      }
+    },
+    "meeting_release_setup_guide_title": {
+      "comment": "Get a Google client ID and secret",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a Google client ID and secret"
+          }
+        }
+      }
+    },
     "meeting_release_show_indicator_description": {
       "comment": "Show or hide floating recording windows without affecting capture.",
       "extractionState": "manual",
