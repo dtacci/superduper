@@ -178,9 +178,19 @@ final class SystemKeySimulation: KeySimulationProtocol {
         self.sleeper = sleeper
     }
 
+    /// Gap between the synthetic ⌘/V key events for native apps.
+    static let nativeKeyEventGapNanoseconds: UInt64 = 8_000_000
+    /// Hypervisors drop modifier events that arrive too close together, so VM hosts
+    /// keep the original wide gap.
+    static let virtualMachineKeyEventGapNanoseconds: UInt64 = 50_000_000
+
     func simulatePaste(allowSystemEventsFallback: Bool) async throws {
+        // Callers disable the System Events fallback exactly for known VM hosts.
+        let keyEventGap = allowSystemEventsFallback
+            ? Self.nativeKeyEventGapNanoseconds
+            : Self.virtualMachineKeyEventGapNanoseconds
         do {
-            try await simulatePasteWithCGEvent()
+            try await simulatePasteWithCGEvent(keyEventGapNanoseconds: keyEventGap)
             return
         } catch {
             guard allowSystemEventsFallback else {
@@ -218,7 +228,7 @@ final class SystemKeySimulation: KeySimulationProtocol {
     ///
     /// If any event after Command-down fails to create/post, Command-up is still
     /// emitted so the modifier is not left stuck.
-    private func simulatePasteWithCGEvent() async throws {
+    private func simulatePasteWithCGEvent(keyEventGapNanoseconds: UInt64) async throws {
         let commandKeyCode: CGKeyCode = 0x37
         let vKeyCode: CGKeyCode = 0x09
         let source = CGEventSource(stateID: .hidSystemState)
@@ -240,21 +250,21 @@ final class SystemKeySimulation: KeySimulationProtocol {
             throw OutputManagerError.textInsertionFailed
         }
         commandIsDown = true
-        try await sleeper(50_000_000)
+        try await sleeper(keyEventGapNanoseconds)
 
         let vDown = KeySimulationEvent(virtualKey: vKeyCode, keyDown: true, flags: .maskCommand)
         guard keyEventPoster(source, vDown) else {
             Log.output.error("Failed to create CGEvent for paste")
             throw OutputManagerError.textInsertionFailed
         }
-        try await sleeper(50_000_000)
+        try await sleeper(keyEventGapNanoseconds)
 
         let vUp = KeySimulationEvent(virtualKey: vKeyCode, keyDown: false, flags: .maskCommand)
         guard keyEventPoster(source, vUp) else {
             Log.output.error("Failed to create CGEvent for paste")
             throw OutputManagerError.textInsertionFailed
         }
-        try await sleeper(50_000_000)
+        try await sleeper(keyEventGapNanoseconds)
 
         let commandUp = KeySimulationEvent(virtualKey: commandKeyCode, keyDown: false, flags: [])
         guard keyEventPoster(source, commandUp) else {
@@ -347,12 +357,33 @@ final class OutputManager {
         }
     }
 
+    /// Brief settle after writing the pasteboard before posting ⌘V.
+    static let prePasteDelayNanoseconds: UInt64 = 20_000_000
+    /// Settle after re-activating a target app that had lost frontmost status.
+    static let activationSettleDelayNanoseconds: UInt64 = 80_000_000
+    /// How long the transcript stays on the pasteboard after ⌘V before the user's
+    /// previous clipboard comes back — apps like Electron/Chrome read it lazily.
+    static let clipboardRestoreDelayNanoseconds: UInt64 = 500_000_000
+    static let modifierReleasePollNanoseconds: UInt64 = 10_000_000
+    static let modifierReleaseMaxWaitNanoseconds: UInt64 = 250_000_000
+
+    private struct PendingClipboardRestore {
+        let id: UUID
+        let snapshot: ClipboardSnapshot
+        let expectedChangeCount: Int
+        let insertedText: String
+        let task: Task<Void, Never>
+    }
+
     private(set) var outputMode: OutputMode
     private let clipboard: ClipboardProtocol
     private let keySimulation: KeySimulationProtocol
     private let accessibilityPermissionChecker: () -> Bool
     private let frontmostApplicationProvider: () -> NSRunningApplication?
     private let virtualMachineHostChecker: (String?) -> Bool
+    private let sleeper: (UInt64) async throws -> Void
+    private let modifierFlagsProvider: () -> CGEventFlags
+    private var pendingClipboardRestore: PendingClipboardRestore?
 
     init(
         outputMode: OutputMode = .clipboard,
@@ -360,7 +391,9 @@ final class OutputManager {
         keySimulation: KeySimulationProtocol = SystemKeySimulation(),
         accessibilityPermissionChecker: @escaping () -> Bool = { AXIsProcessTrusted() },
         frontmostApplicationProvider: @escaping () -> NSRunningApplication? = { NSWorkspace.shared.frontmostApplication },
-        virtualMachineHostChecker: @escaping (String?) -> Bool = { VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: $0) }
+        virtualMachineHostChecker: @escaping (String?) -> Bool = { VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: $0) },
+        sleeper: @escaping (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) },
+        modifierFlagsProvider: @escaping () -> CGEventFlags = { CGEventSource.flagsState(.hidSystemState) }
     ) {
         self.outputMode = outputMode
         self.clipboard = clipboard
@@ -368,6 +401,8 @@ final class OutputManager {
         self.accessibilityPermissionChecker = accessibilityPermissionChecker
         self.frontmostApplicationProvider = frontmostApplicationProvider
         self.virtualMachineHostChecker = virtualMachineHostChecker
+        self.sleeper = sleeper
+        self.modifierFlagsProvider = modifierFlagsProvider
     }
 
     func setOutputMode(_ mode: OutputMode) {
@@ -493,6 +528,10 @@ final class OutputManager {
         restoreClipboard: Bool,
         allowSystemEventsFallback: Bool = true
     ) async throws {
+        // A previous paste's restore must land first, or this snapshot would capture
+        // that paste's transcript instead of the user's own clipboard.
+        await awaitPendingClipboardRestore()
+
         let previousSnapshot = restoreClipboard ? clipboard.captureSnapshot() : .empty
         let targetApplication = frontmostApplicationProvider()
         let success = clipboard.copyToClipboard(text)
@@ -505,9 +544,14 @@ final class OutputManager {
         let temporaryClipboardChangeCount = clipboard.currentChangeCount()
 
         do {
-            try await Task.sleep(nanoseconds: 120_000_000)
-            targetApplication?.activate(options: [.activateIgnoringOtherApps])
-            try await Task.sleep(nanoseconds: 80_000_000)
+            try await waitForHotkeyModifierRelease()
+            try await sleeper(Self.prePasteDelayNanoseconds)
+            // The target was read as the frontmost app and Pindrop's panels never take
+            // focus, so re-activation (and its settle delay) is only a fallback.
+            if let targetApplication, !targetApplication.isActive {
+                targetApplication.activate(options: [.activateIgnoringOtherApps])
+                try await sleeper(Self.activationSettleDelayNanoseconds)
+            }
             try await keySimulation.simulatePaste(allowSystemEventsFallback: allowSystemEventsFallback)
         } catch {
             if restoreClipboard && shouldRestoreClipboard(expectedChangeCount: temporaryClipboardChangeCount, insertedText: text) {
@@ -520,27 +564,85 @@ final class OutputManager {
             throw error
         }
 
-        // The paste keystroke landed — the insertion is committed. Run the deferred
-        // clipboard restore in an unstructured task so cancelling the surrounding
-        // operation can neither skip the restore nor turn this success into a failure
-        // (which previously dropped history and re-stomped the clipboard on Escape
-        // during the restore window).
+        // The paste keystroke landed — the insertion is committed. The deferred
+        // clipboard restore runs in an unstructured task that callers don't wait on:
+        // cancelling the surrounding operation can neither skip the restore nor turn
+        // this success into a failure, and the dictation pipeline no longer blocks
+        // for the restore window.
         guard restoreClipboard else { return }
-        let restoreTask = Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 500_000_000)
-            if self.shouldRestoreClipboard(expectedChangeCount: temporaryClipboardChangeCount, insertedText: text) {
-                let restored = self.clipboard.restoreSnapshot(previousSnapshot)
-                if !restored {
-                    Log.output.error("Failed to restore clipboard snapshot")
-                }
-            } else {
-                Log.output.info("Skipping clipboard restore because clipboard changed externally")
-            }
+        schedulePendingClipboardRestore(
+            snapshot: previousSnapshot,
+            expectedChangeCount: temporaryClipboardChangeCount,
+            insertedText: text
+        )
+    }
+
+    /// Waits (bounded) for the user to let go of hotkey modifiers so a still-held
+    /// ⌥/⌃/⇧ can't combine with the synthetic ⌘V in apps that read live modifier state.
+    private func waitForHotkeyModifierRelease() async throws {
+        let hotkeyModifiers: CGEventFlags = [.maskShift, .maskControl, .maskAlternate, .maskCommand]
+        var waited: UInt64 = 0
+        while waited < Self.modifierReleaseMaxWaitNanoseconds,
+              !modifierFlagsProvider().intersection(hotkeyModifiers).isEmpty {
+            try await sleeper(Self.modifierReleasePollNanoseconds)
+            waited += Self.modifierReleasePollNanoseconds
         }
-        await restoreTask.value
+    }
+
+    // MARK: - Deferred Clipboard Restore
+
+    private func schedulePendingClipboardRestore(
+        snapshot: ClipboardSnapshot,
+        expectedChangeCount: Int,
+        insertedText: String
+    ) {
+        let id = UUID()
+        let sleeper = self.sleeper
+        let task = Task { @MainActor [weak self] in
+            try? await sleeper(Self.clipboardRestoreDelayNanoseconds)
+            self?.completePendingClipboardRestore(id: id)
+        }
+        pendingClipboardRestore = PendingClipboardRestore(
+            id: id,
+            snapshot: snapshot,
+            expectedChangeCount: expectedChangeCount,
+            insertedText: insertedText,
+            task: task
+        )
+    }
+
+    private func completePendingClipboardRestore(id: UUID) {
+        guard let pending = pendingClipboardRestore, pending.id == id else { return }
+        pendingClipboardRestore = nil
+
+        if shouldRestoreClipboard(expectedChangeCount: pending.expectedChangeCount, insertedText: pending.insertedText) {
+            let restored = clipboard.restoreSnapshot(pending.snapshot)
+            if !restored {
+                Log.output.error("Failed to restore clipboard snapshot")
+            }
+        } else {
+            Log.output.info("Skipping clipboard restore because clipboard changed externally")
+        }
+    }
+
+    /// Restores the user's clipboard immediately if a paste's deferred restore is still
+    /// pending. Call before any other clipboard read or write so none of them see (or
+    /// overwrite the snapshot of) a transient transcript.
+    func flushPendingClipboardRestore() {
+        guard let pending = pendingClipboardRestore else { return }
+        pending.task.cancel()
+        completePendingClipboardRestore(id: pending.id)
+    }
+
+    /// Suspends until any pending deferred clipboard restore has run.
+    func awaitPendingClipboardRestore() async {
+        while let task = pendingClipboardRestore?.task {
+            await task.value
+        }
     }
 
     func copyToClipboard(_ text: String) throws {
+        flushPendingClipboardRestore()
         let success = clipboard.copyToClipboard(text)
 
         guard success else {
@@ -551,18 +653,21 @@ final class OutputManager {
     /// Snapshots the pasteboard, writes `text`, and returns the prior contents for undo.
     @discardableResult
     func copyReplacingClipboard(_ text: String) throws -> ClipboardSnapshot {
+        flushPendingClipboardRestore()
         let snapshot = clipboard.captureSnapshot()
         try copyToClipboard(text)
         return snapshot
     }
 
     func captureClipboardSnapshot() -> ClipboardSnapshot {
-        clipboard.captureSnapshot()
+        flushPendingClipboardRestore()
+        return clipboard.captureSnapshot()
     }
 
     @discardableResult
     func restoreClipboardSnapshot(_ snapshot: ClipboardSnapshot) -> Bool {
-        clipboard.restoreSnapshot(snapshot)
+        flushPendingClipboardRestore()
+        return clipboard.restoreSnapshot(snapshot)
     }
 
     func checkAccessibilityPermission() -> Bool {

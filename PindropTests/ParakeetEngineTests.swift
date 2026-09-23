@@ -5,6 +5,7 @@
 //  Created on 2026-01-30.
 //
 
+import FluidAudio
 import Foundation
 import Testing
 @testable import Pindrop
@@ -229,5 +230,122 @@ struct ParakeetEngineTests {
 
         try await Task.sleep(nanoseconds: 100_000_000)
         #expect(engine.state != .unloaded, "State should transition when loading v3 model")
+    }
+
+    // MARK: - Short clip padding
+
+    @Test func shortClipsArePaddedToFluidAudioMinimum() {
+        let minimum = ASRConstants.minimumRequiredSamples(forSampleRate: ASRConstants.sampleRate)
+        let tap = [Float](repeating: 0.5, count: 1_000)
+
+        let padded = ParakeetEngine.paddedForMinimumDuration(tap)
+
+        #expect(padded.count == minimum)
+        #expect(Array(padded.prefix(1_000)) == tap)
+        #expect(padded.dropFirst(1_000).allSatisfy { $0 == 0 })
+    }
+
+    @Test func clipsAtOrAboveMinimumAreUnchanged() {
+        let samples = [Float](repeating: 0.25, count: 16_000)
+        #expect(ParakeetEngine.paddedForMinimumDuration(samples) == samples)
+    }
+
+    // MARK: - Model location
+
+    private func makeTemporaryDirectory() throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-parakeet-unit-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
+    private func writeCompleteV2ModelSet(at directory: URL) throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        for fileName in ModelNames.ASR.requiredModels {
+            try FileManager.default.createDirectory(
+                at: directory.appendingPathComponent(fileName, isDirectory: true),
+                withIntermediateDirectories: true
+            )
+        }
+        try Data("{}".utf8).write(to: directory.appendingPathComponent(ModelNames.ASR.vocabularyFile))
+    }
+
+    @Test func appModelDirectoryMatchesFluidAudioRepoLayout() {
+        let base = URL(fileURLWithPath: "/tmp/pindrop-base", isDirectory: true)
+
+        let directory = ParakeetEngine.appModelDirectory(downloadBase: base, version: .v2)
+
+        #expect(directory.lastPathComponent == AsrModels.defaultCacheDirectory(for: .v2).lastPathComponent)
+        #expect(directory.deletingLastPathComponent().path == base.path + "/FluidInference/parakeet-coreml")
+    }
+
+    @Test func resolverPrefersAppDownloadFolder() {
+        let base = URL(fileURLWithPath: "/tmp/pindrop-base", isDirectory: true)
+        let cache = URL(fileURLWithPath: "/tmp/fluid-cache/parakeet-tdt-0.6b-v2", isDirectory: true)
+
+        let resolved = ParakeetEngine.resolveModelDirectory(
+            version: .v2,
+            downloadBase: base,
+            fluidAudioCacheDirectory: cache,
+            modelsExist: { _, _ in true }
+        )
+
+        #expect(resolved == ParakeetEngine.appModelDirectory(downloadBase: base, version: .v2))
+    }
+
+    @Test func resolverFallsBackToFluidAudioCache() {
+        let base = URL(fileURLWithPath: "/tmp/pindrop-base", isDirectory: true)
+        let cache = URL(fileURLWithPath: "/tmp/fluid-cache/parakeet-tdt-0.6b-v2", isDirectory: true)
+
+        let resolved = ParakeetEngine.resolveModelDirectory(
+            version: .v2,
+            downloadBase: base,
+            fluidAudioCacheDirectory: cache,
+            modelsExist: { url, _ in url == cache }
+        )
+
+        #expect(resolved == cache)
+    }
+
+    @Test func resolverReturnsNilWithoutCompleteModels() {
+        let resolved = ParakeetEngine.resolveModelDirectory(
+            version: .v2,
+            downloadBase: URL(fileURLWithPath: "/tmp/pindrop-base", isDirectory: true),
+            fluidAudioCacheDirectory: URL(fileURLWithPath: "/tmp/fluid-cache/parakeet-tdt-0.6b-v2"),
+            modelsExist: { _, _ in false }
+        )
+
+        #expect(resolved == nil)
+    }
+
+    // Exercises FluidAudio's real completeness check against the folder shapes the
+    // app downloads into, so a path-layout mismatch can't silently regress.
+    @Test func resolverFindsCompleteModelsOnDiskAndRejectsPartialOnes() throws {
+        let root = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let base = root.appendingPathComponent("app", isDirectory: true)
+        let cache = root.appendingPathComponent("fluid/parakeet-tdt-0.6b-v2", isDirectory: true)
+
+        #expect(ParakeetEngine.resolveModelDirectory(version: .v2, downloadBase: base, fluidAudioCacheDirectory: cache) == nil)
+
+        // A partial cache (no vocabulary) is not a usable model set.
+        try FileManager.default.createDirectory(
+            at: cache.appendingPathComponent(ModelNames.ASR.encoderFile, isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        #expect(ParakeetEngine.resolveModelDirectory(version: .v2, downloadBase: base, fluidAudioCacheDirectory: cache) == nil)
+
+        try writeCompleteV2ModelSet(at: cache)
+        #expect(ParakeetEngine.resolveModelDirectory(version: .v2, downloadBase: base, fluidAudioCacheDirectory: cache) == cache)
+
+        let appDirectory = ParakeetEngine.appModelDirectory(downloadBase: base, version: .v2)
+        try writeCompleteV2ModelSet(at: appDirectory)
+        #expect(ParakeetEngine.resolveModelDirectory(version: .v2, downloadBase: base, fluidAudioCacheDirectory: cache) == appDirectory)
+    }
+
+    @Test func modelVersionIsParsedFromCatalogName() {
+        #expect(ParakeetEngine.modelVersion(forModelName: "parakeet-tdt-0.6b-v2") == .v2)
+        #expect(ParakeetEngine.modelVersion(forModelName: "parakeet-tdt-0.6b-v3") == .v3)
+        #expect(ParakeetEngine.modelVersion(forModelName: "parakeet-tdt-1.1b") == nil)
     }
 }

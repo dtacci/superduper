@@ -216,7 +216,7 @@ struct SettingsStoreTests {
         defer { cleanup(store) }
 
         #expect(store.selectedModel == SettingsStore.Defaults.selectedModel)
-        #expect(store.selectedModel == "openai_whisper-large-v3-v20240930_626MB")
+        #expect(store.selectedModel == "parakeet-tdt-0.6b-v2")
         #expect(store.selectedThemeMode == .system)
         #expect(store.lightThemePresetID == SettingsStore.Defaults.lightThemePresetID)
         #expect(store.darkThemePresetID == SettingsStore.Defaults.darkThemePresetID)

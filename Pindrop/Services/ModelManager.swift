@@ -43,13 +43,13 @@ class ModelManager {
     @ObservationIgnored var telemetryService: TelemetryService?
 
     nonisolated static let englishRecommendedModelNames = [
+        "parakeet-tdt-0.6b-v2",
         "openai_whisper-large-v3-v20240930_626MB",
         "apple_speech_on_device",
         "openai_whisper-base.en",
         "openai_whisper-small.en",
         "openai_whisper-medium",
-        "openai_whisper-large-v3_turbo",
-        "parakeet-tdt-0.6b-v2"
+        "openai_whisper-large-v3_turbo"
     ]
 
     nonisolated static let multilingualRecommendedModelNames = [
@@ -535,7 +535,7 @@ class ModelManager {
         WhisperModel(
             name: "parakeet-tdt-0.6b-v2",
             displayName: "Parakeet TDT 0.6B V2",
-            sizeInMB: 2580,
+            sizeInMB: 450,
             description: "NVIDIA's state-of-the-art speech recognition model, English-only",
             speedRating: 8.5,
             accuracyRating: 9.8,
@@ -717,8 +717,11 @@ class ModelManager {
         case .whisperKit:
             return whisperKitModelsURL.appendingPathComponent(model.name, isDirectory: true)
         case .parakeet:
-            let folderName = model.name.hasSuffix("-coreml") ? model.name : "\(model.name)-coreml"
-            return parakeetModelsURL.appendingPathComponent(folderName, isDirectory: true)
+            // Resolve where the engine actually loads from (app folder or FluidAudio's
+            // shared cache) so delete/reveal act on the real files.
+            guard let version = ParakeetEngine.modelVersion(forModelName: model.name) else { return nil }
+            return ParakeetEngine.resolveModelDirectory(version: version, downloadBase: modelsBaseURL)
+                ?? ParakeetEngine.appModelDirectory(downloadBase: modelsBaseURL, version: version)
         case .senseVoice:
             // Only advertise a local path when the catalog int8 set is complete.
             guard SenseVoiceModels.modelsExist(
@@ -781,24 +784,12 @@ class ModelManager {
             }
         }
         
-        if fileManager.fileExists(atPath: parakeetModelsURL.path) {
-            do {
-                let contents = try fileManager.contentsOfDirectory(atPath: parakeetModelsURL.path)
-                for folder in contents {
-                    if folder.hasPrefix(".") { continue }
-                    
-                    let folderPath = parakeetModelsURL.appendingPathComponent(folder).path
-                    var isDirectory: ObjCBool = false
-                    if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
-                        // Strip "-coreml" suffix (7 chars) to match model IDs
-                        let normalizedName = folder.hasSuffix("-coreml")
-                            ? String(folder.dropLast(7))
-                            : folder
-                        downloaded.insert(normalizedName)
-                    }
-                }
-            } catch {
-                Log.model.error("Failed to list Parakeet models: \(error)")
+        // Parakeet counts as downloaded when a complete model set exists in either the
+        // app folder or FluidAudio's shared cache — the same lookup the engine loads from.
+        for model in availableModels where model.provider == .parakeet {
+            if let version = ParakeetEngine.modelVersion(forModelName: model.name),
+               ParakeetEngine.resolveModelDirectory(version: version, downloadBase: modelsBaseURL) != nil {
+                downloaded.insert(model.name)
             }
         }
 
@@ -1054,11 +1045,8 @@ class ModelManager {
         Log.boot.info("Parakeet AsrModels.downloadAndLoad starting version=\(version == .v3 ? "v3" : "v2")")
         
         do {
-            let targetDir = parakeetModelsURL.appendingPathComponent(
-                version == .v3 ? "parakeet-tdt-0.6b-v3-coreml" : "parakeet-tdt-0.6b-v2-coreml",
-                isDirectory: true
-            )
-            
+            let targetDir = ParakeetEngine.appModelDirectory(downloadBase: modelsBaseURL, version: version)
+
             let fetchStart = CFAbsoluteTimeGetCurrent()
             _ = try await AsrModels.downloadAndLoad(
                 to: targetDir,

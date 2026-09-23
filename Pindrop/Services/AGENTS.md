@@ -43,7 +43,7 @@ Services/
 ### TranscriptionService (@Observable)
 
 - **States**: `.unloaded` → `.loading` → `.ready` ⇄ `.transcribing`
-- **Model loading**: `WhisperKitConfig` with prewarm
+- **Model loading**: WhisperKit loads once from the local folder (`load: false` + explicit `loadModels()`); Parakeet runs a silent warm-up inference after load
 - **Concurrency**: Rejects concurrent transcriptions
 - **Error**: `TranscriptionError`
 

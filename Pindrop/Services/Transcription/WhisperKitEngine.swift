@@ -61,6 +61,9 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
         Log.boot.info("WhisperKitEngine.loadModel(path) begin")
         
         do {
+            // `load: false`: with a `modelFolder`, WhisperKit's init would otherwise load
+            // every model itself, and the explicit `loadModels()` below loaded them all a
+            // second time (~1.5s wasted per launch/model switch).
             let config = WhisperKitConfig(
                 modelFolder: path,
                 computeOptions: ModelComputeOptions(
@@ -68,7 +71,8 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
                     textDecoderCompute: .cpuAndNeuralEngine
                 ),
                 verbose: false,
-                logLevel: .error
+                logLevel: .error,
+                load: false
             )
             
             let initStart = CFAbsoluteTimeGetCurrent()
@@ -187,6 +191,10 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             )
             decodeOptions.detectLanguage = options.language == .automatic
             decodeOptions.usePrefillPrompt = true
+            // Audio longer than one 30s window is split at VAD silences and the chunks
+            // decode concurrently (concurrentWorkerCount defaults to 16 on macOS),
+            // instead of seeking through the windows one after another.
+            decodeOptions.chunkingStrategy = .vad
 
             // Vocabulary biasing via decoder promptTokens. Cap is enforced by
             // VocabularyBiasPrompt.maxWordCount (~40); empty vocabulary is a no-op.
@@ -215,7 +223,9 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
                     return true
                 }
             )
-            guard let result = results.first else {
+            // VAD chunking reports cancellation as partial results rather than throwing.
+            try Task.checkCancellation()
+            guard !results.isEmpty else {
                 throw EngineError.transcriptionFailed("No transcription result")
             }
 
@@ -228,12 +238,21 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             )
             
             state = .ready
-            return result.text
+            return Self.mergedTranscriptText(results.map(\.text))
         } catch {
             state = .ready
             self.error = error
             throw error
         }
+    }
+
+    /// Joins per-chunk texts (one result per VAD chunk, already in audio order),
+    /// dropping empty chunks so silence between chunks doesn't leave double spaces.
+    static func mergedTranscriptText(_ texts: [String]) -> String {
+        texts
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
     }
 
     static func progressUpdate(

@@ -222,15 +222,21 @@ struct AutomaticDictionaryLearningConfiguration {
     let pollInterval: Duration
     let stabilityWindow: Duration
     let observationTimeout: Duration
+    /// Trailing debounce for AX text-change notifications. They fire on every
+    /// keystroke, and each evaluation re-reads the whole focused field over AX on the
+    /// main thread; `.zero` evaluates on every notification.
+    let notificationDebounce: Duration
 
     init(
         pollInterval: Duration = .milliseconds(500),
         stabilityWindow: Duration = .milliseconds(600),
-        observationTimeout: Duration = .seconds(60)
+        observationTimeout: Duration = .seconds(60),
+        notificationDebounce: Duration = .milliseconds(300)
     ) {
         self.pollInterval = pollInterval
         self.stabilityWindow = stabilityWindow
         self.observationTimeout = observationTimeout
+        self.notificationDebounce = notificationDebounce
     }
 }
 
@@ -996,6 +1002,7 @@ final class AutomaticDictionaryLearningService {
 
     private var pollingTask: Task<Void, Never>?
     private var timeoutTask: Task<Void, Never>?
+    private var debouncedEvaluationTask: Task<Void, Never>?
     private var observationSession: (any FocusedTextObservationSession)?
     private var sessionState: SessionState?
 
@@ -1102,13 +1109,16 @@ final class AutomaticDictionaryLearningService {
             guard let self else { return }
 
             while !Task.isCancelled {
-                self.evaluateCurrentSnapshot(trigger: "poll")
-
+                // Wait before each read: observation now begins right after the paste
+                // keystroke, and reading immediately can still see the pre-paste field
+                // (e.g. empty) and end the session as "field was cleared".
                 do {
                     try await Task.sleep(for: configuration.pollInterval)
                 } catch {
                     return
                 }
+
+                self.evaluateCurrentSnapshot(trigger: "poll")
             }
         }
     }
@@ -1134,7 +1144,7 @@ final class AutomaticDictionaryLearningService {
         switch event {
         case .textMayHaveChanged(let source):
             sessionState?.notificationCount += 1
-            evaluateCurrentSnapshot(trigger: "notification:\(source)")
+            scheduleDebouncedEvaluation(trigger: "notification:\(source)")
         case .focusedElementChanged:
             stopObservation(logMessage: "Automatic dictionary learning stopped: focused element changed")
         case .frontmostApplicationChanged(let bundleIdentifier, let localizedName, let processIdentifier):
@@ -1142,6 +1152,29 @@ final class AutomaticDictionaryLearningService {
                 "Automatic dictionary learning received frontmost app activation notification: pid=\(processIdentifier), bundle=\(bundleIdentifier ?? "unknown"), name=\(localizedName ?? "unknown")"
             )
             evaluateCurrentSnapshot(trigger: "notification:frontmost-app-activated")
+        }
+    }
+
+    /// Coalesces a burst of text-change notifications into one evaluation once the
+    /// field has been quiet for `notificationDebounce`.
+    private func scheduleDebouncedEvaluation(trigger: String) {
+        guard configuration.notificationDebounce > .zero else {
+            evaluateCurrentSnapshot(trigger: trigger)
+            return
+        }
+
+        debouncedEvaluationTask?.cancel()
+        debouncedEvaluationTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            do {
+                try await Task.sleep(for: configuration.notificationDebounce)
+            } catch {
+                return
+            }
+
+            self.debouncedEvaluationTask = nil
+            self.evaluateCurrentSnapshot(trigger: trigger)
         }
     }
 
@@ -1229,6 +1262,8 @@ final class AutomaticDictionaryLearningService {
         pollingTask = nil
         timeoutTask?.cancel()
         timeoutTask = nil
+        debouncedEvaluationTask?.cancel()
+        debouncedEvaluationTask = nil
         observationSession?.invalidate()
         observationSession = nil
         sessionState = nil

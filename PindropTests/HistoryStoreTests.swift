@@ -362,6 +362,53 @@ struct HistoryStoreTests {
         #expect(try fixture.historyStore.hasSpeakerTrainingEvidence(for: record))
     }
 
+    // Speaker extraction now runs after the paste; the record is saved first without
+    // segments and learned from once extraction finishes.
+    @Test func learningFromSavedDictationTrainsCurrentUserProfile() throws {
+        let fixture = try makeFixture()
+        let segment = DiarizedTranscriptSegment(
+            speakerId: "dictation-speaker",
+            speakerLabel: "",
+            speakerEmbedding: [0.2, 0.4, 0.6],
+            startTime: 0,
+            endTime: 2,
+            confidence: 0.95,
+            text: ""
+        )
+
+        let record = try fixture.historyStore.save(
+            text: "Profile training sample",
+            duration: 2,
+            modelUsed: "base",
+            speakerTrainingSegments: []
+        )
+        #expect(try fixture.speakerIdentityService.fetchAllProfiles().isEmpty)
+
+        fixture.historyStore.learnSpeakerProfilesFromSavedDictation(recordID: record.id, segments: [segment])
+
+        let profiles = try fixture.speakerIdentityService.fetchAllProfiles()
+        #expect(profiles.count == 1)
+        #expect(profiles.first?.isCurrentUser == true)
+        #expect(try fixture.historyStore.hasSpeakerTrainingEvidence(for: record))
+    }
+
+    @Test func learningFromSavedDictationSkipsMissingRecord() throws {
+        let fixture = try makeFixture()
+        let segment = DiarizedTranscriptSegment(
+            speakerId: "dictation-speaker",
+            speakerLabel: "",
+            speakerEmbedding: [0.2, 0.4, 0.6],
+            startTime: 0,
+            endTime: 2,
+            confidence: 0.95,
+            text: ""
+        )
+
+        fixture.historyStore.learnSpeakerProfilesFromSavedDictation(recordID: UUID(), segments: [segment])
+
+        #expect(try fixture.speakerIdentityService.fetchAllProfiles().isEmpty)
+    }
+
     @Test func saveSucceedsAndNotifiesWhenSpeakerLearningFailsAfterPersistence() throws {
         let fixture = try makeFixture()
         let historyStore = HistoryStore(

@@ -584,6 +584,10 @@ final class AppCoordinator {
     private var mediaQueueDeferredUntilIdle = false
     /// Owned processing task for stop/transcribe/enhance pipelines. Cancelled by cancel-operation.
     private var activeOperationTask: Task<Void, Error>?
+    /// Serial chain of post-paste speaker-profile learning. Deliberately separate from
+    /// `activeOperationTask`: the dictation it learns from is already committed, so
+    /// cancelling a later session must not touch it.
+    private var speakerLearningTask: Task<Void, Never>?
     private var operationController = DictationOperationController()
     private var queueOriginalModelName: String?
 
@@ -4034,6 +4038,11 @@ final class AppCoordinator {
         lastFocusOrWindowUpdateAt = nil
 
         if settingsStore.enableClipboardContext || settingsStore.enableUIContext {
+            if settingsStore.enableClipboardContext {
+                // A recording can now start inside the previous paste's restore window;
+                // put the user's clipboard back first so the transcript isn't read as context.
+                outputManager.flushPendingClipboardRestore()
+            }
             let clipboardText = settingsStore.enableClipboardContext ? contextCaptureService.captureClipboardText() : nil
             capturedContext = CapturedContext(clipboardText: clipboardText)
 
@@ -4221,6 +4230,22 @@ final class AppCoordinator {
                 "Speaker profile training skipped for this dictation: \(error.localizedDescription)"
             )
             return []
+        }
+    }
+
+    /// Runs speaker-profile extraction for an already-saved dictation off the critical
+    /// path. Diarization takes ~0.3–1s (longer on first load), and awaiting it before
+    /// the processing state reset kept the hotkey unresponsive after the paste.
+    private func scheduleSpeakerLearningAfterCommit(recordID: UUID, audioData: Data) {
+        guard settingsStore.diarizationFeatureEnabled, !audioData.isEmpty else { return }
+
+        let previous = speakerLearningTask
+        speakerLearningTask = Task(priority: .utility) { @MainActor [weak self] in
+            await previous?.value
+            guard let self, !self.isShutdown, !Task.isCancelled else { return }
+            let segments = await self.speakerTrainingSegments(audioData: audioData, existingSegments: nil)
+            guard !Task.isCancelled else { return }
+            self.historyStore.learnSpeakerProfilesFromSavedDictation(recordID: recordID, segments: segments)
         }
     }
 
@@ -4511,11 +4536,9 @@ final class AppCoordinator {
         }
 
         let duration = Date().timeIntervalSince(startTime)
-        let speakerTrainingSegments = await speakerTrainingSegments(
-            audioData: recordedAudioData,
-            existingSegments: nil
-        )
         do {
+            // Speaker segments are learned after the save (see
+            // scheduleSpeakerLearningAfterCommit), so pass none here.
             let record = try historyStore.save(
                 text: outcome.finalText,
                 originalText: outcome.originalStreamedText,
@@ -4525,11 +4548,12 @@ final class AppCoordinator {
                 diarizationSegmentsJSON: nil,
                 destinationAppName: outcome.destinationAppName,
                 destinationAppBundleID: outcome.destinationAppBundleID,
-                speakerTrainingSegments: speakerTrainingSegments,
+                speakerTrainingSegments: [],
                 pipelineMetricsJSON: outcome.pipelineMetrics.hasAnyStage
                     ? outcome.pipelineMetrics.jsonString()
                     : nil
             )
+            scheduleSpeakerLearningAfterCommit(recordID: record.id, audioData: recordedAudioData)
             if let nativeAudio = audioRecorder.takeLastNativeAudio(),
                let nativePCMURL = nativeAudio.takeFileURL() {
                 dictationAudioRetentionService.schedulePersist(
@@ -4982,10 +5006,9 @@ final class AppCoordinator {
         }
         guard Self.shouldPersistHistory(text: finalText) else { return }
 
-        let speakerTrainingSegments = await speakerTrainingSegments(
-            audioData: audioData,
-            existingSegments: transcriptionOutput.diarizedSegments
-        )
+        // Segments the transcription already diarized are learned at save time; when
+        // there are none, extraction runs after the save instead of holding the hotkey.
+        let existingSpeakerSegments = transcriptionOutput.diarizedSegments ?? []
         do {
             let record = try historyStore.save(
                 text: finalText,
@@ -4996,9 +5019,12 @@ final class AppCoordinator {
                 diarizationSegmentsJSON: diarizationSegmentsJSON,
                 destinationAppName: outputResult?.destinationAppName,
                 destinationAppBundleID: outputResult?.destinationAppBundleID,
-                speakerTrainingSegments: speakerTrainingSegments,
+                speakerTrainingSegments: existingSpeakerSegments,
                 pipelineMetricsJSON: pipelineMetrics.hasAnyStage ? pipelineMetrics.jsonString() : nil
             )
+            if existingSpeakerSegments.isEmpty {
+                scheduleSpeakerLearningAfterCommit(recordID: record.id, audioData: audioData)
+            }
             var successParameters: [String: String] = [
                 TelemetryParameter.backend: settingsStore.resolvedTranscriptionBackend.rawValue,
                 TelemetryParameter.model: settingsStore.selectedModel,
@@ -7534,6 +7560,9 @@ final class AppCoordinator {
         recordingStopAdmission.invalidateCurrentClaim()
         activeOperationTask?.cancel()
         activeOperationTask = nil
+        speakerLearningTask?.cancel()
+        speakerLearningTask = nil
+        outputManager.flushPendingClipboardRestore()
 
         mediaTranscriptionGeneration &+= 1
         mediaTranscriptionTask?.cancel()
