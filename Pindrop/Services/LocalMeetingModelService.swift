@@ -162,7 +162,10 @@ actor LocalMeetingModelService: LocalMeetingModelInferencing {
                 maxTokens: 2_048,
                 temperature: 0.1,
                 topP: 0.9
-            )
+            ),
+            // Qwen3 otherwise spends the output budget on a <think> block before
+            // the JSON, which can truncate or crowd out the answer.
+            additionalContext: ["enable_thinking": false]
         )
         return try await session.respond(to: prompt)
     }
@@ -245,6 +248,7 @@ actor MeetingInsightGenerator {
         let chunks = Self.chunks(normalized, limit: maximumChunkCharacters)
         var mapped: [WireInsights] = []
         mapped.reserveCapacity(chunks.count)
+        var lastChunkError: Error?
         for (index, chunk) in chunks.enumerated() {
             try Task.checkCancellation()
             let prompt = """
@@ -256,7 +260,18 @@ actor MeetingInsightGenerator {
             TRANSCRIPT:
             \(chunk)
             """
-            mapped.append(try await generateValidated(prompt: prompt))
+            // One unparseable chunk shouldn't discard the notes from the others.
+            do {
+                mapped.append(try await generateValidated(prompt: prompt))
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                lastChunkError = error
+                Log.aiEnhancement.warning("Meeting notes chunk \(index + 1) of \(chunks.count) failed: \(error.localizedDescription)")
+            }
+        }
+        guard !mapped.isEmpty else {
+            throw lastChunkError ?? LocalMeetingModelError.invalidModelOutput("no chunk produced notes")
         }
 
         let wire: WireInsights

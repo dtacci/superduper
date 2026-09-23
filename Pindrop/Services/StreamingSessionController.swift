@@ -658,6 +658,16 @@ final class StreamingSessionController {
                     variant: .copied
                 )
             )
+        case .screenLocked:
+            toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted.",
+                        locale: locale
+                    ),
+                    duration: nil
+                )
+            )
         case .pasteFailed, nil:
             toastService.show(
                 ToastPayload(

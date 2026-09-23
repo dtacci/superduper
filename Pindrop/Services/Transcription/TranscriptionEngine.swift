@@ -113,3 +113,28 @@ public extension TranscriptionEngine {
         return text
     }
 }
+
+/// A recognized word and where it sits in the source audio.
+public struct TimedWord: Sendable, Equatable {
+    public let text: String
+    public let startTime: TimeInterval
+    public let endTime: TimeInterval
+    public let confidence: Float
+
+    public init(text: String, startTime: TimeInterval, endTime: TimeInterval, confidence: Float) {
+        self.text = text
+        self.startTime = startTime
+        self.endTime = endTime
+        self.confidence = confidence
+    }
+
+    public var midpoint: TimeInterval { (startTime + endTime) / 2 }
+}
+
+/// Engines that can transcribe long audio in one pass and report per-word timing.
+/// Meetings use this to attribute words to speakers after a single ASR pass instead
+/// of re-transcribing every diarized turn separately.
+@MainActor
+public protocol TimedTranscriptionEngine: TranscriptionEngine {
+    func transcribeWords(audioData: Data, options: TranscriptionOptions) async throws -> [TimedWord]
+}

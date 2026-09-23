@@ -877,6 +877,29 @@ struct AudioPCMFileStorageTests {
         ])
     }
 
+    // Gap markers keep a source aligned by wall-clock time: silence lands exactly
+    // where it was queued, with one slab regardless of the gap length.
+    @Test func silenceMarkersAreWrittenInStreamOrder() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let first = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 100))
+        let second = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 200))
+        let storage = AudioPCMFileStorage(pendingWriteLimit: 3)
+
+        try storage.start()
+        #expect(storage.enqueue(first))
+        #expect(storage.enqueueSilence(frameCount: 40_000, sampleRate: 16_000))
+        #expect(storage.enqueue(second))
+        let completed = try storage.finish()
+        let result = try #require(completed)
+        let data = try result.consumeData(maximumByteCount: 1_000_000)
+
+        let samples = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        #expect(samples.count == 40_008)
+        #expect(Array(samples[0..<4]) == (0..<4).map { first.floatChannelData![0][$0] })
+        #expect(samples[4..<40_004].allSatisfy { $0 == 0 })
+        #expect(Array(samples[40_004...]) == (0..<4).map { second.floatChannelData![0][$0] })
+    }
+
     @Test func slowWriterUsesBoundedHandoffAndRejectsOverflow() throws {
         let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
         let buffer = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4))
@@ -1165,5 +1188,63 @@ struct OrbWaveformResponseTests {
         #expect(response.low > 0.18)
         #expect(response.mid > 0.12)
         #expect(response.high > 0.05)
+    }
+}
+
+@Suite
+struct SystemAudioCaptureHelperTests {
+    @Test func noSilenceIsInsertedBeforeTheFirstCallback() {
+        guard #available(macOS 14.2, *) else { return }
+        #expect(SystemAudioTapCaptureBackend.silenceFramesToInsert(
+            expectedHostSeconds: nil,
+            actualHostSeconds: 100,
+            targetSampleRate: 16_000
+        ) == 0)
+    }
+
+    @Test func callbackJitterIsNotTreatedAsAGap() {
+        guard #available(macOS 14.2, *) else { return }
+        #expect(SystemAudioTapCaptureBackend.silenceFramesToInsert(
+            expectedHostSeconds: 100,
+            actualHostSeconds: 100.1,
+            targetSampleRate: 16_000
+        ) == 0)
+    }
+
+    @Test func missingCallbackTimeIsFilledAtTheTargetRate() {
+        guard #available(macOS 14.2, *) else { return }
+        #expect(SystemAudioTapCaptureBackend.silenceFramesToInsert(
+            expectedHostSeconds: 100,
+            actualHostSeconds: 102.5,
+            targetSampleRate: 16_000
+        ) == 40_000)
+    }
+
+    @Test func implausibleGapsAreCapped() {
+        guard #available(macOS 14.2, *) else { return }
+        let frames = SystemAudioTapCaptureBackend.silenceFramesToInsert(
+            expectedHostSeconds: 0,
+            actualHostSeconds: 10_000_000,
+            targetSampleRate: 16_000
+        )
+        #expect(frames == Int(SystemAudioTapCaptureBackend.maximumGapFillSeconds * 16_000))
+    }
+
+    @Test func exactZerosAreNotAnAudibleSignal() throws {
+        guard #available(macOS 14.2, *) else { return }
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let silent = try #require(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 256))
+        silent.frameLength = 256
+        for index in 0..<256 { silent.floatChannelData![0][index] = 0 }
+        #expect(SystemAudioTapCaptureBackend.containsNonSilentSample(silent) == false)
+
+        silent.floatChannelData![0][200] = -0.0001
+        #expect(SystemAudioTapCaptureBackend.containsNonSilentSample(silent))
+    }
+
+    @Test func tccPreflightResultsMapToPermissionStatus() {
+        #expect(SystemAudioRecordingPermission.status(fromPreflightResult: 0) == .authorized)
+        #expect(SystemAudioRecordingPermission.status(fromPreflightResult: 1) == .denied)
+        #expect(SystemAudioRecordingPermission.status(fromPreflightResult: 2) == .undetermined)
     }
 }

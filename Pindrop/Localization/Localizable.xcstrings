@@ -95042,6 +95042,198 @@
         }
       }
     },
+    "meeting_release_long_recording_offer": {
+      "comment": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text."
+          }
+        }
+      }
+    },
     "meeting_release_meeting": {
       "comment": "Meeting",
       "extractionState": "manual",
@@ -96766,6 +96958,582 @@
           "stringUnit": {
             "state": "translated",
             "value": "Not configured"
+          }
+        }
+      }
+    },
+    "meeting_release_notes_downloading_model": {
+      "comment": "Downloading the on-device notes model…",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the on-device notes model…"
+          }
+        }
+      }
+    },
+    "meeting_release_notes_off_explanation": {
+      "comment": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once."
+          }
+        }
+      }
+    },
+    "meeting_release_notes_writing": {
+      "comment": "Writing notes on this Mac…",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing notes on this Mac…"
           }
         }
       }
@@ -99458,6 +100226,198 @@
         }
       }
     },
+    "meeting_release_recording_still_running": {
+      "comment": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it."
+          }
+        }
+      }
+    },
     "meeting_release_refreshing_events": {
       "comment": "Refreshing events…",
       "extractionState": "manual",
@@ -100226,6 +101186,198 @@
         }
       }
     },
+    "meeting_release_save_as_meeting": {
+      "comment": "Save as Meeting",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as Meeting"
+          }
+        }
+      }
+    },
     "meeting_release_save_insights": {
       "comment": "Save insights",
       "extractionState": "manual",
@@ -100802,6 +101954,198 @@
         }
       }
     },
+    "meeting_release_saving_dictation_as_meeting": {
+      "comment": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants."
+          }
+        }
+      }
+    },
     "meeting_release_scheduled": {
       "comment": "Scheduled",
       "extractionState": "manual",
@@ -100990,6 +102334,198 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scheduled"
+          }
+        }
+      }
+    },
+    "meeting_release_screen_locked_copied": {
+      "comment": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted."
           }
         }
       }
@@ -101954,194 +103490,386 @@
         }
       }
     },
-    "meeting_release_system_audio_permission": {
-      "comment": "System audio permission is required for meeting recording.",
+    "meeting_release_system_audio_not_captured": {
+      "comment": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "System audio permission is required for meeting recording."
+            "value": "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting."
+          }
+        }
+      }
+    },
+    "meeting_release_system_audio_permission": {
+      "comment": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
           }
         }
       }
@@ -103102,6 +104830,198 @@
           "stringUnit": {
             "state": "translated",
             "value": "Download the selected transcription model (%@) before starting the meeting."
+          }
+        }
+      }
+    },
+    "meeting_release_turn_on_notes": {
+      "comment": "Turn on notes",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notes"
           }
         }
       }

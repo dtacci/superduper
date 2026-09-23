@@ -125,6 +125,12 @@ struct AppCoordinatorContextFlowTests {
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: true, isProcessing: false))
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: true))
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: false) == false)
+        // Meetings run for a long time in the background; Escape stays with other apps.
+        #expect(AppCoordinator.shouldSuppressEscapeEvent(
+            isRecording: true,
+            isProcessing: false,
+            isMeetingRecording: true
+        ) == false)
     }
 
     @Test func contextTimeoutFallsBackWithoutBlockingTranscription() {
@@ -791,5 +797,29 @@ struct AppCoordinatorContextFlowTests {
                 isProcessing: false
             ) == nil
         )
+    }
+
+    // MARK: - Meeting vocabulary
+
+    @Test func meetingVocabularyKeepsNamesAndTheirParts() {
+        let terms = AppCoordinator.meetingVocabulary(from: [
+            "Russ D'Sa", "Speaker 2", "Me", "russ", "someone@example.com", "LiveKit", "Al"
+        ])
+
+        #expect(terms == ["Russ D'Sa", "Russ", "D'Sa", "LiveKit"])
+    }
+
+    @Test func calendarAttendeeNamesSkipYouAndRooms() {
+        let json = """
+        {"attendees":[
+            {"email":"me@example.com","displayName":"Dan","self":true},
+            {"email":"russ@example.com","displayName":"Russ D'Sa"},
+            {"email":"room@example.com","displayName":"Board Room","resource":true},
+            {"email":"nameless@example.com"}
+        ],"organizer":{"email":"ana@example.com","displayName":"Ana Lopez"}}
+        """
+
+        #expect(AppCoordinator.calendarAttendeeNames(fromEventJSON: json) == ["Russ D'Sa", "Ana Lopez"])
+        #expect(AppCoordinator.calendarAttendeeNames(fromEventJSON: nil).isEmpty)
     }
 }

@@ -32,6 +32,8 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>Superduper Dictation records call and app audio so meeting transcripts include the other participants.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Superduper Dictation needs microphone access to transcribe your voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

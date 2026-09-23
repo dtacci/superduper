@@ -74,6 +74,8 @@ struct MeetingsView: View {
                 if let selected = selectedOccurrence {
                     MeetingWorkspaceDetail(
                         occurrence: selected,
+                        isGeneratingInsights: state.generatingInsightsOccurrenceIDs.contains(selected.id),
+                        isDownloadingNotesModel: state.isDownloadingMeetingNotesModel,
                         onRetryProcessing: { onRetryProcessing(selected.id) },
                         onRegenerateInsights: { onRegenerateInsights(selected.id) }
                     )
@@ -89,8 +91,17 @@ struct MeetingsView: View {
         .background(AppColors.contentBackground)
         .accessibilityIdentifier("meetings.page")
         .onAppear {
+            if let requested = meetingsState.requestedOccurrenceID {
+                selectedOccurrenceID = requested
+                meetingsState.requestedOccurrenceID = nil
+            }
             if selectedOccurrenceID == nil { selectedOccurrenceID = occurrences.first?.id }
             if meetingsState.isGoogleConnected { onRefresh() }
+        }
+        .onChange(of: meetingsState.requestedOccurrenceID) { _, requested in
+            guard let requested else { return }
+            selectedOccurrenceID = requested
+            meetingsState.requestedOccurrenceID = nil
         }
         .onChange(of: occurrences.map(\.id)) { _, ids in
             if let selectedOccurrenceID, ids.contains(selectedOccurrenceID) { return }
@@ -933,8 +944,12 @@ private struct MeetingWorkspaceDetail: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
     @Bindable var occurrence: MeetingOccurrence
+    let isGeneratingInsights: Bool
+    let isDownloadingNotesModel: Bool
     let onRetryProcessing: () -> Void
     let onRegenerateInsights: () -> Void
+
+    @AppStorage("onDeviceMeetingAIAllowed") private var meetingNotesEnabled = false
 
     @StateObject private var audioPlayer = MeetingAudioPlayer()
     @State private var seriesName = ""
@@ -971,6 +986,8 @@ private struct MeetingWorkspaceDetail: View {
         .background(AppColors.contentBackground)
         .onAppear(perform: loadDrafts)
         .onChange(of: occurrence.id) { _, _ in loadDrafts() }
+        // Notes are generated in the background after the page opens.
+        .onChange(of: occurrence.summaryMarkdown) { _, _ in loadInsightDrafts() }
     }
 
     private var workspaceHeader: some View {
@@ -1082,6 +1099,15 @@ private struct MeetingWorkspaceDetail: View {
 
     private var insightsSection: some View {
         workspaceSection(localized("On-device insights", locale: locale)) {
+            if isDownloadingNotesModel {
+                insightsStatus(localized("Downloading the on-device notes model…", locale: locale))
+            } else if isGeneratingInsights {
+                insightsStatus(localized("Writing notes on this Mac…", locale: locale))
+            } else if !meetingNotesEnabled, (occurrence.summaryMarkdown ?? "").isEmpty {
+                Text(localized("Get a summary, decisions, and action items written on this Mac. Turning this on downloads a 2.2 GB model once.", locale: locale))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
             TextEditor(text: $summary)
                 .frame(minHeight: 110)
                 .scrollContentBackground(.hidden)
@@ -1112,12 +1138,24 @@ private struct MeetingWorkspaceDetail: View {
                 Button(localized("Save insights", locale: locale), action: saveInsights)
                 Spacer()
                 SecondaryButton(
-                    title: localized("Regenerate locally", locale: locale),
+                    title: meetingNotesEnabled
+                        ? localized("Regenerate locally", locale: locale)
+                        : localized("Turn on notes", locale: locale),
                     systemImage: "brain.head.profile",
                     action: onRegenerateInsights
                 )
+                .disabled(isGeneratingInsights || isDownloadingNotesModel || occurrence.transcript == nil)
             }
             .buttonStyle(.bordered)
+        }
+    }
+
+    private func insightsStatus(_ message: String) -> some View {
+        HStack(spacing: 8) {
+            ProgressView().controlSize(.small)
+            Text(message)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
         }
     }
 
@@ -1134,12 +1172,16 @@ private struct MeetingWorkspaceDetail: View {
     private func loadDrafts() {
         seriesName = occurrence.series?.displayName ?? occurrence.calendarTitle ?? localized("Meeting", locale: locale)
         notes = occurrence.notesMarkdown
-        summary = occurrence.summaryMarkdown ?? ""
-        decisions = occurrence.decisions.joined(separator: "\n")
-        actions = occurrence.actionItems
+        loadInsightDrafts()
         speakerLabels = occurrence.speakerLabels
         saveError = nil
         audioPlayer.stop()
+    }
+
+    private func loadInsightDrafts() {
+        summary = occurrence.summaryMarkdown ?? ""
+        decisions = occurrence.decisions.joined(separator: "\n")
+        actions = occurrence.actionItems
     }
 
     private func saveSeriesName() { performSave { try meetingStore.renameSeries(id: occurrence.id, displayName: seriesName) } }

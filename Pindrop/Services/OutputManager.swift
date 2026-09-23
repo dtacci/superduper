@@ -311,6 +311,9 @@ final class OutputManager {
         enum ClipboardFallbackReason: Equatable {
             /// Clipboard output mode: copying IS the output, by user choice.
             case copyOnlyMode
+            /// The Mac was locked (login window frontmost); pasting would have sent
+            /// the text to the lock screen, so it was copied instead.
+            case screenLocked
             /// Accessibility permission is missing; copying was the intended behavior.
             case accessibilityUnavailable
             /// A paste was attempted and failed; the copy is a recovery, not a success.
@@ -358,14 +361,14 @@ final class OutputManager {
     }
 
     /// Brief settle after writing the pasteboard before posting ⌘V.
-    static let prePasteDelayNanoseconds: UInt64 = 20_000_000
+    nonisolated static let prePasteDelayNanoseconds: UInt64 = 20_000_000
     /// Settle after re-activating a target app that had lost frontmost status.
-    static let activationSettleDelayNanoseconds: UInt64 = 80_000_000
+    nonisolated static let activationSettleDelayNanoseconds: UInt64 = 80_000_000
     /// How long the transcript stays on the pasteboard after ⌘V before the user's
     /// previous clipboard comes back — apps like Electron/Chrome read it lazily.
-    static let clipboardRestoreDelayNanoseconds: UInt64 = 500_000_000
-    static let modifierReleasePollNanoseconds: UInt64 = 10_000_000
-    static let modifierReleaseMaxWaitNanoseconds: UInt64 = 250_000_000
+    nonisolated static let clipboardRestoreDelayNanoseconds: UInt64 = 500_000_000
+    nonisolated static let modifierReleasePollNanoseconds: UInt64 = 10_000_000
+    nonisolated static let modifierReleaseMaxWaitNanoseconds: UInt64 = 250_000_000
 
     private struct PendingClipboardRestore {
         let id: UUID
@@ -383,6 +386,7 @@ final class OutputManager {
     private let virtualMachineHostChecker: (String?) -> Bool
     private let sleeper: (UInt64) async throws -> Void
     private let modifierFlagsProvider: () -> CGEventFlags
+    private let screenLockedChecker: () -> Bool
     private var pendingClipboardRestore: PendingClipboardRestore?
 
     init(
@@ -393,7 +397,8 @@ final class OutputManager {
         frontmostApplicationProvider: @escaping () -> NSRunningApplication? = { NSWorkspace.shared.frontmostApplication },
         virtualMachineHostChecker: @escaping (String?) -> Bool = { VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: $0) },
         sleeper: @escaping (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) },
-        modifierFlagsProvider: @escaping () -> CGEventFlags = { CGEventSource.flagsState(.hidSystemState) }
+        modifierFlagsProvider: @escaping () -> CGEventFlags = { CGEventSource.flagsState(.hidSystemState) },
+        screenLockedChecker: @escaping () -> Bool = { ScreenLockState.isLocked() }
     ) {
         self.outputMode = outputMode
         self.clipboard = clipboard
@@ -403,6 +408,7 @@ final class OutputManager {
         self.virtualMachineHostChecker = virtualMachineHostChecker
         self.sleeper = sleeper
         self.modifierFlagsProvider = modifierFlagsProvider
+        self.screenLockedChecker = screenLockedChecker
     }
 
     func setOutputMode(_ mode: OutputMode) {
@@ -477,6 +483,18 @@ final class OutputManager {
         _ text: String,
         destination: (name: String?, bundleID: String?)
     ) async throws -> OutputResult {
+        // A long recording can outlive the screen lock; never type into it.
+        if screenLockedChecker() || destination.bundleID == ScreenLockState.loginWindowBundleIdentifier {
+            Log.output.info("Screen is locked; copying the transcript instead of pasting")
+            let snapshot = try copyReplacingClipboard(text)
+            return .copiedToClipboard(
+                reason: .screenLocked,
+                previousClipboardSnapshot: snapshot,
+                destinationAppName: destination.name,
+                destinationAppBundleID: destination.bundleID
+            )
+        }
+
         guard checkAccessibilityPermission() else {
             let snapshot = try copyReplacingClipboard(text)
             return .copiedToClipboard(
@@ -684,4 +702,13 @@ final class OutputManager {
             || clipboard.currentStringContent() == insertedText
     }
 
+}
+
+enum ScreenLockState {
+    static let loginWindowBundleIdentifier = "com.apple.loginwindow"
+
+    static func isLocked() -> Bool {
+        guard let session = CGSessionCopyCurrentDictionary() as? [String: Any] else { return false }
+        return (session["CGSSessionScreenIsLocked"] as? Bool) ?? false
+    }
 }

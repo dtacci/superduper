@@ -9,6 +9,7 @@ import Foundation
 import AVFoundation
 import CoreAudio
 import AudioToolbox
+import Accelerate
 import os.log
 
 enum AudioRecordingMode: String, CaseIterable, Equatable, Sendable {
@@ -166,6 +167,14 @@ struct MeetingAudioSourceHealthSnapshot: Equatable, Sendable {
     }
 }
 
+/// Live view of what the system-audio tap has delivered so far, used to catch a
+/// missing "System Audio Recording" grant (the tap then yields exact zeros) while the
+/// meeting is still running instead of after it ends.
+struct SystemAudioSignalSnapshot: Equatable, Sendable {
+    let capturedSeconds: Double
+    let hasAudibleSignal: Bool
+}
+
 /// Abstracts audio capture hardware, enabling mock-based testing.
 protocol AudioCaptureBackend: AnyObject {
     var isCapturing: Bool { get }
@@ -177,6 +186,7 @@ protocol AudioCaptureBackend: AnyObject {
     /// workspace and is not removed during finalization or failure cleanup.
     var persistentSpoolDirectoryURL: URL? { get set }
     var meetingSourceHealth: MeetingAudioSourceHealthSnapshot? { get }
+    var systemAudioSignal: SystemAudioSignalSnapshot? { get }
 
     func startCapture(
         onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
@@ -207,6 +217,7 @@ extension AudioCaptureBackend {
     }
 
     var meetingSourceHealth: MeetingAudioSourceHealthSnapshot? { nil }
+    var systemAudioSignal: SystemAudioSignalSnapshot? { nil }
 }
 
 private enum AudioCaptureUtilities {
@@ -519,6 +530,9 @@ final class AudioPCMFileStorage: @unchecked Sendable {
         let storage: UnsafeMutableRawPointer
         let availability = DispatchSemaphore(value: 1)
         var byteCount = 0
+        /// When nonzero this slab is a gap marker: the writer emits this many bytes
+        /// of silence instead of copying `storage`.
+        var silenceByteCount = 0
         var sampleRate: Double = 0
 
         init(capacity: Int) {
@@ -540,10 +554,19 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             guard bytes > 0, bytes <= capacity else { return false }
             storage.copyMemory(from: channelData[0], byteCount: bytes)
             byteCount = bytes
+            silenceByteCount = 0
             sampleRate = buffer.format.sampleRate
             return true
         }
+
+        func markSilence(frameCount: Int, sampleRate: Double) {
+            byteCount = 0
+            silenceByteCount = frameCount * MemoryLayout<Float>.size
+            self.sampleRate = sampleRate
+        }
     }
+
+    private static let silenceChunk = Data(count: 64 * 1024)
 
     private var fileURL: URL?
     private var fileHandle: FileHandle?
@@ -640,6 +663,26 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     /// Acquires one of the preallocated slabs without blocking, copies samples,
     /// and hands its token to the serial writer. No callback-time heap allocation
     /// or filesystem operation occurs; full/oversized pools report overflow.
+    /// Queues `frameCount` frames of silence in stream order using a single slab,
+    /// regardless of length. Used to keep a source time-aligned across callback gaps.
+    func enqueueSilence(frameCount: Int, sampleRate: Double) -> Bool {
+        guard frameCount > 0 else { return true }
+        var acquiredIndex: Int?
+        for index in slabs.indices where slabs[index].availability.wait(timeout: .now()) == .success {
+            acquiredIndex = index
+            break
+        }
+        guard let index = acquiredIndex else {
+            return false
+        }
+        slabs[index].markSilence(frameCount: frameCount, sampleRate: sampleRate)
+        let slot = Int(producedSequence % UInt64(slabs.count))
+        readySlabIndices[slot] = index
+        producedSequence &+= 1
+        readySource.add(data: 1)
+        return true
+    }
+
     func enqueue(_ buffer: AVAudioPCMBuffer) -> Bool {
         var acquiredIndex: Int?
         for index in slabs.indices where slabs[index].availability.wait(timeout: .now()) == .success {
@@ -727,9 +770,13 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     }
 
     private func write(_ slab: PCMStorageSlab) {
-        defer { slab.availability.signal() }
+        defer {
+            slab.silenceByteCount = 0
+            slab.availability.signal()
+        }
         guard !isDiscarded, writeFailure == nil, !limitReached else { return }
-        if let maximumByteCount, byteCount + slab.byteCount > maximumByteCount {
+        let slabBytes = slab.silenceByteCount > 0 ? slab.silenceByteCount : slab.byteCount
+        if let maximumByteCount, byteCount + slabBytes > maximumByteCount {
             limitReached = true
             onLimitReached?(Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size))
             return
@@ -741,9 +788,18 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             guard let fileHandle else {
                 throw AudioRecorderError.engineStartFailed("Audio spool is not available")
             }
-            let data = Data(bytesNoCopy: slab.storage, count: slab.byteCount, deallocator: .none)
-            try fileHandle.write(contentsOf: data)
-            byteCount += slab.byteCount
+            if slab.silenceByteCount > 0 {
+                var remaining = slab.silenceByteCount
+                while remaining > 0 {
+                    let chunk = min(remaining, Self.silenceChunk.count)
+                    try fileHandle.write(contentsOf: Self.silenceChunk.prefix(chunk))
+                    remaining -= chunk
+                }
+            } else {
+                let data = Data(bytesNoCopy: slab.storage, count: slab.byteCount, deallocator: .none)
+                try fileHandle.write(contentsOf: data)
+            }
+            byteCount += slabBytes
             if sampleRate == nil { sampleRate = slab.sampleRate }
         } catch {
             recordWriteFailure(error)
@@ -2099,15 +2155,39 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
 
 @available(macOS 14.2, *)
 final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
+    /// Callback gaps longer than this are filled with silence so the system track
+    /// stays aligned with the microphone track by wall-clock time.
+    static let gapFillToleranceSeconds: Double = 0.25
+    /// Upper bound for a single silence fill (guards against bogus timestamps).
+    static let maximumGapFillSeconds: Double = 30 * 60
+
     private let audioStorage = AudioPCMFileStorage(maximumByteCount: AudioRecordingLimits.maximumASRByteCount)
     /// Serial capture-callback converter; rebuilt automatically when formats change.
     private let audioConverter = ReusableAudioConverter()
     private let targetFormatStorage: AVAudioFormat
     private let callbackQueue = DispatchQueue(label: "tech.watzon.pindrop.system-audio-tap")
+    /// Device-change rebuilds run here, never on `callbackQueue`, so stopping the
+    /// aggregate device can't wait on an IO block queued behind it.
+    private let controlQueue = DispatchQueue(label: "tech.watzon.pindrop.system-audio-tap.control")
+    private let controlLock = NSLock()
+    private let signalLock = NSLock()
 
     private var tapID: AudioObjectID = 0
     private var aggregateDeviceID: AudioObjectID = 0
     private var ioProcID: AudioDeviceIOProcID?
+    private var defaultOutputListener: AudioObjectPropertyListenerBlock?
+    private var captureHandlers: (
+        onBuffer: (AVAudioPCMBuffer) -> Void,
+        onAudioLevel: (Float) -> Void,
+        onError: (Error) -> Void
+    )?
+
+    // Callback-queue state.
+    private var nextExpectedHostSeconds: Double?
+
+    // Guarded by `signalLock`.
+    private var capturedFrameCount = 0
+    private var hasAudibleSignal = false
 
     private(set) var isCapturing = false
     var persistentSpoolDirectoryURL: URL?
@@ -2121,21 +2201,29 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         return targetFormatStorage
     }
 
+    var systemAudioSignal: SystemAudioSignalSnapshot? {
+        guard isCapturing else { return nil }
+        return signalLock.withLock {
+            SystemAudioSignalSnapshot(
+                capturedSeconds: Double(capturedFrameCount) / targetFormat.sampleRate,
+                hasAudibleSignal: hasAudibleSignal
+            )
+        }
+    }
+
     init() throws {
         self.targetFormatStorage = try AudioCaptureUtilities.makeTargetFormat()
     }
 
     deinit {
+        removeDefaultOutputListener()
         destroyCaptureObjects()
     }
 
-    /// Attempts to create (and immediately destroy) a process tap. Creating a tap is
-    /// the only public way to learn whether the system-audio recording TCC grant is
-    /// in place — there is no query/request API — and the first attempt triggers the
-    /// system consent prompt, which is exactly the "request" semantics
-    /// `PermissionManager.requestSystemAudioPermission()` needs. Without this,
-    /// permission problems only surfaced mid-capture as an opaque
-    /// `systemAudioCaptureFailed`.
+    /// Attempts to create (and immediately destroy) a process tap. Creating a tap
+    /// succeeds even without the system-audio recording grant (capture is then
+    /// silent), so this only detects hard failures; `PermissionManager` asks TCC
+    /// directly first and only falls back to this probe.
     static func probeSystemAudioTapAccess() -> Bool {
         let tapDescription = CATapDescription(stereoMixdownOfProcesses: [])
         tapDescription.name = "Superduper Dictation System Audio Permission Probe"
@@ -2152,6 +2240,54 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         }
         AudioHardwareDestroyProcessTap(probeTapID)
         return true
+    }
+
+    /// True when some other process is currently sending audio to an output device.
+    /// Combined with a tap that has only delivered exact zeros, this means capture is
+    /// being silenced (almost always a missing System Audio Recording grant).
+    static func isAnotherProcessPlayingAudio() -> Bool {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyProcessObjectList,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var size: UInt32 = 0
+        guard AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size) == noErr,
+              size > 0 else {
+            return false
+        }
+        var processes = [AudioObjectID](repeating: 0, count: Int(size) / MemoryLayout<AudioObjectID>.size)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &processes) == noErr else {
+            return false
+        }
+
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        for process in processes {
+            var pidAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioProcessPropertyPID,
+                mScope: kAudioObjectPropertyScopeGlobal,
+                mElement: kAudioObjectPropertyElementMain
+            )
+            var pid: pid_t = 0
+            var pidSize = UInt32(MemoryLayout<pid_t>.size)
+            guard AudioObjectGetPropertyData(process, &pidAddress, 0, nil, &pidSize, &pid) == noErr,
+                  pid != ownPID else {
+                continue
+            }
+
+            var runningAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioProcessPropertyIsRunningOutput,
+                mScope: kAudioObjectPropertyScopeGlobal,
+                mElement: kAudioObjectPropertyElementMain
+            )
+            var isRunningOutput: UInt32 = 0
+            var runningSize = UInt32(MemoryLayout<UInt32>.size)
+            if AudioObjectGetPropertyData(process, &runningAddress, 0, nil, &runningSize, &isRunningOutput) == noErr,
+               isRunningOutput != 0 {
+                return true
+            }
+        }
+        return false
     }
 
     func startCapture(
@@ -2173,6 +2309,11 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         }
         destroyCaptureObjects()
         audioConverter.reset()
+        callbackQueue.sync { nextExpectedHostSeconds = nil }
+        signalLock.withLock {
+            capturedFrameCount = 0
+            hasAudibleSignal = false
+        }
 
         let tapDescription = CATapDescription(stereoMixdownOfProcesses: [])
         tapDescription.name = "Superduper Dictation System Audio"
@@ -2182,63 +2323,26 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         tapDescription.muteBehavior = .unmuted
 
         var createdTapID = AudioObjectID(0)
-        var status = AudioHardwareCreateProcessTap(tapDescription, &createdTapID)
+        let status = AudioHardwareCreateProcessTap(tapDescription, &createdTapID)
         guard status == noErr else {
             throw AudioRecorderError.systemAudioCaptureFailed("Unable to create process tap (\(status))")
         }
 
-        let createdAggregateDeviceID: AudioObjectID
+        let handlers = (onBuffer: onBuffer, onAudioLevel: onAudioLevel, onError: onError)
         do {
-            let tapUID = try tapUID(for: createdTapID)
-            let outputUID = try defaultOutputDeviceUID()
-            createdAggregateDeviceID = try createAggregateDevice(tapUID: tapUID, outputDeviceUID: outputUID)
+            try controlLock.withLock {
+                try startAggregateDevice(tapID: createdTapID, handlers: handlers)
+            }
         } catch {
             AudioHardwareDestroyProcessTap(createdTapID)
             throw error
-        }
-
-        let sourceFormat: AVAudioFormat
-        do {
-            sourceFormat = try tapFormat(for: createdTapID)
-        } catch {
-            AudioHardwareDestroyAggregateDevice(createdAggregateDeviceID)
-            AudioHardwareDestroyProcessTap(createdTapID)
-            throw error
-        }
-
-        var createdIOProcID: AudioDeviceIOProcID?
-        status = AudioDeviceCreateIOProcIDWithBlock(
-            &createdIOProcID,
-            createdAggregateDeviceID,
-            callbackQueue
-        ) { [weak self] _, inputData, _, _, _ in
-            self?.handleInput(
-                inputData,
-                sourceFormat: sourceFormat,
-                onBuffer: onBuffer,
-                onAudioLevel: onAudioLevel,
-                onError: onError
-            )
-        }
-        guard status == noErr, let createdIOProcID else {
-            AudioHardwareDestroyAggregateDevice(createdAggregateDeviceID)
-            AudioHardwareDestroyProcessTap(createdTapID)
-            throw AudioRecorderError.systemAudioCaptureFailed("Unable to create IO proc (\(status))")
-        }
-
-        status = AudioDeviceStart(createdAggregateDeviceID, createdIOProcID)
-        guard status == noErr else {
-            AudioDeviceDestroyIOProcID(createdAggregateDeviceID, createdIOProcID)
-            AudioHardwareDestroyAggregateDevice(createdAggregateDeviceID)
-            AudioHardwareDestroyProcessTap(createdTapID)
-            throw AudioRecorderError.systemAudioCaptureFailed("Unable to start system audio device (\(status))")
         }
 
         tapID = createdTapID
-        aggregateDeviceID = createdAggregateDeviceID
-        ioProcID = createdIOProcID
+        captureHandlers = handlers
         isCapturing = true
         didStartCapture = true
+        installDefaultOutputListener()
         Log.audio.info("System audio tap capture started")
     }
 
@@ -2247,6 +2351,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             throw AudioRecorderError.notRecording
         }
 
+        removeDefaultOutputListener()
         destroyCaptureObjects()
         audioConverter.reset()
         guard let capturedAudio = try audioStorage.finish() else {
@@ -2258,6 +2363,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
 
     func cancelCapture() {
         guard isCapturing else { return }
+        removeDefaultOutputListener()
         destroyCaptureObjects()
         audioConverter.reset()
         audioStorage.discard()
@@ -2265,6 +2371,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     }
 
     func reset() {
+        removeDefaultOutputListener()
         destroyCaptureObjects()
         audioConverter.reset()
         audioStorage.discard()
@@ -2274,8 +2381,139 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         _ = uid
     }
 
+    /// Builds the private aggregate device (clocked by the current default output)
+    /// around `tapID` and starts IO. Caller holds `controlLock`.
+    private func startAggregateDevice(
+        tapID: AudioObjectID,
+        handlers: (
+            onBuffer: (AVAudioPCMBuffer) -> Void,
+            onAudioLevel: (Float) -> Void,
+            onError: (Error) -> Void
+        )
+    ) throws {
+        let tapUID = try tapUID(for: tapID)
+        let outputUID = try defaultOutputDeviceUID()
+        let createdAggregateDeviceID = try createAggregateDevice(tapUID: tapUID, outputDeviceUID: outputUID)
+
+        let sourceFormat: AVAudioFormat
+        do {
+            sourceFormat = try tapFormat(for: tapID)
+        } catch {
+            AudioHardwareDestroyAggregateDevice(createdAggregateDeviceID)
+            throw error
+        }
+
+        var createdIOProcID: AudioDeviceIOProcID?
+        var status = AudioDeviceCreateIOProcIDWithBlock(
+            &createdIOProcID,
+            createdAggregateDeviceID,
+            callbackQueue
+        ) { [weak self] _, inputData, inputTime, _, _ in
+            self?.handleInput(
+                inputData,
+                inputTime: inputTime.pointee,
+                sourceFormat: sourceFormat,
+                onBuffer: handlers.onBuffer,
+                onAudioLevel: handlers.onAudioLevel,
+                onError: handlers.onError
+            )
+        }
+        guard status == noErr, let createdIOProcID else {
+            AudioHardwareDestroyAggregateDevice(createdAggregateDeviceID)
+            throw AudioRecorderError.systemAudioCaptureFailed("Unable to create IO proc (\(status))")
+        }
+
+        status = AudioDeviceStart(createdAggregateDeviceID, createdIOProcID)
+        guard status == noErr else {
+            AudioDeviceDestroyIOProcID(createdAggregateDeviceID, createdIOProcID)
+            AudioHardwareDestroyAggregateDevice(createdAggregateDeviceID)
+            throw AudioRecorderError.systemAudioCaptureFailed("Unable to start system audio device (\(status))")
+        }
+
+        aggregateDeviceID = createdAggregateDeviceID
+        ioProcID = createdIOProcID
+        Log.audio.info(
+            "System audio aggregate started: outputDevice=\(outputUID) tapFormat=\(sourceFormat.sampleRate)Hz/\(sourceFormat.channelCount)ch"
+        )
+    }
+
+    /// Caller holds `controlLock`.
+    private func stopAggregateDevice() {
+        if aggregateDeviceID != 0, let ioProcID {
+            AudioDeviceStop(aggregateDeviceID, ioProcID)
+            AudioDeviceDestroyIOProcID(aggregateDeviceID, ioProcID)
+            self.ioProcID = nil
+        }
+
+        if aggregateDeviceID != 0 {
+            AudioHardwareDestroyAggregateDevice(aggregateDeviceID)
+            aggregateDeviceID = 0
+        }
+    }
+
+    // MARK: - Output device changes
+
+    /// The aggregate is clocked by the output device that was the default at start.
+    /// When the default changes (AirPods connect, a call app switches devices) that
+    /// device can stop or disappear and system audio silently ends, so rebuild the
+    /// aggregate on the new default. The time gap is filled with silence.
+    private func installDefaultOutputListener() {
+        var address = Self.defaultOutputDeviceAddress
+        let listener: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+            self?.rebuildAggregateForNewOutputDevice()
+        }
+        let status = AudioObjectAddPropertyListenerBlock(
+            AudioObjectID(kAudioObjectSystemObject),
+            &address,
+            controlQueue,
+            listener
+        )
+        if status == noErr {
+            defaultOutputListener = listener
+        } else {
+            Log.audio.warning("Unable to observe default output device changes (\(status))")
+        }
+    }
+
+    private func removeDefaultOutputListener() {
+        guard let listener = defaultOutputListener else { return }
+        var address = Self.defaultOutputDeviceAddress
+        AudioObjectRemovePropertyListenerBlock(
+            AudioObjectID(kAudioObjectSystemObject),
+            &address,
+            controlQueue,
+            listener
+        )
+        defaultOutputListener = nil
+    }
+
+    private static var defaultOutputDeviceAddress: AudioObjectPropertyAddress {
+        AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+    }
+
+    private func rebuildAggregateForNewOutputDevice() {
+        controlLock.withLock {
+            guard isCapturing, tapID != 0, let captureHandlers else { return }
+            Log.audio.info("Default output device changed; rebuilding system audio capture")
+            stopAggregateDevice()
+            do {
+                try startAggregateDevice(tapID: tapID, handlers: captureHandlers)
+            } catch {
+                Log.audio.error("System audio capture could not follow the output device change: \(error.localizedDescription)")
+                captureHandlers.onError(error)
+            }
+        }
+    }
+
+    // MARK: - IO
+
     private func handleInput(
         _ inputData: UnsafePointer<AudioBufferList>,
+        inputTime: AudioTimeStamp,
         sourceFormat: AVAudioFormat,
         onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
         onAudioLevel: @escaping (Float) -> Void,
@@ -2298,6 +2536,25 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         let bytesPerFrame = max(Int(sourceFormat.streamDescription.pointee.mBytesPerFrame), 1)
         sourceBuffer.frameLength = AVAudioFrameCount(Int(firstBuffer.mDataByteSize) / bytesPerFrame)
 
+        if inputTime.mFlags.contains(.hostTimeValid), sourceFormat.sampleRate > 0 {
+            let hostSeconds = Double(AudioConvertHostTimeToNanos(inputTime.mHostTime)) / 1_000_000_000
+            let gapFrames = Self.silenceFramesToInsert(
+                expectedHostSeconds: nextExpectedHostSeconds,
+                actualHostSeconds: hostSeconds,
+                targetSampleRate: targetFormat.sampleRate
+            )
+            if gapFrames > 0 {
+                if audioStorage.enqueueSilence(frameCount: gapFrames, sampleRate: targetFormat.sampleRate) {
+                    signalLock.withLock { capturedFrameCount += gapFrames }
+                    Log.audio.debug("System audio gap filled with \(gapFrames) silent frames")
+                } else {
+                    onError(AudioRecorderError.audioWriterBacklogExceeded)
+                    return
+                }
+            }
+            nextExpectedHostSeconds = hostSeconds + Double(sourceBuffer.frameLength) / sourceFormat.sampleRate
+        }
+
         guard let convertedBuffer = audioConverter.convert(
             sourceBuffer,
             from: sourceFormat,
@@ -2310,8 +2567,35 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             onError(AudioRecorderError.audioWriterBacklogExceeded)
             return
         }
+        let isAudible = Self.containsNonSilentSample(convertedBuffer)
+        signalLock.withLock {
+            capturedFrameCount += Int(convertedBuffer.frameLength)
+            if isAudible { hasAudibleSignal = true }
+        }
         onBuffer(convertedBuffer)
         onAudioLevel(AudioCaptureUtilities.calculateAudioLevel(convertedBuffer))
+    }
+
+    /// Silence (in target-rate frames) needed to cover the time between where the
+    /// previous callback ended and where this one starts. Small jitter is ignored.
+    static func silenceFramesToInsert(
+        expectedHostSeconds: Double?,
+        actualHostSeconds: Double,
+        targetSampleRate: Double
+    ) -> Int {
+        guard let expectedHostSeconds else { return 0 }
+        let gap = actualHostSeconds - expectedHostSeconds
+        guard gap > gapFillToleranceSeconds else { return 0 }
+        return Int((min(gap, maximumGapFillSeconds) * targetSampleRate).rounded())
+    }
+
+    /// A tap without the capture grant delivers exact zeros; any nonzero sample
+    /// proves audio is really flowing.
+    static func containsNonSilentSample(_ buffer: AVAudioPCMBuffer) -> Bool {
+        guard let channelData = buffer.floatChannelData, buffer.frameLength > 0 else { return false }
+        var peak: Float = 0
+        vDSP_maxmgv(channelData[0], 1, &peak, vDSP_Length(buffer.frameLength))
+        return peak > 0
     }
 
     private func tapUID(for tapID: AudioObjectID) throws -> String {
@@ -2421,23 +2705,17 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     }
 
     private func destroyCaptureObjects() {
-        if aggregateDeviceID != 0, let ioProcID {
-            AudioDeviceStop(aggregateDeviceID, ioProcID)
-            AudioDeviceDestroyIOProcID(aggregateDeviceID, ioProcID)
-            self.ioProcID = nil
-        }
+        controlLock.withLock {
+            stopAggregateDevice()
 
-        if aggregateDeviceID != 0 {
-            AudioHardwareDestroyAggregateDevice(aggregateDeviceID)
-            aggregateDeviceID = 0
-        }
+            if tapID != 0 {
+                AudioHardwareDestroyProcessTap(tapID)
+                tapID = 0
+            }
 
-        if tapID != 0 {
-            AudioHardwareDestroyProcessTap(tapID)
-            tapID = 0
+            captureHandlers = nil
+            isCapturing = false
         }
-
-        isCapturing = false
     }
 }
 
@@ -2468,6 +2746,10 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
             microphoneBackend.persistentSpoolDirectoryURL = newValue
             systemAudioBackend.persistentSpoolDirectoryURL = newValue
         }
+    }
+
+    var systemAudioSignal: SystemAudioSignalSnapshot? {
+        systemAudioBackend.systemAudioSignal
     }
 
     init(microphoneBackend: AudioCaptureBackend, systemAudioBackend: AudioCaptureBackend) {
@@ -2864,6 +3146,12 @@ final class AudioRecorder {
     private var lastNativeAudio: AudioCaptureNativeAudio?
     /// Set for mixed meeting captures after both sources have been finalized.
     private(set) var lastMeetingSourceHealth: MeetingAudioSourceHealthSnapshot?
+
+    /// What the system-audio tap has delivered so far in the current meeting capture;
+    /// nil when no system audio is being captured.
+    var currentSystemAudioSignal: SystemAudioSignalSnapshot? {
+        activeCaptureBackend?.systemAudioSignal
+    }
     /// A UUID-based meeting workspace set by the coordinator before capture.
     var persistentSpoolDirectoryURL: URL?
     var onAudioBandLevels: ((AudioBandLevels) -> Void)?

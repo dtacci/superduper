@@ -99,7 +99,8 @@ struct OutputManagerTests {
         frontmostApplicationProvider: @escaping () -> NSRunningApplication? = { nil },
         virtualMachineHostChecker: @escaping (String?) -> Bool = { VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: $0) },
         sleeper: RecordingSleeper = RecordingSleeper(),
-        modifierFlagsProvider: @escaping () -> CGEventFlags = { [] }
+        modifierFlagsProvider: @escaping () -> CGEventFlags = { [] },
+        screenLockedChecker: @escaping () -> Bool = { false }
     ) -> (outputManager: OutputManager, mockClipboard: MockClipboard, mockKeySimulation: MockKeySimulation) {
         let mockClipboard = MockClipboard()
         let mockKeySimulation = MockKeySimulation()
@@ -111,7 +112,8 @@ struct OutputManagerTests {
             frontmostApplicationProvider: frontmostApplicationProvider,
             virtualMachineHostChecker: virtualMachineHostChecker,
             sleeper: { try await sleeper.sleep($0) },
-            modifierFlagsProvider: modifierFlagsProvider
+            modifierFlagsProvider: modifierFlagsProvider,
+            screenLockedChecker: screenLockedChecker
         )
         return (outputManager, mockClipboard, mockKeySimulation)
     }
@@ -306,6 +308,34 @@ struct OutputManagerTests {
         #expect(fixture.mockClipboard.clipboardContent == "Copied from history")
     }
 
+    // A long recording can end after the Mac locked; pasting would type into the
+    // lock screen, so the transcript is copied instead.
+    @Test func directInsertCopiesInsteadOfPastingWhileScreenIsLocked() async throws {
+        let fixture = makeSUT(outputMode: .directInsert, screenLockedChecker: { true })
+        fixture.mockClipboard.clipboardContent = "previous"
+
+        let result = try await fixture.outputManager.output("Meeting notes")
+
+        #expect(result.kind == .copiedToClipboard)
+        #expect(result.clipboardFallbackReason == .screenLocked)
+        #expect(fixture.mockKeySimulation.pasteSimulated == false)
+        #expect(fixture.mockClipboard.clipboardContent == "Meeting notes")
+        #expect(result.previousClipboardSnapshot != nil)
+    }
+
+    @Test func loginWindowDestinationIsTreatedAsLocked() async throws {
+        let loginWindow = NSRunningApplication.runningApplications(
+            withBundleIdentifier: ScreenLockState.loginWindowBundleIdentifier
+        ).first
+        guard let loginWindow else { return }
+        let fixture = makeSUT(outputMode: .directInsert, frontmostApplicationProvider: { loginWindow })
+
+        let result = try await fixture.outputManager.output("Hidden words")
+
+        #expect(result.clipboardFallbackReason == .screenLocked)
+        #expect(fixture.mockKeySimulation.pasteSimulated == false)
+    }
+
     @Test func directInsertCopiesOnlyWithoutAccessibility() async throws {
         let fixture = makeSUT(outputMode: .directInsert, accessibilityPermissionChecker: { false })
 
@@ -414,7 +444,8 @@ struct OutputManagerTests {
             accessibilityPermissionChecker: { true },
             frontmostApplicationProvider: { nil },
             virtualMachineHostChecker: { _ in false },
-            modifierFlagsProvider: { [] }
+            modifierFlagsProvider: { [] },
+            screenLockedChecker: { false }
         )
         mockClipboard.clipboardContent = "previous"
 

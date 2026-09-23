@@ -563,7 +563,14 @@ final class AppCoordinator {
     private var isQuickCaptureMode = false
     private var isNoteAppendMode = false
     private let recordingStopAdmission = RecordingStopAdmission()
-    private var isRecordingFeatureCaptureActive = false
+    private var isRecordingFeatureCaptureActive = false {
+        didSet { refreshEscapeSuppression() }
+    }
+    /// True for meetings started from the meeting shortcut/button (as opposed to a
+    /// dictation converted into a meeting). Dictation hotkeys never stop those.
+    private var isStandaloneMeetingCapture = false
+    private var longDictationOfferTask: Task<Void, Never>?
+    static let longDictationMeetingOfferDelay: Duration = .seconds(180)
     private var manualExpectedSpeakerCount: Int?
     private var activeMeetingOccurrenceID: UUID?
     private var activeDictationRecoveryID: UUID?
@@ -588,6 +595,13 @@ final class AppCoordinator {
     /// `activeOperationTask`: the dictation it learns from is already committed, so
     /// cancelling a later session must not touch it.
     private var speakerLearningTask: Task<Void, Never>?
+    /// Watches a running meeting for a system-audio tap that only delivers silence
+    /// while another app is playing audio (a missing System Audio Recording grant).
+    private var systemAudioWatchdogTask: Task<Void, Never>?
+    /// Serial chain of background on-device meeting-notes jobs. Notes can take a
+    /// minute or more on long meetings, so they run after the processing state
+    /// resets instead of blocking dictation.
+    private var meetingInsightsTask: Task<Void, Never>?
     private var operationController = DictationOperationController()
     private var queueOriginalModelName: String?
 
@@ -622,7 +636,8 @@ final class AppCoordinator {
             Self.shouldSuppressEscapeEvent(
                 isRecording: isRecording,
                 isProcessing: isProcessing,
-                isMediaTranscriptionOnly: isMediaTranscriptionOnlyWork
+                isMediaTranscriptionOnly: isMediaTranscriptionOnlyWork,
+                isMeetingRecording: isRecording && isRecordingFeatureCaptureActive
             )
         )
     }
@@ -3499,6 +3514,13 @@ final class AppCoordinator {
         }
     }
     
+    private func showMeetingStillRecordingHint() {
+        recordingState.message = localized(
+            "A meeting is recording. Click the recording indicator or press the meeting shortcut to stop it.",
+            locale: settingsStore.selectedAppLocale.locale
+        )
+    }
+
     private func handlePushToTalkEnd() async {
         // Note-append is not started by global PTT, so a PTT keyup must not
         // cancel an in-editor speak-to-append session.
@@ -3507,6 +3529,12 @@ final class AppCoordinator {
             return
         }
         guard isRecording else { return }
+        // A push-to-talk key-up during a meeting started from the meeting shortcut
+        // belongs to a tap of the dictation key, not to the meeting.
+        guard !isStandaloneMeetingCapture else {
+            Log.app.debug("Ignore global PTT end while a meeting is recording")
+            return
+        }
 
         do {
             try await dispatchRecordingStop()
@@ -3941,6 +3969,10 @@ final class AppCoordinator {
 
     private func handleToggleRecording(source: RecordingTriggerSource) async {
         if isRecording {
+            if source == .hotkeyToggle, isStandaloneMeetingCapture {
+                showMeetingStillRecordingHint()
+                return
+            }
             do {
                 if isNoteAppendMode {
                     guard noteAppendEditorID != nil else { return }
@@ -4099,6 +4131,75 @@ final class AppCoordinator {
         }
         lastOfferedMeetingPinIdentity = nil
         offerActiveRecordingMeetingPinIfNeeded()
+        if source != .noteAppend {
+            scheduleLongDictationMeetingOffer()
+        }
+    }
+
+    /// Long dictations are usually meetings recorded with the dictation hotkey.
+    /// After a few minutes, offer to save the recording as a meeting instead, which
+    /// gets speaker labels and notes rather than pasting thousands of words.
+    private func scheduleLongDictationMeetingOffer() {
+        longDictationOfferTask?.cancel()
+        let sessionStartedAt = recordingStartTime
+        longDictationOfferTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.longDictationMeetingOfferDelay)
+            guard !Task.isCancelled,
+                  let self,
+                  self.isRecording,
+                  !self.isRecordingFeatureCaptureActive,
+                  !self.isNoteAppendMode,
+                  !self.isQuickCaptureMode,
+                  self.recordingStartTime == sessionStartedAt else {
+                return
+            }
+            let locale = self.settingsStore.selectedAppLocale.locale
+            self.toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Long recording. Is this a meeting? Save it as one to get speaker labels and notes instead of pasting the text.",
+                        locale: locale
+                    ),
+                    actions: [
+                        ToastAction(title: localized("Save as Meeting", locale: locale), role: .primary) { [weak self] in
+                            self?.convertActiveDictationToMeeting()
+                        }
+                    ],
+                    duration: 20
+                )
+            )
+        }
+    }
+
+    private func convertActiveDictationToMeeting() {
+        guard isRecording, !isRecordingFeatureCaptureActive else { return }
+        do {
+            let occurrence = try meetingStore.createManualOccurrence(
+                scheduledStart: recordingStartTime ?? Date()
+            )
+            try meetingStore.transition(id: occurrence.id, to: .recording)
+            activeMeetingOccurrenceID = occurrence.id
+            isRecordingFeatureCaptureActive = true
+            recordingState.beginRecording(
+                mode: .microphone,
+                startedAt: recordingStartTime ?? Date()
+            )
+            statusBarController.setRecordingState(isMeetingCapture: true)
+            statusBarController.updateMenuState()
+            let locale = settingsStore.selectedAppLocale.locale
+            toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Saving this recording as a meeting. Stop it the usual way. Tip: start calls with the meeting shortcut to also capture the other participants.",
+                        locale: locale
+                    ),
+                    duration: 8
+                )
+            )
+        } catch {
+            meetingsState.errorMessage = error.localizedDescription
+            toastService.show(ToastPayload(message: error.localizedDescription, style: .error))
+        }
     }
 
     private func logRecordingStartAttempt(source: RecordingTriggerSource) {
@@ -4125,6 +4226,82 @@ final class AppCoordinator {
             language: language ?? settingsStore.selectedAppLanguage,
             vocabularyBiasWords: bias
         )
+    }
+
+    /// Meetings boost more than the dictionary: names are what meeting transcripts get
+    /// wrong most, so include every name the app knows about.
+    private func makeMeetingTranscriptionOptions(occurrence: MeetingOccurrence?) -> TranscriptionOptions {
+        var candidates = (try? dictionaryStore.vocabularyBiasWords(limit: Self.meetingVocabularyLimit)) ?? []
+        // Names typed for speakers in earlier meetings and saved voice profiles.
+        if let meetings = try? meetingStore.fetchOccurrences() {
+            candidates += meetings.flatMap { $0.speakerLabels.values }
+        }
+        if let profiles = try? speakerIdentityService.fetchAllProfiles() {
+            candidates += profiles.filter { !$0.isCurrentUser }.map(\.displayName)
+        }
+        candidates += Self.calendarAttendeeNames(fromEventJSON: occurrence?.calendarSnapshotJSON)
+
+        let terms = Self.meetingVocabulary(from: candidates)
+        if !terms.isEmpty {
+            Log.transcription.info("Meeting vocabulary boosting with \(terms.count) term(s)")
+        }
+        return TranscriptionOptions(
+            language: settingsStore.selectedAppLanguage,
+            vocabularyBiasWords: terms
+        )
+    }
+
+    nonisolated static let meetingVocabularyLimit = 200
+
+    /// Distinct names and terms worth boosting. Full names are kept as phrases and
+    /// their parts are added too, since people are usually addressed by one name.
+    /// Generic speaker labels, "Me", and email addresses are dropped.
+    nonisolated static func meetingVocabulary(from candidates: [String], limit: Int = meetingVocabularyLimit) -> [String] {
+        var seen = Set<String>()
+        var terms: [String] = []
+
+        func add(_ term: String) {
+            guard term.count >= 3, seen.insert(term.lowercased()).inserted else { return }
+            terms.append(term)
+        }
+
+        for candidate in candidates {
+            let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+            let lowered = trimmed.lowercased()
+            guard !trimmed.contains("@"),
+                  lowered != "me",
+                  lowered.range(of: #"^speaker \d+$"#, options: .regularExpression) == nil else {
+                continue
+            }
+            add(trimmed)
+            let parts = trimmed.split(whereSeparator: \.isWhitespace)
+            if parts.count > 1 {
+                parts.forEach { add(String($0)) }
+            }
+        }
+        return Array(terms.prefix(limit))
+    }
+
+    /// Attendee and organizer display names from a stored Google Calendar event,
+    /// excluding you and room resources.
+    nonisolated static func calendarAttendeeNames(fromEventJSON json: String?) -> [String] {
+        guard let data = json?.data(using: .utf8),
+              let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return []
+        }
+        var people = (event["attendees"] as? [[String: Any]]) ?? []
+        if let organizer = event["organizer"] as? [String: Any] {
+            people.append(organizer)
+        }
+        return people.compactMap { person in
+            guard person["self"] as? Bool != true,
+                  person["resource"] as? Bool != true,
+                  let name = person["displayName"] as? String,
+                  !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+                return nil
+            }
+            return name
+        }
     }
 
     private func makeTranscriptionProgressHandler() -> TranscriptionProgressHandler {
@@ -5108,6 +5285,16 @@ final class AppCoordinator {
                     variant: .copied
                 )
             )
+        case .screenLocked:
+            toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted.",
+                        locale: locale
+                    ),
+                    duration: nil
+                )
+            )
         case .pasteFailed, nil:
             toastService.show(
                 ToastPayload(
@@ -5429,12 +5616,15 @@ final class AppCoordinator {
         Log.hotkey.debug("Removed NSEvent global monitor fallback for modifier changes")
     }
     
+    /// Meetings run for up to 90 minutes while you work in other apps, so Escape is
+    /// left alone while one is recording; meetings stop from the indicator/shortcut.
     static func shouldSuppressEscapeEvent(
         isRecording: Bool,
         isProcessing: Bool,
-        isMediaTranscriptionOnly: Bool = false
+        isMediaTranscriptionOnly: Bool = false,
+        isMeetingRecording: Bool = false
     ) -> Bool {
-        (isRecording || isProcessing) && !isMediaTranscriptionOnly
+        (isRecording || isProcessing) && !isMediaTranscriptionOnly && !isMeetingRecording
     }
 
     /// Single Escape cancels while a recording/processing session is active.
@@ -5582,6 +5772,7 @@ final class AppCoordinator {
         // neither arms the double-press sequence nor pretends to act.
         guard isRecording || isProcessing || activeOperationTask != nil else { return }
         guard !isMediaTranscriptionOnlyWork else { return }
+        guard !(isRecording && isRecordingFeatureCaptureActive) else { return }
 
         let now = Date()
         if Self.escapeShouldCancel(
@@ -5669,6 +5860,9 @@ final class AppCoordinator {
         isRecording = false
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        isStandaloneMeetingCapture = false
+        longDictationOfferTask?.cancel()
+        longDictationOfferTask = nil
         isQuickCaptureMode = false
         clearNoteAppendMode()
         recordingStartTime = nil
@@ -5729,6 +5923,9 @@ final class AppCoordinator {
         isRecording = false
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        isStandaloneMeetingCapture = false
+        longDictationOfferTask?.cancel()
+        longDictationOfferTask = nil
         isQuickCaptureMode = false
         clearNoteAppendMode()
         recordingStartTime = nil
@@ -5777,6 +5974,9 @@ final class AppCoordinator {
         mediaPauseService.endRecordingSession()
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        isStandaloneMeetingCapture = false
+        longDictationOfferTask?.cancel()
+        longDictationOfferTask = nil
         // Note-append mode is cleared by the stop path after processing; only clear if not mid-append.
         if !isNoteAppendMode {
             NoteAppendListeningCoordinator.shared.state.finishSession()
@@ -6404,11 +6604,67 @@ final class AppCoordinator {
 
         isRecording = true
         isRecordingFeatureCaptureActive = true
+        isStandaloneMeetingCapture = true
         recordingStartTime = Date()
         recordingState.beginRecording(mode: mode, startedAt: recordingStartTime ?? Date())
         statusBarController.setRecordingState(isMeetingCapture: true)
         statusBarController.updateMenuState()
         startRecordingIndicatorSession()
+        if mode.requiresSystemAudioPermission {
+            startSystemAudioWatchdog(occurrenceID: occurrence.id)
+        }
+    }
+
+    /// A process tap without the System Audio Recording grant records exact silence
+    /// and reports no error, which previously went unnoticed until the meeting was
+    /// over. Warn during the meeting once another app has been playing audio for a
+    /// while and the tap still hasn't delivered a single nonzero sample.
+    private func startSystemAudioWatchdog(occurrenceID: UUID) {
+        systemAudioWatchdogTask?.cancel()
+        systemAudioWatchdogTask = Task { @MainActor [weak self] in
+            var silentChecksWhileAudioPlays = 0
+            try? await Task.sleep(for: .seconds(6))
+            while !Task.isCancelled {
+                guard let self,
+                      self.isRecording,
+                      self.activeMeetingOccurrenceID == occurrenceID,
+                      let signal = self.audioRecorder.currentSystemAudioSignal,
+                      !signal.hasAudibleSignal else {
+                    return
+                }
+                guard #available(macOS 14.2, *) else { return }
+                if SystemAudioTapCaptureBackend.isAnotherProcessPlayingAudio() {
+                    silentChecksWhileAudioPlays += 1
+                } else {
+                    silentChecksWhileAudioPlays = 0
+                }
+                if silentChecksWhileAudioPlays >= 2 {
+                    self.warnSystemAudioNotCaptured()
+                    return
+                }
+                try? await Task.sleep(for: .seconds(4))
+            }
+        }
+    }
+
+    private func warnSystemAudioNotCaptured() {
+        Log.audio.warning("System audio tap is silent while other apps play audio; System Audio Recording is likely not granted")
+        let locale = settingsStore.selectedAppLocale.locale
+        toastService.show(
+            ToastPayload(
+                message: localized(
+                    "Superduper Dictation can't hear the call audio. Turn on System Audio Recording for it in System Settings, then restart the meeting.",
+                    locale: locale
+                ),
+                actions: [
+                    ToastAction(title: localized("Open Settings", locale: locale), role: .primary) { [weak self] in
+                        self?.permissionManager.openSystemAudioRecordingPreferences()
+                    }
+                ],
+                duration: nil,
+                style: .error
+            )
+        )
     }
 
 
@@ -6440,6 +6696,7 @@ final class AppCoordinator {
 
         isRecording = false
         isRecordingFeatureCaptureActive = false
+        isStandaloneMeetingCapture = false
         recordingState.endRecording()
         statusBarController.setProcessingState()
         statusBarController.updateMenuState()
@@ -6485,8 +6742,10 @@ final class AppCoordinator {
                 displayName: mode.libraryDisplayName,
                 sourceKind: .manualCapture
             )
+            var meetingWorkspaceURL: URL?
             if let occurrenceID,
                let occurrence = try meetingStore.occurrence(id: occurrenceID) {
+                meetingWorkspaceURL = occurrence.workspaceURL
                 var recoveryAudioURLs = (try? FileManager.default.contentsOfDirectory(
                     at: occurrence.workspaceURL,
                     includingPropertiesForKeys: nil
@@ -6525,12 +6784,18 @@ final class AppCoordinator {
                 errorMessage: nil
             )
 
-            let transcriptionOutput = try await transcriptionService.transcribe(
-                audioData: audioData,
-                diarizationEnabled: job.options.diarizationEnabled,
-                options: makeTranscriptionOptions(),
-                diarizationOptions: .init(expectedSpeakerCount: job.options.expectedSpeakerCount),
-                diarizationFailurePolicy: .required,
+            let sourceHealth = audioRecorder.lastMeetingSourceHealth
+            let transcriptionOutput = try await transcriptionService.transcribeMeeting(
+                sources: MeetingAudioSources.load(
+                    workspaceURL: meetingWorkspaceURL,
+                    mixed: audioData,
+                    microphoneHealth: sourceHealth?.microphone,
+                    systemAudioHealth: sourceHealth?.systemAudio
+                ),
+                options: makeMeetingTranscriptionOptions(
+                    occurrence: occurrenceID.flatMap { try? meetingStore.occurrence(id: $0) }
+                ),
+                expectedSpeakerCount: job.options.expectedSpeakerCount,
                 progressHandler: makeTranscriptionProgressHandler()
             )
             try ensureOperationCurrent(token)
@@ -6575,11 +6840,7 @@ final class AppCoordinator {
             if let occurrenceID {
                 try meetingStore.attachTranscript(id: occurrenceID, transcript: record)
                 try meetingStore.transition(id: occurrenceID, to: .ready)
-                await generateMeetingInsightsIfAllowed(
-                    occurrenceID: occurrenceID,
-                    transcript: finalText,
-                    reportErrorsInRecordingState: false
-                )
+                scheduleMeetingInsights(occurrenceID: occurrenceID, transcript: finalText)
             }
             if let adoptedRecoveryID {
                 try dictationRecoveryStore.complete(id: adoptedRecoveryID)
@@ -6595,16 +6856,22 @@ final class AppCoordinator {
                 didResetProcessingState = true
             }
             recordingState.completeCurrentJob(with: record.id, message: "Meeting recording transcribed successfully.")
-            let meetingRecordID = record.id
-            mainWindowController.showHistory()
-            // Post after nav so HistoryView is mounted and listening.
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 150_000_000)
-                NotificationCenter.default.post(
-                    name: .openHistoryRecord,
-                    object: nil,
-                    userInfo: ["recordID": meetingRecordID.uuidString]
-                )
+            if let occurrenceID {
+                // Meetings open on their workspace (transcript, notes, speakers).
+                meetingsState.requestedOccurrenceID = occurrenceID
+                mainWindowController.showNavigationItem(.meetings)
+            } else {
+                let meetingRecordID = record.id
+                mainWindowController.showHistory()
+                // Post after nav so HistoryView is mounted and listening.
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 150_000_000)
+                    NotificationCenter.default.post(
+                        name: .openHistoryRecord,
+                        object: nil,
+                        userInfo: ["recordID": meetingRecordID.uuidString]
+                    )
+                }
             }
         } catch is CancellationError {
             // Only the current operation may mutate shared RecordingState after cancel.
@@ -6653,24 +6920,60 @@ final class AppCoordinator {
         }
     }
 
+    /// "Generate notes" in a meeting workspace. When on-device notes are off (or the
+    /// model is missing) this downloads the model and turns the feature on first.
     func regenerateMeetingInsights(_ occurrenceID: UUID) {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                guard self.settingsStore.onDeviceMeetingAIAllowed else {
-                    throw LocalMeetingModelError.missingWeights
-                }
                 guard let transcript = try self.meetingStore.occurrence(id: occurrenceID)?.transcript?.text,
                       !transcript.isEmpty else {
                     throw MediaPreparationError.readFailed("This meeting does not have a transcript yet.")
                 }
-                try await self.generateAndSaveMeetingInsights(
-                    occurrenceID: occurrenceID,
-                    transcript: transcript
-                )
+                try await self.ensureMeetingNotesModelEnabled()
+                self.meetingsState.errorMessage = nil
+                self.scheduleMeetingInsights(occurrenceID: occurrenceID, transcript: transcript)
             } catch {
                 self.meetingsState.errorMessage = error.localizedDescription
             }
+        }
+    }
+
+    private func ensureMeetingNotesModelEnabled() async throws {
+        await modelManager.refreshDownloadedFeatureModels()
+        if !modelManager.isFeatureModelDownloaded(.meetingNotes) {
+            meetingsState.isDownloadingMeetingNotesModel = true
+            defer { meetingsState.isDownloadingMeetingNotesModel = false }
+            try await modelManager.downloadFeatureModel(
+                .meetingNotes,
+                streamingChunkProfile: settingsStore.streamingChunkProfile
+            )
+        }
+        if !settingsStore.onDeviceMeetingAIAllowed {
+            settingsStore.setFeatureEnabled(.meetingNotes, enabled: true)
+        }
+    }
+
+    private func scheduleMeetingInsights(occurrenceID: UUID, transcript: String) {
+        guard settingsStore.onDeviceMeetingAIAllowed else {
+            Log.aiEnhancement.info("On-device meeting notes are off; skipping notes for meeting \(occurrenceID)")
+            return
+        }
+        let previous = meetingInsightsTask
+        meetingInsightsTask = Task(priority: .utility) { @MainActor [weak self] in
+            await previous?.value
+            guard let self, !self.isShutdown, !Task.isCancelled else { return }
+            self.meetingsState.generatingInsightsOccurrenceIDs.insert(occurrenceID)
+            defer { self.meetingsState.generatingInsightsOccurrenceIDs.remove(occurrenceID) }
+            let started = CFAbsoluteTimeGetCurrent()
+            await self.generateMeetingInsightsIfAllowed(
+                occurrenceID: occurrenceID,
+                transcript: transcript,
+                reportErrorsInRecordingState: false
+            )
+            Log.aiEnhancement.info(
+                "On-device meeting notes finished in \(String(format: "%.1f", CFAbsoluteTimeGetCurrent() - started))s"
+            )
         }
     }
 
@@ -6700,12 +7003,15 @@ final class AppCoordinator {
                 prepared = try await mediaPreparationService.prepareAudio(from: sourceURL)
             }
 
-            let output = try await transcriptionService.transcribe(
-                audioData: prepared.audioData,
-                diarizationEnabled: true,
-                options: makeTranscriptionOptions(),
-                diarizationOptions: .init(expectedSpeakerCount: occurrence.expectedSpeakerCount),
-                diarizationFailurePolicy: .required,
+            let output = try await transcriptionService.transcribeMeeting(
+                sources: MeetingAudioSources.load(
+                    workspaceURL: occurrence.workspaceURL,
+                    mixed: prepared.audioData,
+                    microphoneHealth: occurrence.microphoneHealthRawValue.flatMap(MeetingAudioSourceHealth.init(rawValue:)),
+                    systemAudioHealth: occurrence.systemAudioHealthRawValue.flatMap(MeetingAudioSourceHealth.init(rawValue:))
+                ),
+                options: makeMeetingTranscriptionOptions(occurrence: occurrence),
+                expectedSpeakerCount: occurrence.expectedSpeakerCount,
                 progressHandler: makeTranscriptionProgressHandler()
             )
             let text = normalizedTranscriptionText(output.text)
@@ -6732,11 +7038,7 @@ final class AppCoordinator {
             )
             try meetingStore.attachTranscript(id: occurrenceID, transcript: record)
             try meetingStore.transition(id: occurrenceID, to: .ready)
-            await generateMeetingInsightsIfAllowed(
-                occurrenceID: occurrenceID,
-                transcript: text,
-                reportErrorsInRecordingState: false
-            )
+            scheduleMeetingInsights(occurrenceID: occurrenceID, transcript: text)
             updateRecentTranscriptsMenu()
             meetingsState.errorMessage = nil
         } catch {
@@ -6764,6 +7066,8 @@ final class AppCoordinator {
             Log.aiEnhancement.error("On-device meeting insights failed: \(error.localizedDescription)")
             if reportErrorsInRecordingState {
                 recordingState.message = error.localizedDescription
+            } else if !Self.isTaskCancellation(error) {
+                meetingsState.errorMessage = error.localizedDescription
             }
         }
     }
@@ -7562,6 +7866,10 @@ final class AppCoordinator {
         activeOperationTask = nil
         speakerLearningTask?.cancel()
         speakerLearningTask = nil
+        systemAudioWatchdogTask?.cancel()
+        systemAudioWatchdogTask = nil
+        meetingInsightsTask?.cancel()
+        meetingInsightsTask = nil
         outputManager.flushPendingClipboardRestore()
 
         mediaTranscriptionGeneration &+= 1

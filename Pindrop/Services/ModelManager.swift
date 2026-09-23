@@ -1513,7 +1513,7 @@ enum MeetingPreflightIssue: Equatable, Sendable {
         case .microphonePermission:
             return "Microphone permission is required for meeting recording."
         case .systemAudioPermission:
-            return "System audio permission is required for meeting recording."
+            return "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
         case .diarizationMissing:
             return "Download the speaker diarization model before starting recording."
         case .diarizationNeedsRepair:
@@ -1534,7 +1534,7 @@ enum MeetingPreflightIssue: Equatable, Sendable {
         case .microphonePermission:
             return localized("Microphone permission is required for meeting recording.", locale: locale)
         case .systemAudioPermission:
-            return localized("System audio permission is required for meeting recording.", locale: locale)
+            return localized("Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again.", locale: locale)
         case .diarizationMissing:
             return localized("Download the speaker diarization model before starting recording.", locale: locale)
         case .diarizationNeedsRepair:

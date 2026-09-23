@@ -348,4 +348,108 @@ struct ParakeetEngineTests {
         #expect(ParakeetEngine.modelVersion(forModelName: "parakeet-tdt-0.6b-v3") == .v3)
         #expect(ParakeetEngine.modelVersion(forModelName: "parakeet-tdt-1.1b") == nil)
     }
+
+    // MARK: - Word timings
+
+    @Test func tokensJoinIntoTimedWords() {
+        let tokens = [
+            TokenTiming(token: " Hel", tokenId: 1, startTime: 0.0, endTime: 0.2, confidence: 0.9),
+            TokenTiming(token: "lo", tokenId: 2, startTime: 0.2, endTime: 0.4, confidence: 0.7),
+            TokenTiming(token: ",", tokenId: 3, startTime: 0.4, endTime: 0.5, confidence: 0.8),
+            TokenTiming(token: " world", tokenId: 4, startTime: 0.9, endTime: 1.3, confidence: 1.0),
+        ]
+
+        let words = ParakeetEngine.words(from: tokens)
+
+        #expect(words.map(\.text) == ["Hello,", "world"])
+        #expect(words[0].startTime == 0.0)
+        #expect(words[0].endTime == 0.5)
+        #expect(words[1].startTime == 0.9)
+        #expect(words[1].endTime == 1.3)
+        #expect(abs(words[0].confidence - 0.8) < 0.0001)
+    }
+
+    @Test func missingTokenTimingsSpreadWordsEvenly() {
+        let words = ParakeetEngine.evenlyTimedWords(text: "one two", duration: 2)
+        #expect(words.map(\.text) == ["one", "two"])
+        #expect(words[1].startTime == 1)
+        #expect(words[1].endTime == 2)
+    }
+
+    // MARK: - Vocabulary boosting
+
+    private func timed(_ texts: [String]) -> [TimedWord] {
+        texts.enumerated().map { index, text in
+            TimedWord(text: text, startTime: Double(index), endTime: Double(index) + 0.8, confidence: 1)
+        }
+    }
+
+    @Test func spellingKeyIgnoresCaseSpacingAndPunctuation() {
+        #expect(ParakeetEngine.spellingKey("D'Sa") == "dsa")
+        #expect(ParakeetEngine.spellingKey("live kit,") == "livekit")
+        #expect(ParakeetEngine.spellingSimilarity("Desa", "D'Sa") == 0.75)
+        #expect(ParakeetEngine.spellingSimilarity("LiveKit", "live kit") == 1)
+    }
+
+    @Test func boostableTermsDropShortAndDuplicateTerms() {
+        #expect(ParakeetEngine.boostableTerms(["LiveKit", " livekit ", "AI", "D'Sa", ""]) == ["LiveKit", "D'Sa"])
+    }
+
+    // Spans that already spell a term only need its canonical form; no audio needed.
+    @Test func exactSpellingsTakeTheCanonicalForm() {
+        let words = timed(["we", "use", "live", "kit,", "right", "russ?"])
+
+        let result = ParakeetEngine.applyingExactTermSpellings(["LiveKit", "Russ"], to: words)
+
+        #expect(result.map(\.text) == ["we", "use", "LiveKit,", "right", "Russ?"])
+        #expect(result[2].startTime == 2)
+        #expect(result[2].endTime == 3.8)
+    }
+
+    @Test func nearMisspellingsBecomeCandidatesButExactOnesDoNot() {
+        let words = timed(["talked", "to", "Desa", "and", "LiveKit"])
+
+        let candidates = ParakeetEngine.vocabularyCandidates(in: words, terms: ["D'Sa", "LiveKit"])
+
+        #expect(candidates.contains(ParakeetEngine.VocabularyCandidate(wordRange: 2..<3, term: "D'Sa")))
+        // Spans that already contain the correct spelling are never candidates.
+        #expect(!candidates.contains { $0.term == "LiveKit" })
+    }
+
+    // Guards against the acoustic rescorer swapping unrelated phrases for a term.
+    @Test func implausibleReplacementsAreRejected() {
+        typealias Replacement = ParakeetEngine.VocabularyReplacement
+        #expect(ParakeetEngine.isPlausibleReplacement(Replacement(original: "Desa", replacement: "D'Sa")))
+        #expect(ParakeetEngine.isPlausibleReplacement(Replacement(original: "live gift", replacement: "LiveKit")))
+        #expect(!ParakeetEngine.isPlausibleReplacement(Replacement(original: "conversations", replacement: "Russ")))
+        #expect(!ParakeetEngine.isPlausibleReplacement(Replacement(original: "guess", replacement: "Russ")))
+        #expect(!ParakeetEngine.isPlausibleReplacement(Replacement(original: "whether you", replacement: "Muesli")))
+        #expect(!ParakeetEngine.isPlausibleReplacement(Replacement(original: "Russ", replacement: "Russ")))
+        #expect(!ParakeetEngine.isPlausibleReplacement(Replacement(original: "and LiveKit", replacement: "LiveKit")))
+    }
+
+    @Test func candidateWindowsPadAndMergeNearbySpans() {
+        let words = timed(["a", "Desa", "b", "c", "Desa", "d", "e", "f", "g", "h", "i", "j", "Desa"])
+        let candidates = [1, 4, 12].map { ParakeetEngine.VocabularyCandidate(wordRange: $0..<($0 + 1), term: "D'Sa") }
+
+        let windows = ParakeetEngine.candidateWindows(candidates, words: words, audioDuration: 20)
+
+        #expect(windows.count == 2)
+        #expect(windows[0].start == 0)
+        #expect(windows[0].end == 6.8)
+        #expect(windows[0].wordRange == 0..<7)
+        #expect(windows[1].wordRange == 10..<13)
+    }
+
+    @Test func replacementsKeepTimingAndTrailingPunctuation() {
+        let words = timed(["say", "hi", "to", "Desa.", "Thanks"])
+
+        let result = ParakeetEngine.applying(
+            [ParakeetEngine.VocabularyReplacement(original: "Desa.", replacement: "D'Sa")],
+            to: words
+        )
+
+        #expect(result.map(\.text) == ["say", "hi", "to", "D'Sa.", "Thanks"])
+        #expect(result[3].startTime == 3)
+    }
 }
