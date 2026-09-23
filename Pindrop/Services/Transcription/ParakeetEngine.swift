@@ -9,7 +9,7 @@ import Foundation
 import FluidAudio
 
 @MainActor
-public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
+public final class ParakeetEngine: TimedTranscriptionEngine, CapabilityReporting {
     
     public static var capabilities: AudioEngineCapabilities {
         [.transcription, .streamingTranscription, .voiceActivityDetection, .speakerDiarization]
@@ -110,6 +110,20 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
     }
     
     public func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
+        try await recognize(audioData: audioData).text
+    }
+
+    /// One pass over the whole clip (FluidAudio chunks long audio internally) with
+    /// per-word timing reconstructed from the TDT token timings.
+    public func transcribeWords(audioData: Data, options: TranscriptionOptions) async throws -> [TimedWord] {
+        let result = try await recognize(audioData: audioData)
+        if let tokenTimings = result.tokenTimings, !tokenTimings.isEmpty {
+            return Self.words(from: tokenTimings)
+        }
+        return Self.evenlyTimedWords(text: result.text, duration: result.duration)
+    }
+
+    private func recognize(audioData: Data) async throws -> ASRResult {
         guard state == .ready else {
             throw EngineError.modelNotLoaded
         }
@@ -141,11 +155,60 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
             let result = try await asrManager.transcribe(samples, decoderState: &decoderState)
 
             state = .ready
-            return result.text
+            return result
         } catch {
             state = .ready
             self.error = error
             throw EngineError.transcriptionFailed(error.localizedDescription)
+        }
+    }
+
+    /// Joins SentencePiece tokens into words. A token that starts with a space opens
+    /// a new word; punctuation and word-piece continuations attach to the current one.
+    nonisolated static func words(from tokens: [TokenTiming]) -> [TimedWord] {
+        var words: [TimedWord] = []
+        var text = ""
+        var startTime: TimeInterval = 0
+        var endTime: TimeInterval = 0
+        var confidences: [Float] = []
+
+        func flush() {
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty {
+                let confidence = confidences.isEmpty ? 0 : confidences.reduce(0, +) / Float(confidences.count)
+                words.append(TimedWord(text: trimmed, startTime: startTime, endTime: endTime, confidence: confidence))
+            }
+            text = ""
+            confidences = []
+        }
+
+        for token in tokens.sorted(by: { $0.startTime < $1.startTime }) {
+            if token.token.hasPrefix(" "), !text.trimmingCharacters(in: .whitespaces).isEmpty {
+                flush()
+            }
+            if text.trimmingCharacters(in: .whitespaces).isEmpty {
+                startTime = token.startTime
+            }
+            text += token.token
+            endTime = max(endTime, token.endTime)
+            confidences.append(token.confidence)
+        }
+        flush()
+        return words
+    }
+
+    /// Fallback when an ASR result carries no token timings: spread the words evenly.
+    nonisolated static func evenlyTimedWords(text: String, duration: TimeInterval) -> [TimedWord] {
+        let parts = text.split(whereSeparator: \.isWhitespace).map(String.init)
+        guard !parts.isEmpty else { return [] }
+        let step = max(duration, 0.01) / Double(parts.count)
+        return parts.enumerated().map { index, part in
+            TimedWord(
+                text: part,
+                startTime: Double(index) * step,
+                endTime: Double(index + 1) * step,
+                confidence: 0
+            )
         }
     }
     

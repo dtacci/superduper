@@ -87,7 +87,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         case renameFeedback
     }
 
-    private static let currentUserProfileID = UUID(uuidString: "9A80C8F2-DBA4-4F80-8D06-54F6151EC212")!
+    static let currentUserProfileID = UUID(uuidString: "9A80C8F2-DBA4-4F80-8D06-54F6151EC212")!
 
     private static let minimumDurationForLearning: TimeInterval = 1.0
     private static let minimumConfidenceForLearning: Float = 0.45

@@ -2345,3 +2345,138 @@ private enum AsyncTestWaitError: Error, CustomStringConvertible {
         }
     }
 }
+
+@Suite
+struct MeetingTranscriptAssemblerTests {
+    private func word(_ text: String, _ start: TimeInterval, _ end: TimeInterval) -> TimedWord {
+        TimedWord(text: text, startTime: start, endTime: end, confidence: 1)
+    }
+
+    private func segment(_ id: String, _ start: TimeInterval, _ end: TimeInterval) -> SpeakerSegment {
+        SpeakerSegment(
+            speaker: Speaker(id: id, label: id, embedding: nil),
+            startTime: start,
+            endTime: end,
+            confidence: 0.9
+        )
+    }
+
+    @Test func wordsTakeTheSpeakerWhoseTurnContainsThem() {
+        let words = [word("hi", 0.1, 0.3), word("there", 2.1, 2.4), word("late", 9.0, 9.2)]
+        let segments = [segment("A", 0, 1), segment("B", 2, 3)]
+
+        let speakers = MeetingTranscriptAssembler.assignSpeakers(to: words, segments: segments)
+
+        #expect(speakers == ["A", "B", nil])
+        #expect(MeetingTranscriptAssembler.assignSpeakers(
+            to: words,
+            segments: segments,
+            maximumDistance: .infinity
+        ) == ["A", "B", "B"])
+    }
+
+    @Test func wordsBetweenTurnsGoToTheNearestTurn() {
+        let words = [word("gap", 1.6, 1.8)]
+        let segments = [segment("A", 0, 1), segment("B", 2, 3)]
+        #expect(MeetingTranscriptAssembler.assignSpeakers(to: words, segments: segments) == ["B"])
+    }
+
+    // Laptop speakers leak the far end into the mic; those mic words duplicate the
+    // call track at nearly the same time and must not be attributed to "Me".
+    @Test func microphoneEchoOfTheCallIsRemoved() {
+        let system = [word("Can", 10.0, 10.2), word("you", 10.2, 10.4), word("hear", 10.4, 10.6), word("me?", 10.6, 10.9)]
+        let microphone = [
+            word("Hello", 2.0, 2.3), word("everyone.", 2.3, 2.8),
+            word("can", 10.05, 10.25), word("you", 10.25, 10.45), word("here", 10.45, 10.65), word("me", 10.65, 10.95),
+            word("Yes,", 12.5, 12.8), word("I", 12.8, 12.9), word("can.", 12.9, 13.2),
+        ]
+
+        let kept = MeetingTranscriptAssembler.removeEchoes(from: microphone, matching: system)
+
+        #expect(kept.map(\.text) == ["Hello", "everyone.", "Yes,", "I", "can."])
+    }
+
+    @Test func headphoneMicrophoneWithoutEchoIsUntouched() {
+        let system = [word("Status", 5.0, 5.4), word("update?", 5.4, 5.8)]
+        let microphone = [word("Shipping", 7.0, 7.4), word("today.", 7.4, 7.9)]
+        #expect(MeetingTranscriptAssembler.removeEchoes(from: microphone, matching: system) == microphone)
+    }
+
+    @Test func turnsBreakOnSpeakerChangesAndLongPauses() {
+        let words = [word("one", 0, 0.3), word("two", 0.4, 0.7), word("three", 3.0, 3.3), word("four", 3.4, 3.7)]
+        let turns = MeetingTranscriptAssembler.turns(words: words, speakerKeys: ["A", "A", "A", "B"])
+
+        #expect(turns.map(\.speakerKey) == ["A", "A", "B"])
+        #expect(turns.map(\.text) == ["one two", "three", "four"])
+        #expect(turns[0].startTime == 0)
+        #expect(turns[0].endTime == 0.7)
+    }
+
+    @Test func mergedTurnsInterleaveTracksByStartTime() {
+        let me = [MeetingTranscriptAssembler.Turn(speakerKey: "me", startTime: 0, endTime: 3, text: "a"),
+                  MeetingTranscriptAssembler.Turn(speakerKey: "me", startTime: 10, endTime: 12, text: "c")]
+        let them = [MeetingTranscriptAssembler.Turn(speakerKey: "S1", startTime: 4, endTime: 9, text: "b")]
+        #expect(MeetingTranscriptAssembler.merged([me, them]).map(\.text) == ["a", "b", "c"])
+    }
+}
+
+@Suite
+struct MeetingAudioSourcesTests {
+    private func workspace(microphone: [Float]?, system: [Float]?) throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-meeting-sources-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        if let microphone {
+            try microphone.withUnsafeBufferPointer { Data(buffer: $0) }
+                .write(to: url.appendingPathComponent(MeetingAudioSources.microphoneTrackFileName))
+        }
+        if let system {
+            try system.withUnsafeBufferPointer { Data(buffer: $0) }
+                .write(to: url.appendingPathComponent(MeetingAudioSources.systemTrackFileName))
+        }
+        return url
+    }
+
+    @Test func healthyTracksAreLoadedAndSilentOnesSkipped() throws {
+        let url = try workspace(microphone: [0.1, 0.2], system: [0, 0])
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let sources = MeetingAudioSources.load(
+            workspaceURL: url,
+            mixed: Data([1]),
+            microphoneHealth: .healthy,
+            systemAudioHealth: .silent
+        )
+
+        #expect(sources.microphone != nil)
+        #expect(sources.system == nil)
+    }
+
+    // Recovery after a crash has no recorded health; the tracks are inspected instead.
+    @Test func unknownHealthUsesTracksThatContainAudio() throws {
+        let url = try workspace(microphone: [0.1, -0.2], system: [0, 0, 0])
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let sources = MeetingAudioSources.load(
+            workspaceURL: url,
+            mixed: Data([1]),
+            microphoneHealth: nil,
+            systemAudioHealth: nil
+        )
+
+        #expect(sources.microphone != nil)
+        #expect(sources.system == nil)
+    }
+
+    @Test func missingWorkspaceFallsBackToMixedOnly() {
+        let sources = MeetingAudioSources.load(
+            workspaceURL: nil,
+            mixed: Data([1, 2, 3, 4]),
+            microphoneHealth: .healthy,
+            systemAudioHealth: .healthy
+        )
+        #expect(sources.microphone == nil)
+        #expect(sources.system == nil)
+        #expect(sources.mixed.count == 4)
+    }
+}

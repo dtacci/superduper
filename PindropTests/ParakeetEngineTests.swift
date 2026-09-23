@@ -348,4 +348,31 @@ struct ParakeetEngineTests {
         #expect(ParakeetEngine.modelVersion(forModelName: "parakeet-tdt-0.6b-v3") == .v3)
         #expect(ParakeetEngine.modelVersion(forModelName: "parakeet-tdt-1.1b") == nil)
     }
+
+    // MARK: - Word timings
+
+    @Test func tokensJoinIntoTimedWords() {
+        let tokens = [
+            TokenTiming(token: " Hel", tokenId: 1, startTime: 0.0, endTime: 0.2, confidence: 0.9),
+            TokenTiming(token: "lo", tokenId: 2, startTime: 0.2, endTime: 0.4, confidence: 0.7),
+            TokenTiming(token: ",", tokenId: 3, startTime: 0.4, endTime: 0.5, confidence: 0.8),
+            TokenTiming(token: " world", tokenId: 4, startTime: 0.9, endTime: 1.3, confidence: 1.0),
+        ]
+
+        let words = ParakeetEngine.words(from: tokens)
+
+        #expect(words.map(\.text) == ["Hello,", "world"])
+        #expect(words[0].startTime == 0.0)
+        #expect(words[0].endTime == 0.5)
+        #expect(words[1].startTime == 0.9)
+        #expect(words[1].endTime == 1.3)
+        #expect(abs(words[0].confidence - 0.8) < 0.0001)
+    }
+
+    @Test func missingTokenTimingsSpreadWordsEvenly() {
+        let words = ParakeetEngine.evenlyTimedWords(text: "one two", duration: 2)
+        #expect(words.map(\.text) == ["one", "two"])
+        #expect(words[1].startTime == 1)
+        #expect(words[1].endTime == 2)
+    }
 }

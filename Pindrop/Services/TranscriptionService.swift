@@ -7,11 +7,66 @@
 
 import AVFoundation
 import Foundation
+import Accelerate
 import os.log
 
 enum DiarizationFailurePolicy: Sendable, Equatable {
     case bestEffort
     case required
+}
+
+/// Audio captured for one meeting. `microphone` and `system` are the separate
+/// 16 kHz mono tracks when available; `system` is only set when the call audio
+/// actually carried sound. `mixed` is the combined track used as a fallback.
+struct MeetingAudioSources: Sendable {
+    let microphone: Data?
+    let system: Data?
+    let mixed: Data
+
+    static let microphoneTrackFileName = "capture-microphone.pcm"
+    static let systemTrackFileName = "capture-system.pcm"
+
+    /// Loads the separate tracks a meeting capture left in its workspace. A track is
+    /// used when its recorded health says it carried sound, or, when no health was
+    /// recorded (recovery after a crash), when it contains any nonzero sample.
+    static func load(
+        workspaceURL: URL?,
+        mixed: Data,
+        microphoneHealth: MeetingAudioSourceHealth?,
+        systemAudioHealth: MeetingAudioSourceHealth?
+    ) -> MeetingAudioSources {
+        func track(_ fileName: String, health: MeetingAudioSourceHealth?) -> Data? {
+            guard let url = workspaceURL?.appendingPathComponent(fileName),
+                  let data = try? Data(contentsOf: url, options: [.mappedIfSafe]),
+                  data.count >= MemoryLayout<Float>.size else {
+                return nil
+            }
+            switch health {
+            case .healthy:
+                return data
+            case .silent, .failed, .notRequested:
+                return nil
+            case nil:
+                return containsAudio(data) ? data : nil
+            }
+        }
+        return MeetingAudioSources(
+            microphone: track(microphoneTrackFileName, health: microphoneHealth),
+            system: track(systemTrackFileName, health: systemAudioHealth),
+            mixed: mixed
+        )
+    }
+
+    static func containsAudio(_ data: Data) -> Bool {
+        let count = data.count / MemoryLayout<Float>.size
+        guard count > 0 else { return false }
+        return data.withUnsafeBytes { raw in
+            guard let base = raw.bindMemory(to: Float.self).baseAddress else { return false }
+            var peak: Float = 0
+            vDSP_maxmgv(base, 1, &peak, vDSP_Length(count))
+            return peak > 0
+        }
+    }
 }
 
 @MainActor
@@ -541,6 +596,306 @@ class TranscriptionService {
             finishTranscription(generation)
             throw TranscriptionError.transcriptionFailed(error.localizedDescription)
         }
+    }
+
+    static let meetingMicrophoneSpeakerKey = "me"
+    static let meetingUnattributedSpeakerKey = "others"
+
+    /// Meeting transcription. With a word-timed engine (Parakeet) each track is
+    /// transcribed once and words are attributed afterwards: the microphone track is
+    /// "Me" and only the call (system) track is diarized for everyone else. Speaker
+    /// detection problems never fail the meeting; they degrade to fewer labels.
+    /// Other engines keep the per-turn path over the mixed track.
+    func transcribeMeeting(
+        sources: MeetingAudioSources,
+        options: TranscriptionOptions,
+        expectedSpeakerCount: Int?,
+        progressHandler: TranscriptionProgressHandler? = nil
+    ) async throws -> TranscriptionOutput {
+        try validateExpectedSpeakerCount(expectedSpeakerCount)
+        try await ensureBatchEngineLoaded()
+        guard let engine else { throw TranscriptionError.modelNotLoaded }
+
+        guard let timedEngine = engine as? any TimedTranscriptionEngine else {
+            return try await transcribe(
+                audioData: sources.mixed,
+                diarizationEnabled: true,
+                options: options,
+                diarizationOptions: .init(expectedSpeakerCount: expectedSpeakerCount),
+                diarizationFailurePolicy: .bestEffort,
+                progressHandler: progressHandler
+            )
+        }
+
+        guard !sources.mixed.isEmpty else {
+            throw TranscriptionError.invalidAudioData
+        }
+
+        guard state != .transcribing else {
+            throw TranscriptionError.transcriptionFailed("Transcription already in progress")
+        }
+
+        let generation = nextTranscriptionGeneration
+        nextTranscriptionGeneration &+= 1
+        activeTranscriptionGeneration = generation
+        state = .transcribing
+        let startedAt = Date()
+        reportOverallProgress(fractionCompleted: 0, startedAt: startedAt, handler: progressHandler)
+
+        do {
+            let output: TranscriptionOutput
+            if let microphone = sources.microphone, let system = sources.system {
+                Log.transcription.info(
+                    "Meeting transcription: separate microphone and call audio tracks (\(String(format: "%.1f", Self.duration(of: microphone)))s) via \(self.currentProvider?.rawValue ?? "unknown")"
+                )
+                output = try await transcribeTwoTrackMeeting(
+                    engine: timedEngine,
+                    microphone: microphone,
+                    system: system,
+                    options: options,
+                    expectedSpeakerCount: expectedSpeakerCount,
+                    progressHandler: progressHandler,
+                    startedAt: startedAt
+                )
+            } else {
+                let track = sources.microphone ?? sources.system ?? sources.mixed
+                Log.transcription.info(
+                    "Meeting transcription: single track (\(String(format: "%.1f", Self.duration(of: track)))s) via \(self.currentProvider?.rawValue ?? "unknown")"
+                )
+                output = try await transcribeSingleTrackMeeting(
+                    engine: timedEngine,
+                    audioData: track,
+                    options: options,
+                    expectedSpeakerCount: expectedSpeakerCount,
+                    progressHandler: progressHandler,
+                    startedAt: startedAt
+                )
+            }
+
+            reportOverallProgress(fractionCompleted: 1, startedAt: startedAt, handler: progressHandler)
+            Log.transcription.info("Transcription completed in \(String(format: "%.2f", Date().timeIntervalSince(startedAt)))s")
+            finishTranscription(generation)
+            return output
+        } catch let error as TranscriptionError {
+            finishTranscription(generation)
+            throw error
+        } catch is CancellationError {
+            finishTranscription(generation)
+            throw CancellationError()
+        } catch {
+            finishTranscription(generation)
+            throw TranscriptionError.transcriptionFailed(error.localizedDescription)
+        }
+    }
+
+    private func transcribeTwoTrackMeeting(
+        engine: any TimedTranscriptionEngine,
+        microphone: Data,
+        system: Data,
+        options: TranscriptionOptions,
+        expectedSpeakerCount: Int?,
+        progressHandler: TranscriptionProgressHandler?,
+        startedAt: Date
+    ) async throws -> TranscriptionOutput {
+        let microphoneWords = try await engine.transcribeWords(audioData: microphone, options: options)
+        reportOverallProgress(fractionCompleted: 0.35, startedAt: startedAt, handler: progressHandler)
+        try Task.checkCancellation()
+
+        let systemWords = try await engine.transcribeWords(audioData: system, options: options)
+        reportOverallProgress(fractionCompleted: 0.6, startedAt: startedAt, handler: progressHandler)
+        try Task.checkCancellation()
+
+        // The calendar/manual count includes you; the call track only has the others.
+        let otherSpeakerCount = expectedSpeakerCount.map { max(1, $0 - 1) }
+        let systemSegments = try await diarizeMeetingTrackBestEffort(
+            audioData: system,
+            expectedSpeakerCount: otherSpeakerCount
+        )
+        reportOverallProgress(fractionCompleted: 0.9, startedAt: startedAt, handler: progressHandler)
+
+        let keptMicrophoneWords = MeetingTranscriptAssembler.removeEchoes(
+            from: microphoneWords,
+            matching: systemWords
+        )
+        if keptMicrophoneWords.count < microphoneWords.count {
+            Log.transcription.info(
+                "Dropped \(microphoneWords.count - keptMicrophoneWords.count) microphone words that were call audio picked up from the speakers"
+            )
+        }
+
+        let microphoneTurns = MeetingTranscriptAssembler.turns(
+            words: keptMicrophoneWords,
+            speakerKeys: Array(repeating: Self.meetingMicrophoneSpeakerKey, count: keptMicrophoneWords.count)
+        )
+        let systemKeys = MeetingTranscriptAssembler
+            .assignSpeakers(to: systemWords, segments: systemSegments, maximumDistance: .infinity)
+            .map { $0 ?? Self.meetingUnattributedSpeakerKey }
+        let systemTurns = MeetingTranscriptAssembler.turns(words: systemWords, speakerKeys: systemKeys)
+
+        return makeMeetingTranscriptionOutput(
+            turns: MeetingTranscriptAssembler.merged([microphoneTurns, systemTurns]),
+            diarizedSegments: systemSegments
+        )
+    }
+
+    private func transcribeSingleTrackMeeting(
+        engine: any TimedTranscriptionEngine,
+        audioData: Data,
+        options: TranscriptionOptions,
+        expectedSpeakerCount: Int?,
+        progressHandler: TranscriptionProgressHandler?,
+        startedAt: Date
+    ) async throws -> TranscriptionOutput {
+        let words = try await engine.transcribeWords(audioData: audioData, options: options)
+        reportOverallProgress(fractionCompleted: 0.5, startedAt: startedAt, handler: progressHandler)
+        try Task.checkCancellation()
+
+        let segments = try await diarizeMeetingTrackBestEffort(
+            audioData: audioData,
+            expectedSpeakerCount: expectedSpeakerCount
+        )
+        reportOverallProgress(fractionCompleted: 0.9, startedAt: startedAt, handler: progressHandler)
+
+        guard !segments.isEmpty else {
+            Log.transcription.warning("Speaker diarization unavailable; saving the meeting without speaker labels")
+            return TranscriptionOutput(text: words.map(\.text).joined(separator: " "), diarizedSegments: nil)
+        }
+
+        let keys = MeetingTranscriptAssembler
+            .assignSpeakers(to: words, segments: segments, maximumDistance: .infinity)
+            .map { $0 ?? Self.meetingUnattributedSpeakerKey }
+        return makeMeetingTranscriptionOutput(
+            turns: MeetingTranscriptAssembler.turns(words: words, speakerKeys: keys),
+            diarizedSegments: segments
+        )
+    }
+
+    /// Diarizes one meeting track. Failures (including "no usable segments") return
+    /// no segments instead of failing the meeting; only cancellation propagates.
+    private func diarizeMeetingTrackBestEffort(
+        audioData: Data,
+        expectedSpeakerCount: Int?
+    ) async throws -> [SpeakerSegment] {
+        do {
+            let samples = await Self.floatSamples(from: audioData)
+            try Task.checkCancellation()
+            let diarizer = getOrCreateSpeakerDiarizer()
+            try await diarizer.loadModels()
+            let diarizationStarted = CFAbsoluteTimeGetCurrent()
+            let result = try await diarizeWithWatchdog(
+                diarizer: diarizer,
+                samples: samples,
+                sampleRate: Self.sampleRate,
+                options: DiarizationOptions(expectedSpeakerCount: expectedSpeakerCount)
+            )
+            let segments = normalizedDiarizationSegments(result.segments, audioDuration: result.audioDuration)
+            logDiarizationDiagnostics(
+                requestedSpeakerCount: expectedSpeakerCount,
+                observedSpeakerCount: Set(segments.map(\.speaker.id)).count,
+                audioDuration: result.audioDuration,
+                processingDuration: CFAbsoluteTimeGetCurrent() - diarizationStarted
+            )
+            return segments
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            Log.transcription.warning("Meeting speaker diarization failed; continuing with fewer speaker labels: \(error.localizedDescription)")
+            return []
+        }
+    }
+
+    private func makeMeetingTranscriptionOutput(
+        turns: [MeetingTranscriptAssembler.Turn],
+        diarizedSegments: [SpeakerSegment]
+    ) -> TranscriptionOutput {
+        let identityMatchesByID = (try? matchedSpeakerIdentitiesByID(from: diarizedSegments)) ?? [:]
+        let segmentsBySpeakerID = Dictionary(grouping: diarizedSegments, by: \.speaker.id)
+        var genericLabelsByID: [String: String] = [:]
+        var fallbackSpeakerIndex = 1
+        var transcriptSegments: [DiarizedTranscriptSegment] = []
+        var textLines: [String] = []
+
+        for turn in turns {
+            let speakerLabel: String
+            let profileID: UUID?
+            var embedding: [Float]?
+            var confidence: Float = 1
+
+            if turn.speakerKey == Self.meetingMicrophoneSpeakerKey {
+                speakerLabel = "Me"
+                profileID = SpeakerIdentityService.currentUserProfileID
+            } else {
+                if let match = identityMatchesByID[turn.speakerKey] {
+                    speakerLabel = match.displayName
+                    profileID = match.profileID
+                } else if let existing = genericLabelsByID[turn.speakerKey] {
+                    speakerLabel = existing
+                    profileID = nil
+                } else {
+                    speakerLabel = "Speaker \(fallbackSpeakerIndex)"
+                    genericLabelsByID[turn.speakerKey] = speakerLabel
+                    fallbackSpeakerIndex += 1
+                    profileID = nil
+                }
+                // Keep the voice embedding of the diarized turn this text overlaps most,
+                // so naming a speaker later can still train their profile.
+                let overlapping = segmentsBySpeakerID[turn.speakerKey]?.max { lhs, rhs in
+                    Self.overlap(lhs, turn) < Self.overlap(rhs, turn)
+                }
+                if let overlapping {
+                    confidence = overlapping.confidence
+                    if turn.endTime - turn.startTime >= Self.identityEligibleSegmentDurationSeconds {
+                        embedding = overlapping.speaker.embedding
+                    }
+                }
+            }
+
+            let segment = DiarizedTranscriptSegment(
+                speakerId: turn.speakerKey,
+                speakerLabel: speakerLabel,
+                speakerProfileID: profileID,
+                speakerEmbedding: embedding,
+                startTime: turn.startTime,
+                endTime: turn.endTime,
+                confidence: confidence,
+                text: turn.text
+            )
+            let splitSegments = splitTranscriptSegmentIfNeeded(segment)
+            transcriptSegments.append(contentsOf: splitSegments)
+            textLines.append(contentsOf: splitSegments.map { "\(speakerLabel): \($0.text)" })
+        }
+
+        guard Set(turns.map(\.speakerKey)).count > 1 else {
+            let unlabeled = transcriptSegments.map { segment in
+                DiarizedTranscriptSegment(
+                    speakerId: segment.speakerId,
+                    speakerLabel: "",
+                    speakerProfileID: segment.speakerProfileID,
+                    speakerEmbedding: segment.speakerEmbedding,
+                    startTime: segment.startTime,
+                    endTime: segment.endTime,
+                    confidence: segment.confidence,
+                    text: segment.text
+                )
+            }
+            return TranscriptionOutput(
+                text: unlabeled.map(\.text).joined(separator: " "),
+                diarizedSegments: unlabeled.isEmpty ? nil : unlabeled
+            )
+        }
+
+        return TranscriptionOutput(
+            text: textLines.joined(separator: "\n"),
+            diarizedSegments: transcriptSegments.isEmpty ? nil : transcriptSegments
+        )
+    }
+
+    private static func overlap(_ segment: SpeakerSegment, _ turn: MeetingTranscriptAssembler.Turn) -> TimeInterval {
+        max(0, min(segment.endTime, turn.endTime) - max(segment.startTime, turn.startTime))
+    }
+
+    private static func duration(of audioData: Data) -> Double {
+        Double(audioData.count / MemoryLayout<Float>.size) / Double(sampleRate)
     }
 
     /// Called by a hard deadline after it has cancelled a batch operation. The

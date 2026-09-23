@@ -6543,8 +6543,10 @@ final class AppCoordinator {
                 displayName: mode.libraryDisplayName,
                 sourceKind: .manualCapture
             )
+            var meetingWorkspaceURL: URL?
             if let occurrenceID,
                let occurrence = try meetingStore.occurrence(id: occurrenceID) {
+                meetingWorkspaceURL = occurrence.workspaceURL
                 var recoveryAudioURLs = (try? FileManager.default.contentsOfDirectory(
                     at: occurrence.workspaceURL,
                     includingPropertiesForKeys: nil
@@ -6583,12 +6585,16 @@ final class AppCoordinator {
                 errorMessage: nil
             )
 
-            let transcriptionOutput = try await transcriptionService.transcribe(
-                audioData: audioData,
-                diarizationEnabled: job.options.diarizationEnabled,
+            let sourceHealth = audioRecorder.lastMeetingSourceHealth
+            let transcriptionOutput = try await transcriptionService.transcribeMeeting(
+                sources: MeetingAudioSources.load(
+                    workspaceURL: meetingWorkspaceURL,
+                    mixed: audioData,
+                    microphoneHealth: sourceHealth?.microphone,
+                    systemAudioHealth: sourceHealth?.systemAudio
+                ),
                 options: makeTranscriptionOptions(),
-                diarizationOptions: .init(expectedSpeakerCount: job.options.expectedSpeakerCount),
-                diarizationFailurePolicy: .required,
+                expectedSpeakerCount: job.options.expectedSpeakerCount,
                 progressHandler: makeTranscriptionProgressHandler()
             )
             try ensureOperationCurrent(token)
@@ -6758,12 +6764,15 @@ final class AppCoordinator {
                 prepared = try await mediaPreparationService.prepareAudio(from: sourceURL)
             }
 
-            let output = try await transcriptionService.transcribe(
-                audioData: prepared.audioData,
-                diarizationEnabled: true,
+            let output = try await transcriptionService.transcribeMeeting(
+                sources: MeetingAudioSources.load(
+                    workspaceURL: occurrence.workspaceURL,
+                    mixed: prepared.audioData,
+                    microphoneHealth: occurrence.microphoneHealthRawValue.flatMap(MeetingAudioSourceHealth.init(rawValue:)),
+                    systemAudioHealth: occurrence.systemAudioHealthRawValue.flatMap(MeetingAudioSourceHealth.init(rawValue:))
+                ),
                 options: makeTranscriptionOptions(),
-                diarizationOptions: .init(expectedSpeakerCount: occurrence.expectedSpeakerCount),
-                diarizationFailurePolicy: .required,
+                expectedSpeakerCount: occurrence.expectedSpeakerCount,
                 progressHandler: makeTranscriptionProgressHandler()
             )
             let text = normalizedTranscriptionText(output.text)
