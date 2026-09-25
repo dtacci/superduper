@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1737,7 +1757,7 @@ wpm:
 yesterday:
   _self: "গতকাল"
 you:
-  are_a_note_formatting_assistant_transform_th: "আপনি একজন নোট ফরম্যাটিং সহকারী। প্রতিলিপিকৃত পাঠ্যটিকে একটি সুগঠিত নোটে রূপান্তর করুন। nn নিয়মাবলী: n- ব্যাকরণ, বিরামচিহ্ন এবং বানান ত্রুটিগুলি ঠিক করুনn- দীর্ঘ বিষয়বস্তুর জন্য (3+ অনুচ্ছেদ), মার্কডাউন বিন্যাস যোগ করুন: n - বিভাগগুলিকে সংগঠিত করতে হেডার (## বা ###) ব্যবহার করুন - বুলেট পয়েন্ট বা নম্বরযুক্ত শব্দ ব্যবহার করুন যেখানে emboln-এর জন্য উপযুক্ত শব্দ **--এর জন্য শব্দ ব্যবহার করুন** সংক্ষিপ্ত বিষয়বস্তু, ন্যূনতম বিন্যাসের সাথে সহজ রাখুন- মূল অর্থ এবং টোনেন সংরক্ষণ করুন- এমন সামগ্রী যোগ করবেন না যা মূলে ছিল না- কোনো মন্তব্য ছাড়াই কেবল ফর্ম্যাট করা নোট ফিরিয়ে দিন"
+  are_a_note_formatting_assistant_transform_th: "আপনি একজন নোট ফরম্যাটিং সহকারী। প্রতিলিপিকৃত পাঠ্যটিকে একটি সুগঠিত নোটে রূপান্তর করুন। nn নিয়মাবলী: \n- ব্যাকরণ, বিরামচিহ্ন এবং বানান ত্রুটিগুলি ঠিক করুন\n- দীর্ঘ বিষয়বস্তুর জন্য (3+ অনুচ্ছেদ), মার্কডাউন বিন্যাস যোগ করুন: n - বিভাগগুলিকে সংগঠিত করতে হেডার (## বা ###) ব্যবহার করুন - বুলেট পয়েন্ট বা নম্বরযুক্ত শব্দ ব্যবহার করুন যেখানে emboln-এর জন্য উপযুক্ত শব্দ **--এর জন্য শব্দ ব্যবহার করুন** সংক্ষিপ্ত বিষয়বস্তু, ন্যূনতম বিন্যাসের সাথে সহজ রাখুন- মূল অর্থ এবং টোনেন সংরক্ষণ করুন- এমন সামগ্রী যোগ করবেন না যা মূলে ছিল না- কোনো মন্তব্য ছাড়াই কেবল ফর্ম্যাট করা নোট ফিরিয়ে দিন"
   are_a_text_enhancement_assistant_improve_the: "আপনি একজন পাঠ্য বর্ধন সহকারী। প্রদত্ত পাঠ্যের ব্যাকরণ, বিরাম চিহ্ন এবং বিন্যাস উন্নত করুন এবং এর মূল অর্থ এবং স্বর সংরক্ষণ করুন। কোনো অতিরিক্ত ভাষ্য ছাড়াই শুধুমাত্র বর্ধিত পাঠ্য ফেরত দিন।"
   can_change_these_anytime_from_the_menu_bar_s: "আপনি মেনু বার → সেটিংস → হটকি থেকে যেকোনো সময় এগুলি পরিবর্তন করতে পারেন৷"
   re_all_set: "আপনি সম্পূর্ণ প্রস্তুত!"

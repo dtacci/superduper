@@ -12482,6 +12482,3654 @@
         }
       }
     },
+    "app_misc_clean_transcript": {
+      "comment": "Clean Transcript",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Transcript"
+          }
+        }
+      }
+    },
+    "app_misc_click_or_hold": {
+      "comment": "Click or hold ",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or hold "
+          }
+        }
+      }
+    },
+    "app_misc_click_or_press": {
+      "comment": "Click or press ",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click or press "
+          }
+        }
+      }
+    },
+    "app_misc_coming_soon": {
+      "comment": "%@ (Coming Soon)",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Coming Soon)"
+          }
+        }
+      }
+    },
+    "app_misc_current": {
+      "comment": "Current",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        }
+      }
+    },
+    "app_misc_d_d_mb": {
+      "comment": "%d / %d MB",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d / %d MB"
+          }
+        }
+      }
+    },
+    "app_misc_enable": {
+      "comment": "Enable",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        }
+      }
+    },
+    "app_misc_failed_to_initialize_the_database_the_ap": {
+      "comment": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+          }
+        }
+      }
+    },
+    "app_misc_finish_the_active_transcription_before_s": {
+      "comment": "Finish the active transcription before starting another one.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the active transcription before starting another one."
+          }
+        }
+      }
+    },
+    "app_misc_media": {
+      "comment": "Media",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        }
+      }
+    },
+    "app_misc_no_media_transcriptions": {
+      "comment": "No media transcriptions",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No media transcriptions"
+          }
+        }
+      }
+    },
+    "app_misc_no_results": {
+      "comment": "No results",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        }
+      }
+    },
+    "app_misc_search": {
+      "comment": "Search",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        }
+      }
+    },
+    "app_misc_show_more_stats": {
+      "comment": "Show more stats",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more stats"
+          }
+        }
+      }
+    },
+    "app_misc_speaker": {
+      "comment": "Speaker",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        }
+      }
+    },
+    "app_misc_starting": {
+      "comment": "Starting…",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        }
+      }
+    },
+    "app_misc_to_start_talking": {
+      "comment": " to start talking",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to start talking"
+          }
+        }
+      }
+    },
+    "app_misc_transcribe_options": {
+      "comment": "Transcribe options",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribe options"
+          }
+        }
+      }
+    },
+    "app_misc_unknown_app": {
+      "comment": "Unknown App",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown App"
+          }
+        }
+      }
+    },
     "app_version_macos_version_hardware_type_which_fe": {
       "comment": "app_version_macos_version_hardware_type_which_fe",
       "extractionState": "manual",
@@ -142677,55 +146325,55 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Před nahráváním si prosím stáhněte model Whisper v Nastavení.nnPřejděte do Nastavení → Modely a stáhněte si model."
+            "value": "Před nahráváním si prosím stáhněte model Whisper v Nastavení.\n\nPřejděte do Nastavení → Modely a stáhněte si model."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download venligst en Whisper-model i Indstillinger før optagelse.nnGå til Indstillinger → Modeller for at downloade en model."
+            "value": "Download venligst en Whisper-model i Indstillinger før optagelse.\n\nGå til Indstillinger → Modeller for at downloade en model."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bitte laden Sie ein Whisper-Modell in den Einstellungen herunter, bevor Sie aufnehmen.nnGehen Sie zu Einstellungen → Modelle, um ein Modell herunterzuladen."
+            "value": "Bitte laden Sie ein Whisper-Modell in den Einstellungen herunter, bevor Sie aufnehmen.\n\nGehen Sie zu Einstellungen → Modelle, um ein Modell herunterzuladen."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν από την εγγραφή.nnΜεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου."
+            "value": "Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν από την εγγραφή.\n\nΜεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Please download a Whisper model in Settings before recording.nnGo to Settings → Models to download a model."
+            "value": "Please download a Whisper model in Settings before recording.\n\nGo to Settings → Models to download a model."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Please download a Whisper model in Settings before recording.nnGo to Settings → Models to download a model."
+            "value": "Please download a Whisper model in Settings before recording.\n\nGo to Settings → Models to download a model."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lataa Whisper-malli asetuksista ennen tallennusta.nnSiirry kohtaan Asetukset → Mallit ladataksesi malli."
+            "value": "Lataa Whisper-malli asetuksista ennen tallennusta.\n\nSiirry kohtaan Asetukset → Mallit ladataksesi malli."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veuillez télécharger un modèle Whisper dans les Paramètres avant d'enregistrer.nnAllez dans Paramètres → Modèles pour télécharger un modèle."
+            "value": "Veuillez télécharger un modèle Whisper dans les Paramètres avant d'enregistrer.\n\nAllez dans Paramètres → Modèles pour télécharger un modèle."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "אנא הורד דגם Whisper בהגדרות לפני ההקלטה.nnעבור להגדרות ← דגמים כדי להוריד דגם."
+            "value": "אנא הורד דגם Whisper בהגדרות לפני ההקלטה.\n\nעבור להגדרות ← דגמים כדי להוריד דגם."
           }
         },
         "hi": {
@@ -142737,19 +146385,19 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A rögzítés előtt töltsön le egy Whisper-modellt a Beállításokban.nnA modell letöltéséhez lépjen a Beállítások → Modellek menüpontra."
+            "value": "A rögzítés előtt töltsön le egy Whisper-modellt a Beállításokban.\n\nA modell letöltéséhez lépjen a Beállítások → Modellek menüpontra."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Silakan unduh model Whisper di Pengaturan sebelum merekam.nnBuka Pengaturan → Model untuk mengunduh model."
+            "value": "Silakan unduh model Whisper di Pengaturan sebelum merekam.\n\nBuka Pengaturan → Model untuk mengunduh model."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scarica un modello Whisper in Impostazioni prima di registrare.nnVai a Impostazioni → Modelli per scaricare un modello."
+            "value": "Scarica un modello Whisper in Impostazioni prima di registrare.\n\nVai a Impostazioni → Modelli per scaricare un modello."
           }
         },
         "ja": {
@@ -142761,25 +146409,25 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "녹음하기 전에 설정에서 Whisper 모델을 다운로드하세요.nn모델을 다운로드하려면 설정 → 모델로 이동하세요."
+            "value": "녹음하기 전에 설정에서 Whisper 모델을 다운로드하세요.\n\n모델을 다운로드하려면 설정 → 모델로 이동하세요."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sila muat turun model Whisper dalam Tetapan sebelum merakam.nnPergi ke Tetapan → Model untuk memuat turun model."
+            "value": "Sila muat turun model Whisper dalam Tetapan sebelum merakam.\n\nPergi ke Tetapan → Model untuk memuat turun model."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last ned en Whisper-modell i Innstillinger før opptak.nnGå til Innstillinger → Modeller for å laste ned en modell."
+            "value": "Last ned en Whisper-modell i Innstillinger før opptak.\n\nGå til Innstillinger → Modeller for å laste ned en modell."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download een Whisper-model in Instellingen voordat u gaat opnemen.nnGa naar Instellingen → Modellen om een ​​model te downloaden."
+            "value": "Download een Whisper-model in Instellingen voordat u gaat opnemen.\n\nGa naar Instellingen → Modellen om een ​​model te downloaden."
           }
         },
         "pl": {
@@ -142791,13 +146439,13 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Baixe um modelo Whisper em Configurações antes de gravar.nnVá para Configurações → Modelos para baixar um modelo."
+            "value": "Baixe um modelo Whisper em Configurações antes de gravar.\n\nVá para Configurações → Modelos para baixar um modelo."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vă rugăm să descărcați un model Whisper din Setări înainte de a înregistra.nnAccesați Setări → Modele pentru a descărca un model."
+            "value": "Vă rugăm să descărcați un model Whisper din Setări înainte de a înregistra.\n\nAccesați Setări → Modele pentru a descărca un model."
           }
         },
         "ru": {
@@ -142809,7 +146457,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ladda ner en Whisper-modell i Inställningar före inspelning.nnGå till Inställningar → Modeller för att ladda ner en modell."
+            "value": "Ladda ner en Whisper-modell i Inställningar före inspelning.\n\nGå till Inställningar → Modeller för att ladda ner en modell."
           }
         },
         "th": {
@@ -142821,31 +146469,31 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lütfen kaydetmeden önce Ayarlar'dan bir Whisper modeli indirin.nnBir model indirmek için Ayarlar → Modeller bölümüne gidin."
+            "value": "Lütfen kaydetmeden önce Ayarlar'dan bir Whisper modeli indirin.\n\nBir model indirmek için Ayarlar → Modeller bölümüne gidin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Будь ласка, завантажте модель Whisper у налаштуваннях перед записом.nnПерейдіть у налаштування → Моделі, щоб завантажити модель."
+            "value": "Будь ласка, завантажте модель Whisper у налаштуваннях перед записом.\n\nПерейдіть у налаштування → Моделі, щоб завантажити модель."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vui lòng tải xuống mô hình Whisper trong Cài đặt trước khi ghi.nnVào Cài đặt → Mô hình để tải xuống mô hình."
+            "value": "Vui lòng tải xuống mô hình Whisper trong Cài đặt trước khi ghi.\n\nVào Cài đặt → Mô hình để tải xuống mô hình."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在录制前在设置中下载 Whisper 模型。nn前往设置 → 模型下载模型。"
+            "value": "请在录制前在设置中下载 Whisper 模型。\n\n前往设置 → 模型下载模型。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請在錄製前在設定中下載 Whisper 模型。nn前往設定 → 模型下載模型。"
+            "value": "請在錄製前在設定中下載 Whisper 模型。\n\n前往設定 → 模型下載模型。"
           }
         }
       }
@@ -187413,55 +191061,55 @@
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation potřebuje přístup k mikrofonu, aby mohl nahrávat a přepisovat váš hlas.nnUdělte prosím oprávnění v Nastavení systému."
+            "value": "Superduper Dictation potřebuje přístup k mikrofonu, aby mohl nahrávat a přepisovat váš hlas.\n\nUdělte prosím oprávnění v Nastavení systému."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation har brug for mikrofonadgang for at optage og transskribere din stemme.nnGiv venligst tilladelse i Systemindstillinger."
+            "value": "Superduper Dictation har brug for mikrofonadgang for at optage og transskribere din stemme.\n\nGiv venligst tilladelse i Systemindstillinger."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation benötigt Mikrofonzugriff, um Ihre Stimme aufzunehmen und zu transkribieren.nnBitte erteilen Sie die Berechtigung in den Systemeinstellungen."
+            "value": "Superduper Dictation benötigt Mikrofonzugriff, um Ihre Stimme aufzunehmen und zu transkribieren.\n\nBitte erteilen Sie die Berechtigung in den Systemeinstellungen."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το Superduper Dictation χρειάζεται πρόσβαση στο μικρόφωνο για την εγγραφή και τη μεταγραφή της φωνής σας.nnΠαρακαλούμε παραχωρήστε άδεια στις Ρυθμίσεις συστήματος."
+            "value": "Το Superduper Dictation χρειάζεται πρόσβαση στο μικρόφωνο για την εγγραφή και τη μεταγραφή της φωνής σας.\n\nΠαρακαλούμε παραχωρήστε άδεια στις Ρυθμίσεις συστήματος."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation needs microphone access to record and transcribe your voice.nnPlease grant permission in System Settings."
+            "value": "Superduper Dictation needs microphone access to record and transcribe your voice.\n\nPlease grant permission in System Settings."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation needs microphone access to record and transcribe your voice.nnPlease grant permission in System Settings."
+            "value": "Superduper Dictation needs microphone access to record and transcribe your voice.\n\nPlease grant permission in System Settings."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation tarvitsee mikrofonin käyttöoikeuden äänittääkseen ja litteroidakseen äänesi.nnAnna lupa järjestelmäasetuksissa."
+            "value": "Superduper Dictation tarvitsee mikrofonin käyttöoikeuden äänittääkseen ja litteroidakseen äänesi.\n\nAnna lupa järjestelmäasetuksissa."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation a besoin d'un accès au microphone pour enregistrer et transcrire votre voix.nnVeuillez accorder l'autorisation dans les Paramètres Système."
+            "value": "Superduper Dictation a besoin d'un accès au microphone pour enregistrer et transcrire votre voix.\n\nVeuillez accorder l'autorisation dans les Paramètres Système."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation זקוק לגישה למיקרופון כדי להקליט ולתמלל את הקול שלך.nnאנא הענק הרשאה בהגדרות המערכת."
+            "value": "Superduper Dictation זקוק לגישה למיקרופון כדי להקליט ולתמלל את הקול שלך.\n\nאנא הענק הרשאה בהגדרות המערכת."
           }
         },
         "hi": {
@@ -187473,19 +191121,19 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A Superduper Dictation-nak mikrofon-hozzáférésre van szüksége a hang rögzítéséhez és átírásához.nnKérjük, adjon engedélyt a rendszerbeállításokban."
+            "value": "A Superduper Dictation-nak mikrofon-hozzáférésre van szüksége a hang rögzítéséhez és átírásához.\n\nKérjük, adjon engedélyt a rendszerbeállításokban."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation memerlukan akses mikrofon untuk merekam dan menyalin suara Anda.nnHarap berikan izin di Pengaturan Sistem."
+            "value": "Superduper Dictation memerlukan akses mikrofon untuk merekam dan menyalin suara Anda.\n\nHarap berikan izin di Pengaturan Sistem."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation necessita dell'accesso al microfono per registrare e trascrivere la tua voce.nnConcedi l'autorizzazione nelle Impostazioni di sistema."
+            "value": "Superduper Dictation necessita dell'accesso al microfono per registrare e trascrivere la tua voce.\n\nConcedi l'autorizzazione nelle Impostazioni di sistema."
           }
         },
         "ja": {
@@ -187497,25 +191145,25 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation이 음성을 녹음하고 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다.nn시스템 설정에서 권한을 부여하세요."
+            "value": "Superduper Dictation이 음성을 녹음하고 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다.\n\n시스템 설정에서 권한을 부여하세요."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation memerlukan akses mikrofon untuk merakam dan menyalin suara anda.nnSila berikan kebenaran dalam Tetapan Sistem."
+            "value": "Superduper Dictation memerlukan akses mikrofon untuk merakam dan menyalin suara anda.\n\nSila berikan kebenaran dalam Tetapan Sistem."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation trenger mikrofontilgang for å ta opp og transkribere stemmen din.nnVennligst gi tillatelse i systeminnstillingene."
+            "value": "Superduper Dictation trenger mikrofontilgang for å ta opp og transkribere stemmen din.\n\nVennligst gi tillatelse i systeminnstillingene."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation heeft microfoontoegang nodig om je stem op te nemen en te transcriberen.nnVerleen toestemming in Systeeminstellingen."
+            "value": "Superduper Dictation heeft microfoontoegang nodig om je stem op te nemen en te transcriberen.\n\nVerleen toestemming in Systeeminstellingen."
           }
         },
         "pl": {
@@ -187527,13 +191175,13 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation precisa de acesso ao microfone para gravar e transcrever sua voz.nnPor favor, conceda permissão nas configurações do sistema."
+            "value": "Superduper Dictation precisa de acesso ao microfone para gravar e transcrever sua voz.\n\nPor favor, conceda permissão nas configurações do sistema."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation are nevoie de acces la microfon pentru a vă înregistra și a transcrie vocea.nnVă rugăm să acordați permisiunea în Setările de sistem."
+            "value": "Superduper Dictation are nevoie de acces la microfon pentru a vă înregistra și a transcrie vocea.\n\nVă rugăm să acordați permisiunea în Setările de sistem."
           }
         },
         "ru": {
@@ -187545,7 +191193,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation behöver mikrofonåtkomst för att spela in och transkribera din röst.nnGe tillstånd i systeminställningarna."
+            "value": "Superduper Dictation behöver mikrofonåtkomst för att spela in och transkribera din röst.\n\nGe tillstånd i systeminställningarna."
           }
         },
         "th": {
@@ -187557,31 +191205,31 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation'un sesinizi kaydedip yazıya dökebilmesi için mikrofon erişimine ihtiyacı var.nnLütfen Sistem Ayarları'ndan izin verin."
+            "value": "Superduper Dictation'un sesinizi kaydedip yazıya dökebilmesi için mikrofon erişimine ihtiyacı var.\n\nLütfen Sistem Ayarları'ndan izin verin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation потрібен доступ до мікрофона, щоб записувати та транскрибувати ваш голос.nnНадайте дозвіл у налаштуваннях системи."
+            "value": "Superduper Dictation потрібен доступ до мікрофона, щоб записувати та транскрибувати ваш голос.\n\nНадайте дозвіл у налаштуваннях системи."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation cần quyền truy cập micrô để ghi âm và chép lại giọng nói của bạn.nnVui lòng cấp quyền trong Cài đặt hệ thống."
+            "value": "Superduper Dictation cần quyền truy cập micrô để ghi âm và chép lại giọng nói của bạn.\n\nVui lòng cấp quyền trong Cài đặt hệ thống."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation 需要麦克风访问权限来录制和转录您的语音。nn请在系统设置中授予权限。"
+            "value": "Superduper Dictation 需要麦克风访问权限来录制和转录您的语音。\n\n请在系统设置中授予权限。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Superduper Dictation 需要麥克風訪問許可權來錄製和轉錄您的語音。nn請在系統設定中授予許可權。"
+            "value": "Superduper Dictation 需要麥克風訪問許可權來錄製和轉錄您的語音。\n\n請在系統設定中授予許可權。"
           }
         }
       }
@@ -256527,61 +260175,61 @@
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "আপনি একজন নোট ফরম্যাটিং সহকারী। প্রতিলিপিকৃত পাঠ্যটিকে একটি সুগঠিত নোটে রূপান্তর করুন। nn নিয়মাবলী: n- ব্যাকরণ, বিরামচিহ্ন এবং বানান ত্রুটিগুলি ঠিক করুনn- দীর্ঘ বিষয়বস্তুর জন্য (3+ অনুচ্ছেদ), মার্কডাউন বিন্যাস যোগ করুন: n - বিভাগগুলিকে সংগঠিত করতে হেডার (## বা ###) ব্যবহার করুন - বুলেট পয়েন্ট বা নম্বরযুক্ত শব্দ ব্যবহার করুন যেখানে emboln-এর জন্য উপযুক্ত শব্দ **--এর জন্য শব্দ ব্যবহার করুন** সংক্ষিপ্ত বিষয়বস্তু, ন্যূনতম বিন্যাসের সাথে সহজ রাখুন- মূল অর্থ এবং টোনেন সংরক্ষণ করুন- এমন সামগ্রী যোগ করবেন না যা মূলে ছিল না- কোনো মন্তব্য ছাড়াই কেবল ফর্ম্যাট করা নোট ফিরিয়ে দিন"
+            "value": "আপনি একজন নোট ফরম্যাটিং সহকারী। প্রতিলিপিকৃত পাঠ্যটিকে একটি সুগঠিত নোটে রূপান্তর করুন। nn নিয়মাবলী: \n- ব্যাকরণ, বিরামচিহ্ন এবং বানান ত্রুটিগুলি ঠিক করুন\n- দীর্ঘ বিষয়বস্তুর জন্য (3+ অনুচ্ছেদ), মার্কডাউন বিন্যাস যোগ করুন: n - বিভাগগুলিকে সংগঠিত করতে হেডার (## বা ###) ব্যবহার করুন - বুলেট পয়েন্ট বা নম্বরযুক্ত শব্দ ব্যবহার করুন যেখানে emboln-এর জন্য উপযুক্ত শব্দ **--এর জন্য শব্দ ব্যবহার করুন** সংক্ষিপ্ত বিষয়বস্তু, ন্যূনতম বিন্যাসের সাথে সহজ রাখুন- মূল অর্থ এবং টোনেন সংরক্ষণ করুন- এমন সামগ্রী যোগ করবেন না যা মূলে ছিল না- কোনো মন্তব্য ছাড়াই কেবল ফর্ম্যাট করা নোট ফিরিয়ে দিন"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jste asistent formátování poznámek. Transformujte přepsaný text do dobře strukturované poznámky.nnPravidla:n- Opravte gramatické, interpunkční a pravopisné chybyn- Pro delší obsah (3 a více odstavců) přidejte formátování markdown:n - Používejte záhlaví (## nebo ###) k uspořádání sekcín - Používejte odrážky nebo číslované seznamy tam, kde je to vhodné - Použijte **tučné** pro zdůraznění klíčových pojmů a zachování jednoduchého významu- tonen- Nepřidávejte obsah, který nebyl v originálen- Vraťte pouze formátovanou poznámku bez komentáře"
+            "value": "Jste asistent formátování poznámek. Transformujte přepsaný text do dobře strukturované poznámky.\n\nPravidla:\n- Opravte gramatické, interpunkční a pravopisné chyby\n- Pro delší obsah (3 a více odstavců) přidejte formátování markdown:n - Používejte záhlaví (## nebo ###) k uspořádání sekcín - Používejte odrážky nebo číslované seznamy tam, kde je to vhodné - Použijte **tučné** pro zdůraznění klíčových pojmů a zachování jednoduchého významu- tone\n- Nepřidávejte obsah, který nebyl v originále\n- Vraťte pouze formátovanou poznámku bez komentáře"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du er en noteformateringsassistent. Omdan den transskriberede tekst til en velstruktureret note.nnRegler:n- Ret grammatik-, tegnsætnings- og stavefejln- For længere indhold (3+ afsnit), tilføj markdown-formatering:n - Brug overskrifter (## eller ###) til at organisere sektionern - Brug punktopstillinger eller nummererede lister, hvor det er passenden - Brug **kortere nøgleord** for at understrege,-n Bevar den oprindelige betydning og vis - Tilføj ikke indhold, der ikke var i originalen - Returner kun den formaterede note uden nogen kommentarer"
+            "value": "Du er en noteformateringsassistent. Omdan den transskriberede tekst til en velstruktureret note.\n\nRegler:\n- Ret grammatik-, tegnsætnings- og stavefejl\n- For længere indhold (3+ afsnit), tilføj markdown-formatering:n - Brug overskrifter (## eller ###) til at organisere sektionern - Brug punktopstillinger eller nummererede lister, hvor det er passenden - Brug **kortere nøgleord** for at understrege,-n Bevar den oprindelige betydning og vis - Tilføj ikke indhold, der ikke var i originalen - Returner kun den formaterede note uden nogen kommentarer"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sie sind ein Notizformatierungsassistent. Transformieren Sie den transkribierten Text in eine gut strukturierte Notiz.nnRegeln:n- Korrigieren Sie Grammatik-, Zeichensetzungs- und Rechtschreibfehlern- Für längere Inhalte (3+ Absätze) fügen Sie Markdown-Formatierung hinzu :n  - Verwenden Sie Überschriften (## oder ###) zum Organisieren von Abschnittenn  - Verwenden Sie Aufzählungspunkte oder nummerierte Listen, wo angebrachtn  - Verwenden Sie **fett** zur Hervorhebung von Schlüsselbegriffenn- Für kürzere Inhalte halten Sie es mit minimalem Formatierung einfachn- Bewahren Sie die ursprüngliche Bedeutung und den Ton aufn- Fügen Sie keinen Inhalt hinzu, der nicht im Original warn- Geben Sie nur die formatierte Notiz ohne Kommentare zurück"
+            "value": "Sie sind ein Notizformatierungsassistent. Transformieren Sie den transkribierten Text in eine gut strukturierte Notiz.\n\nRegeln:\n- Korrigieren Sie Grammatik-, Zeichensetzungs- und Rechtschreibfehler\n- Für längere Inhalte (3+ Absätze) fügen Sie Markdown-Formatierung hinzu :\n  - Verwenden Sie Überschriften (## oder ###) zum Organisieren von Abschnitten\n  - Verwenden Sie Aufzählungspunkte oder nummerierte Listen, wo angebracht\n  - Verwenden Sie **fett** zur Hervorhebung von Schlüsselbegriffen\n- Für kürzere Inhalte halten Sie es mit minimalem Formatierung einfach\n- Bewahren Sie die ursprüngliche Bedeutung und den Ton auf\n- Fügen Sie keinen Inhalt hinzu, der nicht im Original war\n- Geben Sie nur die formatierte Notiz ohne Kommentare zurück"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Είστε βοηθός μορφοποίησης σημειώσεων. Μετατρέψτε το μεταγραμμένο κείμενο σε μια καλά δομημένη σημείωση.nnΚανόνες:n- Διόρθωση γραμματικών, σημείων στίξης και ορθογραφικών σφαλμάτωνn- Για μεγαλύτερο περιεχόμενο (3+ παραγράφους), προσθέστε μορφοποίηση σήμανσης:n - Χρησιμοποιήστε κεφαλίδες (## ή ###) για να οργανώσετε ενότητεςn - Χρησιμοποιήστε **σημεία κουκκίδων ή αριθμημένες λίστες για σύντομο περιεχόμενο* κρατήστε το απλό με ελάχιστη μορφοποίησηn- Διατηρήστε το αρχικό νόημα και τον τόνο- Μην προσθέτετε περιεχόμενο που δεν υπήρχε στο πρωτότυποn- Επιστρέψτε μόνο τη μορφοποιημένη σημείωση χωρίς κανένα σχόλιο"
+            "value": "Είστε βοηθός μορφοποίησης σημειώσεων. Μετατρέψτε το μεταγραμμένο κείμενο σε μια καλά δομημένη σημείωση.\n\nΚανόνες:\n- Διόρθωση γραμματικών, σημείων στίξης και ορθογραφικών σφαλμάτων\n- Για μεγαλύτερο περιεχόμενο (3+ παραγράφους), προσθέστε μορφοποίηση σήμανσης:n - Χρησιμοποιήστε κεφαλίδες (## ή ###) για να οργανώσετε ενότητεςn - Χρησιμοποιήστε **σημεία κουκκίδων ή αριθμημένες λίστες για σύντομο περιεχόμενο* κρατήστε το απλό με ελάχιστη μορφοποίηση\n- Διατηρήστε το αρχικό νόημα και τον τόνο- Μην προσθέτετε περιεχόμενο που δεν υπήρχε στο πρωτότυπο\n- Επιστρέψτε μόνο τη μορφοποιημένη σημείωση χωρίς κανένα σχόλιο"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You are a note formatting assistant. Transform the transcribed text into a well-structured note.nnRules:n- Fix grammar, punctuation, and spelling errorsn- For longer content (3+ paragraphs), add markdown formatting:n  - Use headers (## or ###) to organize sectionsn  - Use bullet points or numbered lists where appropriaten  - Use **bold** for emphasis on key termsn- For shorter content, keep it simple with minimal formattingn- Preserve the original meaning and tonen- Do not add content that wasn't in the originaln- Return only the formatted note without any commentary"
+            "value": "You are a note formatting assistant. Transform the transcribed text into a well-structured note.\n\nRules:\n- Fix grammar, punctuation, and spelling errors\n- For longer content (3+ paragraphs), add markdown formatting:\n  - Use headers (## or ###) to organize sections\n  - Use bullet points or numbered lists where appropriate\n  - Use **bold** for emphasis on key terms\n- For shorter content, keep it simple with minimal formatting\n- Preserve the original meaning and tone\n- Do not add content that wasn't in the original\n- Return only the formatted note without any commentary"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "You are a note formatting assistant. Transform the transcribed text into a well-structured note.nnRules:n- Fix grammar, punctuation, and spelling errorsn- For longer content (3+ paragraphs), add markdown formatting:n  - Use headers (## or ###) to organize sectionsn  - Use bullet points or numbered lists where appropriaten  - Use **bold** for emphasis on key termsn- For shorter content, keep it simple with minimal formattingn- Preserve the original meaning and tonen- Do not add content that wasn't in the originaln- Return only the formatted note without any commentary"
+            "value": "You are a note formatting assistant. Transform the transcribed text into a well-structured note.\n\nRules:\n- Fix grammar, punctuation, and spelling errors\n- For longer content (3+ paragraphs), add markdown formatting:\n  - Use headers (## or ###) to organize sections\n  - Use bullet points or numbered lists where appropriate\n  - Use **bold** for emphasis on key terms\n- For shorter content, keep it simple with minimal formatting\n- Preserve the original meaning and tone\n- Do not add content that wasn't in the original\n- Return only the formatted note without any commentary"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Olet muistiinpanojen muotoiluavustaja. Muunna litteroitu teksti hyvin jäsennellyksi muistiinpanoksi.nnSäännöt:n- Korjaa kielioppi-, välimerkit ja kirjoitusvirheet avaintermien korostaminenn- Lyhyemmän sisällön pitäminen yksinkertaisena minimaalisella muotoilullan- Säilytä alkuperäinen merkitys ja sävy- Älä lisää sisältöä, joka ei ollut alkuperäisessä- Palauta vain muotoiltu huomautus ilman kommentteja"
+            "value": "Olet muistiinpanojen muotoiluavustaja. Muunna litteroitu teksti hyvin jäsennellyksi muistiinpanoksi.\n\nSäännöt:\n- Korjaa kielioppi-, välimerkit ja kirjoitusvirheet avaintermien korostaminen\n- Lyhyemmän sisällön pitäminen yksinkertaisena minimaalisella muotoilulla\n- Säilytä alkuperäinen merkitys ja sävy- Älä lisää sisältöä, joka ei ollut alkuperäisessä- Palauta vain muotoiltu huomautus ilman kommentteja"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous êtes un assistant de formatage de notes. Transformez le texte transcrit en une note bien structurée.nnRègles :n- Corrigez les erreurs de grammaire, de ponctuation et d'orthographen- Pour les contenus plus longs (3+ paragraphes), ajoutez du formatage markdown :n  - Utilisez des en-têtes (## ou ###) pour organiser les sectionsn  - Utilisez des puces ou des listes numérotées lorsque c'est approprién  - Utilisez le **gras** pour mettre en évidence les termes clésn- Pour les contenus plus courts, gardez-le simple avec un formatage minimaln- Préservez le sens et le ton originauxn- N'ajoutez pas de contenu qui n'était pas dans l'originaln- Retournez uniquement la note formatée sans aucun commentaire"
+            "value": "Vous êtes un assistant de formatage de notes. Transformez le texte transcrit en une note bien structurée.\n\nRègles :\n- Corrigez les erreurs de grammaire, de ponctuation et d'orthographe\n- Pour les contenus plus longs (3+ paragraphes), ajoutez du formatage markdown :\n  - Utilisez des en-têtes (## ou ###) pour organiser les sections\n  - Utilisez des puces ou des listes numérotées lorsque c'est approprié\n  - Utilisez le **gras** pour mettre en évidence les termes clés\n- Pour les contenus plus courts, gardez-le simple avec un formatage minimal\n- Préservez le sens et le ton originaux\n- N'ajoutez pas de contenu qui n'était pas dans l'original\n- Retournez uniquement la note formatée sans aucun commentaire"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "אתה עוזר עיצוב הערות. הפוך את הטקסט המתועתק להערה מובנית היטב. nnכללים: n- תקן שגיאות דקדוק, פיסוק וכתיב n- עבור תוכן ארוך יותר (3 פסקאות ומעלה), הוסף עיצוב סימון: n - השתמש בכותרות (## או ###) כדי לארגן חלקים n - השתמש בנקודות תבליטים או רשימות ממוספרות היכן שמתאים - השתמש בפורמט **מודגש קצר יותר** לפורמט מינימלי של מפתח, n שמור על המשמעות המקורית והצג- אל תוסיף תוכן שלא היה במקור- החזר רק את ההערה המעוצבת ללא כל פרשנות"
+            "value": "אתה עוזר עיצוב הערות. הפוך את הטקסט המתועתק להערה מובנית היטב. nnכללים: \n- תקן שגיאות דקדוק, פיסוק וכתיב \n- עבור תוכן ארוך יותר (3 פסקאות ומעלה), הוסף עיצוב סימון: n - השתמש בכותרות (## או ###) כדי לארגן חלקים n - השתמש בנקודות תבליטים או רשימות ממוספרות היכן שמתאים - השתמש בפורמט **מודגש קצר יותר** לפורמט מינימלי של מפתח, n שמור על המשמעות המקורית והצג- אל תוסיף תוכן שלא היה במקור- החזר רק את ההערה המעוצבת ללא כל פרשנות"
           }
         },
         "hi": {
@@ -256593,49 +260241,49 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ön jegyzetformázási asszisztens. Alakítsa át az átírt szöveget jól strukturált jegyzetté.nnRules:n- Nyelvtani, írásjelek és helyesírási hibák javításan- Hosszabb tartalom (3+ bekezdés) esetén adjon hozzá markdown formázást:n - Használjon fejléceket (## vagy ###) a szakaszok rendszerezéséhezn - Ha szükséges, használjon felsorolásjeleket vagy számozott listákat formázásn- Az eredeti jelentés és hang megőrzése- Ne adjon hozzá olyan tartalmat, amely nem volt az eredetiben- Csak a formázott jegyzetet adja vissza kommentár nélkül"
+            "value": "Ön jegyzetformázási asszisztens. Alakítsa át az átírt szöveget jól strukturált jegyzetté.\n\nRules:\n- Nyelvtani, írásjelek és helyesírási hibák javítása\n- Hosszabb tartalom (3+ bekezdés) esetén adjon hozzá markdown formázást:n - Használjon fejléceket (## vagy ###) a szakaszok rendszerezéséhezn - Ha szükséges, használjon felsorolásjeleket vagy számozott listákat formázás\n- Az eredeti jelentés és hang megőrzése- Ne adjon hozzá olyan tartalmat, amely nem volt az eredetibe\n- Csak a formázott jegyzetet adja vissza kommentár nélkül"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anda adalah asisten pemformatan catatan. Ubah teks yang ditranskrip menjadi catatan yang terstruktur dengan baik.nnAturan:n- Memperbaiki kesalahan tata bahasa, tanda baca, dan ejaann- Untuk konten yang lebih panjang (3+ paragraf), tambahkan pemformatan penurunan harga:n - Gunakan header (## atau ###) untuk mengatur bagiann - Gunakan poin-poin atau daftar bernomor jika diperlukan - Gunakan **tebal** untuk penekanan pada istilah-istilah kuncin- Untuk konten yang lebih pendek, buat tetap sederhana dengan format minimaln- Pertahankan makna dan nada asli- Lakukan tidak menambahkan konten yang tidak ada dalam aslinyan- Hanya mengembalikan catatan yang diformat tanpa komentar apa pun"
+            "value": "Anda adalah asisten pemformatan catatan. Ubah teks yang ditranskrip menjadi catatan yang terstruktur dengan baik.\n\nAturan:\n- Memperbaiki kesalahan tata bahasa, tanda baca, dan ejaan\n- Untuk konten yang lebih panjang (3+ paragraf), tambahkan pemformatan penurunan harga:n - Gunakan header (## atau ###) untuk mengatur bagiann - Gunakan poin-poin atau daftar bernomor jika diperlukan - Gunakan **tebal** untuk penekanan pada istilah-istilah kunci\n- Untuk konten yang lebih pendek, buat tetap sederhana dengan format minimal\n- Pertahankan makna dan nada asli- Lakukan tidak menambahkan konten yang tidak ada dalam aslinya\n- Hanya mengembalikan catatan yang diformat tanpa komentar apa pun"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sei un assistente per la formattazione delle note. Trasforma il testo trascritto in una nota ben strutturata.nnRegole:n- Correggi errori grammaticali, di punteggiatura e di ortografian- Per contenuti più lunghi (3+ paragrafi), aggiungi la formattazione markdown:n - Utilizza le intestazioni (## o ###) per organizzare le sezionin - Utilizza punti elenco o elenchi numerati ove appropriaton - Utilizza **grassetto** per enfatizzare i termini chiaven- Per contenuti più brevi, mantienili semplici con una formattazione miniman- Conserva il significato e il tono originali- Non aggiungere contenuto che non era nell'originalen- Restituisci solo la nota formattata senza alcun commento"
+            "value": "Sei un assistente per la formattazione delle note. Trasforma il testo trascritto in una nota ben strutturata.\n\nRegole:\n- Correggi errori grammaticali, di punteggiatura e di ortografia\n- Per contenuti più lunghi (3+ paragrafi), aggiungi la formattazione markdown:n - Utilizza le intestazioni (## o ###) per organizzare le sezionin - Utilizza punti elenco o elenchi numerati ove appropriaton - Utilizza **grassetto** per enfatizzare i termini chiave\n- Per contenuti più brevi, mantienili semplici con una formattazione minima\n- Conserva il significato e il tono originali- Non aggiungere contenuto che non era nell'originale\n- Restituisci solo la nota formattata senza alcun commento"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "あなたはメモの書式設定アシスタントです。転写されたテキストを適切に構造化されたメモに変換します。nnルール:n- 文法、句読点、およびスペルの誤りを修正しますn- 長いコンテンツ (3 段落以上) の場合は、マークダウン書式を追加します:n - ヘッダー (## または ###) を使用してセクションを整理しますn - 必要に応じて箇条書きまたは番号付きリストを使用しますn - 重要な用語を強調するには **太字** を使用しますn- 短いコンテンツの場合は、最小限の書式でシンプルにしますn- 元の意味と文体を維持します-元の内容にない内容を追加しないでください - コメントなしで書式設定されたメモのみを返します"
+            "value": "あなたはメモの書式設定アシスタントです。転写されたテキストを適切に構造化されたメモに変換します。\n\nルール:\n- 文法、句読点、およびスペルの誤りを修正します\n- 長いコンテンツ (3 段落以上) の場合は、マークダウン書式を追加します:n - ヘッダー (## または ###) を使用してセクションを整理しますn - 必要に応じて箇条書きまたは番号付きリストを使用しますn - 重要な用語を強調するには **太字** を使用します\n- 短いコンテンツの場合は、最小限の書式でシンプルにします\n- 元の意味と文体を維持します-元の内容にない内容を追加しないでください - コメントなしで書式設定されたメモのみを返します"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "당신은 노트 서식 도우미입니다. 전사된 텍스트를 잘 구조화된 노트로 변환합니다.nn규칙:n- 문법, 구두점 및 철자 오류 수정n- 긴 콘텐츠(3개 이상의 단락)의 경우 마크다운 서식 추가:n - 헤더(## 또는 ###)를 사용하여 섹션 구성n - 적절한 경우 글머리 기호 또는 번호 매기기 목록 사용 - 핵심 용어 강조를 위해 **굵게** 사용n- 짧은 콘텐츠의 경우 최소한의 서식으로 단순하게 유지n- 원래 의미와 어조 유지- 다음과 같은 내용을 추가하지 마세요. 원본에는 없었습니다. - 설명 없이 형식화된 메모만 반환합니다."
+            "value": "당신은 노트 서식 도우미입니다. 전사된 텍스트를 잘 구조화된 노트로 변환합니다.\n\n규칙:\n- 문법, 구두점 및 철자 오류 수정\n- 긴 콘텐츠(3개 이상의 단락)의 경우 마크다운 서식 추가:n - 헤더(## 또는 ###)를 사용하여 섹션 구성n - 적절한 경우 글머리 기호 또는 번호 매기기 목록 사용 - 핵심 용어 강조를 위해 **굵게** 사용\n- 짧은 콘텐츠의 경우 최소한의 서식으로 단순하게 유지\n- 원래 의미와 어조 유지- 다음과 같은 내용을 추가하지 마세요. 원본에는 없었습니다. - 설명 없이 형식화된 메모만 반환합니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anda ialah pembantu pemformatan nota. Ubah teks yang ditranskripsikan kepada nota yang tersusun dengan baik.nnPeraturan:n- Betulkan kesilapan tatabahasa, tanda baca dan ejaann- Untuk kandungan yang lebih panjang (3+ perenggan), tambahkan pemformatan markdown:n - Gunakan pengepala (## atau ###) untuk menyusun bahagiann - Gunakan titik tumpu atau senarai bernombor yang sesuain - Gunakan **bold** untuk penegasan kandungan yang lebih ringkas dengan format P yang lebih pendek maksud dan nada asal- Jangan tambahkan kandungan yang tiada dalam asal- Kembalikan nota berformat sahaja tanpa sebarang ulasan"
+            "value": "Anda ialah pembantu pemformatan nota. Ubah teks yang ditranskripsikan kepada nota yang tersusun dengan baik.\n\nPeraturan:\n- Betulkan kesilapan tatabahasa, tanda baca dan ejaan\n- Untuk kandungan yang lebih panjang (3+ perenggan), tambahkan pemformatan markdown:n - Gunakan pengepala (## atau ###) untuk menyusun bahagiann - Gunakan titik tumpu atau senarai bernombor yang sesuain - Gunakan **bold** untuk penegasan kandungan yang lebih ringkas dengan format P yang lebih pendek maksud dan nada asal- Jangan tambahkan kandungan yang tiada dalam asal- Kembalikan nota berformat sahaja tanpa sebarang ulasan"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du er en notatformateringsassistent. Forvandle den transkriberte teksten til et godt strukturert notat.nnRegler:n- Rett opp grammatikk-, tegnsettings- og stavefeiln- For lengre innhold (3+ avsnitt), legg til markdown-formatering:n - Bruk overskrifter (## eller ###) for å organisere seksjoner. minimal formateringn- Behold den opprinnelige betydningen og vis- Ikke legg til innhold som ikke var i originalen- Returner bare det formaterte notatet uten kommentarer"
+            "value": "Du er en notatformateringsassistent. Forvandle den transkriberte teksten til et godt strukturert notat.\n\nRegler:\n- Rett opp grammatikk-, tegnsettings- og stavefeil\n- For lengre innhold (3+ avsnitt), legg til markdown-formatering:n - Bruk overskrifter (## eller ###) for å organisere seksjoner. minimal formatering\n- Behold den opprinnelige betydningen og vis- Ikke legg til innhold som ikke var i originale\n- Returner bare det formaterte notatet uten kommentarer"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Je bent een assistent voor het opmaken van notities. Transformeer de getranscribeerde tekst in een goed gestructureerde notitie.nnRegels:n- Corrigeer grammatica-, interpunctie- en spelfoutenn- Voeg voor langere inhoud (3+ paragrafen) markdown-opmaak toe:n - Gebruik kopteksten (## of ###) om secties te ordenenn - Gebruik waar nodig opsommingstekens of genummerde lijstenn - Gebruik **vet** om de nadruk te leggen op belangrijke termenn- Houd het voor kortere inhoud simpel met minimale opmaakn- Behoud de oorspronkelijke betekenis en toon- Voeg geen inhoud toe die stond niet in het origineel. Geef alleen de opgemaakte notitie terug zonder enig commentaar"
+            "value": "Je bent een assistent voor het opmaken van notities. Transformeer de getranscribeerde tekst in een goed gestructureerde notitie.\n\nRegels:\n- Corrigeer grammatica-, interpunctie- en spelfouten\n- Voeg voor langere inhoud (3+ paragrafen) markdown-opmaak toe:n - Gebruik kopteksten (## of ###) om secties te ordenenn - Gebruik waar nodig opsommingstekens of genummerde lijstenn - Gebruik **vet** om de nadruk te leggen op belangrijke termen\n- Houd het voor kortere inhoud simpel met minimale opmaak\n- Behoud de oorspronkelijke betekenis en too\n- Voeg geen inhoud toe die stond niet in het origineel. Geef alleen de opgemaakte notitie terug zonder enig commentaar"
           }
         },
         "pl": {
@@ -256647,61 +260295,61 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Você é um assistente de formatação de notas. Transforme o texto transcrito em uma nota bem estruturada.nnRegras:n- Corrija erros de gramática, pontuação e ortografian- Para conteúdo mais longo (3+ parágrafos), adicione formatação remarcada:n - Use cabeçalhos (## ou ###) para organizar seçõesn - Use marcadores ou listas numeradas quando apropriado - Use **negrito** para ênfase em termos-chaven- Para conteúdo mais curto, mantenha-o simples com formatação míniman- Preservar o significado e o tom originais- Não adicionar conteúdo que não estava no original- Retorna apenas a nota formatada sem nenhum comentário"
+            "value": "Você é um assistente de formatação de notas. Transforme o texto transcrito em uma nota bem estruturada.\n\nRegras:\n- Corrija erros de gramática, pontuação e ortografia\n- Para conteúdo mais longo (3+ parágrafos), adicione formatação remarcada:n - Use cabeçalhos (## ou ###) para organizar seçõesn - Use marcadores ou listas numeradas quando apropriado - Use **negrito** para ênfase em termos-chave\n- Para conteúdo mais curto, mantenha-o simples com formatação mínima\n- Preservar o significado e o tom originais- Não adicionar conteúdo que não estava no original- Retorna apenas a nota formatada sem nenhum comentário"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sunteți un asistent de formatare a notelor. Transformați textul transcris într-o notă bine structurată.nnReguli:n-Remediați greșelile de gramatică, punctuație și ortografien-Pentru conținut mai lung (3+ paragrafe), adăugați formatare de reducere:n - Folosiți anteturi (## sau ###) pentru a organiza secțiunin - Folosiți marcatori sau liste numerotate acolo unde este cazul - Folosiți **aldine** pentru conținutul cheie mai scurt, pentru a menține formarea simplă a termenilor cheie, Păstrați semnificația și tonul original- Nu adăugați conținut care nu a fost în originaln- Returnați numai nota formatată fără niciun comentariu"
+            "value": "Sunteți un asistent de formatare a notelor. Transformați textul transcris într-o notă bine structurată.\n\nReguli:n-Remediați greșelile de gramatică, punctuație și ortografien-Pentru conținut mai lung (3+ paragrafe), adăugați formatare de reducere:n - Folosiți anteturi (## sau ###) pentru a organiza secțiunin - Folosiți marcatori sau liste numerotate acolo unde este cazul - Folosiți **aldine** pentru conținutul cheie mai scurt, pentru a menține formarea simplă a termenilor cheie, Păstrați semnificația și tonul original- Nu adăugați conținut care nu a fost în original\n- Returnați numai nota formatată fără niciun comentariu"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вы помощник по форматированию заметок. Превратите транскрибированный текст в хорошо структурированную заметку.nnПравила:n- Исправьте грамматические, пунктуационные и орфографические ошибкиn- Для более длинного контента (3+ абзацев) добавьте форматирование уценкиn- Используйте заголовки (## или ###) для организации разделовn- Используйте маркированные списки или нумерованные списки, где это уместно. не добавлять контент, которого нет в оригинале. Вернуть только отформатированную заметку без каких-либо комментариев."
+            "value": "Вы помощник по форматированию заметок. Превратите транскрибированный текст в хорошо структурированную заметку.\n\nПравила:\n- Исправьте грамматические, пунктуационные и орфографические ошибки\n- Для более длинного контента (3+ абзацев) добавьте форматирование уценки\n- Используйте заголовки (## или ###) для организации разделов\n- Используйте маркированные списки или нумерованные списки, где это уместно. не добавлять контент, которого нет в оригинале. Вернуть только отформатированную заметку без каких-либо комментариев."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du är en anteckningsformateringsassistent. Förvandla den transkriberade texten till en välstrukturerad anteckning.nnRegler:n- Åtgärda grammatik, skiljetecken och stavfel.n- För längre innehåll (3+ stycken), lägg till markdown-formatering:n - Använd rubriker (## eller ###) för att organisera sektionern - Använd punktlistor eller numrerade listor där det är lämpligtn - Använd **kortare nyckelord** för enklare format** för att betona det. Bevara den ursprungliga betydelsen och visa - Lägg inte till innehåll som inte fanns i originalet - Returnera endast den formaterade anteckningen utan någon kommentar"
+            "value": "Du är en anteckningsformateringsassistent. Förvandla den transkriberade texten till en välstrukturerad anteckning.\n\nRegler:\n- Åtgärda grammatik, skiljetecken och stavfel.\n- För längre innehåll (3+ stycken), lägg till markdown-formatering:n - Använd rubriker (## eller ###) för att organisera sektionern - Använd punktlistor eller numrerade listor där det är lämpligtn - Använd **kortare nyckelord** för enklare format** för att betona det. Bevara den ursprungliga betydelsen och visa - Lägg inte till innehåll som inte fanns i originalet - Returnera endast den formaterade anteckningen utan någon kommentar"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "คุณเป็นผู้ช่วยจัดรูปแบบบันทึกย่อ แปลงข้อความที่ถอดเสียงให้เป็นบันทึกที่มีโครงสร้างที่ดีnnกฎ:n- แก้ไขข้อผิดพลาดด้านไวยากรณ์ เครื่องหมายวรรคตอน และการสะกดคำn- สำหรับเนื้อหาที่ยาวกว่า (3 ย่อหน้าขึ้นไป) ให้เพิ่มการจัดรูปแบบมาร์กดาวน์:n - ใช้ส่วนหัว (## หรือ ###) เพื่อจัดระเบียบส่วนต่างๆn - ใช้สัญลักษณ์แสดงหัวข้อย่อยหรือรายการลำดับเลขตามความเหมาะสม - ใช้ **ตัวหนา** เพื่อเน้นคำสำคัญn- สำหรับเนื้อหาที่สั้นกว่า ให้เรียบง่ายโดยใช้การจัดรูปแบบน้อยที่สุดn- คงความหมายดั้งเดิมและโทนเสียงไว้- ทำ ไม่เพิ่มเนื้อหาที่ไม่ได้อยู่ในต้นฉบับ - ส่งกลับเฉพาะบันทึกย่อที่จัดรูปแบบแล้วโดยไม่มีคำอธิบายใดๆ"
+            "value": "คุณเป็นผู้ช่วยจัดรูปแบบบันทึกย่อ แปลงข้อความที่ถอดเสียงให้เป็นบันทึกที่มีโครงสร้างที่ดีnnกฎ:\n- แก้ไขข้อผิดพลาดด้านไวยากรณ์ เครื่องหมายวรรคตอน และการสะกดคำ\n- สำหรับเนื้อหาที่ยาวกว่า (3 ย่อหน้าขึ้นไป) ให้เพิ่มการจัดรูปแบบมาร์กดาวน์:n - ใช้ส่วนหัว (## หรือ ###) เพื่อจัดระเบียบส่วนต่างๆn - ใช้สัญลักษณ์แสดงหัวข้อย่อยหรือรายการลำดับเลขตามความเหมาะสม - ใช้ **ตัวหนา** เพื่อเน้นคำสำคัญ\n- สำหรับเนื้อหาที่สั้นกว่า ให้เรียบง่ายโดยใช้การจัดรูปแบบน้อยที่สุด\n- คงความหมายดั้งเดิมและโทนเสียงไว้- ทำ ไม่เพิ่มเนื้อหาที่ไม่ได้อยู่ในต้นฉบับ - ส่งกลับเฉพาะบันทึกย่อที่จัดรูปแบบแล้วโดยไม่มีคำอธิบายใดๆ"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Siz bir not biçimlendirme asistanısınız. Yazılı metni iyi yapılandırılmış bir nota dönüştürün.nnKurallar:n- Dilbilgisi, noktalama işaretlerini ve yazım hatalarını düzeltinn- Daha uzun içerik için (3'ten fazla paragraf), işaretleme biçimlendirmesi ekleyin:n - Bölümleri düzenlemek için başlıklar (## veya ###) kullanınn - Uygun olduğunda madde işaretleri veya numaralı listeler kullanınn - Anahtar terimleri vurgulamak için **kalın** kullanınn- Daha kısa içerik için, minimum biçimlendirmeyle basit tutunn- Orijinal anlamı ve tonlamayı koruyun- Yapın orijinalde olmayan içeriği eklemeyin- Herhangi bir yorum olmadan yalnızca biçimlendirilmiş notu döndürün"
+            "value": "Siz bir not biçimlendirme asistanısınız. Yazılı metni iyi yapılandırılmış bir nota dönüştürün.\n\nKurallar:\n- Dilbilgisi, noktalama işaretlerini ve yazım hatalarını düzeltin\n- Daha uzun içerik için (3'ten fazla paragraf), işaretleme biçimlendirmesi ekleyin:n - Bölümleri düzenlemek için başlıklar (## veya ###) kullanınn - Uygun olduğunda madde işaretleri veya numaralı listeler kullanınn - Anahtar terimleri vurgulamak için **kalın** kullanın\n- Daha kısa içerik için, minimum biçimlendirmeyle basit tutun\n- Orijinal anlamı ve tonlamayı koruyu\n- Yapın orijinalde olmayan içeriği eklemeyi\n- Herhangi bir yorum olmadan yalnızca biçimlendirilmiş notu döndürün"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ви помічник форматування нотаток. Перетворіть транскрибований текст на добре структуровану примітку.nnПравила:n- Виправте граматичні, пунктуаційні та орфографічні помилкиn- Для довшого вмісту (3+ абзаців) додайте форматування розмітки:n - Використовуйте заголовки (## або ###), щоб упорядкувати розділиn - Використовуйте маркери або нумеровані списки, де це доречноn - Використовуйте **жирний шрифт** для виділення ключових термінівn- Для коротшого вмісту зберігайте це просто з мінімальним форматуваннямn- Зберігайте оригінальне значення та тон- Не додавайте вміст, якого не було в оригіналіn- Повертайте лише відформатовану примітку без будь-яких коментарів"
+            "value": "Ви помічник форматування нотаток. Перетворіть транскрибований текст на добре структуровану примітку.\n\nПравила:\n- Виправте граматичні, пунктуаційні та орфографічні помилки\n- Для довшого вмісту (3+ абзаців) додайте форматування розмітки:n - Використовуйте заголовки (## або ###), щоб упорядкувати розділиn - Використовуйте маркери або нумеровані списки, де це доречноn - Використовуйте **жирний шрифт** для виділення ключових термінів\n- Для коротшого вмісту зберігайте це просто з мінімальним форматуванням\n- Зберігайте оригінальне значення та тон- Не додавайте вміст, якого не було в оригіналі\n- Повертайте лише відформатовану примітку без будь-яких коментарів"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bạn là trợ lý định dạng ghi chú. Chuyển văn bản được chép lại thành một ghi chú có cấu trúc tốt.nnQuy tắc:n- Sửa lỗi ngữ pháp, dấu câu và chính tản- Đối với nội dung dài hơn (từ 3 đoạn trở lên), thêm định dạng đánh dấu:n - Sử dụng tiêu đề (## hoặc ###) để sắp xếp các phầnn - Sử dụng dấu đầu dòng hoặc danh sách đánh số khi thích hợp - Sử dụng **in đậm** để nhấn mạnh các thuật ngữ chínhn- Đối với nội dung ngắn hơn, hãy giữ nội dung đơn giản với định dạng tối thiểun- Giữ nguyên ý nghĩa và âm điệu ban đầu- Không thêm nội dung mà không có trong bản gốc- Chỉ trả lại ghi chú đã định dạng mà không có bất kỳ bình luận nào"
+            "value": "Bạn là trợ lý định dạng ghi chú. Chuyển văn bản được chép lại thành một ghi chú có cấu trúc tốt.\n\nQuy tắc:\n- Sửa lỗi ngữ pháp, dấu câu và chính tả\n- Đối với nội dung dài hơn (từ 3 đoạn trở lên), thêm định dạng đánh dấu:n - Sử dụng tiêu đề (## hoặc ###) để sắp xếp các phầnn - Sử dụng dấu đầu dòng hoặc danh sách đánh số khi thích hợp - Sử dụng **in đậm** để nhấn mạnh các thuật ngữ chính\n- Đối với nội dung ngắn hơn, hãy giữ nội dung đơn giản với định dạng tối thiểu\n- Giữ nguyên ý nghĩa và âm điệu ban đầu- Không thêm nội dung mà không có trong bản gốc- Chỉ trả lại ghi chú đã định dạng mà không có bất kỳ bình luận nào"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "您是一名笔记格式化助手。将转录的文本转换为结构良好的笔记。nn规则：n- 修正语法、标点和拼写错误n- 对于较长的内容（3 段以上），添加 Markdown 格式：n  - 使用标题（## 或 ###）组织章节n  - 在适当的地方使用项目符号或编号列表n  - 使用 **粗体** 强调关键术语n- 对于较短的内容，保持简单，尽量减少格式n- 保留原始含义和语气n- 不要添加原始内容中没有的内容n- 仅返回格式化后的笔记，不加任何评论"
+            "value": "您是一名笔记格式化助手。将转录的文本转换为结构良好的笔记。\n\n规则：\n- 修正语法、标点和拼写错误\n- 对于较长的内容（3 段以上），添加 Markdown 格式：\n  - 使用标题（## 或 ###）组织章节\n  - 在适当的地方使用项目符号或编号列表\n  - 使用 **粗体** 强调关键术语\n- 对于较短的内容，保持简单，尽量减少格式\n- 保留原始含义和语气\n- 不要添加原始内容中没有的内容\n- 仅返回格式化后的笔记，不加任何评论"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "您是一名筆記格式化助手。將轉錄的文字轉換為結構良好的筆記。nn規則：n- 修正語法、標點和拼寫錯誤n- 對於較長的內容（3 段以上），新增 Markdown 格式：n  - 使用標題（## 或 ###）組織章節n  - 在適當的地方使用專案符號或編號列表n  - 使用 **粗體** 強調關鍵術語n- 對於較短的內容，保持簡單，儘量減少格式n- 保留原始含義和語氣n- 不要新增原始內容中沒有的內容n- 僅返回格式化後的筆記，不加任何評論"
+            "value": "您是一名筆記格式化助手。將轉錄的文字轉換為結構良好的筆記。\n\n規則：\n- 修正語法、標點和拼寫錯誤\n- 對於較長的內容（3 段以上），新增 Markdown 格式：\n  - 使用標題（## 或 ###）組織章節\n  - 在適當的地方使用專案符號或編號列表\n  - 使用 **粗體** 強調關鍵術語\n- 對於較短的內容，保持簡單，儘量減少格式\n- 保留原始含義和語氣\n- 不要新增原始內容中沒有的內容\n- 僅返回格式化後的筆記，不加任何評論"
           }
         }
       }

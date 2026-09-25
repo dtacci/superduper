@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation behöver några behörigheter för att fungera.
     Din integritet respekteras alltid.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation behöver tillgänglighetsbehörighet för att infoga text vid markören.                          För att bevilja behörighet: 1. Klicka på \"Öppna systeminställningar\" nedan 2. Klicka på +-knappen 3. Navigera till appen som visas i Finder 4. Starta om Superduper Dictation efter att du har beviljat behörighet Utan denna behörighet kommer text bara att kopieras till ditt urklipp.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation behöver mikrofonåtkomst för att spela in och transkribera din röst.nnGe tillstånd i systeminställningarna."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation behöver mikrofonåtkomst för att spela in och transkribera din röst.\n\nGe tillstånd i systeminställningarna."
   on_github: "Superduper Dictation på GitHub"
   orb: "Superduper Dictation-kula"
   pill: "Superduper Dictation piller"
@@ -1074,7 +1094,7 @@ please:
     Ladda ner en Whisper-modell i Inställningar innan du spelar in.
     
     Gå till Inställningar → Modeller för att ladda ner en modell.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Ladda ner en Whisper-modell i Inställningar före inspelning.nnGå till Inställningar → Modeller för att ladda ner en modell."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Ladda ner en Whisper-modell i Inställningar före inspelning.\n\nGå till Inställningar → Modeller för att ladda ner en modell."
   wait: "Vänligen vänta..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "I går"
 you:
-  are_a_note_formatting_assistant_transform_th: "Du är en anteckningsformateringsassistent. Förvandla den transkriberade texten till en välstrukturerad anteckning.nnRegler:n- Åtgärda grammatik, skiljetecken och stavfel.n- För längre innehåll (3+ stycken), lägg till markdown-formatering:n - Använd rubriker (## eller ###) för att organisera sektionern - Använd punktlistor eller numrerade listor där det är lämpligtn - Använd **kortare nyckelord** för enklare format** för att betona det. Bevara den ursprungliga betydelsen och visa - Lägg inte till innehåll som inte fanns i originalet - Returnera endast den formaterade anteckningen utan någon kommentar"
+  are_a_note_formatting_assistant_transform_th: "Du är en anteckningsformateringsassistent. Förvandla den transkriberade texten till en välstrukturerad anteckning.\n\nRegler:\n- Åtgärda grammatik, skiljetecken och stavfel.\n- För längre innehåll (3+ stycken), lägg till markdown-formatering:n - Använd rubriker (## eller ###) för att organisera sektionern - Använd punktlistor eller numrerade listor där det är lämpligtn - Använd **kortare nyckelord** för enklare format** för att betona det. Bevara den ursprungliga betydelsen och visa - Lägg inte till innehåll som inte fanns i originalet - Returnera endast den formaterade anteckningen utan någon kommentar"
   are_a_text_enhancement_assistant_improve_the: "Du är en textförbättringsassistent. Förbättra grammatiken, skiljetecken och formateringen av den angivna texten samtidigt som dess ursprungliga betydelse och ton bevaras. Returnera endast den förbättrade texten utan ytterligare kommentarer."
   can_change_these_anytime_from_the_menu_bar_s: "Du kan ändra dessa när som helst från menyraden → Inställningar → Snabbtangenter"
   re_all_set: "Du är klar!"

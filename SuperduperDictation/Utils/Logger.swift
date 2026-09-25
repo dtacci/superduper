@@ -46,7 +46,9 @@ enum Log {
     }
 
     static var currentLogFileURL: URL {
-        LogFileSink.shared.currentLogFileURL()
+        // Tests and previews never touch the real log folder, not even to name a file.
+        guard shouldPersistLogsToDisk else { return LogFileSink.shared.plannedLogFileURL() }
+        return LogFileSink.shared.currentLogFileURL()
     }
 
     static var currentLogFileName: String {
@@ -262,6 +264,13 @@ private final class LogFileSink {
         queue.async {
             self.ensureReadyForWrites()
             self.writeSessionHeaderIfNeeded()
+        }
+    }
+
+    /// The file the next write would go to, without creating it.
+    func plannedLogFileURL() -> URL {
+        queue.sync {
+            currentFileURL ?? nextLogFileURL(segment: currentSegment)
         }
     }
 

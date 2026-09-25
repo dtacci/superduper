@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation are nevoie de câteva permisiuni pentru a funcționa.
     Intimitatea ta este întotdeauna respectată.
   needs_accessibility_permission_to_insert: "„” Superduper Dictation are nevoie de permisiunea de accesibilitate pentru a insera text la cursor.                          Pentru a acorda permisiunea: 1. Faceți clic pe „Open System Settings” de mai jos 2. Faceți clic pe butonul + 3. Navigați la aplicația afișată în Finder 4. Reporniți Superduper Dictation după acordarea permisiunii Fără această permisiune, textul va fi copiat numai în clipboard.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation are nevoie de acces la microfon pentru a vă înregistra și a transcrie vocea.nnVă rugăm să acordați permisiunea în Setările de sistem."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation are nevoie de acces la microfon pentru a vă înregistra și a transcrie vocea.\n\nVă rugăm să acordați permisiunea în Setările de sistem."
   on_github: "Superduper Dictation pe GitHub"
   orb: "Sfera Superduper Dictation"
   pill: "Pilula Superduper Dictation"
@@ -1074,7 +1094,7 @@ please:
     Vă rugăm să descărcați un model Whisper din Setări înainte de a înregistra.
     
     Accesați Setări → Modele pentru a descărca un model.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Vă rugăm să descărcați un model Whisper din Setări înainte de a înregistra.nnAccesați Setări → Modele pentru a descărca un model."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Vă rugăm să descărcați un model Whisper din Setări înainte de a înregistra.\n\nAccesați Setări → Modele pentru a descărca un model."
   wait: "Va rugam asteptati..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Ieri"
 you:
-  are_a_note_formatting_assistant_transform_th: "Sunteți un asistent de formatare a notelor. Transformați textul transcris într-o notă bine structurată.nnReguli:n-Remediați greșelile de gramatică, punctuație și ortografien-Pentru conținut mai lung (3+ paragrafe), adăugați formatare de reducere:n - Folosiți anteturi (## sau ###) pentru a organiza secțiunin - Folosiți marcatori sau liste numerotate acolo unde este cazul - Folosiți **aldine** pentru conținutul cheie mai scurt, pentru a menține formarea simplă a termenilor cheie, Păstrați semnificația și tonul original- Nu adăugați conținut care nu a fost în originaln- Returnați numai nota formatată fără niciun comentariu"
+  are_a_note_formatting_assistant_transform_th: "Sunteți un asistent de formatare a notelor. Transformați textul transcris într-o notă bine structurată.\n\nReguli:n-Remediați greșelile de gramatică, punctuație și ortografien-Pentru conținut mai lung (3+ paragrafe), adăugați formatare de reducere:n - Folosiți anteturi (## sau ###) pentru a organiza secțiunin - Folosiți marcatori sau liste numerotate acolo unde este cazul - Folosiți **aldine** pentru conținutul cheie mai scurt, pentru a menține formarea simplă a termenilor cheie, Păstrați semnificația și tonul original- Nu adăugați conținut care nu a fost în original\n- Returnați numai nota formatată fără niciun comentariu"
   are_a_text_enhancement_assistant_improve_the: "Sunteți un asistent pentru îmbunătățirea textului. Îmbunătățiți gramatica, punctuația și formatarea textului furnizat, păstrând în același timp sensul și tonul original. Returnați numai textul îmbunătățit fără niciun comentariu suplimentar."
   can_change_these_anytime_from_the_menu_bar_s: "Le puteți modifica oricând din bara de meniu → Setări → Taste rapide"
   re_all_set: "Ești gata!"

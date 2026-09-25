@@ -7,6 +7,7 @@
 
 import Foundation
 import Hub
+import MLX
 import MLXLLM
 import MLXLMCommon
 
@@ -61,6 +62,11 @@ actor LocalMeetingModelService: LocalMeetingModelInferencing {
     private let fileManager: FileManager
     private let diskSpaceProvider: any MeetingDiskSpaceProviding
     private var container: MLXLMCommon.ModelContainer?
+    /// The model (~2.3 GB in memory) is released this long after the last notes
+    /// finish, so a quick regenerate reuses it but it doesn't sit in memory all day.
+    static let idleUnloadDelay: Duration = .seconds(120)
+    private var activeGenerations = 0
+    private var unloadTask: Task<Void, Never>?
 
     init(
         rootURL: URL = ModelManager.meetingNotesModelRootURL,
@@ -143,6 +149,13 @@ actor LocalMeetingModelService: LocalMeetingModelInferencing {
 
     func generate(prompt: String) async throws -> String {
         guard Self.isAppleSilicon else { throw LocalMeetingModelError.unsupportedArchitecture }
+        unloadTask?.cancel()
+        unloadTask = nil
+        activeGenerations += 1
+        defer {
+            activeGenerations -= 1
+            scheduleIdleUnload()
+        }
         let modelContainer: MLXLMCommon.ModelContainer
         if let container {
             modelContainer = container
@@ -168,6 +181,24 @@ actor LocalMeetingModelService: LocalMeetingModelInferencing {
             additionalContext: ["enable_thinking": false]
         )
         return try await session.respond(to: prompt)
+    }
+
+    private func scheduleIdleUnload() {
+        guard activeGenerations == 0, container != nil else { return }
+        unloadTask?.cancel()
+        unloadTask = Task { [weak self] in
+            try? await Task.sleep(for: Self.idleUnloadDelay)
+            guard !Task.isCancelled else { return }
+            await self?.unloadIfIdle()
+        }
+    }
+
+    private func unloadIfIdle() {
+        guard activeGenerations == 0, container != nil else { return }
+        container = nil
+        unloadTask = nil
+        Memory.clearCache()
+        Log.aiEnhancement.info("Released the on-device notes model after it went idle")
     }
 
     private var markerURL: URL {

@@ -5,10 +5,11 @@ APP_NAME="Superduper Dictation"
 APP_BUNDLE="DerivedData/Build/Products/Release/${APP_NAME}.app"
 DMG_NAME="${APP_NAME}.dmg"
 DIST_DIR="dist"
-BACKGROUND_IMG="assets/images/dmg-background.png"
+BACKGROUND_IMG="assets/images/dmg-background.tiff"
 
-rm -rf "${DIST_DIR}"
+# Only replace the DMG; dist/ may hold other things (like backup app builds).
 mkdir -p "${DIST_DIR}"
+rm -f "${DIST_DIR}/${DMG_NAME}"
 
 # Check if background image exists
 if [ ! -f "${BACKGROUND_IMG}" ]; then

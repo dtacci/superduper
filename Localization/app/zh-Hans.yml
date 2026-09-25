@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation 需要一些权限才能工作。
     您的隐私始终受到尊重。
   needs_accessibility_permission_to_insert: "\"\"             Superduper Dictation 需要辅助功能权限才能在您的光标处插入文本。                          授予权限：             1. 点击下方\"打开系统设置\"             2. 点击 + 按钮             3. 导航到 Finder 中显示的应用             4. 授予权限后重新启动 Superduper Dictation                          没有此权限，文本将只复制到您的剪贴板。             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation 需要麦克风访问权限来录制和转录您的语音。nn请在系统设置中授予权限。"
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation 需要麦克风访问权限来录制和转录您的语音。\n\n请在系统设置中授予权限。"
   on_github: "GitHub 上的 Superduper Dictation"
   orb: "Superduper Dictation 光球"
   pill: "Superduper Dictation 胶囊"
@@ -1074,7 +1094,7 @@ please:
     请在录制前在设置中下载 Whisper 模型。
     
     前往设置 → 模型下载模型。
-  download_a_whisper_model_in_settings_befo_34e8a33c: "请在录制前在设置中下载 Whisper 模型。nn前往设置 → 模型下载模型。"
+  download_a_whisper_model_in_settings_befo_34e8a33c: "请在录制前在设置中下载 Whisper 模型。\n\n前往设置 → 模型下载模型。"
   wait: "请稍候..."
 port:
   _self: "端口"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "昨天"
 you:
-  are_a_note_formatting_assistant_transform_th: "您是一名笔记格式化助手。将转录的文本转换为结构良好的笔记。nn规则：n- 修正语法、标点和拼写错误n- 对于较长的内容（3 段以上），添加 Markdown 格式：n  - 使用标题（## 或 ###）组织章节n  - 在适当的地方使用项目符号或编号列表n  - 使用 **粗体** 强调关键术语n- 对于较短的内容，保持简单，尽量减少格式n- 保留原始含义和语气n- 不要添加原始内容中没有的内容n- 仅返回格式化后的笔记，不加任何评论"
+  are_a_note_formatting_assistant_transform_th: "您是一名笔记格式化助手。将转录的文本转换为结构良好的笔记。\n\n规则：\n- 修正语法、标点和拼写错误\n- 对于较长的内容（3 段以上），添加 Markdown 格式：\n  - 使用标题（## 或 ###）组织章节\n  - 在适当的地方使用项目符号或编号列表\n  - 使用 **粗体** 强调关键术语\n- 对于较短的内容，保持简单，尽量减少格式\n- 保留原始含义和语气\n- 不要添加原始内容中没有的内容\n- 仅返回格式化后的笔记，不加任何评论"
   are_a_text_enhancement_assistant_improve_the: "您是一名文本增强助手。改进所提供文本的语法、标点和格式，同时保留其原始含义和语气。仅返回增强后的文本，不加任何额外评论。"
   can_change_these_anytime_from_the_menu_bar_s: "您可以随时从菜单栏 → 设置 → 快捷键更改这些"
   re_all_set: "一切就绪！"

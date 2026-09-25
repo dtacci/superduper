@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation memerlukan beberapa izin agar dapat berfungsi.
     Privasi Anda selalu dihormati.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation memerlukan izin Aksesibilitas untuk menyisipkan teks pada kursor Anda.                          Untuk memberikan izin: 1. Klik \"Buka Pengaturan Sistem\" di bawah 2. Klik tombol + 3. Navigasikan ke aplikasi yang ditampilkan di Finder 4. Mulai ulang Superduper Dictation setelah memberikan izin Tanpa izin ini, teks hanya akan disalin ke papan klip Anda.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation memerlukan akses mikrofon untuk merekam dan menyalin suara Anda.nnHarap berikan izin di Pengaturan Sistem."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation memerlukan akses mikrofon untuk merekam dan menyalin suara Anda.\n\nHarap berikan izin di Pengaturan Sistem."
   on_github: "Superduper Dictation di GitHub"
   orb: "Orb Superduper Dictation"
   pill: "Superduper Dictation Pil"
@@ -1074,7 +1094,7 @@ please:
     Silakan unduh model Whisper di Pengaturan sebelum merekam.
     
     Buka Pengaturan → Model untuk mengunduh model.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Silakan unduh model Whisper di Pengaturan sebelum merekam.nnBuka Pengaturan → Model untuk mengunduh model."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Silakan unduh model Whisper di Pengaturan sebelum merekam.\n\nBuka Pengaturan → Model untuk mengunduh model."
   wait: "Harap tunggu..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Kemarin"
 you:
-  are_a_note_formatting_assistant_transform_th: "Anda adalah asisten pemformatan catatan. Ubah teks yang ditranskrip menjadi catatan yang terstruktur dengan baik.nnAturan:n- Memperbaiki kesalahan tata bahasa, tanda baca, dan ejaann- Untuk konten yang lebih panjang (3+ paragraf), tambahkan pemformatan penurunan harga:n - Gunakan header (## atau ###) untuk mengatur bagiann - Gunakan poin-poin atau daftar bernomor jika diperlukan - Gunakan **tebal** untuk penekanan pada istilah-istilah kuncin- Untuk konten yang lebih pendek, buat tetap sederhana dengan format minimaln- Pertahankan makna dan nada asli- Lakukan tidak menambahkan konten yang tidak ada dalam aslinyan- Hanya mengembalikan catatan yang diformat tanpa komentar apa pun"
+  are_a_note_formatting_assistant_transform_th: "Anda adalah asisten pemformatan catatan. Ubah teks yang ditranskrip menjadi catatan yang terstruktur dengan baik.\n\nAturan:\n- Memperbaiki kesalahan tata bahasa, tanda baca, dan ejaan\n- Untuk konten yang lebih panjang (3+ paragraf), tambahkan pemformatan penurunan harga:n - Gunakan header (## atau ###) untuk mengatur bagiann - Gunakan poin-poin atau daftar bernomor jika diperlukan - Gunakan **tebal** untuk penekanan pada istilah-istilah kunci\n- Untuk konten yang lebih pendek, buat tetap sederhana dengan format minimal\n- Pertahankan makna dan nada asli- Lakukan tidak menambahkan konten yang tidak ada dalam aslinya\n- Hanya mengembalikan catatan yang diformat tanpa komentar apa pun"
   are_a_text_enhancement_assistant_improve_the: "Anda adalah asisten peningkatan teks. Memperbaiki tata bahasa, tanda baca, dan format teks yang disediakan dengan tetap mempertahankan makna dan nada aslinya. Kembalikan hanya teks yang disempurnakan tanpa komentar tambahan apa pun."
   can_change_these_anytime_from_the_menu_bar_s: "Anda dapat mengubahnya kapan saja dari bilah menu → Pengaturan → Tombol pintas"
   re_all_set: "Anda sudah siap!"

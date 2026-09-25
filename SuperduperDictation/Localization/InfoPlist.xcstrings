@@ -2,7 +2,7 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "cfbundledisplayname": {
+    "CFBundleDisplayName": {
       "comment": "cfbundledisplayname",
       "extractionState": "manual",
       "localizations": {
@@ -194,7 +194,7 @@
         }
       }
     },
-    "cfbundlename": {
+    "CFBundleName": {
       "comment": "cfbundlename",
       "extractionState": "manual",
       "localizations": {
@@ -386,7 +386,7 @@
         }
       }
     },
-    "nsaudiocaptureusagedescription": {
+    "NSAudioCaptureUsageDescription": {
       "comment": "nsaudiocaptureusagedescription",
       "extractionState": "manual",
       "localizations": {
@@ -578,7 +578,7 @@
         }
       }
     },
-    "nshumanreadablecopyright": {
+    "NSHumanReadableCopyright": {
       "comment": "nshumanreadablecopyright",
       "extractionState": "manual",
       "localizations": {
@@ -770,7 +770,7 @@
         }
       }
     },
-    "nsmicrophoneusagedescription": {
+    "NSMicrophoneUsageDescription": {
       "comment": "nsmicrophoneusagedescription",
       "extractionState": "manual",
       "localizations": {
@@ -962,7 +962,7 @@
         }
       }
     },
-    "nsspeechrecognitionusagedescription": {
+    "NSSpeechRecognitionUsageDescription": {
       "comment": "nsspeechrecognitionusagedescription",
       "extractionState": "manual",
       "localizations": {

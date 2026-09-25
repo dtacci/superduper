@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation'un çalışması için birkaç izne ihtiyacı var.
     Gizliliğinize her zaman saygı duyulur.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation'un imlecinize metin ekleyebilmesi için Erişilebilirlik iznine ihtiyacı var.                          İzin vermek için: 1. Aşağıdaki \"Sistem Ayarlarını Aç\"ı tıklayın 2. + düğmesini tıklayın 3. Finder'da gösterilen uygulamaya gidin 4. İzin verdikten sonra Superduper Dictation'u yeniden başlatın Bu izin olmadan, metin yalnızca panonuza kopyalanacaktır.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation'un sesinizi kaydedip yazıya dökebilmesi için mikrofon erişimine ihtiyacı var.nnLütfen Sistem Ayarları'ndan izin verin."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation'un sesinizi kaydedip yazıya dökebilmesi için mikrofon erişimine ihtiyacı var.\n\nLütfen Sistem Ayarları'ndan izin verin."
   on_github: "GitHub'da Superduper Dictation"
   orb: "Superduper Dictation Küresi"
   pill: "Superduper Dictation Hapı"
@@ -1074,7 +1094,7 @@ please:
     Lütfen kaydetmeden önce Ayarlar'dan bir Whisper modeli indirin.
     
     Bir model indirmek için Ayarlar → Modeller'e gidin.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Lütfen kaydetmeden önce Ayarlar'dan bir Whisper modeli indirin.nnBir model indirmek için Ayarlar → Modeller bölümüne gidin."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Lütfen kaydetmeden önce Ayarlar'dan bir Whisper modeli indirin.\n\nBir model indirmek için Ayarlar → Modeller bölümüne gidin."
   wait: "Lütfen bekleyin..."
 port:
   _self: "Bağlantı noktası"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Dün"
 you:
-  are_a_note_formatting_assistant_transform_th: "Siz bir not biçimlendirme asistanısınız. Yazılı metni iyi yapılandırılmış bir nota dönüştürün.nnKurallar:n- Dilbilgisi, noktalama işaretlerini ve yazım hatalarını düzeltinn- Daha uzun içerik için (3'ten fazla paragraf), işaretleme biçimlendirmesi ekleyin:n - Bölümleri düzenlemek için başlıklar (## veya ###) kullanınn - Uygun olduğunda madde işaretleri veya numaralı listeler kullanınn - Anahtar terimleri vurgulamak için **kalın** kullanınn- Daha kısa içerik için, minimum biçimlendirmeyle basit tutunn- Orijinal anlamı ve tonlamayı koruyun- Yapın orijinalde olmayan içeriği eklemeyin- Herhangi bir yorum olmadan yalnızca biçimlendirilmiş notu döndürün"
+  are_a_note_formatting_assistant_transform_th: "Siz bir not biçimlendirme asistanısınız. Yazılı metni iyi yapılandırılmış bir nota dönüştürün.\n\nKurallar:\n- Dilbilgisi, noktalama işaretlerini ve yazım hatalarını düzeltin\n- Daha uzun içerik için (3'ten fazla paragraf), işaretleme biçimlendirmesi ekleyin:n - Bölümleri düzenlemek için başlıklar (## veya ###) kullanınn - Uygun olduğunda madde işaretleri veya numaralı listeler kullanınn - Anahtar terimleri vurgulamak için **kalın** kullanın\n- Daha kısa içerik için, minimum biçimlendirmeyle basit tutun\n- Orijinal anlamı ve tonlamayı koruyu\n- Yapın orijinalde olmayan içeriği eklemeyi\n- Herhangi bir yorum olmadan yalnızca biçimlendirilmiş notu döndürün"
   are_a_text_enhancement_assistant_improve_the: "Siz bir metin geliştirme asistanısınız. Orijinal anlamını ve tonunu korurken, sağlanan metnin dilbilgisini, noktalama işaretlerini ve biçimlendirmesini geliştirin. Herhangi bir ek yorum olmadan yalnızca geliştirilmiş metni döndürün."
   can_change_these_anytime_from_the_menu_bar_s: "Bunları istediğiniz zaman menü çubuğundan → Ayarlar → Kısayol Tuşlarından değiştirebilirsiniz."
   re_all_set: "Tamamen Hazırsınız!"

@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Το Superduper Dictation χρειάζεται μερικά δικαιώματα για να λειτουργήσει.
     Το απόρρητό σας τηρείται πάντα.
   needs_accessibility_permission_to_insert: "\"\" Το Superduper Dictation χρειάζεται άδεια προσβασιμότητας για να εισαγάγει κείμενο στον κέρσορα σας.                          Για να εκχωρήσετε άδεια: 1. Κάντε κλικ στο \"Άνοιγμα ρυθμίσεων συστήματος\" παρακάτω 2. Κάντε κλικ στο κουμπί + 3. Μεταβείτε στην εφαρμογή που εμφανίζεται στο Finder 4. Επανεκκινήστε το Superduper Dictation μετά τη χορήγηση άδειας Χωρίς αυτήν την άδεια, το κείμενο θα αντιγραφεί μόνο στο πρόχειρό σας.             \"\""
-  needs_microphone_access_to_record_and_tr: "Το Superduper Dictation χρειάζεται πρόσβαση στο μικρόφωνο για την εγγραφή και τη μεταγραφή της φωνής σας.nnΠαρακαλούμε παραχωρήστε άδεια στις Ρυθμίσεις συστήματος."
+  needs_microphone_access_to_record_and_tr: "Το Superduper Dictation χρειάζεται πρόσβαση στο μικρόφωνο για την εγγραφή και τη μεταγραφή της φωνής σας.\n\nΠαρακαλούμε παραχωρήστε άδεια στις Ρυθμίσεις συστήματος."
   on_github: "Superduper Dictation στο GitHub"
   orb: "Σφαίρα Superduper Dictation"
   pill: "Χάπι Superduper Dictation"
@@ -1074,7 +1094,7 @@ please:
     Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν την εγγραφή.
     
     Μεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν από την εγγραφή.nnΜεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν από την εγγραφή.\n\nΜεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου."
   wait: "Παρακαλώ περιμένετε..."
 port:
   _self: "Θύρα"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Εχθές"
 you:
-  are_a_note_formatting_assistant_transform_th: "Είστε βοηθός μορφοποίησης σημειώσεων. Μετατρέψτε το μεταγραμμένο κείμενο σε μια καλά δομημένη σημείωση.nnΚανόνες:n- Διόρθωση γραμματικών, σημείων στίξης και ορθογραφικών σφαλμάτωνn- Για μεγαλύτερο περιεχόμενο (3+ παραγράφους), προσθέστε μορφοποίηση σήμανσης:n - Χρησιμοποιήστε κεφαλίδες (## ή ###) για να οργανώσετε ενότητεςn - Χρησιμοποιήστε **σημεία κουκκίδων ή αριθμημένες λίστες για σύντομο περιεχόμενο* κρατήστε το απλό με ελάχιστη μορφοποίησηn- Διατηρήστε το αρχικό νόημα και τον τόνο- Μην προσθέτετε περιεχόμενο που δεν υπήρχε στο πρωτότυποn- Επιστρέψτε μόνο τη μορφοποιημένη σημείωση χωρίς κανένα σχόλιο"
+  are_a_note_formatting_assistant_transform_th: "Είστε βοηθός μορφοποίησης σημειώσεων. Μετατρέψτε το μεταγραμμένο κείμενο σε μια καλά δομημένη σημείωση.\n\nΚανόνες:\n- Διόρθωση γραμματικών, σημείων στίξης και ορθογραφικών σφαλμάτων\n- Για μεγαλύτερο περιεχόμενο (3+ παραγράφους), προσθέστε μορφοποίηση σήμανσης:n - Χρησιμοποιήστε κεφαλίδες (## ή ###) για να οργανώσετε ενότητεςn - Χρησιμοποιήστε **σημεία κουκκίδων ή αριθμημένες λίστες για σύντομο περιεχόμενο* κρατήστε το απλό με ελάχιστη μορφοποίηση\n- Διατηρήστε το αρχικό νόημα και τον τόνο- Μην προσθέτετε περιεχόμενο που δεν υπήρχε στο πρωτότυπο\n- Επιστρέψτε μόνο τη μορφοποιημένη σημείωση χωρίς κανένα σχόλιο"
   are_a_text_enhancement_assistant_improve_the: "Είστε βοηθός βελτίωσης κειμένου. Βελτιώστε τη γραμματική, τα σημεία στίξης και τη μορφοποίηση του παρεχόμενου κειμένου διατηρώντας παράλληλα το αρχικό του νόημα και τον τόνο. Επιστρέψτε μόνο το βελτιωμένο κείμενο χωρίς πρόσθετο σχόλιο."
   can_change_these_anytime_from_the_menu_bar_s: "Μπορείτε να τα αλλάξετε οποιαδήποτε στιγμή από τη γραμμή μενού → Ρυθμίσεις → Πλήκτρα συντόμευσης"
   re_all_set: "Είστε έτοιμοι!"

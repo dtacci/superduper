@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     A Superduper Dictation működéséhez néhány engedélyre van szüksége.
     Az Ön személyes adatait mindig tiszteletben tartják.
   needs_accessibility_permission_to_insert: "\"\" A Superduper Dictation kisegítő lehetőségeket igényel, hogy szöveget illesszen be a kurzorba.                          Engedély megadása: 1. Kattintson az alábbi \"Rendszerbeállítások megnyitása\" lehetőségre. 2. Kattintson a + gombra 3. Navigáljon a Finderben látható alkalmazáshoz 4. Indítsa újra a Superduper Dictation alkalmazást az engedély megadása után Ezen engedély nélkül a szöveg csak a vágólapra kerül.             \"\""
-  needs_microphone_access_to_record_and_tr: "A Superduper Dictation-nak mikrofon-hozzáférésre van szüksége a hang rögzítéséhez és átírásához.nnKérjük, adjon engedélyt a rendszerbeállításokban."
+  needs_microphone_access_to_record_and_tr: "A Superduper Dictation-nak mikrofon-hozzáférésre van szüksége a hang rögzítéséhez és átírásához.\n\nKérjük, adjon engedélyt a rendszerbeállításokban."
   on_github: "Superduper Dictation a GitHubon"
   orb: "Superduper Dictation-gömb"
   pill: "Superduper Dictation Tabletta"
@@ -1074,7 +1094,7 @@ please:
     Felvétel előtt töltsön le egy Whisper modellt a Beállításokban.
     
     A modell letöltéséhez lépjen a Beállítások → Modellek menüpontba.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "A rögzítés előtt töltsön le egy Whisper-modellt a Beállításokban.nnA modell letöltéséhez lépjen a Beállítások → Modellek menüpontra."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "A rögzítés előtt töltsön le egy Whisper-modellt a Beállításokban.\n\nA modell letöltéséhez lépjen a Beállítások → Modellek menüpontra."
   wait: "Kérem, várjon..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Tegnap"
 you:
-  are_a_note_formatting_assistant_transform_th: "Ön jegyzetformázási asszisztens. Alakítsa át az átírt szöveget jól strukturált jegyzetté.nnRules:n- Nyelvtani, írásjelek és helyesírási hibák javításan- Hosszabb tartalom (3+ bekezdés) esetén adjon hozzá markdown formázást:n - Használjon fejléceket (## vagy ###) a szakaszok rendszerezéséhezn - Ha szükséges, használjon felsorolásjeleket vagy számozott listákat formázásn- Az eredeti jelentés és hang megőrzése- Ne adjon hozzá olyan tartalmat, amely nem volt az eredetiben- Csak a formázott jegyzetet adja vissza kommentár nélkül"
+  are_a_note_formatting_assistant_transform_th: "Ön jegyzetformázási asszisztens. Alakítsa át az átírt szöveget jól strukturált jegyzetté.\n\nRules:\n- Nyelvtani, írásjelek és helyesírási hibák javítása\n- Hosszabb tartalom (3+ bekezdés) esetén adjon hozzá markdown formázást:n - Használjon fejléceket (## vagy ###) a szakaszok rendszerezéséhezn - Ha szükséges, használjon felsorolásjeleket vagy számozott listákat formázás\n- Az eredeti jelentés és hang megőrzése- Ne adjon hozzá olyan tartalmat, amely nem volt az eredetibe\n- Csak a formázott jegyzetet adja vissza kommentár nélkül"
   are_a_text_enhancement_assistant_improve_the: "Ön szövegjavító asszisztens. Javítsa a megadott szöveg nyelvtanát, írásjeleit és formázását, miközben megőrzi eredeti jelentését és hangját. Csak a továbbfejlesztett szöveget adja vissza további megjegyzések nélkül."
   can_change_these_anytime_from_the_menu_bar_s: "Ezeket bármikor módosíthatja a menüsorban → Beállítások → Gyorsbillentyűk"
   re_all_set: "Minden készen áll!"

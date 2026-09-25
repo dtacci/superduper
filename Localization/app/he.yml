@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation זקוק לכמה הרשאות כדי לעבוד.
     הפרטיות שלך תמיד מכבדת.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation זקוק להרשאת נגישות כדי להוסיף טקסט ליד הסמן.                          כדי להעניק הרשאה: 1. לחץ על \"פתח הגדרות מערכת\" למטה 2. לחץ על כפתור + 3. נווט אל האפליקציה המוצגת ב-Finder 4. הפעל מחדש את Superduper Dictation לאחר מתן הרשאה ללא הרשאה זו, הטקסט יועתק רק ללוח שלך.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation זקוק לגישה למיקרופון כדי להקליט ולתמלל את הקול שלך.nnאנא הענק הרשאה בהגדרות המערכת."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation זקוק לגישה למיקרופון כדי להקליט ולתמלל את הקול שלך.\n\nאנא הענק הרשאה בהגדרות המערכת."
   on_github: "Superduper Dictation ב-GitHub"
   orb: "כדור Superduper Dictation"
   pill: "גלולת פינדרופ"
@@ -1074,7 +1094,7 @@ please:
     אנא הורד דגם Whisper בהגדרות לפני ההקלטה.
     
     עבור אל הגדרות ← דגמים כדי להוריד דגם.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "אנא הורד דגם Whisper בהגדרות לפני ההקלטה.nnעבור להגדרות ← דגמים כדי להוריד דגם."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "אנא הורד דגם Whisper בהגדרות לפני ההקלטה.\n\nעבור להגדרות ← דגמים כדי להוריד דגם."
   wait: "אנא המתן..."
 port:
   _self: "יציאה"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "אֶתמוֹל"
 you:
-  are_a_note_formatting_assistant_transform_th: "אתה עוזר עיצוב הערות. הפוך את הטקסט המתועתק להערה מובנית היטב. nnכללים: n- תקן שגיאות דקדוק, פיסוק וכתיב n- עבור תוכן ארוך יותר (3 פסקאות ומעלה), הוסף עיצוב סימון: n - השתמש בכותרות (## או ###) כדי לארגן חלקים n - השתמש בנקודות תבליטים או רשימות ממוספרות היכן שמתאים - השתמש בפורמט **מודגש קצר יותר** לפורמט מינימלי של מפתח, n שמור על המשמעות המקורית והצג- אל תוסיף תוכן שלא היה במקור- החזר רק את ההערה המעוצבת ללא כל פרשנות"
+  are_a_note_formatting_assistant_transform_th: "אתה עוזר עיצוב הערות. הפוך את הטקסט המתועתק להערה מובנית היטב. nnכללים: \n- תקן שגיאות דקדוק, פיסוק וכתיב \n- עבור תוכן ארוך יותר (3 פסקאות ומעלה), הוסף עיצוב סימון: n - השתמש בכותרות (## או ###) כדי לארגן חלקים n - השתמש בנקודות תבליטים או רשימות ממוספרות היכן שמתאים - השתמש בפורמט **מודגש קצר יותר** לפורמט מינימלי של מפתח, n שמור על המשמעות המקורית והצג- אל תוסיף תוכן שלא היה במקור- החזר רק את ההערה המעוצבת ללא כל פרשנות"
   are_a_text_enhancement_assistant_improve_the: "אתה עוזר לשיפור טקסט. שפר את הדקדוק, הפיסוק והעיצוב של הטקסט שסופק תוך שמירה על המשמעות והטון המקוריים שלו. החזר רק את הטקסט המשופר ללא כל פרשנות נוספת."
   can_change_these_anytime_from_the_menu_bar_s: "אתה יכול לשנות אותם בכל עת משורת התפריטים ← הגדרות ← מקשי קיצור"
   re_all_set: "אתה מוכן!"

@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation cần một số quyền để hoạt động.
     Sự riêng tư của bạn luôn được tôn trọng.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation cần có quyền Trợ năng để chèn văn bản vào con trỏ của bạn.                          Để cấp quyền: 1. Nhấp vào \"Mở cài đặt hệ thống\" bên dưới 2. Nhấp vào nút + 3. Điều hướng đến ứng dụng được hiển thị trong Finder 4. Khởi động lại Superduper Dictation sau khi cấp quyền Nếu không có quyền này, văn bản sẽ chỉ được sao chép vào khay nhớ tạm của bạn.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation cần quyền truy cập micrô để ghi âm và chép lại giọng nói của bạn.nnVui lòng cấp quyền trong Cài đặt hệ thống."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation cần quyền truy cập micrô để ghi âm và chép lại giọng nói của bạn.\n\nVui lòng cấp quyền trong Cài đặt hệ thống."
   on_github: "Ghim trên GitHub"
   orb: "Quả cầu Superduper Dictation"
   pill: "Thuốc nhỏ giọt"
@@ -1074,7 +1094,7 @@ please:
     Vui lòng tải xuống mẫu Whisper trong Cài đặt trước khi ghi.
     
     Vào Cài đặt → Kiểu máy để tải xuống kiểu máy.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Vui lòng tải xuống mô hình Whisper trong Cài đặt trước khi ghi.nnVào Cài đặt → Mô hình để tải xuống mô hình."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Vui lòng tải xuống mô hình Whisper trong Cài đặt trước khi ghi.\n\nVào Cài đặt → Mô hình để tải xuống mô hình."
   wait: "Vui lòng chờ..."
 port:
   _self: "Cổng"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Hôm qua"
 you:
-  are_a_note_formatting_assistant_transform_th: "Bạn là trợ lý định dạng ghi chú. Chuyển văn bản được chép lại thành một ghi chú có cấu trúc tốt.nnQuy tắc:n- Sửa lỗi ngữ pháp, dấu câu và chính tản- Đối với nội dung dài hơn (từ 3 đoạn trở lên), thêm định dạng đánh dấu:n - Sử dụng tiêu đề (## hoặc ###) để sắp xếp các phầnn - Sử dụng dấu đầu dòng hoặc danh sách đánh số khi thích hợp - Sử dụng **in đậm** để nhấn mạnh các thuật ngữ chínhn- Đối với nội dung ngắn hơn, hãy giữ nội dung đơn giản với định dạng tối thiểun- Giữ nguyên ý nghĩa và âm điệu ban đầu- Không thêm nội dung mà không có trong bản gốc- Chỉ trả lại ghi chú đã định dạng mà không có bất kỳ bình luận nào"
+  are_a_note_formatting_assistant_transform_th: "Bạn là trợ lý định dạng ghi chú. Chuyển văn bản được chép lại thành một ghi chú có cấu trúc tốt.\n\nQuy tắc:\n- Sửa lỗi ngữ pháp, dấu câu và chính tả\n- Đối với nội dung dài hơn (từ 3 đoạn trở lên), thêm định dạng đánh dấu:n - Sử dụng tiêu đề (## hoặc ###) để sắp xếp các phầnn - Sử dụng dấu đầu dòng hoặc danh sách đánh số khi thích hợp - Sử dụng **in đậm** để nhấn mạnh các thuật ngữ chính\n- Đối với nội dung ngắn hơn, hãy giữ nội dung đơn giản với định dạng tối thiểu\n- Giữ nguyên ý nghĩa và âm điệu ban đầu- Không thêm nội dung mà không có trong bản gốc- Chỉ trả lại ghi chú đã định dạng mà không có bất kỳ bình luận nào"
   are_a_text_enhancement_assistant_improve_the: "Bạn là một trợ lý nâng cao văn bản. Cải thiện ngữ pháp, dấu câu và định dạng của văn bản được cung cấp trong khi vẫn giữ nguyên ý nghĩa và giọng điệu ban đầu của nó. Chỉ trả lại văn bản nâng cao mà không có bất kỳ bình luận bổ sung nào."
   can_change_these_anytime_from_the_menu_bar_s: "Bạn có thể thay đổi những điều này bất cứ lúc nào từ thanh menu → Cài đặt → Phím nóng"
   re_all_set: "Bạn đã hoàn tất!"

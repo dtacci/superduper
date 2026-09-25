@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation이 작동하려면 몇 가지 권한이 필요합니다.
     귀하의 개인 정보는 항상 존중됩니다.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation이 커서에 텍스트를 삽입하려면 접근성 권한이 필요합니다.                          권한을 부여하려면: 1. 아래의 \"시스템 설정 열기\"를 클릭합니다. 2. + 버튼을 클릭합니다. 3. Finder에 표시된 앱으로 이동합니다. 4. 권한 부여 후 Superduper Dictation을 다시 시작합니다. 이 권한이 없으면 텍스트가 클립보드에만 복사됩니다.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation이 음성을 녹음하고 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다.nn시스템 설정에서 권한을 부여하세요."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation이 음성을 녹음하고 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다.\n\n시스템 설정에서 권한을 부여하세요."
   on_github: "GitHub의 핀드롭"
   orb: "Superduper Dictation 오브"
   pill: "핀드롭 알약"
@@ -1074,7 +1094,7 @@ please:
     녹음하기 전에 설정에서 Whisper 모델을 다운로드하세요.
     
     설정 → 모델로 이동하여 모델을 다운로드하세요.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "녹음하기 전에 설정에서 Whisper 모델을 다운로드하세요.nn모델을 다운로드하려면 설정 → 모델로 이동하세요."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "녹음하기 전에 설정에서 Whisper 모델을 다운로드하세요.\n\n모델을 다운로드하려면 설정 → 모델로 이동하세요."
   wait: "기다리세요..."
 port:
   _self: "포트"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "어제"
 you:
-  are_a_note_formatting_assistant_transform_th: "당신은 노트 서식 도우미입니다. 전사된 텍스트를 잘 구조화된 노트로 변환합니다.nn규칙:n- 문법, 구두점 및 철자 오류 수정n- 긴 콘텐츠(3개 이상의 단락)의 경우 마크다운 서식 추가:n - 헤더(## 또는 ###)를 사용하여 섹션 구성n - 적절한 경우 글머리 기호 또는 번호 매기기 목록 사용 - 핵심 용어 강조를 위해 **굵게** 사용n- 짧은 콘텐츠의 경우 최소한의 서식으로 단순하게 유지n- 원래 의미와 어조 유지- 다음과 같은 내용을 추가하지 마세요. 원본에는 없었습니다. - 설명 없이 형식화된 메모만 반환합니다."
+  are_a_note_formatting_assistant_transform_th: "당신은 노트 서식 도우미입니다. 전사된 텍스트를 잘 구조화된 노트로 변환합니다.\n\n규칙:\n- 문법, 구두점 및 철자 오류 수정\n- 긴 콘텐츠(3개 이상의 단락)의 경우 마크다운 서식 추가:n - 헤더(## 또는 ###)를 사용하여 섹션 구성n - 적절한 경우 글머리 기호 또는 번호 매기기 목록 사용 - 핵심 용어 강조를 위해 **굵게** 사용\n- 짧은 콘텐츠의 경우 최소한의 서식으로 단순하게 유지\n- 원래 의미와 어조 유지- 다음과 같은 내용을 추가하지 마세요. 원본에는 없었습니다. - 설명 없이 형식화된 메모만 반환합니다."
   are_a_text_enhancement_assistant_improve_the: "당신은 텍스트 향상 도우미입니다. 제공된 텍스트의 원래 의미와 어조를 유지하면서 문법, 구두점, 서식을 개선합니다. 추가 설명 없이 향상된 텍스트만 반환합니다."
   can_change_these_anytime_from_the_menu_bar_s: "메뉴 모음 → 설정 → 단축키에서 언제든지 변경할 수 있습니다."
   re_all_set: "모든 준비가 완료되었습니다!"

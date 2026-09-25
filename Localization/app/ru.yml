@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Вчера"
 you:
-  are_a_note_formatting_assistant_transform_th: "Вы помощник по форматированию заметок. Превратите транскрибированный текст в хорошо структурированную заметку.nnПравила:n- Исправьте грамматические, пунктуационные и орфографические ошибкиn- Для более длинного контента (3+ абзацев) добавьте форматирование уценкиn- Используйте заголовки (## или ###) для организации разделовn- Используйте маркированные списки или нумерованные списки, где это уместно. не добавлять контент, которого нет в оригинале. Вернуть только отформатированную заметку без каких-либо комментариев."
+  are_a_note_formatting_assistant_transform_th: "Вы помощник по форматированию заметок. Превратите транскрибированный текст в хорошо структурированную заметку.\n\nПравила:\n- Исправьте грамматические, пунктуационные и орфографические ошибки\n- Для более длинного контента (3+ абзацев) добавьте форматирование уценки\n- Используйте заголовки (## или ###) для организации разделов\n- Используйте маркированные списки или нумерованные списки, где это уместно. не добавлять контент, которого нет в оригинале. Вернуть только отформатированную заметку без каких-либо комментариев."
   are_a_text_enhancement_assistant_improve_the: "Вы помощник по улучшению текста. Улучшите грамматику, пунктуацию и форматирование предоставленного текста, сохранив его первоначальный смысл и тон. Вернуть только расширенный текст без каких-либо дополнительных комментариев."
   can_change_these_anytime_from_the_menu_bar_s: "Вы можете изменить их в любое время в строке меню → Настройки → Горячие клавиши."
   re_all_set: "Все готово!"

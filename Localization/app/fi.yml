@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation tarvitsee muutaman käyttöoikeuden toimiakseen.
     Yksityisyyttäsi kunnioitetaan aina.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation tarvitsee esteettömyysoikeuden lisätäkseen tekstiä kohdistimeen.                          Luvan myöntäminen: 1. Napsauta \"Avaa järjestelmäasetukset\" alla. 2. Napsauta +-painiketta 3. Siirry Finderissa näkyvään sovellukseen 4. Käynnistä Superduper Dictation uudelleen luvan myöntämisen jälkeen Ilman tätä lupaa teksti kopioidaan vain leikepöydällesi.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation tarvitsee mikrofonin käyttöoikeuden äänittääkseen ja litteroidakseen äänesi.nnAnna lupa järjestelmäasetuksissa."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation tarvitsee mikrofonin käyttöoikeuden äänittääkseen ja litteroidakseen äänesi.\n\nAnna lupa järjestelmäasetuksissa."
   on_github: "Superduper Dictation GitHubissa"
   orb: "Superduper Dictation-pallo"
   pill: "Superduper Dictation-pilleri"
@@ -1074,7 +1094,7 @@ please:
     Lataa Whisper-malli asetuksista ennen tallennusta.
     
     Lataa malli siirtymällä kohtaan Asetukset → Mallit.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Lataa Whisper-malli asetuksista ennen tallennusta.nnSiirry kohtaan Asetukset → Mallit ladataksesi malli."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Lataa Whisper-malli asetuksista ennen tallennusta.\n\nSiirry kohtaan Asetukset → Mallit ladataksesi malli."
   wait: "Odota..."
 port:
   _self: "Portti"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Eilen"
 you:
-  are_a_note_formatting_assistant_transform_th: "Olet muistiinpanojen muotoiluavustaja. Muunna litteroitu teksti hyvin jäsennellyksi muistiinpanoksi.nnSäännöt:n- Korjaa kielioppi-, välimerkit ja kirjoitusvirheet avaintermien korostaminenn- Lyhyemmän sisällön pitäminen yksinkertaisena minimaalisella muotoilullan- Säilytä alkuperäinen merkitys ja sävy- Älä lisää sisältöä, joka ei ollut alkuperäisessä- Palauta vain muotoiltu huomautus ilman kommentteja"
+  are_a_note_formatting_assistant_transform_th: "Olet muistiinpanojen muotoiluavustaja. Muunna litteroitu teksti hyvin jäsennellyksi muistiinpanoksi.\n\nSäännöt:\n- Korjaa kielioppi-, välimerkit ja kirjoitusvirheet avaintermien korostaminen\n- Lyhyemmän sisällön pitäminen yksinkertaisena minimaalisella muotoilulla\n- Säilytä alkuperäinen merkitys ja sävy- Älä lisää sisältöä, joka ei ollut alkuperäisessä- Palauta vain muotoiltu huomautus ilman kommentteja"
   are_a_text_enhancement_assistant_improve_the: "Olet tekstinparannusavustaja. Paranna tarjotun tekstin kielioppia, välimerkkejä ja muotoilua säilyttäen samalla sen alkuperäinen merkitys ja sävy. Palauta vain paranneltu teksti ilman lisäkommentteja."
   can_change_these_anytime_from_the_menu_bar_s: "Voit muuttaa näitä milloin tahansa valikkoriviltä → Asetukset → Pikanäppäimet"
   re_all_set: "Kaikki on valmista!"
