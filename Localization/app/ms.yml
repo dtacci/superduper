@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation memerlukan beberapa kebenaran untuk berfungsi.
     Privasi anda sentiasa dihormati.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation memerlukan kebenaran Kebolehaksesan untuk memasukkan teks pada kursor anda.                          Untuk memberikan kebenaran: 1. Klik \"Buka Tetapan Sistem\" di bawah 2. Klik butang + 3. Navigasi ke apl yang ditunjukkan dalam Finder 4. Mulakan semula Superduper Dictation selepas memberikan kebenaran Tanpa kebenaran ini, teks hanya akan disalin ke papan keratan anda.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation memerlukan akses mikrofon untuk merakam dan menyalin suara anda.nnSila berikan kebenaran dalam Tetapan Sistem."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation memerlukan akses mikrofon untuk merakam dan menyalin suara anda.\n\nSila berikan kebenaran dalam Tetapan Sistem."
   on_github: "Superduper Dictation pada GitHub"
   orb: "Orb Superduper Dictation"
   pill: "Pil Superduper Dictation"
@@ -1074,7 +1094,7 @@ please:
     Sila muat turun model Whisper dalam Tetapan sebelum merakam.
     
     Pergi ke Tetapan → Model untuk memuat turun model.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Sila muat turun model Whisper dalam Tetapan sebelum merakam.nnPergi ke Tetapan → Model untuk memuat turun model."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Sila muat turun model Whisper dalam Tetapan sebelum merakam.\n\nPergi ke Tetapan → Model untuk memuat turun model."
   wait: "Sila tunggu..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Semalam"
 you:
-  are_a_note_formatting_assistant_transform_th: "Anda ialah pembantu pemformatan nota. Ubah teks yang ditranskripsikan kepada nota yang tersusun dengan baik.nnPeraturan:n- Betulkan kesilapan tatabahasa, tanda baca dan ejaann- Untuk kandungan yang lebih panjang (3+ perenggan), tambahkan pemformatan markdown:n - Gunakan pengepala (## atau ###) untuk menyusun bahagiann - Gunakan titik tumpu atau senarai bernombor yang sesuain - Gunakan **bold** untuk penegasan kandungan yang lebih ringkas dengan format P yang lebih pendek maksud dan nada asal- Jangan tambahkan kandungan yang tiada dalam asal- Kembalikan nota berformat sahaja tanpa sebarang ulasan"
+  are_a_note_formatting_assistant_transform_th: "Anda ialah pembantu pemformatan nota. Ubah teks yang ditranskripsikan kepada nota yang tersusun dengan baik.\n\nPeraturan:\n- Betulkan kesilapan tatabahasa, tanda baca dan ejaan\n- Untuk kandungan yang lebih panjang (3+ perenggan), tambahkan pemformatan markdown:n - Gunakan pengepala (## atau ###) untuk menyusun bahagiann - Gunakan titik tumpu atau senarai bernombor yang sesuain - Gunakan **bold** untuk penegasan kandungan yang lebih ringkas dengan format P yang lebih pendek maksud dan nada asal- Jangan tambahkan kandungan yang tiada dalam asal- Kembalikan nota berformat sahaja tanpa sebarang ulasan"
   are_a_text_enhancement_assistant_improve_the: "Anda ialah pembantu peningkatan teks. Tingkatkan tatabahasa, tanda baca dan pemformatan teks yang disediakan sambil mengekalkan makna dan nada asalnya. Kembalikan hanya teks yang dipertingkatkan tanpa sebarang ulasan tambahan."
   can_change_these_anytime_from_the_menu_bar_s: "Anda boleh menukarnya pada bila-bila masa dari bar menu → Tetapan → Hotkeys"
   re_all_set: "Anda Sudah Bersedia!"

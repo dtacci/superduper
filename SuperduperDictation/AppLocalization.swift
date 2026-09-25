@@ -7,7 +7,16 @@
 
 import AppKit
 import Foundation
+import os
 import SwiftUI
+
+/// Keys already reported missing this launch; views re-render often, and one
+/// warning per key is enough.
+private let reportedMissingLocalizationKeys = OSAllocatedUnfairLock(initialState: Set<String>())
+
+private nonisolated func shouldReportMissingLocalization(_ key: String) -> Bool {
+    reportedMissingLocalizationKeys.withLock { $0.insert(key).inserted }
+}
 
 nonisolated func localized(_ key: String, locale: Locale) -> String {
     let resolvedKey = LocalizationMetadata.stableKey(for: key)
@@ -15,16 +24,20 @@ nonisolated func localized(_ key: String, locale: Locale) -> String {
     let localizedValue = bundle.localizedString(forKey: resolvedKey, value: nil, table: nil)
 
     if bundle == Bundle.main {
-        Log.ui.warningVisible(
-            "No localization bundle found for locale=\(locale.identifier); key=\(resolvedKey)"
-        )
+        if shouldReportMissingLocalization("\(locale.identifier)|bundle") {
+            Log.ui.warningVisible(
+                "No localization bundle found for locale=\(locale.identifier); key=\(resolvedKey)"
+            )
+        }
         return Bundle.main.localizedString(forKey: resolvedKey, value: key, table: nil)
     }
 
     if localizedValue == resolvedKey {
-        Log.ui.warningVisible(
-            "Missing localized string for key=\(resolvedKey) locale=\(locale.identifier)"
-        )
+        if shouldReportMissingLocalization("\(locale.identifier)|\(resolvedKey)") {
+            Log.ui.warningVisible(
+                "Missing localized string for key=\(resolvedKey) locale=\(locale.identifier)"
+            )
+        }
         return Bundle.main.localizedString(forKey: resolvedKey, value: key, table: nil)
     }
 

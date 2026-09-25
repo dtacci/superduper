@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation necessita di alcune autorizzazioni per funzionare.
     La tua privacy è sempre rispettata.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation necessita dell'autorizzazione di accessibilità per inserire testo in corrispondenza del cursore.                          Per concedere l'autorizzazione: 1. Fai clic su \"Apri Impostazioni di sistema\" di seguito 2. Fai clic sul pulsante + 3. Passa all'app mostrata nel Finder 4. Riavvia Superduper Dictation dopo aver concesso l'autorizzazione Senza questa autorizzazione, il testo verrà solo copiato negli appunti.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation necessita dell'accesso al microfono per registrare e trascrivere la tua voce.nnConcedi l'autorizzazione nelle Impostazioni di sistema."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation necessita dell'accesso al microfono per registrare e trascrivere la tua voce.\n\nConcedi l'autorizzazione nelle Impostazioni di sistema."
   on_github: "Superduper Dictation su GitHub"
   orb: "Sfera Superduper Dictation"
   pill: "Pillola Superduper Dictation"
@@ -1074,7 +1094,7 @@ please:
     Scarica un modello Whisper in Impostazioni prima di registrare.
     
     Vai su Impostazioni → Modelli per scaricare un modello.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Scarica un modello Whisper in Impostazioni prima di registrare.nnVai a Impostazioni → Modelli per scaricare un modello."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Scarica un modello Whisper in Impostazioni prima di registrare.\n\nVai a Impostazioni → Modelli per scaricare un modello."
   wait: "Attendere prego..."
 port:
   _self: "Porta"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Ieri"
 you:
-  are_a_note_formatting_assistant_transform_th: "Sei un assistente per la formattazione delle note. Trasforma il testo trascritto in una nota ben strutturata.nnRegole:n- Correggi errori grammaticali, di punteggiatura e di ortografian- Per contenuti più lunghi (3+ paragrafi), aggiungi la formattazione markdown:n - Utilizza le intestazioni (## o ###) per organizzare le sezionin - Utilizza punti elenco o elenchi numerati ove appropriaton - Utilizza **grassetto** per enfatizzare i termini chiaven- Per contenuti più brevi, mantienili semplici con una formattazione miniman- Conserva il significato e il tono originali- Non aggiungere contenuto che non era nell'originalen- Restituisci solo la nota formattata senza alcun commento"
+  are_a_note_formatting_assistant_transform_th: "Sei un assistente per la formattazione delle note. Trasforma il testo trascritto in una nota ben strutturata.\n\nRegole:\n- Correggi errori grammaticali, di punteggiatura e di ortografia\n- Per contenuti più lunghi (3+ paragrafi), aggiungi la formattazione markdown:n - Utilizza le intestazioni (## o ###) per organizzare le sezionin - Utilizza punti elenco o elenchi numerati ove appropriaton - Utilizza **grassetto** per enfatizzare i termini chiave\n- Per contenuti più brevi, mantienili semplici con una formattazione minima\n- Conserva il significato e il tono originali- Non aggiungere contenuto che non era nell'originale\n- Restituisci solo la nota formattata senza alcun commento"
   are_a_text_enhancement_assistant_improve_the: "Sei un assistente per il miglioramento del testo. Migliora la grammatica, la punteggiatura e la formattazione del testo fornito preservandone il significato e il tono originali. Restituisce solo il testo arricchito senza alcun commento aggiuntivo."
   can_change_these_anytime_from_the_menu_bar_s: "Puoi modificarli in qualsiasi momento dalla barra dei menu → Impostazioni → Tasti di scelta rapida"
   re_all_set: "Sei tutto pronto!"

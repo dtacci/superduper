@@ -27,6 +27,16 @@ GENERATED_DIR = ROOT / "SuperduperDictation" / "Generated"
 
 APP_CATALOG = SOURCE_CATALOG_DIR / "Localizable.xcstrings"
 INFO_CATALOG = SOURCE_CATALOG_DIR / "InfoPlist.xcstrings"
+# The InfoPlist catalog must use the real (case-sensitive) Info.plist keys, or
+# macOS ignores the localized values; the YAML ids are lowercased.
+INFO_PLIST_KEYS = {
+    "cfbundledisplayname": "CFBundleDisplayName",
+    "cfbundlename": "CFBundleName",
+    "nsaudiocaptureusagedescription": "NSAudioCaptureUsageDescription",
+    "nshumanreadablecopyright": "NSHumanReadableCopyright",
+    "nsmicrophoneusagedescription": "NSMicrophoneUsageDescription",
+    "nsspeechrecognitionusagedescription": "NSSpeechRecognitionUsageDescription",
+}
 
 APP_YAML_DIR = SOURCE_TREE_DIR / "app"
 INFO_YAML_DIR = SOURCE_TREE_DIR / "infoplist"
@@ -444,7 +454,8 @@ def sync_catalog(domain_name: str, output_path: Path, domain_files: dict[str, di
                 }
             }
 
-        catalog["strings"][stable_id] = entry
+        catalog_key = INFO_PLIST_KEYS.get(stable_id, stable_id) if domain_name == "infoplist" else stable_id
+        catalog["strings"][catalog_key] = entry
 
     write_json(output_path, catalog)
 

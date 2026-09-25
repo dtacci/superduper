@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation potřebuje k práci několik oprávnění.
     Vaše soukromí je vždy respektováno.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation potřebuje oprávnění pro usnadnění přístupu, aby mohl vložit text na váš kurzor.                          Udělení oprávnění: 1. Klikněte na „Otevřít nastavení systému“ níže 2. Klikněte na tlačítko + 3. Přejděte do aplikace zobrazené ve Finderu 4. Po udělení oprávnění restartujte Superduper Dictation Bez tohoto oprávnění bude text zkopírován pouze do vaší schránky.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation potřebuje přístup k mikrofonu, aby mohl nahrávat a přepisovat váš hlas.nnUdělte prosím oprávnění v Nastavení systému."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation potřebuje přístup k mikrofonu, aby mohl nahrávat a přepisovat váš hlas.\n\nUdělte prosím oprávnění v Nastavení systému."
   on_github: "Superduper Dictation na GitHubu"
   orb: "Superduper Dictation Koule"
   pill: "Superduper Dictation pilulka"
@@ -1074,7 +1094,7 @@ please:
     Před nahráváním si prosím stáhněte model Whisper v Nastavení.
     
     Přejděte do Nastavení → Modely a stáhněte si model.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Před nahráváním si prosím stáhněte model Whisper v Nastavení.nnPřejděte do Nastavení → Modely a stáhněte si model."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Před nahráváním si prosím stáhněte model Whisper v Nastavení.\n\nPřejděte do Nastavení → Modely a stáhněte si model."
   wait: "Čekejte prosím..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Včera"
 you:
-  are_a_note_formatting_assistant_transform_th: "Jste asistent formátování poznámek. Transformujte přepsaný text do dobře strukturované poznámky.nnPravidla:n- Opravte gramatické, interpunkční a pravopisné chybyn- Pro delší obsah (3 a více odstavců) přidejte formátování markdown:n - Používejte záhlaví (## nebo ###) k uspořádání sekcín - Používejte odrážky nebo číslované seznamy tam, kde je to vhodné - Použijte **tučné** pro zdůraznění klíčových pojmů a zachování jednoduchého významu- tonen- Nepřidávejte obsah, který nebyl v originálen- Vraťte pouze formátovanou poznámku bez komentáře"
+  are_a_note_formatting_assistant_transform_th: "Jste asistent formátování poznámek. Transformujte přepsaný text do dobře strukturované poznámky.\n\nPravidla:\n- Opravte gramatické, interpunkční a pravopisné chyby\n- Pro delší obsah (3 a více odstavců) přidejte formátování markdown:n - Používejte záhlaví (## nebo ###) k uspořádání sekcín - Používejte odrážky nebo číslované seznamy tam, kde je to vhodné - Použijte **tučné** pro zdůraznění klíčových pojmů a zachování jednoduchého významu- tone\n- Nepřidávejte obsah, který nebyl v originále\n- Vraťte pouze formátovanou poznámku bez komentáře"
   are_a_text_enhancement_assistant_improve_the: "Jste asistent vylepšení textu. Vylepšete gramatiku, interpunkci a formátování poskytnutého textu při zachování jeho původního významu a tónu. Vrátit pouze vylepšený text bez dalšího komentáře."
   can_change_these_anytime_from_the_menu_bar_s: "Můžete je kdykoli změnit na liště nabídek → Nastavení → Klávesové zkratky"
   re_all_set: "Vše je připraveno!"

@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation heeft een paar machtigingen nodig om te werken.
     Uw privacy wordt altijd gerespecteerd.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation heeft toegankelijkheidstoestemming nodig om tekst bij uw cursor in te voegen.                          Om toestemming te verlenen: 1. Klik hieronder op \"Systeeminstellingen openen\" 2. Klik op de knop + 3. Navigeer naar de app die wordt weergegeven in Finder 4. Start Superduper Dictation opnieuw op nadat u toestemming hebt verleend Zonder deze toestemming wordt tekst alleen naar uw klembord gekopieerd.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation heeft microfoontoegang nodig om je stem op te nemen en te transcriberen.nnVerleen toestemming in Systeeminstellingen."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation heeft microfoontoegang nodig om je stem op te nemen en te transcriberen.\n\nVerleen toestemming in Systeeminstellingen."
   on_github: "Superduper Dictation op GitHub"
   orb: "Superduper Dictation-orb"
   pill: "Superduper Dictation-pil"
@@ -1074,7 +1094,7 @@ please:
     Download een Whisper-model in Instellingen voordat u gaat opnemen.
     
     Ga naar Instellingen → Modellen om een ​​model te downloaden.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Download een Whisper-model in Instellingen voordat u gaat opnemen.nnGa naar Instellingen → Modellen om een ​​model te downloaden."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Download een Whisper-model in Instellingen voordat u gaat opnemen.\n\nGa naar Instellingen → Modellen om een ​​model te downloaden."
   wait: "Even geduld a.u.b...."
 port:
   _self: "Poort"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Gisteren"
 you:
-  are_a_note_formatting_assistant_transform_th: "Je bent een assistent voor het opmaken van notities. Transformeer de getranscribeerde tekst in een goed gestructureerde notitie.nnRegels:n- Corrigeer grammatica-, interpunctie- en spelfoutenn- Voeg voor langere inhoud (3+ paragrafen) markdown-opmaak toe:n - Gebruik kopteksten (## of ###) om secties te ordenenn - Gebruik waar nodig opsommingstekens of genummerde lijstenn - Gebruik **vet** om de nadruk te leggen op belangrijke termenn- Houd het voor kortere inhoud simpel met minimale opmaakn- Behoud de oorspronkelijke betekenis en toon- Voeg geen inhoud toe die stond niet in het origineel. Geef alleen de opgemaakte notitie terug zonder enig commentaar"
+  are_a_note_formatting_assistant_transform_th: "Je bent een assistent voor het opmaken van notities. Transformeer de getranscribeerde tekst in een goed gestructureerde notitie.\n\nRegels:\n- Corrigeer grammatica-, interpunctie- en spelfouten\n- Voeg voor langere inhoud (3+ paragrafen) markdown-opmaak toe:n - Gebruik kopteksten (## of ###) om secties te ordenenn - Gebruik waar nodig opsommingstekens of genummerde lijstenn - Gebruik **vet** om de nadruk te leggen op belangrijke termen\n- Houd het voor kortere inhoud simpel met minimale opmaak\n- Behoud de oorspronkelijke betekenis en too\n- Voeg geen inhoud toe die stond niet in het origineel. Geef alleen de opgemaakte notitie terug zonder enig commentaar"
   are_a_text_enhancement_assistant_improve_the: "Je bent een tekstverbeteringsassistent. Verbeter de grammatica, interpunctie en opmaak van de aangeboden tekst met behoud van de oorspronkelijke betekenis en toon. Geef alleen de verbeterde tekst terug, zonder aanvullend commentaar."
   can_change_these_anytime_from_the_menu_bar_s: "U kunt deze op elk gewenst moment wijzigen via de menubalk → Instellingen → Sneltoetsen"
   re_all_set: "Je bent helemaal klaar!"

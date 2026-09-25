@@ -48,7 +48,7 @@ BUILD=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${APP_BUNDLE}/Conten
 
 echo -e "${GREEN}📦 Creating DMG for ${APP_NAME} v${VERSION} (${BUILD})${NC}"
 
-BACKGROUND_IMG="assets/images/dmg-background.png"
+BACKGROUND_IMG="assets/images/dmg-background.tiff"
 
 # Create DMG with create-dmg
 # Documentation: https://github.com/create-dmg/create-dmg

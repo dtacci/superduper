@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation har brug for et par tilladelser for at fungere.
     Dit privatliv respekteres altid.
   needs_accessibility_permission_to_insert: "\\\"\\\" Superduper Dictation har brug for tilgængelighedstilladelse for at indsætte tekst ved din markør.                          Sådan giver du tilladelse: 1. Klik på \\\"Åbn systemindstillinger\\\" nedenfor 2. Klik på knappen + 3. Naviger til appen vist i Finder 4. Genstart Superduper Dictation efter at have givet tilladelse Uden denne tilladelse vil tekst kun blive kopieret til din udklipsholder.             \\\"\\\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation har brug for mikrofonadgang for at optage og transskribere din stemme.nnGiv venligst tilladelse i Systemindstillinger."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation har brug for mikrofonadgang for at optage og transskribere din stemme.\n\nGiv venligst tilladelse i Systemindstillinger."
   on_github: "Superduper Dictation på GitHub"
   orb: "Superduper Dictation-kugle"
   pill: "Superduper Dictation pille"
@@ -1074,7 +1094,7 @@ please:
     Download venligst en Whisper-model i Indstillinger før optagelse.
     
     Gå til Indstillinger → Modeller for at downloade en model.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Download venligst en Whisper-model i Indstillinger før optagelse.nnGå til Indstillinger → Modeller for at downloade en model."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Download venligst en Whisper-model i Indstillinger før optagelse.\n\nGå til Indstillinger → Modeller for at downloade en model."
   wait: "Vent venligst..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "I går"
 you:
-  are_a_note_formatting_assistant_transform_th: "Du er en noteformateringsassistent. Omdan den transskriberede tekst til en velstruktureret note.nnRegler:n- Ret grammatik-, tegnsætnings- og stavefejln- For længere indhold (3+ afsnit), tilføj markdown-formatering:n - Brug overskrifter (## eller ###) til at organisere sektionern - Brug punktopstillinger eller nummererede lister, hvor det er passenden - Brug **kortere nøgleord** for at understrege,-n Bevar den oprindelige betydning og vis - Tilføj ikke indhold, der ikke var i originalen - Returner kun den formaterede note uden nogen kommentarer"
+  are_a_note_formatting_assistant_transform_th: "Du er en noteformateringsassistent. Omdan den transskriberede tekst til en velstruktureret note.\n\nRegler:\n- Ret grammatik-, tegnsætnings- og stavefejl\n- For længere indhold (3+ afsnit), tilføj markdown-formatering:n - Brug overskrifter (## eller ###) til at organisere sektionern - Brug punktopstillinger eller nummererede lister, hvor det er passenden - Brug **kortere nøgleord** for at understrege,-n Bevar den oprindelige betydning og vis - Tilføj ikke indhold, der ikke var i originalen - Returner kun den formaterede note uden nogen kommentarer"
   are_a_text_enhancement_assistant_improve_the: "Du er en tekstforbedringsassistent. Forbedre grammatikken, tegnsætningen og formateringen af ​​den medfølgende tekst, samtidig med at dens oprindelige betydning og tone bevares. Returner kun den forbedrede tekst uden yderligere kommentarer."
   can_change_these_anytime_from_the_menu_bar_s: "Du kan til enhver tid ændre disse fra menulinjen → Indstillinger → Genvejstaster"
   re_all_set: "Du er klar!"

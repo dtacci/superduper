@@ -470,17 +470,22 @@ final class ContextEngineService {
         return rect.isEmpty ? nil : rect
     }
 
+    /// Which app a snapshot failed in, so logs show where learning can't work.
+    private static var frontmostBundleIdentifier: String {
+        NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "unknown app"
+    }
+
     func captureFocusedTextSnapshot() -> FocusedTextSnapshot? {
         guard axProvider.isProcessTrusted() else {
             Log.context.infoVisible("Focused text snapshot unavailable: accessibility permission not granted")
             return nil
         }
         guard let appElement = axProvider.copyFrontmostApplication() else {
-            Log.context.debugVisible("Focused text snapshot unavailable: no frontmost application AX element")
+            Log.context.infoVisible("Focused text snapshot unavailable in \(Self.frontmostBundleIdentifier): no frontmost application AX element")
             return nil
         }
         guard let focusedElement = axProvider.elementAttribute(kAXFocusedUIElementAttribute, of: appElement) else {
-            Log.context.debugVisible("Focused text snapshot unavailable: no focused AX element")
+            Log.context.infoVisible("Focused text snapshot unavailable in \(Self.frontmostBundleIdentifier): no focused AX element")
             return nil
         }
 
@@ -493,7 +498,7 @@ final class ContextEngineService {
 
         guard let text = axProvider.stringAttribute(kAXValueAttribute, of: focusedElement),
               let selectedRange = axProvider.rangeAttribute(kAXSelectedTextRangeAttribute, of: focusedElement) else {
-            Log.context.debugVisible("Focused text snapshot unavailable: focused element does not expose text value and selected range")
+            Log.context.infoVisible("Focused text snapshot unavailable in \(Self.frontmostBundleIdentifier): focused element does not expose text value and selected range")
             return nil
         }
 

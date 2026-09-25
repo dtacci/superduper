@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation benötigt einige Berechtigungen, um zu funktionieren.
     Ihre Privatsphäre wird immer respektiert.
   needs_accessibility_permission_to_insert: "\"\"             Superduper Dictation benötigt die Bedienungshilfen-Berechtigung, um Text an Ihrem Cursor einzufügen.                          So erteilen Sie die Berechtigung:             1. Klicken Sie unten auf \"Systemeinstellungen öffnen\"             2. Klicken Sie auf die + Schaltfläche             3. Navigieren Sie zur im Finder angezeigten App             4. Starten Sie Superduper Dictation nach Erteilung der Berechtigung neu                          Ohne diese Berechtigung wird Text nur in Ihre Zwischenablage kopiert.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation benötigt Mikrofonzugriff, um Ihre Stimme aufzunehmen und zu transkribieren.nnBitte erteilen Sie die Berechtigung in den Systemeinstellungen."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation benötigt Mikrofonzugriff, um Ihre Stimme aufzunehmen und zu transkribieren.\n\nBitte erteilen Sie die Berechtigung in den Systemeinstellungen."
   on_github: "Superduper Dictation auf GitHub"
   orb: "Superduper Dictation-Orb"
   pill: "Superduper Dictation-Pille"
@@ -1074,7 +1094,7 @@ please:
     Bitte laden Sie ein Whisper-Modell in den Einstellungen herunter, bevor Sie aufnehmen.
     
     Gehen Sie zu Einstellungen → Modelle, um ein Modell herunterzuladen.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Bitte laden Sie ein Whisper-Modell in den Einstellungen herunter, bevor Sie aufnehmen.nnGehen Sie zu Einstellungen → Modelle, um ein Modell herunterzuladen."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Bitte laden Sie ein Whisper-Modell in den Einstellungen herunter, bevor Sie aufnehmen.\n\nGehen Sie zu Einstellungen → Modelle, um ein Modell herunterzuladen."
   wait: "Bitte warten..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Gestern"
 you:
-  are_a_note_formatting_assistant_transform_th: "Sie sind ein Notizformatierungsassistent. Transformieren Sie den transkribierten Text in eine gut strukturierte Notiz.nnRegeln:n- Korrigieren Sie Grammatik-, Zeichensetzungs- und Rechtschreibfehlern- Für längere Inhalte (3+ Absätze) fügen Sie Markdown-Formatierung hinzu :n  - Verwenden Sie Überschriften (## oder ###) zum Organisieren von Abschnittenn  - Verwenden Sie Aufzählungspunkte oder nummerierte Listen, wo angebrachtn  - Verwenden Sie **fett** zur Hervorhebung von Schlüsselbegriffenn- Für kürzere Inhalte halten Sie es mit minimalem Formatierung einfachn- Bewahren Sie die ursprüngliche Bedeutung und den Ton aufn- Fügen Sie keinen Inhalt hinzu, der nicht im Original warn- Geben Sie nur die formatierte Notiz ohne Kommentare zurück"
+  are_a_note_formatting_assistant_transform_th: "Sie sind ein Notizformatierungsassistent. Transformieren Sie den transkribierten Text in eine gut strukturierte Notiz.\n\nRegeln:\n- Korrigieren Sie Grammatik-, Zeichensetzungs- und Rechtschreibfehler\n- Für längere Inhalte (3+ Absätze) fügen Sie Markdown-Formatierung hinzu :\n  - Verwenden Sie Überschriften (## oder ###) zum Organisieren von Abschnitten\n  - Verwenden Sie Aufzählungspunkte oder nummerierte Listen, wo angebracht\n  - Verwenden Sie **fett** zur Hervorhebung von Schlüsselbegriffen\n- Für kürzere Inhalte halten Sie es mit minimalem Formatierung einfach\n- Bewahren Sie die ursprüngliche Bedeutung und den Ton auf\n- Fügen Sie keinen Inhalt hinzu, der nicht im Original war\n- Geben Sie nur die formatierte Notiz ohne Kommentare zurück"
   are_a_text_enhancement_assistant_improve_the: "Sie sind ein Textverbesserungsassistent. Verbessern Sie Grammatik, Zeichensetzung und Formatierung des bereitgestellten Texts und bewahren Sie dabei die ursprüngliche Bedeutung und den Ton. Geben Sie nur den verbesserten Text ohne zusätzliche Kommentare zurück."
   can_change_these_anytime_from_the_menu_bar_s: "Sie können diese jederzeit über die Menüleiste → Einstellungen → Tastenkürzel ändern"
   re_all_set: "Alles bereit!"

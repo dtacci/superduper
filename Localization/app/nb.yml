@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation trenger noen få tillatelser for å fungere.
     Personvernet ditt blir alltid respektert.
   needs_accessibility_permission_to_insert: "\"\" Superduper Dictation trenger tilgangstillatelse for å sette inn tekst ved markøren.                          For å gi tillatelse: 1. Klikk \"Åpne systeminnstillinger\" nedenfor 2. Klikk på +-knappen 3. Naviger til appen vist i Finder 4. Start Superduper Dictation på nytt etter å ha gitt tillatelse Uten denne tillatelsen vil teksten bare bli kopiert til utklippstavlen din.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation trenger mikrofontilgang for å ta opp og transkribere stemmen din.nnVennligst gi tillatelse i systeminnstillingene."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation trenger mikrofontilgang for å ta opp og transkribere stemmen din.\n\nVennligst gi tillatelse i systeminnstillingene."
   on_github: "Superduper Dictation på GitHub"
   orb: "Superduper Dictation-kule"
   pill: "Superduper Dictation pille"
@@ -1074,7 +1094,7 @@ please:
     Last ned en Whisper-modell i Innstillinger før opptak.
     
     Gå til Innstillinger → Modeller for å laste ned en modell.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Last ned en Whisper-modell i Innstillinger før opptak.nnGå til Innstillinger → Modeller for å laste ned en modell."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Last ned en Whisper-modell i Innstillinger før opptak.\n\nGå til Innstillinger → Modeller for å laste ned en modell."
   wait: "Vennligst vent..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "I går"
 you:
-  are_a_note_formatting_assistant_transform_th: "Du er en notatformateringsassistent. Forvandle den transkriberte teksten til et godt strukturert notat.nnRegler:n- Rett opp grammatikk-, tegnsettings- og stavefeiln- For lengre innhold (3+ avsnitt), legg til markdown-formatering:n - Bruk overskrifter (## eller ###) for å organisere seksjoner. minimal formateringn- Behold den opprinnelige betydningen og vis- Ikke legg til innhold som ikke var i originalen- Returner bare det formaterte notatet uten kommentarer"
+  are_a_note_formatting_assistant_transform_th: "Du er en notatformateringsassistent. Forvandle den transkriberte teksten til et godt strukturert notat.\n\nRegler:\n- Rett opp grammatikk-, tegnsettings- og stavefeil\n- For lengre innhold (3+ avsnitt), legg til markdown-formatering:n - Bruk overskrifter (## eller ###) for å organisere seksjoner. minimal formatering\n- Behold den opprinnelige betydningen og vis- Ikke legg til innhold som ikke var i originale\n- Returner bare det formaterte notatet uten kommentarer"
   are_a_text_enhancement_assistant_improve_the: "Du er en tekstforbedringsassistent. Forbedre grammatikken, tegnsettingen og formateringen av den angitte teksten samtidig som dens opprinnelige betydning og tone bevares. Returner bare den forbedrede teksten uten ytterligere kommentarer."
   can_change_these_anytime_from_the_menu_bar_s: "Du kan endre disse når som helst fra menylinjen → Innstillinger → Hurtigtaster"
   re_all_set: "Du er klar!"

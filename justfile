@@ -24,7 +24,7 @@ signing_disabled := 'CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING
 clean:
     @echo "🧹 Cleaning build artifacts..."
     rm -rf {{build_dir}}
-    rm -rf {{dmg_dir}}
+    rm -f {{dmg_dir}}/*.dmg
     rm -rf DerivedData
     @echo "✅ Clean complete"
 

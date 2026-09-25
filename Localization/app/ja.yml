@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "昨日"
 you:
-  are_a_note_formatting_assistant_transform_th: "あなたはメモの書式設定アシスタントです。転写されたテキストを適切に構造化されたメモに変換します。nnルール:n- 文法、句読点、およびスペルの誤りを修正しますn- 長いコンテンツ (3 段落以上) の場合は、マークダウン書式を追加します:n - ヘッダー (## または ###) を使用してセクションを整理しますn - 必要に応じて箇条書きまたは番号付きリストを使用しますn - 重要な用語を強調するには **太字** を使用しますn- 短いコンテンツの場合は、最小限の書式でシンプルにしますn- 元の意味と文体を維持します-元の内容にない内容を追加しないでください - コメントなしで書式設定されたメモのみを返します"
+  are_a_note_formatting_assistant_transform_th: "あなたはメモの書式設定アシスタントです。転写されたテキストを適切に構造化されたメモに変換します。\n\nルール:\n- 文法、句読点、およびスペルの誤りを修正します\n- 長いコンテンツ (3 段落以上) の場合は、マークダウン書式を追加します:n - ヘッダー (## または ###) を使用してセクションを整理しますn - 必要に応じて箇条書きまたは番号付きリストを使用しますn - 重要な用語を強調するには **太字** を使用します\n- 短いコンテンツの場合は、最小限の書式でシンプルにします\n- 元の意味と文体を維持します-元の内容にない内容を追加しないでください - コメントなしで書式設定されたメモのみを返します"
   are_a_text_enhancement_assistant_improve_the: "あなたはテキスト強化アシスタントです。提供されたテキストの元の意味と語調を維持しながら、文法、句読点、書式設定を改善します。追加のコメントなしで拡張テキストのみを返します。"
   can_change_these_anytime_from_the_menu_bar_s: "これらは、メニュー バー → 設定 → ホットキーからいつでも変更できます。"
   re_all_set: "準備は完了です!"

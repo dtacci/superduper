@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "เมื่อวาน"
 you:
-  are_a_note_formatting_assistant_transform_th: "คุณเป็นผู้ช่วยจัดรูปแบบบันทึกย่อ แปลงข้อความที่ถอดเสียงให้เป็นบันทึกที่มีโครงสร้างที่ดีnnกฎ:n- แก้ไขข้อผิดพลาดด้านไวยากรณ์ เครื่องหมายวรรคตอน และการสะกดคำn- สำหรับเนื้อหาที่ยาวกว่า (3 ย่อหน้าขึ้นไป) ให้เพิ่มการจัดรูปแบบมาร์กดาวน์:n - ใช้ส่วนหัว (## หรือ ###) เพื่อจัดระเบียบส่วนต่างๆn - ใช้สัญลักษณ์แสดงหัวข้อย่อยหรือรายการลำดับเลขตามความเหมาะสม - ใช้ **ตัวหนา** เพื่อเน้นคำสำคัญn- สำหรับเนื้อหาที่สั้นกว่า ให้เรียบง่ายโดยใช้การจัดรูปแบบน้อยที่สุดn- คงความหมายดั้งเดิมและโทนเสียงไว้- ทำ ไม่เพิ่มเนื้อหาที่ไม่ได้อยู่ในต้นฉบับ - ส่งกลับเฉพาะบันทึกย่อที่จัดรูปแบบแล้วโดยไม่มีคำอธิบายใดๆ"
+  are_a_note_formatting_assistant_transform_th: "คุณเป็นผู้ช่วยจัดรูปแบบบันทึกย่อ แปลงข้อความที่ถอดเสียงให้เป็นบันทึกที่มีโครงสร้างที่ดีnnกฎ:\n- แก้ไขข้อผิดพลาดด้านไวยากรณ์ เครื่องหมายวรรคตอน และการสะกดคำ\n- สำหรับเนื้อหาที่ยาวกว่า (3 ย่อหน้าขึ้นไป) ให้เพิ่มการจัดรูปแบบมาร์กดาวน์:n - ใช้ส่วนหัว (## หรือ ###) เพื่อจัดระเบียบส่วนต่างๆn - ใช้สัญลักษณ์แสดงหัวข้อย่อยหรือรายการลำดับเลขตามความเหมาะสม - ใช้ **ตัวหนา** เพื่อเน้นคำสำคัญ\n- สำหรับเนื้อหาที่สั้นกว่า ให้เรียบง่ายโดยใช้การจัดรูปแบบน้อยที่สุด\n- คงความหมายดั้งเดิมและโทนเสียงไว้- ทำ ไม่เพิ่มเนื้อหาที่ไม่ได้อยู่ในต้นฉบับ - ส่งกลับเฉพาะบันทึกย่อที่จัดรูปแบบแล้วโดยไม่มีคำอธิบายใดๆ"
   are_a_text_enhancement_assistant_improve_the: "คุณเป็นผู้ช่วยเพิ่มประสิทธิภาพข้อความ ปรับปรุงไวยากรณ์ เครื่องหมายวรรคตอน และการจัดรูปแบบของข้อความที่ให้ไว้โดยยังคงความหมายและน้ำเสียงดั้งเดิมไว้ ส่งกลับเฉพาะข้อความที่ได้รับการปรับปรุงโดยไม่มีคำอธิบายเพิ่มเติม"
   can_change_these_anytime_from_the_menu_bar_s: "คุณสามารถเปลี่ยนได้ตลอดเวลาจากแถบเมนู → การตั้งค่า → ปุ่มลัด"
   re_all_set: "คุณพร้อมแล้ว!"

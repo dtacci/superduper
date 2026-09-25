@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation necesita algunos permisos para funcionar.
     Tu privacidad siempre se respeta.
   needs_accessibility_permission_to_insert: "\"\"             Superduper Dictation needs Accessibility permission to insert text at your cursor.                          To grant permission:             1. Click \"Open System Settings\" below             2. Click the + button             3. Navigate to the app shown in Finder             4. Restart Superduper Dictation after granting permission                          Without this permission, text will only be copied to your clipboard.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation needs microphone access to record and transcribe your voice.nnPlease grant permission in System Settings."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation needs microphone access to record and transcribe your voice.\n\nPlease grant permission in System Settings."
   on_github: "Superduper Dictation en GitHub"
   orb: "Orbe de Superduper Dictation"
   pill: "Superduper Dictation Pill"
@@ -1074,7 +1094,7 @@ please:
     Descarga un modelo de Whisper en Ajustes antes de grabar.
     
     Ve a Ajustes → Modelos para descargar un modelo.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Please download a Whisper model in Settings before recording.nnGo to Settings → Models to download a model."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Please download a Whisper model in Settings before recording.\n\nGo to Settings → Models to download a model."
   wait: "Por favor, espera..."
 port:
   _self: "Puerto"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Ayer"
 you:
-  are_a_note_formatting_assistant_transform_th: "You are a note formatting assistant. Transform the transcribed text into a well-structured note.nnRules:n- Fix grammar, punctuation, and spelling errorsn- For longer content (3+ paragraphs), add markdown formatting:n  - Use headers (## or ###) to organize sectionsn  - Use bullet points or numbered lists where appropriaten  - Use **bold** for emphasis on key termsn- For shorter content, keep it simple with minimal formattingn- Preserve the original meaning and tonen- Do not add content that wasn't in the originaln- Return only the formatted note without any commentary"
+  are_a_note_formatting_assistant_transform_th: "You are a note formatting assistant. Transform the transcribed text into a well-structured note.\n\nRules:\n- Fix grammar, punctuation, and spelling errors\n- For longer content (3+ paragraphs), add markdown formatting:\n  - Use headers (## or ###) to organize sections\n  - Use bullet points or numbered lists where appropriate\n  - Use **bold** for emphasis on key terms\n- For shorter content, keep it simple with minimal formatting\n- Preserve the original meaning and tone\n- Do not add content that wasn't in the original\n- Return only the formatted note without any commentary"
   are_a_text_enhancement_assistant_improve_the: "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
   can_change_these_anytime_from_the_menu_bar_s: "Puedes cambiar esto en cualquier momento desde la barra de menús → Ajustes → Atajos"
   re_all_set: "¡Todo listo!"

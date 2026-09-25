@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation a besoin de quelques autorisations pour fonctionner.
     Votre vie privée est toujours respectée.
   needs_accessibility_permission_to_insert: "\"\"             Superduper Dictation a besoin de l'autorisation d'accessibilité pour insérer du texte à votre curseur.                          Pour accorder l'autorisation :             1. Cliquez sur \"Ouvrir les Paramètres Système\" ci-dessous             2. Cliquez sur le bouton +             3. Naviguez vers l'app affichée dans Finder             4. Redémarrez Superduper Dictation après avoir accordé l'autorisation                          Sans cette autorisation, le texte sera uniquement copié dans votre presse-papiers.             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation a besoin d'un accès au microphone pour enregistrer et transcrire votre voix.nnVeuillez accorder l'autorisation dans les Paramètres Système."
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation a besoin d'un accès au microphone pour enregistrer et transcrire votre voix.\n\nVeuillez accorder l'autorisation dans les Paramètres Système."
   on_github: "Superduper Dictation sur GitHub"
   orb: "Orbe Superduper Dictation"
   pill: "Pilule Superduper Dictation"
@@ -1074,7 +1094,7 @@ please:
     Veuillez télécharger un modèle Whisper dans les Paramètres avant d'enregistrer.
     
     Allez dans Paramètres → Modèles pour télécharger un modèle.
-  download_a_whisper_model_in_settings_befo_34e8a33c: "Veuillez télécharger un modèle Whisper dans les Paramètres avant d'enregistrer.nnAllez dans Paramètres → Modèles pour télécharger un modèle."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Veuillez télécharger un modèle Whisper dans les Paramètres avant d'enregistrer.\n\nAllez dans Paramètres → Modèles pour télécharger un modèle."
   wait: "Veuillez patienter..."
 port:
   _self: "Port"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "Hier"
 you:
-  are_a_note_formatting_assistant_transform_th: "Vous êtes un assistant de formatage de notes. Transformez le texte transcrit en une note bien structurée.nnRègles :n- Corrigez les erreurs de grammaire, de ponctuation et d'orthographen- Pour les contenus plus longs (3+ paragraphes), ajoutez du formatage markdown :n  - Utilisez des en-têtes (## ou ###) pour organiser les sectionsn  - Utilisez des puces ou des listes numérotées lorsque c'est approprién  - Utilisez le **gras** pour mettre en évidence les termes clésn- Pour les contenus plus courts, gardez-le simple avec un formatage minimaln- Préservez le sens et le ton originauxn- N'ajoutez pas de contenu qui n'était pas dans l'originaln- Retournez uniquement la note formatée sans aucun commentaire"
+  are_a_note_formatting_assistant_transform_th: "Vous êtes un assistant de formatage de notes. Transformez le texte transcrit en une note bien structurée.\n\nRègles :\n- Corrigez les erreurs de grammaire, de ponctuation et d'orthographe\n- Pour les contenus plus longs (3+ paragraphes), ajoutez du formatage markdown :\n  - Utilisez des en-têtes (## ou ###) pour organiser les sections\n  - Utilisez des puces ou des listes numérotées lorsque c'est approprié\n  - Utilisez le **gras** pour mettre en évidence les termes clés\n- Pour les contenus plus courts, gardez-le simple avec un formatage minimal\n- Préservez le sens et le ton originaux\n- N'ajoutez pas de contenu qui n'était pas dans l'original\n- Retournez uniquement la note formatée sans aucun commentaire"
   are_a_text_enhancement_assistant_improve_the: "Vous êtes un assistant d'amélioration de texte. Améliorez la grammaire, la ponctuation et le formatage du texte fourni tout en préservant son sens et son ton originaux. Retournez uniquement le texte amélioré sans aucun commentaire supplémentaire."
   can_change_these_anytime_from_the_menu_bar_s: "Vous pouvez modifier ces éléments à tout moment depuis la barre de menus → Paramètres → Raccourcis"
   re_all_set: "Tout est prêt !"

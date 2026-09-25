@@ -208,6 +208,26 @@ vocabulary_packs:
   rules_title: "Turn on “%@” automatically"
   section_meta: "Glossaries boosted on this Mac"
   title: "Vocabulary packs"
+app_misc:
+  clean_transcript: "Clean Transcript"
+  click_or_hold: "Click or hold "
+  click_or_press: "Click or press "
+  coming_soon: "%@ (Coming Soon)"
+  current: "Current"
+  d_d_mb: "%d / %d MB"
+  enable: "Enable"
+  failed_to_initialize_the_database_the_ap: "Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+  finish_the_active_transcription_before_s: "Finish the active transcription before starting another one."
+  media: "Media"
+  no_media_transcriptions: "No media transcriptions"
+  no_results: "No results"
+  search: "Search"
+  show_more_stats: "Show more stats"
+  speaker: "Speaker"
+  starting: "Starting…"
+  to_start_talking: " to start talking"
+  transcribe_options: "Transcribe options"
+  unknown_app: "Unknown App"
 0:
   m: "0 m"
 100:
@@ -1056,7 +1076,7 @@ superduper:
     Superduper Dictation 需要一些許可權才能工作。
     您的隱私始終受到尊重。
   needs_accessibility_permission_to_insert: "\"\"             Superduper Dictation 需要輔助功能許可權才能在您的游標處插入文字。                          授予許可權：             1. 點選下方\"開啟系統設定\"             2. 點選 + 按鈕             3. 導航到 Finder 中顯示的應用             4. 授予許可權後重新啟動 Superduper Dictation                          沒有此許可權，文字將只複製到您的剪貼簿。             \"\""
-  needs_microphone_access_to_record_and_tr: "Superduper Dictation 需要麥克風訪問許可權來錄製和轉錄您的語音。nn請在系統設定中授予許可權。"
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation 需要麥克風訪問許可權來錄製和轉錄您的語音。\n\n請在系統設定中授予許可權。"
   on_github: "GitHub 上的 Superduper Dictation"
   orb: "Superduper Dictation 光球"
   pill: "Superduper Dictation 膠囊"
@@ -1074,7 +1094,7 @@ please:
     請在錄製前在設定中下載 Whisper 模型。
     
     前往設定 → 模型下載模型。
-  download_a_whisper_model_in_settings_befo_34e8a33c: "請在錄製前在設定中下載 Whisper 模型。nn前往設定 → 模型下載模型。"
+  download_a_whisper_model_in_settings_befo_34e8a33c: "請在錄製前在設定中下載 Whisper 模型。\n\n前往設定 → 模型下載模型。"
   wait: "請稍候..."
 port:
   _self: "連接埠"
@@ -1730,7 +1750,7 @@ wpm:
 yesterday:
   _self: "昨天"
 you:
-  are_a_note_formatting_assistant_transform_th: "您是一名筆記格式化助手。將轉錄的文字轉換為結構良好的筆記。nn規則：n- 修正語法、標點和拼寫錯誤n- 對於較長的內容（3 段以上），新增 Markdown 格式：n  - 使用標題（## 或 ###）組織章節n  - 在適當的地方使用專案符號或編號列表n  - 使用 **粗體** 強調關鍵術語n- 對於較短的內容，保持簡單，儘量減少格式n- 保留原始含義和語氣n- 不要新增原始內容中沒有的內容n- 僅返回格式化後的筆記，不加任何評論"
+  are_a_note_formatting_assistant_transform_th: "您是一名筆記格式化助手。將轉錄的文字轉換為結構良好的筆記。\n\n規則：\n- 修正語法、標點和拼寫錯誤\n- 對於較長的內容（3 段以上），新增 Markdown 格式：\n  - 使用標題（## 或 ###）組織章節\n  - 在適當的地方使用專案符號或編號列表\n  - 使用 **粗體** 強調關鍵術語\n- 對於較短的內容，保持簡單，儘量減少格式\n- 保留原始含義和語氣\n- 不要新增原始內容中沒有的內容\n- 僅返回格式化後的筆記，不加任何評論"
   are_a_text_enhancement_assistant_improve_the: "您是一名文字增強助手。改進所提供文字的語法、標點和格式，同時保留其原始含義和語氣。僅返回增強後的文字，不加任何額外評論。"
   can_change_these_anytime_from_the_menu_bar_s: "您可以隨時從選單欄 → 設定 → 快捷鍵更改這些"
   re_all_set: "一切就緒！"
