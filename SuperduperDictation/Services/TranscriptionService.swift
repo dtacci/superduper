@@ -606,10 +606,13 @@ class TranscriptionService {
     /// "Me" and only the call (system) track is diarized for everyone else. Speaker
     /// detection problems never fail the meeting; they degrade to fewer labels.
     /// Other engines keep the per-turn path over the mixed track.
+    /// `callParticipantName` is the other person in a one-on-one call; everyone on the
+    /// call track is labeled with it.
     func transcribeMeeting(
         sources: MeetingAudioSources,
         options: TranscriptionOptions,
         expectedSpeakerCount: Int?,
+        callParticipantName: String? = nil,
         progressHandler: TranscriptionProgressHandler? = nil
     ) async throws -> TranscriptionOutput {
         try validateExpectedSpeakerCount(expectedSpeakerCount)
@@ -654,6 +657,7 @@ class TranscriptionService {
                     system: system,
                     options: options,
                     expectedSpeakerCount: expectedSpeakerCount,
+                    callParticipantName: callParticipantName,
                     progressHandler: progressHandler,
                     startedAt: startedAt
                 )
@@ -694,6 +698,7 @@ class TranscriptionService {
         system: Data,
         options: TranscriptionOptions,
         expectedSpeakerCount: Int?,
+        callParticipantName: String?,
         progressHandler: TranscriptionProgressHandler?,
         startedAt: Date
     ) async throws -> TranscriptionOutput {
@@ -727,14 +732,21 @@ class TranscriptionService {
             words: keptMicrophoneWords,
             speakerKeys: Array(repeating: Self.meetingMicrophoneSpeakerKey, count: keptMicrophoneWords.count)
         )
-        let systemKeys = MeetingTranscriptAssembler
+        var systemKeys = MeetingTranscriptAssembler
             .assignSpeakers(to: systemWords, segments: systemSegments, maximumDistance: .infinity)
             .map { $0 ?? Self.meetingUnattributedSpeakerKey }
+        if callParticipantName != nil {
+            systemKeys = MeetingTranscriptAssembler.collapsingToDominantSpeaker(
+                systemKeys,
+                unattributedKey: Self.meetingUnattributedSpeakerKey
+            )
+        }
         let systemTurns = MeetingTranscriptAssembler.turns(words: systemWords, speakerKeys: systemKeys)
 
         return makeMeetingTranscriptionOutput(
             turns: MeetingTranscriptAssembler.merged([microphoneTurns, systemTurns]),
-            diarizedSegments: systemSegments
+            diarizedSegments: systemSegments,
+            callParticipantName: callParticipantName
         )
     }
 
@@ -806,7 +818,8 @@ class TranscriptionService {
 
     private func makeMeetingTranscriptionOutput(
         turns: [MeetingTranscriptAssembler.Turn],
-        diarizedSegments: [SpeakerSegment]
+        diarizedSegments: [SpeakerSegment],
+        callParticipantName: String? = nil
     ) -> TranscriptionOutput {
         let identityMatchesByID = (try? matchedSpeakerIdentitiesByID(from: diarizedSegments)) ?? [:]
         let segmentsBySpeakerID = Dictionary(grouping: diarizedSegments, by: \.speaker.id)
@@ -825,7 +838,15 @@ class TranscriptionService {
                 speakerLabel = "Me"
                 profileID = SpeakerIdentityService.currentUserProfileID
             } else {
-                if let match = identityMatchesByID[turn.speakerKey] {
+                let match = identityMatchesByID[turn.speakerKey]
+                if let callParticipantName {
+                    // The invite says who's on the other end; a voice match only adds
+                    // their profile when it agrees.
+                    speakerLabel = callParticipantName
+                    profileID = match?.displayName.caseInsensitiveCompare(callParticipantName) == .orderedSame
+                        ? match?.profileID
+                        : nil
+                } else if let match {
                     speakerLabel = match.displayName
                     profileID = match.profileID
                 } else if let existing = genericLabelsByID[turn.speakerKey] {

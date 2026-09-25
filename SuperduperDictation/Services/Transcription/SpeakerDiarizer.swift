@@ -154,6 +154,16 @@ enum MeetingTranscriptAssembler {
         let text: String
     }
 
+    /// Every word goes to the most frequent diarized speaker. Used when the call track
+    /// is known to hold one person, so over-split voices become that one person.
+    static func collapsingToDominantSpeaker(_ keys: [String], unattributedKey: String) -> [String] {
+        let counts = Dictionary(keys.filter { $0 != unattributedKey }.map { ($0, 1) }, uniquingKeysWith: +)
+        guard let dominant = counts.max(by: { $0.value < $1.value || ($0.value == $1.value && $0.key > $1.key) })?.key else {
+            return keys
+        }
+        return Array(repeating: dominant, count: keys.count)
+    }
+
     /// Diarized speaker for each word: the turn containing the word's midpoint, else
     /// the nearest turn within `maximumDistance`, else nil.
     static func assignSpeakers(

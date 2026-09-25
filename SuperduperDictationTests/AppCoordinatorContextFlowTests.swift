@@ -823,6 +823,25 @@ struct AppCoordinatorContextFlowTests {
         #expect(AppCoordinator.calendarAttendeeNames(fromEventJSON: nil).isEmpty)
     }
 
+    @Test func oneOnOneEventsNameTheOtherPerson() {
+        func event(_ attendees: String, organizer: String = #"{"email":"me@example.com","self":true}"#) -> String {
+            #"{"attendees":[{"email":"me@example.com","self":true},\#(attendees)],"organizer":\#(organizer)}"#
+        }
+
+        #expect(AppCoordinator.oneOnOneParticipantName(fromEventJSON: event(#"{"email":"russ@livekit.io","displayName":"Russ D'Sa"}"#)) == "Russ D'Sa")
+        // Organizer listed again as an attendee, a room, and someone who declined don't count.
+        #expect(AppCoordinator.oneOnOneParticipantName(fromEventJSON: event(
+            #"{"email":"Ana@x.com"},{"email":"room@x.com","resource":true},{"email":"bo@x.com","responseStatus":"declined"}"#,
+            organizer: #"{"email":"ana@x.com","displayName":"Ana Lopez"}"#
+        )) == "Ana Lopez")
+        #expect(AppCoordinator.oneOnOneParticipantName(fromEventJSON: event(#"{"email":"ana.lopez@x.com"}"#)) == "Ana Lopez")
+        // Group calls, shared inboxes, and solo events aren't one-on-ones.
+        #expect(AppCoordinator.oneOnOneParticipantName(fromEventJSON: event(#"{"email":"a@x.com"},{"email":"b@x.com"}"#)) == nil)
+        #expect(AppCoordinator.oneOnOneParticipantName(fromEventJSON: event(#"{"email":"team@x.com"}"#)) == nil)
+        #expect(AppCoordinator.oneOnOneParticipantName(fromEventJSON: #"{"attendees":[]}"#) == nil)
+        #expect(AppCoordinator.oneOnOneParticipantName(fromEventJSON: nil) == nil)
+    }
+
     // Workspace events often have emails but no display names.
     @Test func namesAreDerivedFromPersonalEmailAddresses() {
         #expect(AppCoordinator.nameFromEmailAddress("russ.dsa@livekit.io") == "Russ Dsa")
