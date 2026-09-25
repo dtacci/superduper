@@ -1319,3 +1319,86 @@ private extension NSRange {
         location + length
     }
 }
+
+/// Corrections worth learning from a hand-edited transcript: small word swaps that
+/// look like mishearings ("Rust" → "Russ", "TNC" → "Teensy", "live kit" →
+/// "LiveKit"), not rewording ("going" → "heading") or capitalization fixes.
+@MainActor
+enum TranscriptCorrectionLearner {
+    static let maximumCorrections = 5
+
+    static func corrections(
+        original: String,
+        edited: String,
+        isWord: (String) -> Bool = ParakeetEngine.isEverydayWord
+    ) -> [LearnedCorrectionCandidate] {
+        let before = tokens(in: original)
+        let after = tokens(in: edited)
+        let difference = after.difference(from: before)
+        var removed = Set<Int>()
+        var inserted = Set<Int>()
+        for change in difference {
+            switch change {
+            case .remove(let offset, _, _): removed.insert(offset)
+            case .insert(let offset, _, _): inserted.insert(offset)
+            }
+        }
+
+        var results: [LearnedCorrectionCandidate] = []
+        var i = 0
+        var j = 0
+        while i < before.count || j < after.count {
+            if i < before.count, j < after.count, !removed.contains(i), !inserted.contains(j) {
+                i += 1
+                j += 1
+                continue
+            }
+            var oldSpan: [String] = []
+            var newSpan: [String] = []
+            while i < before.count, removed.contains(i) { oldSpan.append(before[i]); i += 1 }
+            while j < after.count, inserted.contains(j) { newSpan.append(after[j]); j += 1 }
+            if oldSpan.isEmpty && newSpan.isEmpty {
+                // Shouldn't happen; step past to avoid looping.
+                i += 1
+                j += 1
+                continue
+            }
+            if let candidate = learnable(oldSpan, newSpan, isWord: isWord),
+               !results.contains(candidate) {
+                results.append(candidate)
+            }
+        }
+        return Array(results.prefix(maximumCorrections))
+    }
+
+    private static func learnable(_ oldSpan: [String], _ newSpan: [String], isWord: (String) -> Bool) -> LearnedCorrectionCandidate? {
+        guard (1...3).contains(oldSpan.count), (1...2).contains(newSpan.count) else { return nil }
+        let original = oldSpan.joined(separator: " ")
+        let replacement = newSpan.joined(separator: " ")
+        guard original.lowercased() != replacement.lowercased(),
+              replacement.contains(where: \.isLetter) else {
+            return nil
+        }
+        let originalKey = ParakeetEngine.spellingKey(original)
+        let replacementKey = ParakeetEngine.spellingKey(replacement)
+        // "live kit" → "LiveKit" only changes spacing.
+        if originalKey == replacementKey {
+            return LearnedCorrectionCandidate(original: original, replacement: replacement)
+        }
+        let spokenOriginal = ParakeetEngine.isAcronym(original)
+            ? ParakeetEngine.spokenLetterNames(original.filter(\.isLetter))
+            : original
+        let soundsAlike = ParakeetEngine.phoneticSkeleton(spokenOriginal) == ParakeetEngine.phoneticSkeleton(replacement)
+        let looksAlike = ParakeetEngine.spellingSimilarity(original, replacement) >= 0.5
+        let isTerm = newSpan.contains { !isWord($0) }
+        guard soundsAlike || looksAlike || isTerm else { return nil }
+        return LearnedCorrectionCandidate(original: original, replacement: replacement)
+    }
+
+    /// Words with surrounding punctuation removed ("D'Sa," → "D'Sa").
+    static func tokens(in text: String) -> [String] {
+        text.split(whereSeparator: \.isWhitespace)
+            .map { $0.trimmingCharacters(in: .punctuationCharacters.union(.symbols)) }
+            .filter { !$0.isEmpty }
+    }
+}

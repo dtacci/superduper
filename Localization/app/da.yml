@@ -193,6 +193,8 @@ vocabulary_packs:
   import_file: "Import pack file…"
   import_url: "Import pack from URL…"
   import_url_title: "Import pack from URL"
+  learned_many: "Added %d corrections to dictionary"
+  learned_one: "Added “%@” to dictionary"
   more: "More"
   rules_add_app: "Add app"
   rules_apps: "When dictating in"

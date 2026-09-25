@@ -1312,6 +1312,8 @@ enum LocalizationMetadata {
         "Add words the recognizer should trust, or replacements applied after transcription.": "u5_u7_add_words_or_replacements",
         "Add words to help Superduper Dictation recognize them properly": "add_words_to_help_superduper_recognize_them_properl",
         "Add words you manually correct into your vocabulary for future transcriptions.": "add_words_you_manually_correct_into_your_vocabul",
+        "Added %d corrections to dictionary": "vocabulary_packs_learned_many",
+        "Added “%@” to dictionary": "vocabulary_packs_learned_one",
         "Advanced": "advanced",
         "Advanced assignments": "u8_settings_advanced_assignments",
         "Agent Setup": "agent_setup",

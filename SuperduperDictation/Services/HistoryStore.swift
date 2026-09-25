@@ -11,6 +11,8 @@ import AppKit
 
 extension Notification.Name {
     static let historyStoreDidChange = Notification.Name("com.dantacci.superduper-dictation.historyStoreDidChange")
+    /// A transcript was edited by hand; userInfo has "originalText" and "editedText".
+    static let transcriptTextEdited = Notification.Name("com.dantacci.superduper-dictation.transcriptTextEdited")
     static let meetingStoreDidChange = Notification.Name("com.dantacci.superduper-dictation.meetingStoreDidChange")
 }
 
@@ -1077,6 +1079,11 @@ final class HistoryStore {
         }
 
         NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
+        NotificationCenter.default.post(
+            name: .transcriptTextEdited,
+            object: nil,
+            userInfo: ["originalText": oldText, "editedText": trimmedText]
+        )
 
         contributionService?.recordManualEdit(
             input: oldText,
