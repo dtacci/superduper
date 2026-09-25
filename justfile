@@ -1,4 +1,4 @@
-# Pindrop Build System
+# SuperduperDictation Build System
 # Requires: Xcode, create-dmg (brew install create-dmg)
 
 # Default recipe - show available commands
@@ -7,7 +7,7 @@ default:
 
 # Variables
 app_name := "Superduper Dictation"
-scheme := "Pindrop"
+scheme := "SuperduperDictation"
 build_dir := "DerivedData/Build/Products"
 release_dir := build_dir / "Release"
 app_bundle := release_dir / app_name + ".app"
@@ -15,7 +15,7 @@ dmg_dir := "dist"
 sparkle_tools_version := "2.8.1"
 
 # Build configuration
-xcode_project := "Pindrop.xcodeproj"
+xcode_project := "SuperduperDictation.xcodeproj"
 
 # Shared code-signing overrides for unsigned CI runners
 signing_disabled := 'CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO'
@@ -222,7 +222,7 @@ release version: _public-release-disabled
         exit 1
     fi
 
-    echo "🚀 Releasing Pindrop ${TAG}"
+    echo "🚀 Releasing SuperduperDictation ${TAG}"
     echo ""
 
     # Check for uncommitted changes
@@ -269,11 +269,11 @@ release version: _public-release-disabled
     # Feature releases (X.Y.0) must ship an updated in-app What's New announcement
     PATCH_COMPONENT="${VERSION##*.}"
     if [ "${PATCH_COMPONENT}" = "0" ]; then
-        if ! grep -q "Pindrop ${VERSION}" Pindrop/Models/Announcement.swift; then
-            echo "❌ AnnouncementCatalog.current does not reference Pindrop ${VERSION}."
+        if ! grep -q "SuperduperDictation ${VERSION}" SuperduperDictation/Models/Announcement.swift; then
+            echo "❌ AnnouncementCatalog.current does not reference SuperduperDictation ${VERSION}."
             echo "   Feature releases must update the in-app What's New announcement:"
-            echo "   1. Update AnnouncementCatalog in Pindrop/Models/Announcement.swift"
-            echo "      (new id, 'Pindrop ${VERSION} · <Month Year>' header, feature items)."
+            echo "   1. Update AnnouncementCatalog in SuperduperDictation/Models/Announcement.swift"
+            echo "      (new id, 'SuperduperDictation ${VERSION} · <Month Year>' header, feature items)."
             echo "   2. Update the 'whatsnew:' strings in Localization/app/*.yml for all locales."
             echo "   3. Run: just l10n-sync && just l10n-lint"
             exit 1
@@ -281,12 +281,12 @@ release version: _public-release-disabled
     fi
 
     # Get current version
-    CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-    CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+    CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' SuperduperDictation.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+    CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' SuperduperDictation.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
     LATEST_TAG=$(git tag --sort=-version:refname | head -1)
     LATEST_RELEASE_BUILD=""
     if [ -n "${LATEST_TAG}" ]; then
-        LATEST_RELEASE_BUILD=$(git show "${LATEST_TAG}:Pindrop.xcodeproj/project.pbxproj" 2>/dev/null | grep 'CURRENT_PROJECT_VERSION = ' | head -1 | sed 's/.*= \(.*\);/\1/' || true)
+        LATEST_RELEASE_BUILD=$(git show "${LATEST_TAG}:SuperduperDictation.xcodeproj/project.pbxproj" 2>/dev/null | grep 'CURRENT_PROJECT_VERSION = ' | head -1 | sed 's/.*= \(.*\);/\1/' || true)
     fi
     BASE_BUILD=${CURRENT_BUILD}
     if [ -n "${LATEST_RELEASE_BUILD}" ] && [ "${LATEST_RELEASE_BUILD}" -gt "${BASE_BUILD}" ]; then
@@ -310,12 +310,12 @@ release version: _public-release-disabled
 
         # Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project.pbxproj
         echo "📝 Updating version and build number in Xcode project..."
-        sed -i '' "s/MARKETING_VERSION = ${CURRENT_VERSION};/MARKETING_VERSION = ${VERSION};/g" Pindrop.xcodeproj/project.pbxproj
-        sed -i '' "s/CURRENT_PROJECT_VERSION = ${CURRENT_BUILD};/CURRENT_PROJECT_VERSION = ${NEXT_BUILD};/g" Pindrop.xcodeproj/project.pbxproj
+        sed -i '' "s/MARKETING_VERSION = ${CURRENT_VERSION};/MARKETING_VERSION = ${VERSION};/g" SuperduperDictation.xcodeproj/project.pbxproj
+        sed -i '' "s/CURRENT_PROJECT_VERSION = ${CURRENT_BUILD};/CURRENT_PROJECT_VERSION = ${NEXT_BUILD};/g" SuperduperDictation.xcodeproj/project.pbxproj
 
         # Verify the changes
-        NEW_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-        NEW_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+        NEW_VERSION=$(grep 'MARKETING_VERSION = ' SuperduperDictation.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+        NEW_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' SuperduperDictation.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
         if [ "$NEW_VERSION" != "$VERSION" ]; then
             echo "❌ Failed to update version"
             exit 1
@@ -328,7 +328,7 @@ release version: _public-release-disabled
 
         # Commit the version bump
         echo "📦 Committing version bump..."
-        git add Pindrop.xcodeproj/project.pbxproj
+        git add SuperduperDictation.xcodeproj/project.pbxproj
         git commit -m "chore: bump version to ${VERSION} (build ${NEXT_BUILD})"
     fi
 
@@ -376,7 +376,7 @@ release version: _public-release-disabled
     # Step 8: Create GitHub release and attach assets
     echo "📤 Creating GitHub release with DMG + appcast + release notes..."
     gh release create "${TAG}" "${DMG_PATH}" "${APPCAST_PATH}" "${NOTES_HTML_PATH}" \
-        --title "Pindrop ${TAG}" \
+        --title "SuperduperDictation ${TAG}" \
         --notes-file "${NOTES_PATH}"
 
     # Step 9: Sync release notes to the website changelog (best-effort, non-fatal)
@@ -400,8 +400,8 @@ release version: _public-release-disabled
 
 # Sync a release's notes into the website changelog collection
 # Copies release-notes/vX.Y.Z.md (with version/date frontmatter) into the
-# pindrop-website repo, commits just that file, and pushes so Vercel redeploys.
-# Website location defaults to ../pindrop-website; override with PINDROP_WEBSITE_DIR.
+# superduper-website repo, commits just that file, and pushes so Vercel redeploys.
+# Website location defaults to ../superduper-website; override with SUPERDUPER_WEBSITE_DIR.
 # Usage: just sync-website-changelog 1.22.0
 sync-website-changelog version: _public-release-disabled
     #!/usr/bin/env bash
@@ -409,7 +409,7 @@ sync-website-changelog version: _public-release-disabled
 
     VERSION="{{version}}"
     TAG="v${VERSION}"
-    SITE_DIR="${PINDROP_WEBSITE_DIR:-../pindrop-website}"
+    SITE_DIR="${SUPERDUPER_WEBSITE_DIR:-../superduper-website}"
     SRC="release-notes/${TAG}.md"
     DEST_REL="src/content/changelog/${TAG}.md"
     DEST="${SITE_DIR}/${DEST_REL}"
@@ -424,7 +424,7 @@ sync-website-changelog version: _public-release-disabled
     fi
     if [ ! -d "${SITE_DIR}/src/content/changelog" ]; then
         echo "❌ Website changelog directory not found: ${SITE_DIR}/src/content/changelog"
-        echo "   Clone pindrop-website next to this repo or set PINDROP_WEBSITE_DIR."
+        echo "   Clone superduper-website next to this repo or set SUPERDUPER_WEBSITE_DIR."
         exit 1
     fi
 
@@ -494,7 +494,7 @@ release-notes version:
     COMMITS=$(git log --no-merges --pretty=format:'- %s' "${PREV_TAG:+${PREV_TAG}..HEAD}" | head -8 || true)
     COMPARE_URL=""
     if [ -n "${PREV_TAG}" ]; then
-        COMPARE_URL="https://github.com/watzon/pindrop/compare/${PREV_TAG}...${TAG}"
+        COMPARE_URL="https://github.com/dtacci/superduper/compare/${PREV_TAG}...${TAG}"
     fi
 
     printf '%s\n' \
@@ -562,13 +562,13 @@ appcast dmg_path: _public-release-disabled
         rm -rf /tmp/Sparkle.tar.xz /tmp/sparkle-extract; \
         echo "✅ Sparkle tools downloaded to bin/"; \
     fi
-    @TAG_VERSION="v$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')"; \
+    @TAG_VERSION="v$(grep 'MARKETING_VERSION = ' SuperduperDictation.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')"; \
     NOTES_PATH="release-notes/${TAG_VERSION}.md"; \
     NOTES_ASSET="release-notes-${TAG_VERSION}.html"; \
     NOTES_OUTPUT="{{dmg_dir}}/${NOTES_ASSET}"; \
-    RELEASE_NOTES_URL="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/${NOTES_ASSET}"; \
-    RELEASE_PAGE_URL="https://github.com/watzon/pindrop/releases/tag/${TAG_VERSION}"; \
-    DOWNLOAD_PREFIX="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/"; \
+    RELEASE_NOTES_URL="https://github.com/dtacci/superduper/releases/download/${TAG_VERSION}/${NOTES_ASSET}"; \
+    RELEASE_PAGE_URL="https://github.com/dtacci/superduper/releases/tag/${TAG_VERSION}"; \
+    DOWNLOAD_PREFIX="https://github.com/dtacci/superduper/releases/download/${TAG_VERSION}/"; \
     echo "🔏 Signing DMG and generating appcast for ${TAG_VERSION}..."; \
     echo "🔗 Download prefix: ${DOWNLOAD_PREFIX}"; \
     mkdir -p "{{dmg_dir}}"; \

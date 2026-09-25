@@ -196,7 +196,7 @@ def main() -> int:
     parser.add_argument("--input", required=True, help="Path to the markdown release notes file")
     parser.add_argument("--output", required=True, help="Path to write the HTML output")
     parser.add_argument("--version", required=True, help="Display version for the HTML title")
-    parser.add_argument("--app-name", default="Pindrop", help="App name for the HTML title")
+    parser.add_argument("--app-name", default="SuperduperDictation", help="App name for the HTML title")
     args = parser.parse_args()
 
     input_path = Path(args.input)

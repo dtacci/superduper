@@ -1,0 +1,1659 @@
+//
+//  ModelManager.swift
+//  SuperduperDictation
+//
+//  Created on 2026-01-25.
+//
+
+import Foundation
+import WhisperKit
+import FluidAudio
+
+@MainActor
+@Observable
+class ModelManager {
+    enum DiarizationModelLayout: String, Equatable, Sendable {
+        /// FluidAudio 0.15.4's offline loader materializes Community-1 here.
+        case current = "speaker-diarization"
+        /// Older FluidAudio builds used the repository slug as the cache folder.
+        case legacy = "speaker-diarization-coreml"
+    }
+
+    enum DiarizationReadiness: Equatable, Sendable {
+        case ready(layout: DiarizationModelLayout)
+        case missing
+        case incomplete(layout: DiarizationModelLayout, missing: [String])
+        case corrupt(layout: DiarizationModelLayout, assets: [String])
+
+        var isReady: Bool {
+            if case .ready = self { return true }
+            return false
+        }
+
+        var requiresRepair: Bool {
+            switch self {
+            case .incomplete, .corrupt: return true
+            case .ready, .missing: return false
+            }
+        }
+    }
+
+    /// Optional telemetry peer, injected by AppCoordinator after construction.
+    /// Download start/failure signals are dropped entirely when nil or opted out.
+    @ObservationIgnored var telemetryService: TelemetryService?
+
+    nonisolated static let englishRecommendedModelNames = [
+        "parakeet-tdt-0.6b-v2",
+        "openai_whisper-large-v3-v20240930_626MB",
+        "apple_speech_on_device",
+        "openai_whisper-base.en",
+        "openai_whisper-small.en",
+        "openai_whisper-medium",
+        "openai_whisper-large-v3_turbo"
+    ]
+
+    nonisolated static let multilingualRecommendedModelNames = [
+        "openai_whisper-large-v3-v20240930_626MB",
+        "apple_speech_on_device",
+        "openai_whisper-base",
+        "openai_whisper-small",
+        "openai_whisper-medium",
+        "openai_whisper-large-v3_turbo",
+        "parakeet-tdt-0.6b-v3"
+    ]
+
+    nonisolated static let recommendedModelNames = englishRecommendedModelNames
+    nonisolated static let recommendedModelNameSet: Set<String> = Set(englishRecommendedModelNames)
+
+    
+    enum ModelProvider: String, CaseIterable, Sendable {
+        case whisperKit = "WhisperKit"
+        case parakeet = "Parakeet"
+        case senseVoice = "SenseVoice"
+        case appleSpeech = "Apple Speech"
+        case openAI = "OpenAI"
+        case elevenLabs = "ElevenLabs"
+        case groq = "Groq"
+
+        var isLocal: Bool {
+            switch self {
+            case .whisperKit, .parakeet, .senseVoice, .appleSpeech: return true
+            case .openAI, .elevenLabs, .groq: return false
+            }
+        }
+
+        var iconName: String {
+            switch self {
+            case .whisperKit: return "waveform"
+            case .parakeet: return "bird"
+            case .senseVoice: return "globe.asia.australia"
+            case .appleSpeech: return "apple.logo"
+            case .openAI: return "sparkles"
+            case .elevenLabs: return "waveform.circle"
+            case .groq: return "bolt"
+            }
+        }
+
+        var credentialStorageKey: String {
+            switch self {
+            case .openAI: return "openai"
+            case .elevenLabs: return "elevenlabs"
+            case .groq: return "groq"
+            case .whisperKit, .parakeet, .senseVoice, .appleSpeech:
+                return rawValue.lowercased().replacingOccurrences(of: " ", with: "-")
+            }
+        }
+    }
+    
+    enum ModelLanguage: String, Sendable {
+        case english = "English-only"
+        case multilingual = "Multilingual"
+    }
+
+    enum LanguageSupport: Sendable {
+        case englishOnly
+        case fullMultilingual
+        case parakeetV3European
+
+        enum BadgeTone: Sendable {
+            case normal
+            case caution
+        }
+
+        struct BadgePresentation: Sendable {
+            let iconName: String
+            let text: String
+            let tone: BadgeTone
+        }
+
+        func supports(_ language: AppLanguage) -> Bool {
+            guard language != .automatic else { return true }
+
+            switch self {
+            case .englishOnly:
+                return language.isEnglish
+            case .fullMultilingual:
+                return true
+            case .parakeetV3European:
+                switch language {
+                case .automatic, .english, .russian, .ukrainian, .spanish, .french, .german, .portugueseBrazil, .italian, .dutch, .turkish, .polish:
+                    return true
+                case .simplifiedChinese, .japanese, .korean, .hindi, .malayalam:
+                    return false
+                }
+            }
+        }
+
+        var badgeText: String {
+            switch self {
+            case .englishOnly:
+                return "English-only"
+            case .fullMultilingual:
+                return "Multilingual"
+            case .parakeetV3European:
+                return "European multilingual"
+            }
+        }
+
+        var badgeIconName: String {
+            switch self {
+            case .englishOnly:
+                return "textformat"
+            case .fullMultilingual, .parakeetV3European:
+                return "globe"
+            }
+        }
+
+        func badgePresentation(for language: AppLanguage) -> BadgePresentation {
+            BadgePresentation(
+                iconName: badgeIconName,
+                text: badgeText,
+                tone: supports(language) ? .normal : .caution
+            )
+        }
+    }
+    
+    enum ModelAvailability: Equatable, Sendable {
+        case available
+        case comingSoon
+        case requiresSetup
+    }
+
+    enum DownloadPhase: Equatable, Sendable {
+        case idle
+        case listing
+        case downloading(completedFiles: Int?, totalFiles: Int?)
+        case compiling(modelName: String?)
+        case preparing
+        case completed
+    }
+
+    struct DownloadSnapshot: Equatable, Sendable {
+        let modelName: String
+        let progress: Double
+        let phase: DownloadPhase
+    }
+    
+    struct WhisperModel: Identifiable, Equatable, Sendable {
+        let id: String
+        let name: String
+        let displayName: String
+        let sizeInMB: Int
+        let description: String
+        let speedRating: Double
+        let accuracyRating: Double
+        let language: ModelLanguage
+        let languageSupport: LanguageSupport
+        let provider: ModelProvider
+        let availability: ModelAvailability
+        
+        init(
+            name: String,
+            displayName: String,
+            sizeInMB: Int,
+            description: String = "",
+            speedRating: Double = 5.0,
+            accuracyRating: Double = 5.0,
+            language: ModelLanguage = .multilingual,
+            languageSupport: LanguageSupport? = nil,
+            provider: ModelProvider = .whisperKit,
+            availability: ModelAvailability = .available
+        ) {
+            self.id = name
+            self.name = name
+            self.displayName = displayName
+            self.sizeInMB = sizeInMB
+            self.description = description
+            self.speedRating = speedRating
+            self.accuracyRating = accuracyRating
+            self.language = language
+            self.languageSupport = languageSupport ?? (language == .english ? .englishOnly : .fullMultilingual)
+            self.provider = provider
+            self.availability = availability
+        }
+        
+        var formattedSize: String {
+            if sizeInMB >= 1000 {
+                return String(format: "%.1f GB", Double(sizeInMB) / 1000.0)
+            } else {
+                return "\(sizeInMB) MB"
+            }
+        }
+
+        func supports(language: AppLanguage) -> Bool {
+            languageSupport.supports(language)
+        }
+
+        func languageBadgePresentation(for language: AppLanguage) -> LanguageSupport.BadgePresentation {
+            languageSupport.badgePresentation(for: language)
+        }
+    }
+    
+    enum ModelError: Error, LocalizedError {
+        case modelNotFound(String)
+        case downloadFailed(String)
+        case deleteFailed(String)
+        case downloadNotImplemented(String)
+        
+        var errorDescription: String? {
+            switch self {
+            case .modelNotFound(let name):
+                return "Model '\(name)' not found"
+            case .downloadFailed(let message):
+                return "Download failed: \(message)"
+            case .deleteFailed(let message):
+                return "Delete failed: \(message)"
+            case .downloadNotImplemented(let provider):
+                return "Download for \(provider) models is not yet implemented"
+            }
+        }
+    }
+    
+    private let modelCatalog: [WhisperModel] = [
+        // Apple Speech (on-device, uses system models — no download required)
+        WhisperModel(
+            name: "apple_speech_on_device",
+            displayName: "Apple Speech",
+            sizeInMB: 0,
+            description: "Apple's built-in on-device speech recognition. No download required — uses system models.",
+            speedRating: 9.5,
+            accuracyRating: 8.0,
+            language: .multilingual,
+            languageSupport: .fullMultilingual,
+            provider: .appleSpeech,
+            availability: .available
+        ),
+
+        // WhisperKit Local Models
+        WhisperModel(
+            name: "openai_whisper-tiny",
+            displayName: "Whisper Tiny",
+            sizeInMB: 75,
+            description: "Fastest model, ideal for quick dictation with acceptable accuracy",
+            speedRating: 10.0,
+            accuracyRating: 6.0,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-tiny.en",
+            displayName: "Whisper Tiny (English)",
+            sizeInMB: 75,
+            description: "English-optimized tiny model with slightly better accuracy",
+            speedRating: 10.0,
+            accuracyRating: 6.5,
+            language: .english
+        ),
+        WhisperModel(
+            name: "openai_whisper-base",
+            displayName: "Whisper Base",
+            sizeInMB: 145,
+            description: "Good balance between speed and accuracy for everyday use",
+            speedRating: 9.0,
+            accuracyRating: 7.0,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-base.en",
+            displayName: "Whisper Base (English)",
+            sizeInMB: 145,
+            description: "English-optimized base model, recommended for most users",
+            speedRating: 9.0,
+            accuracyRating: 7.5,
+            language: .english
+        ),
+        WhisperModel(
+            name: "openai_whisper-small",
+            displayName: "Whisper Small",
+            sizeInMB: 483,
+            description: "Higher accuracy for complex vocabulary and technical terms",
+            speedRating: 7.5,
+            accuracyRating: 8.0,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-small_216MB",
+            displayName: "Whisper Small (Quantized)",
+            sizeInMB: 216,
+            description: "Quantized small model — half the size with similar accuracy",
+            speedRating: 8.0,
+            accuracyRating: 7.8,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-small.en",
+            displayName: "Whisper Small (English)",
+            sizeInMB: 483,
+            description: "English-optimized with excellent accuracy for professional use",
+            speedRating: 7.5,
+            accuracyRating: 8.5,
+            language: .english
+        ),
+        WhisperModel(
+            name: "openai_whisper-small.en_217MB",
+            displayName: "Whisper Small (English, Quantized)",
+            sizeInMB: 217,
+            description: "Quantized English small model — compact and fast",
+            speedRating: 8.0,
+            accuracyRating: 8.3,
+            language: .english
+        ),
+        WhisperModel(
+            name: "openai_whisper-medium",
+            displayName: "Whisper Medium",
+            sizeInMB: 1530,
+            description: "Excellent for multilingual and code-switching (e.g. Chinese/English mix)",
+            speedRating: 6.5,
+            accuracyRating: 8.8,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-medium.en",
+            displayName: "Whisper Medium (English)",
+            sizeInMB: 1530,
+            description: "English-optimized medium model with high accuracy",
+            speedRating: 6.5,
+            accuracyRating: 9.0,
+            language: .english
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v2",
+            displayName: "Whisper Large v2",
+            sizeInMB: 3100,
+            description: "Previous generation large model, still very capable",
+            speedRating: 5.0,
+            accuracyRating: 9.3,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v2_949MB",
+            displayName: "Whisper Large v2 (Quantized)",
+            sizeInMB: 949,
+            description: "Quantized large v2 — much smaller with minimal accuracy loss",
+            speedRating: 6.0,
+            accuracyRating: 9.1,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v2_turbo",
+            displayName: "Whisper Large v2 Turbo",
+            sizeInMB: 3100,
+            description: "Turbo-optimized large v2 for faster inference",
+            speedRating: 6.5,
+            accuracyRating: 9.3,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v2_turbo_955MB",
+            displayName: "Whisper Large v2 Turbo (Quantized)",
+            sizeInMB: 955,
+            description: "Quantized turbo large v2 — fast and compact",
+            speedRating: 7.0,
+            accuracyRating: 9.1,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3",
+            displayName: "Whisper Large v3",
+            sizeInMB: 3100,
+            description: "Maximum accuracy for demanding transcription tasks",
+            speedRating: 5.0,
+            accuracyRating: 9.7,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3_947MB",
+            displayName: "Whisper Large v3 (Quantized)",
+            sizeInMB: 947,
+            description: "Quantized large v3 — great accuracy in a smaller package",
+            speedRating: 6.0,
+            accuracyRating: 9.5,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3_turbo",
+            displayName: "Whisper Large v3 Turbo",
+            sizeInMB: 809,
+            description: "Near large-model accuracy with significantly faster processing",
+            speedRating: 7.5,
+            accuracyRating: 9.5,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3_turbo_954MB",
+            displayName: "Whisper Large v3 Turbo (Quantized)",
+            sizeInMB: 954,
+            description: "Quantized turbo v3 — balanced speed and accuracy",
+            speedRating: 7.5,
+            accuracyRating: 9.3,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3-v20240930",
+            displayName: "Whisper Large v3 (Sep 2024)",
+            sizeInMB: 3100,
+            description: "Updated large v3 with improved multilingual performance",
+            speedRating: 5.0,
+            accuracyRating: 9.8,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3-v20240930_547MB",
+            displayName: "Whisper Large v3 Sep 2024 (Q 547MB)",
+            sizeInMB: 547,
+            description: "Heavily quantized — smallest large v3 variant",
+            speedRating: 7.0,
+            accuracyRating: 9.3,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3-v20240930_626MB",
+            displayName: "Whisper Large v3 Sep 2024 (Q 626MB)",
+            sizeInMB: 626,
+            description: "Quantized Sep 2024 large v3 — compact with great accuracy",
+            speedRating: 6.5,
+            accuracyRating: 9.5,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3-v20240930_turbo",
+            displayName: "Whisper Large v3 Sep 2024 Turbo",
+            sizeInMB: 3100,
+            description: "Latest turbo-optimized large v3 — best overall performance",
+            speedRating: 6.5,
+            accuracyRating: 9.8,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3-v20240930_turbo_632MB",
+            displayName: "Whisper Large v3 Sep 2024 Turbo (Quantized)",
+            sizeInMB: 632,
+            description: "Quantized latest turbo — excellent accuracy in ~600MB",
+            speedRating: 7.5,
+            accuracyRating: 9.5,
+            language: .multilingual
+        ),
+        
+        // Distil-Whisper Models (distilled from large v3)
+        WhisperModel(
+            name: "distil-whisper_distil-large-v3",
+            displayName: "Distil Large v3",
+            sizeInMB: 1510,
+            description: "Distilled large v3 — faster with minimal accuracy loss",
+            speedRating: 7.5,
+            accuracyRating: 9.3,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "distil-whisper_distil-large-v3_594MB",
+            displayName: "Distil Large v3 (Quantized)",
+            sizeInMB: 594,
+            description: "Quantized distilled model — great speed/accuracy tradeoff",
+            speedRating: 8.0,
+            accuracyRating: 9.0,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "distil-whisper_distil-large-v3_turbo",
+            displayName: "Distil Large v3 Turbo",
+            sizeInMB: 1510,
+            description: "Turbo-optimized distilled model for fastest large-class inference",
+            speedRating: 8.0,
+            accuracyRating: 9.3,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "distil-whisper_distil-large-v3_turbo_600MB",
+            displayName: "Distil Large v3 Turbo (Quantized)",
+            sizeInMB: 600,
+            description: "Quantized turbo distilled — fastest large-class model at ~600MB",
+            speedRating: 8.5,
+            accuracyRating: 9.0,
+            language: .multilingual
+        ),
+        
+        // Parakeet Models (via FluidInference CoreML ports)
+        WhisperModel(
+            name: "parakeet-tdt-0.6b-v2",
+            displayName: "Parakeet TDT 0.6B V2",
+            sizeInMB: 450,
+            description: "NVIDIA's state-of-the-art speech recognition model, English-only",
+            speedRating: 8.5,
+            accuracyRating: 9.8,
+            language: .english,
+            provider: .parakeet,
+            availability: .available
+        ),
+        WhisperModel(
+            name: "parakeet-tdt-0.6b-v3",
+            displayName: "Parakeet TDT 0.6B V3",
+            sizeInMB: 2670,
+            description: "Latest Parakeet model with multilingual support",
+            speedRating: 8.0,
+            accuracyRating: 9.9,
+            language: .multilingual,
+            languageSupport: .parakeetV3European,
+            provider: .parakeet,
+            availability: .available
+        ),
+        WhisperModel(
+            name: "parakeet-tdt-1.1b",
+            displayName: "Parakeet TDT 1.1B",
+            sizeInMB: 4400,
+            description: "Larger Parakeet model with exceptional accuracy",
+            speedRating: 7.0,
+            accuracyRating: 9.95,
+            language: .english,
+            provider: .parakeet,
+            availability: .comingSoon
+        ),
+
+        // SenseVoice (FunASR via FluidAudio CoreML / ANE)
+        WhisperModel(
+            name: "sensevoice-small",
+            displayName: "SenseVoice Small",
+            sizeInMB: 230,
+            description: "FunASR SenseVoice-Small — ultra-fast non-autoregressive multilingual ASR with built-in punctuation (CoreML / Apple Neural Engine)",
+            speedRating: 9.8,
+            accuracyRating: 8.8,
+            language: .multilingual,
+            languageSupport: .fullMultilingual,
+            provider: .senseVoice,
+            availability: .available
+        ),
+        
+        // Cloud providers
+        WhisperModel(
+            name: "openai_gpt-4o-mini-transcribe",
+            displayName: "OpenAI GPT-4o Mini Transcribe",
+            sizeInMB: 0,
+            description: "OpenAI's recommended model for fast, accurate cloud transcription",
+            speedRating: 9.5,
+            accuracyRating: 9.8,
+            language: .multilingual,
+            provider: .openAI,
+            availability: .available
+        ),
+        WhisperModel(
+            name: "openai_gpt-4o-transcribe",
+            displayName: "OpenAI GPT-4o Transcribe",
+            sizeInMB: 0,
+            description: "High-quality cloud transcription through the OpenAI Audio API",
+            speedRating: 9.0,
+            accuracyRating: 9.6,
+            language: .multilingual,
+            provider: .openAI,
+            availability: .available
+        ),
+        WhisperModel(
+            name: "groq_whisper-large-v3-turbo",
+            displayName: "Whisper Large v3 Turbo (Groq)",
+            sizeInMB: 0,
+            description: "Lightning-fast cloud inference powered by Groq",
+            speedRating: 10.0,
+            accuracyRating: 9.5,
+            language: .multilingual,
+            provider: .groq,
+            availability: .comingSoon
+        ),
+        WhisperModel(
+            name: "elevenlabs_scribe",
+            displayName: "ElevenLabs Scribe",
+            sizeInMB: 0,
+            description: "High-quality transcription with speaker diarization",
+            speedRating: 8.0,
+            accuracyRating: 9.3,
+            language: .multilingual,
+            provider: .elevenLabs,
+            availability: .comingSoon
+        )
+    ]
+
+    /// This fork intentionally exposes on-device engines only. Keeping the full
+    /// catalog private makes a cloud model impossible to select through any UI or
+    /// automation surface while preserving the upstream provider abstractions.
+    var availableModels: [WhisperModel] {
+        modelCatalog.filter(\.provider.isLocal)
+    }
+
+    func recommendedModels(for language: AppLanguage) -> [WhisperModel] {
+        let recommendedModelNames: [String]
+        switch language {
+        case .english:
+            recommendedModelNames = Self.englishRecommendedModelNames
+        case .automatic, .russian, .ukrainian, .simplifiedChinese, .spanish, .french, .german, .turkish, .japanese, .portugueseBrazil, .italian, .dutch, .korean, .hindi, .malayalam, .polish:
+            recommendedModelNames = Self.multilingualRecommendedModelNames
+        }
+
+        let recommendationRanks = Dictionary(
+            uniqueKeysWithValues: recommendedModelNames.enumerated().map { index, name in
+                (name, index)
+            }
+        )
+
+        return availableModels
+            .filter { recommendedModelNames.contains($0.name) }
+            .filter { $0.supports(language: language) }
+            .sorted {
+                recommendationRanks[$0.name, default: .max] < recommendationRanks[$1.name, default: .max]
+            }
+    }
+
+    var recommendedModels: [WhisperModel] {
+        recommendedModels(for: .english)
+    }
+    
+    private(set) var downloadProgress: Double = 0.0
+    private(set) var isDownloading: Bool = false
+    private(set) var currentDownloadModel: String?
+    private(set) var downloadSnapshot: DownloadSnapshot?
+    private(set) var downloadedModelNames: Set<String> = []
+    
+    private(set) var featureDownloadProgress: Double = 0.0
+    private(set) var isDownloadingFeature: Bool = false
+    private(set) var currentDownloadingFeature: FeatureModelType?
+    private(set) var downloadedFeatureModels: Set<FeatureModelType> = []
+    
+    private let fileManager = FileManager.default
+    let localMeetingModelService = LocalMeetingModelService(
+        rootURL: ModelManager.meetingNotesModelRootURL
+    )
+    
+    /// Last decile (0...10) logged for WhisperKit file download progress to avoid log spam.
+    private var whisperKitDownloadLastLoggedDecile: Int = -1
+    
+    private var modelsBaseURL: URL {
+        fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
+    }
+
+    private var whisperKitModelsURL: URL {
+        modelsBaseURL
+            .appendingPathComponent("models", isDirectory: true)
+            .appendingPathComponent("argmaxinc", isDirectory: true)
+            .appendingPathComponent("whisperkit-coreml", isDirectory: true)
+    }
+    
+    private var parakeetModelsURL: URL {
+        modelsBaseURL.appendingPathComponent("FluidInference", isDirectory: true)
+                     .appendingPathComponent("parakeet-coreml", isDirectory: true)
+    }
+    
+    private var fluidAudioModelsURL: URL {
+        fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("FluidAudio", isDirectory: true)
+            .appendingPathComponent("Models", isDirectory: true)
+    }
+
+    /// Shared FluidAudio cache folder for SenseVoice-Small CoreML artifacts.
+    private var senseVoiceModelsURL: URL {
+        fluidAudioModelsURL.appendingPathComponent(
+            Repo.senseVoiceSmall.folderName,
+            isDirectory: true
+        )
+    }
+
+    private func localModelPath(for model: WhisperModel) -> URL? {
+        switch model.provider {
+        case .whisperKit:
+            return whisperKitModelsURL.appendingPathComponent(model.name, isDirectory: true)
+        case .parakeet:
+            // Resolve where the engine actually loads from (app folder or FluidAudio's
+            // shared cache) so delete/reveal act on the real files.
+            guard let version = ParakeetEngine.modelVersion(forModelName: model.name) else { return nil }
+            return ParakeetEngine.resolveModelDirectory(version: version, downloadBase: modelsBaseURL)
+                ?? ParakeetEngine.appModelDirectory(downloadBase: modelsBaseURL, version: version)
+        case .senseVoice:
+            // Only advertise a local path when the catalog int8 set is complete.
+            guard SenseVoiceModels.modelsExist(
+                at: senseVoiceModelsURL,
+                precision: SenseVoiceEngine.catalogPrecision
+            ) else {
+                return nil
+            }
+            return senseVoiceModelsURL
+        case .appleSpeech:
+            // Apple Speech uses system models; no local path to manage.
+            return nil
+        case .openAI, .elevenLabs, .groq:
+            return nil
+        }
+    }
+
+    func existingLocalModelPath(for modelName: String) -> URL? {
+        guard let model = availableModels.first(where: { $0.name == modelName }),
+              let modelPath = localModelPath(for: model) else {
+            return nil
+        }
+
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: modelPath.path, isDirectory: &isDirectory),
+              isDirectory.boolValue else {
+            return nil
+        }
+
+        return modelPath
+    }
+    
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
+    init() {
+        guard !Self.isPreview else { return }
+    }
+    
+    func refreshDownloadedModels() async {
+        var downloaded: Set<String> = []
+
+        let whisperKitPath = whisperKitModelsURL
+
+        if fileManager.fileExists(atPath: whisperKitPath.path) {
+            do {
+                let contents = try fileManager.contentsOfDirectory(atPath: whisperKitPath.path)
+                for folder in contents {
+                    if folder.hasPrefix(".") { continue }
+                    
+                    let folderPath = whisperKitPath.appendingPathComponent(folder).path
+                    var isDirectory: ObjCBool = false
+                    if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
+                        downloaded.insert(folder)
+                    }
+                }
+            } catch {
+                Log.model.error("Failed to list WhisperKit models: \(error)")
+            }
+        }
+        
+        // Parakeet counts as downloaded when a complete model set exists in either the
+        // app folder or FluidAudio's shared cache — the same lookup the engine loads from.
+        for model in availableModels where model.provider == .parakeet {
+            if let version = ParakeetEngine.modelVersion(forModelName: model.name),
+               ParakeetEngine.resolveModelDirectory(version: version, downloadBase: modelsBaseURL) != nil {
+                downloaded.insert(model.name)
+            }
+        }
+
+        // SenseVoice catalog entry is int8-only: discovery and load share the
+        // same precision decision so a fp16/fp32-only cache is never shown as ready.
+        if SenseVoiceModels.modelsExist(
+            at: senseVoiceModelsURL,
+            precision: SenseVoiceEngine.catalogPrecision
+        ) {
+            downloaded.insert("sensevoice-small")
+        }
+        
+        if downloaded != downloadedModelNames {
+            Log.model.debug("Found \(downloaded.count) downloaded models: \(downloaded)")
+        }
+        downloadedModelNames = downloaded
+    }
+    
+    func getDownloadedModels() async -> [WhisperModel] {
+        await refreshDownloadedModels()
+        return availableModels.filter { downloadedModelNames.contains($0.name) }
+    }
+    
+    func isModelDownloaded(_ modelName: String) -> Bool {
+        guard let model = availableModels.first(where: { $0.name == modelName }) else {
+            return false
+        }
+        // System and cloud models have no local asset to download.
+        if model.provider == .appleSpeech || (!model.provider.isLocal && model.availability == .available) {
+            return true
+        }
+        return downloadedModelNames.contains(modelName)
+    }
+
+    static func parakeetDownloadSnapshot(
+        modelName: String,
+        progress: DownloadUtils.DownloadProgress
+    ) -> DownloadSnapshot {
+        let phase: DownloadPhase
+
+        switch progress.phase {
+        case .listing:
+            phase = .listing
+        case .downloading(let completedFiles, let totalFiles):
+            phase = .downloading(completedFiles: completedFiles, totalFiles: totalFiles)
+        case .compiling(let modelName):
+            phase = .compiling(modelName: modelName)
+        }
+
+        return DownloadSnapshot(
+            modelName: modelName,
+            progress: progress.fractionCompleted,
+            phase: phase
+        )
+    }
+
+    static func whisperDownloadSnapshot(
+        modelName: String,
+        fileDownloadFraction: Double
+    ) -> DownloadSnapshot {
+        DownloadSnapshot(
+            modelName: modelName,
+            progress: fileDownloadFraction * 0.8,
+            phase: .downloading(completedFiles: nil, totalFiles: nil)
+        )
+    }
+
+    static func preparingDownloadSnapshot(
+        modelName: String,
+        progress: Double = 0.85
+    ) -> DownloadSnapshot {
+        DownloadSnapshot(modelName: modelName, progress: progress, phase: .preparing)
+    }
+
+    static func completedDownloadSnapshot(modelName: String) -> DownloadSnapshot {
+        DownloadSnapshot(modelName: modelName, progress: 1.0, phase: .completed)
+    }
+
+    func updateDownloadSnapshot(
+        _ snapshot: DownloadSnapshot,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) {
+        let clampedSnapshot = DownloadSnapshot(
+            modelName: snapshot.modelName,
+            progress: min(max(snapshot.progress, 0.0), 1.0),
+            phase: snapshot.phase
+        )
+
+        downloadSnapshot = clampedSnapshot
+        downloadProgress = clampedSnapshot.progress
+        onProgress?(clampedSnapshot)
+    }
+
+    func clearDownloadState(resetProgress: Bool) {
+        downloadSnapshot = nil
+        if resetProgress {
+            downloadProgress = 0.0
+        }
+    }
+    
+    func downloadModel(
+        named modelName: String,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) async throws {
+        guard let model = availableModels.first(where: { $0.name == modelName }) else {
+            throw ModelError.modelNotFound(modelName)
+        }
+
+        // Cloud models are remote and have no downloadable local asset.
+        guard model.provider.isLocal else { return }
+        
+        guard !isDownloading else {
+            Log.boot.error("downloadModel rejected: another download in progress current=\(currentDownloadModel ?? "nil")")
+            throw ModelError.downloadFailed("Another download is in progress")
+        }
+        
+        Log.boot.info("ModelManager.downloadModel begin name=\(modelName) provider=\(model.provider.rawValue)")
+        let downloadWallClock = CFAbsoluteTimeGetCurrent()
+
+        isDownloading = true
+        currentDownloadModel = modelName
+        clearDownloadState(resetProgress: true)
+
+        defer {
+            isDownloading = false
+            currentDownloadModel = nil
+        }
+
+        telemetryService?.send(
+            .modelDownloadStarted,
+            parameters: [TelemetryParameter.model: modelName]
+        )
+        do {
+            if model.provider == .parakeet {
+                try await downloadParakeetModel(named: modelName, onProgress: onProgress)
+            } else if model.provider == .senseVoice {
+                try await downloadSenseVoiceModel(named: modelName, onProgress: onProgress)
+            } else {
+                try await downloadWhisperKitModel(named: modelName, onProgress: onProgress)
+            }
+        } catch {
+            telemetryService?.send(
+                .modelDownloadFailed,
+                parameters: [
+                    TelemetryParameter.model: modelName,
+                    TelemetryParameter.errorCase: TelemetryService.errorCaseName(error)
+                ]
+            )
+            throw error
+        }
+        Log.boot.info("ModelManager.downloadModel finished OK name=\(modelName) wallClock=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - downloadWallClock))")
+    }
+    
+    private func downloadWhisperKitModel(
+        named modelName: String,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) async throws {
+        whisperKitDownloadLastLoggedDecile = -1
+        let pipelineStart = CFAbsoluteTimeGetCurrent()
+        do {
+            Log.model.info("Downloading WhisperKit model: \(modelName) to \(self.modelsBaseURL.path)")
+            Log.boot.info(
+                "WhisperKit pipeline begin variant=\(modelName) storageLeaf=Superduper Dictation/models/argmaxinc/whisperkit-coreml (under Application Support) uiProgressNote=0-80pct is file download 85-100pct is prewarm"
+            )
+            
+            let mkdirStart = CFAbsoluteTimeGetCurrent()
+            try fileManager.createDirectory(at: self.modelsBaseURL, withIntermediateDirectories: true)
+            Log.boot.info("WhisperKit storage directories ensured elapsed=\(String(format: "%.3fs", CFAbsoluteTimeGetCurrent() - mkdirStart))")
+            
+            let fileDownloadStart = CFAbsoluteTimeGetCurrent()
+            Log.boot.info("WhisperKit.download starting")
+            _ = try await WhisperKit.download(
+                variant: modelName,
+                downloadBase: self.modelsBaseURL,
+                progressCallback: { [weak self] progress in
+                    Task { @MainActor in
+                        guard let self else { return }
+                        let fraction = progress.fractionCompleted
+                        let decile = min(10, Int(fraction * 10.0001))
+                        if decile > self.whisperKitDownloadLastLoggedDecile || fraction >= 1.0 {
+                            self.whisperKitDownloadLastLoggedDecile = max(self.whisperKitDownloadLastLoggedDecile, decile)
+                            Log.boot.info("WhisperKit.download progress fraction=\(String(format: "%.3f", fraction)) uiMapped=\(String(format: "%.3f", fraction * 0.8))")
+                        }
+                        self.updateDownloadSnapshot(
+                            Self.whisperDownloadSnapshot(
+                                modelName: modelName,
+                                fileDownloadFraction: fraction
+                            ),
+                            onProgress: onProgress
+                        )
+                    }
+                }
+            )
+            Log.boot.info("WhisperKit.download finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - fileDownloadStart))")
+            
+            Log.model.info("Download complete, prewarming model...")
+            updateDownloadSnapshot(Self.preparingDownloadSnapshot(modelName: modelName), onProgress: onProgress)
+            Log.boot.info("Entering prewarm phase (WhisperKitConfig prewarm=true load=false) — UI shows ~85% \"Preparing Model\"")
+            
+            let prewarmStart = CFAbsoluteTimeGetCurrent()
+            let config = WhisperKitConfig(
+                model: modelName,
+                downloadBase: self.modelsBaseURL,
+                verbose: false,
+                logLevel: .none,
+                prewarm: true,
+                load: false
+            )
+            _ = try await WhisperKit(config)
+            Log.boot.info("WhisperKit prewarm (init) completed elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - prewarmStart))")
+            
+            Log.model.info("Model prewarmed successfully")
+            updateDownloadSnapshot(Self.completedDownloadSnapshot(modelName: modelName), onProgress: onProgress)
+            await refreshDownloadedModels()
+            Log.boot.info("WhisperKit pipeline success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart)) downloadedModelsCount=\(downloadedModelNames.count)")
+        } catch {
+            clearDownloadState(resetProgress: true)
+            let nsError = error as NSError
+            Log.boot.error(
+                "WhisperKit pipeline failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart)) domain=\(nsError.domain) code=\(nsError.code) description=\(error.localizedDescription)"
+            )
+            throw ModelError.downloadFailed(error.localizedDescription)
+        }
+    }
+    
+    private func downloadParakeetModel(
+        named modelName: String,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) async throws {
+        let pipelineStart = CFAbsoluteTimeGetCurrent()
+        Log.model.info("Parakeet model download requested: \(modelName)")
+        Log.model.info("Parakeet models path: \(self.parakeetModelsURL.path)")
+        Log.boot.info("Parakeet pipeline begin name=\(modelName)")
+        
+        let version: AsrModelVersion
+        if modelName.contains("v3") {
+            version = .v3
+        } else if modelName.contains("v2") {
+            version = .v2
+        } else {
+            throw ModelError.downloadFailed("Unknown Parakeet model version: \(modelName)")
+        }
+        
+        do {
+            try fileManager.createDirectory(at: parakeetModelsURL, withIntermediateDirectories: true)
+            Log.boot.info("Parakeet storage directory ready")
+        } catch {
+            Log.boot.error("Parakeet mkdir failed: \(error.localizedDescription)")
+            throw ModelError.downloadFailed("Failed to create Parakeet models directory: \(error.localizedDescription)")
+        }
+        
+        Log.model.info("Starting Parakeet model download (version: \(version == .v3 ? "v3" : "v2"))")
+        Log.boot.info("Parakeet AsrModels.downloadAndLoad starting version=\(version == .v3 ? "v3" : "v2")")
+        
+        do {
+            let targetDir = ParakeetEngine.appModelDirectory(downloadBase: modelsBaseURL, version: version)
+
+            let fetchStart = CFAbsoluteTimeGetCurrent()
+            _ = try await AsrModels.downloadAndLoad(
+                to: targetDir,
+                version: version,
+                progressHandler: { [weak self] progress in
+                    Task { @MainActor in
+                        guard let self else { return }
+                        self.updateDownloadSnapshot(
+                            Self.parakeetDownloadSnapshot(modelName: modelName, progress: progress),
+                            onProgress: onProgress
+                        )
+                    }
+                }
+            )
+            Log.boot.info("Parakeet AsrModels.downloadAndLoad finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - fetchStart))")
+            
+            Log.model.info("Parakeet model download complete")
+            updateDownloadSnapshot(Self.completedDownloadSnapshot(modelName: modelName), onProgress: onProgress)
+            
+            await refreshDownloadedModels()
+            Log.boot.info("Parakeet pipeline success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart))")
+        } catch {
+            clearDownloadState(resetProgress: true)
+            let nsError = error as NSError
+            Log.boot.error("Parakeet pipeline failed domain=\(nsError.domain) code=\(nsError.code) description=\(error.localizedDescription)")
+            Log.model.error("Parakeet model download failed: \(error.localizedDescription)")
+            throw ModelError.downloadFailed(error.localizedDescription)
+        }
+    }
+
+    private func downloadSenseVoiceModel(
+        named modelName: String,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) async throws {
+        let pipelineStart = CFAbsoluteTimeGetCurrent()
+        let precision = SenseVoiceEngine.catalogPrecision
+        let requiredArtifacts = SenseVoiceEngine.requiredDownloadArtifacts(precision: precision)
+        Log.model.info(
+            "SenseVoice model download requested: \(modelName) precision=\(precision.rawValue) artifacts=\(requiredArtifacts.sorted())"
+        )
+        Log.boot.info("SenseVoice pipeline begin name=\(modelName) precision=\(precision.rawValue)")
+
+        // Guard the catalog contract: int8 must never pull fp16/fp32 encoders.
+        #if DEBUG
+        assert(
+            !requiredArtifacts.contains(ModelNames.SenseVoice.encoderFile)
+                && !requiredArtifacts.contains(ModelNames.SenseVoice.encoderFp32File),
+            "SenseVoice int8 download set must not include fp16/fp32 encoders"
+        )
+        #endif
+
+        do {
+            try fileManager.createDirectory(at: fluidAudioModelsURL, withIntermediateDirectories: true)
+        } catch {
+            throw ModelError.downloadFailed(
+                "Failed to create SenseVoice models directory: \(error.localizedDescription)"
+            )
+        }
+
+        do {
+            let fetchStart = CFAbsoluteTimeGetCurrent()
+            // FluidAudio 0.15.4+ is precision-aware: variant=int8 fetches only
+            // preprocessor + SenseVoiceSmall_int8 (+ vocab.json as root aux).
+            _ = try await SenseVoiceModels.download(
+                precision: precision,
+                progressHandler: { [weak self] progress in
+                    Task { @MainActor in
+                        guard let self else { return }
+                        self.updateDownloadSnapshot(
+                            Self.parakeetDownloadSnapshot(modelName: modelName, progress: progress),
+                            onProgress: onProgress
+                        )
+                    }
+                }
+            )
+            Log.boot.info(
+                "SenseVoice download finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - fetchStart))"
+            )
+
+            guard SenseVoiceModels.modelsExist(at: senseVoiceModelsURL, precision: precision) else {
+                throw ModelError.downloadFailed(
+                    "SenseVoice int8 artifacts incomplete after download"
+                )
+            }
+
+            // Compile/load once so first dictation does not pay cold-start cost.
+            updateDownloadSnapshot(
+                Self.preparingDownloadSnapshot(modelName: modelName),
+                onProgress: onProgress
+            )
+            _ = try SenseVoiceModels.load(from: senseVoiceModelsURL, precision: precision)
+
+            updateDownloadSnapshot(Self.completedDownloadSnapshot(modelName: modelName), onProgress: onProgress)
+            await refreshDownloadedModels()
+            Log.boot.info(
+                "SenseVoice pipeline success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart))"
+            )
+        } catch {
+            clearDownloadState(resetProgress: true)
+            Log.model.error("SenseVoice model download failed: \(error.localizedDescription)")
+            if let modelError = error as? ModelError {
+                throw modelError
+            }
+            throw ModelError.downloadFailed(error.localizedDescription)
+        }
+    }
+    
+    func deleteModel(named modelName: String) async throws {
+        guard let model = availableModels.first(where: { $0.name == modelName }) else {
+            throw ModelError.modelNotFound(modelName)
+        }
+
+        guard let modelPath = localModelPath(for: model) else {
+            throw ModelError.deleteFailed("Model \(modelName) is not stored locally")
+        }
+
+        guard fileManager.fileExists(atPath: modelPath.path) else {
+            throw ModelError.modelNotFound(modelName)
+        }
+
+        do {
+            try fileManager.removeItem(at: modelPath)
+            await refreshDownloadedModels()
+        } catch {
+            throw ModelError.deleteFailed(error.localizedDescription)
+        }
+    }
+    
+    // MARK: - Feature Models
+
+    func isFeatureModelDownloaded(_ type: FeatureModelType) -> Bool {
+        downloadedFeatureModels.contains(type)
+    }
+
+    /// True when the specific streaming chunk variant matching `profile` is present on
+    /// disk. `isFeatureModelDownloaded(.streaming)` answers the broader "any variant is
+    /// present" question; this helper is for code paths that care which one.
+    func isStreamingChunkVariantDownloaded(_ profile: StreamingChunkProfile) -> Bool {
+        let folder = fluidAudioModelsURL.appendingPathComponent(profile.repoFolderName)
+        var isDirectory: ObjCBool = false
+        return fileManager.fileExists(atPath: folder.path, isDirectory: &isDirectory)
+            && isDirectory.boolValue
+    }
+
+    /// Complete offline Community-1 diarization readiness.
+    ///
+    /// Requires every CoreML asset in `ModelNames.OfflineDiarizer.requiredModels`
+    /// (excluding `plda-parameters.json`) under `speaker-diarization-coreml`, plus
+    /// `plda-parameters.json` in one of the three locations FluidAudio accepts.
+    /// Directory existence alone is not readiness.
+    ///
+    /// FluidAudio 0.15+ lists PLDA inside `requiredModels`; we still treat it as a
+    /// separate candidate check so root / coreml / offline-sibling placements all
+    /// remain valid — forcing PLDA only under coreml would make the other two
+    /// documented locations unreachable.
+    func isOfflineDiarizationReady() -> Bool {
+        offlineDiarizationReadiness(at: fluidAudioModelsURL).isReady
+    }
+
+    /// Reusable complete-asset check used by refresh, download completion, and preflight.
+    func isOfflineDiarizationModelsReady(at modelsRoot: URL) -> Bool {
+        offlineDiarizationReadiness(at: modelsRoot).isReady
+    }
+
+    /// Diagnoses both the FluidAudio 0.15.4 layout and the legacy repository-slug
+    /// layout. A compiled model directory must contain at least one non-empty file;
+    /// PLDA must be non-empty JSON. This prevents a partial interrupted download from
+    /// being advertised as ready merely because its directories exist.
+    func offlineDiarizationReadiness(at modelsRoot: URL) -> DiarizationReadiness {
+        let layouts: [(DiarizationModelLayout, URL)] = [
+            (.current, modelsRoot.appendingPathComponent(DiarizationModelLayout.current.rawValue, isDirectory: true)),
+            (.legacy, modelsRoot.appendingPathComponent(DiarizationModelLayout.legacy.rawValue, isDirectory: true)),
+        ]
+        let requiredModels = ModelNames.OfflineDiarizer.requiredModels.subtracting([
+            ModelNames.OfflineDiarizer.pldaParameters
+        ]).sorted()
+
+        var firstProblem: DiarizationReadiness?
+        for (layout, folder) in layouts {
+            var isDirectory: ObjCBool = false
+            guard fileManager.fileExists(atPath: folder.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+                continue
+            }
+
+            let missing = requiredModels.filter {
+                !fileManager.fileExists(atPath: folder.appendingPathComponent($0).path)
+            }
+            if !missing.isEmpty {
+                firstProblem = firstProblem ?? .incomplete(layout: layout, missing: missing)
+                continue
+            }
+
+            let corruptModels = requiredModels.filter {
+                !isNonemptyAsset(at: folder.appendingPathComponent($0))
+            }
+            if !corruptModels.isEmpty {
+                firstProblem = firstProblem ?? .corrupt(layout: layout, assets: corruptModels)
+                continue
+            }
+
+            let pldaCandidates = [
+                modelsRoot.appendingPathComponent("plda-parameters.json", isDirectory: false),
+                folder.appendingPathComponent(ModelNames.OfflineDiarizer.pldaParameters, isDirectory: false),
+                modelsRoot
+                    .appendingPathComponent("speaker-diarization-offline", isDirectory: true)
+                    .appendingPathComponent(ModelNames.OfflineDiarizer.pldaParameters, isDirectory: false),
+            ]
+            guard let pldaURL = pldaCandidates.first(where: { fileManager.fileExists(atPath: $0.path) }) else {
+                firstProblem = firstProblem ?? .incomplete(
+                    layout: layout,
+                    missing: [ModelNames.OfflineDiarizer.pldaParameters]
+                )
+                continue
+            }
+            guard isValidPLDAFile(at: pldaURL) else {
+                firstProblem = firstProblem ?? .corrupt(
+                    layout: layout,
+                    assets: [ModelNames.OfflineDiarizer.pldaParameters]
+                )
+                continue
+            }
+            return .ready(layout: layout)
+        }
+
+        return firstProblem ?? .missing
+    }
+
+    /// Removes diarization-owned cache entries only. Transcription, VAD, and
+    /// streaming assets under the same FluidAudio model root are left untouched.
+    func removeOfflineDiarizationAssets(at modelsRoot: URL) throws {
+        let targets = [
+            modelsRoot.appendingPathComponent(DiarizationModelLayout.current.rawValue, isDirectory: true),
+            modelsRoot.appendingPathComponent(DiarizationModelLayout.legacy.rawValue, isDirectory: true),
+            modelsRoot.appendingPathComponent("speaker-diarization-offline", isDirectory: true),
+            modelsRoot.appendingPathComponent(ModelNames.OfflineDiarizer.pldaParameters, isDirectory: false),
+        ]
+        for target in targets where fileManager.fileExists(atPath: target.path) {
+            try fileManager.removeItem(at: target)
+        }
+    }
+
+    func repairOfflineDiarizationModel(
+        onProgress: ((Double) -> Void)? = nil
+    ) async throws {
+        try removeOfflineDiarizationAssets(at: fluidAudioModelsURL)
+        downloadedFeatureModels.remove(.diarization)
+        try await downloadFeatureModel(.diarization, onProgress: onProgress)
+    }
+
+    private func isNonemptyAsset(at url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory) else { return false }
+        if !isDirectory.boolValue {
+            let size = (try? fileManager.attributesOfItem(atPath: url.path)[.size] as? NSNumber)?.int64Value ?? 0
+            return size > 0
+        }
+        guard let enumerator = fileManager.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else { return false }
+        for case let candidate as URL in enumerator {
+            guard let values = try? candidate.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]) else {
+                continue
+            }
+            if values.isRegularFile == true, (values.fileSize ?? 0) > 0 { return true }
+        }
+        return false
+    }
+
+    private func isValidPLDAFile(at url: URL) -> Bool {
+        guard let data = try? Data(contentsOf: url), !data.isEmpty,
+              (try? JSONSerialization.jsonObject(with: data)) != nil else {
+            return false
+        }
+        return true
+    }
+
+    func refreshDownloadedFeatureModels() async {
+        var downloaded: Set<FeatureModelType> = []
+
+        for type in FeatureModelType.allCases {
+            switch type {
+            case .streaming:
+                // Either chunk variant counts as "streaming downloaded" so toggling the
+                // low-latency setting doesn't silently mark the feature as missing.
+                if isStreamingChunkVariantDownloaded(.standard)
+                    || isStreamingChunkVariantDownloaded(.lowLatency) {
+                    downloaded.insert(type)
+                }
+            case .diarization:
+                if isOfflineDiarizationModelsReady(at: fluidAudioModelsURL) {
+                    downloaded.insert(type)
+                }
+            case .meetingNotes:
+                if case .ready = await localMeetingModelService.readiness() {
+                    downloaded.insert(type)
+                }
+            case .vad:
+                let repoFolder = fluidAudioModelsURL.appendingPathComponent(type.repoFolderName)
+                var isDirectory: ObjCBool = false
+                if fileManager.fileExists(atPath: repoFolder.path, isDirectory: &isDirectory),
+                   isDirectory.boolValue {
+                    downloaded.insert(type)
+                }
+            }
+        }
+
+        if downloaded != downloadedFeatureModels {
+            Log.model.debug("Found \(downloaded.count) downloaded feature models: \(downloaded)")
+        }
+        downloadedFeatureModels = downloaded
+    }
+
+    func downloadFeatureModel(
+        _ type: FeatureModelType,
+        streamingChunkProfile: StreamingChunkProfile = .standard,
+        onProgress: ((Double) -> Void)? = nil
+    ) async throws {
+        guard !isDownloadingFeature else {
+            throw ModelError.downloadFailed("Another feature download is in progress")
+        }
+
+        if type == .diarization, isOfflineDiarizationReady() {
+            featureDownloadProgress = 1.0
+            onProgress?(1.0)
+            downloadedFeatureModels.insert(.diarization)
+            return
+        }
+
+        isDownloadingFeature = true
+        currentDownloadingFeature = type
+        featureDownloadProgress = 0.0
+
+        defer {
+            isDownloadingFeature = false
+            currentDownloadingFeature = nil
+        }
+
+        Log.model.info("Downloading feature model: \(type.displayName)")
+
+        do {
+            switch type {
+            case .vad:
+                featureDownloadProgress = 0.1
+                onProgress?(0.1)
+                let _ = try await VadManager(config: .default)
+
+            case .diarization:
+                // Offline Community-1 assets: download/prewarm via OfflineDiarizerModels,
+                // bridge FluidAudio progress onto MainActor, and only mark complete once
+                // every required artifact is present. Discard the in-memory models after.
+                let progressHandler: DownloadUtils.ProgressHandler = { [weak self] progress in
+                    let fraction = min(max(progress.fractionCompleted, 0), 0.99)
+                    Task { @MainActor in
+                        guard let self,
+                              self.isDownloadingFeature,
+                              self.currentDownloadingFeature == .diarization else {
+                            return
+                        }
+                        // Never claim 1.0 from the handler — readiness sets that.
+                        self.featureDownloadProgress = fraction
+                        onProgress?(fraction)
+                    }
+                }
+                _ = try await OfflineDiarizerModels.load(
+                    from: OfflineDiarizerModels.defaultModelsDirectory(),
+                    progressHandler: progressHandler
+                )
+                guard isOfflineDiarizationModelsReady(at: fluidAudioModelsURL) else {
+                    featureDownloadProgress = 0.0
+                    onProgress?(0.0)
+                    throw ModelError.downloadFailed(
+                        "Speaker diarization model files are incomplete after download"
+                    )
+                }
+
+            case .streaming:
+                featureDownloadProgress = 0.1
+                onProgress?(0.1)
+                featureDownloadProgress = 0.3
+                onProgress?(0.3)
+                let repo: Repo = {
+                    switch streamingChunkProfile {
+                    case .standard: return .nemotronStreaming1120
+                    case .lowLatency: return .nemotronStreaming560
+                    }
+                }()
+                try await DownloadUtils.downloadRepo(
+                    repo,
+                    to: fluidAudioModelsURL
+                )
+            case .meetingNotes:
+                _ = try await localMeetingModelService.download { [weak self] progress in
+                    Task { @MainActor in
+                        guard let self,
+                              self.isDownloadingFeature,
+                              self.currentDownloadingFeature == .meetingNotes else { return }
+                        self.featureDownloadProgress = progress
+                        onProgress?(progress)
+                    }
+                }
+            }
+
+            featureDownloadProgress = 1.0
+            onProgress?(1.0)
+
+            Log.model.info("Feature model download complete: \(type.displayName)")
+            await refreshDownloadedFeatureModels()
+
+            // Diarization must still be marked ready after refresh; a race or partial
+            // cache must not leave the feature enabled with incomplete assets.
+            if type == .diarization, !downloadedFeatureModels.contains(.diarization) {
+                featureDownloadProgress = 0.0
+                onProgress?(0.0)
+                throw ModelError.downloadFailed(
+                    "Speaker diarization model files are incomplete after download"
+                )
+            }
+        } catch {
+            featureDownloadProgress = 0.0
+            Log.model.error("Feature model download failed: \(error.localizedDescription)")
+            if let modelError = error as? ModelError {
+                throw modelError
+            }
+            throw ModelError.downloadFailed(error.localizedDescription)
+        }
+    }
+}
+
+// MARK: - Meeting preflight
+
+protocol MeetingDiskSpaceProviding: Sendable {
+    func availableBytes(at url: URL) throws -> Int64
+}
+
+struct SystemMeetingDiskSpaceProvider: MeetingDiskSpaceProviding {
+    func availableBytes(at url: URL) throws -> Int64 {
+        let values = try url.resourceValues(forKeys: [
+            .volumeAvailableCapacityForImportantUsageKey,
+            .volumeAvailableCapacityKey,
+        ])
+        if let capacity = values.volumeAvailableCapacityForImportantUsage { return capacity }
+        return Int64(values.volumeAvailableCapacity ?? 0)
+    }
+}
+
+enum MeetingPreflightIssue: Equatable, Sendable {
+    case microphonePermission
+    case systemAudioPermission
+    case diarizationMissing
+    case diarizationNeedsRepair
+    case diarizationLoad(String)
+    case insufficientDiskSpace(requiredBytes: Int64, availableBytes: Int64)
+    case transcriptionModelMissing(String)
+
+    var requiresDiarizationRepair: Bool {
+        if case .diarizationNeedsRepair = self { return true }
+        return false
+    }
+
+    var message: String {
+        switch self {
+        case .microphonePermission:
+            return "Microphone permission is required for meeting recording."
+        case .systemAudioPermission:
+            return "Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again."
+        case .diarizationMissing:
+            return "Download the speaker diarization model before starting recording."
+        case .diarizationNeedsRepair:
+            return "The speaker diarization model is incomplete or corrupt. Repair it before recording."
+        case .diarizationLoad(let detail):
+            return "The speaker diarization model could not be loaded: \(detail)"
+        case .insufficientDiskSpace(let required, let available):
+            let requiredGB = Double(required) / 1_000_000_000
+            let availableGB = Double(max(0, available)) / 1_000_000_000
+            return String(format: "Meeting recording needs %.1f GB free; %.1f GB is available.", requiredGB, availableGB)
+        case .transcriptionModelMissing(let model):
+            return "Download the selected transcription model (\(model)) before starting the meeting."
+        }
+    }
+
+    func localizedMessage(locale: Locale) -> String {
+        switch self {
+        case .microphonePermission:
+            return localized("Microphone permission is required for meeting recording.", locale: locale)
+        case .systemAudioPermission:
+            return localized("Turn on System Audio Recording for Superduper Dictation in System Settings › Privacy & Security › Screen & System Audio Recording, then start the meeting again.", locale: locale)
+        case .diarizationMissing:
+            return localized("Download the speaker diarization model before starting recording.", locale: locale)
+        case .diarizationNeedsRepair:
+            return localized(
+                "The speaker diarization model is incomplete or corrupt. Repair it before recording.",
+                locale: locale
+            )
+        case .diarizationLoad(let detail):
+            return String(
+                format: localized("The speaker diarization model could not be loaded: %@", locale: locale),
+                detail
+            )
+        case .insufficientDiskSpace(let required, let available):
+            return String(
+                format: localized("Meeting recording needs %.1f GB free; %.1f GB is available.", locale: locale),
+                Double(required) / 1_000_000_000,
+                Double(max(0, available)) / 1_000_000_000
+            )
+        case .transcriptionModelMissing(let model):
+            return String(
+                format: localized(
+                    "Download the selected transcription model (%@) before starting the meeting.",
+                    locale: locale
+                ),
+                model
+            )
+        }
+    }
+}
+
+struct MeetingPreflightReport: Equatable, Sendable {
+    let issues: [MeetingPreflightIssue]
+    var isReady: Bool { issues.isEmpty }
+    var primaryIssue: MeetingPreflightIssue? { issues.first }
+}
+
+@MainActor
+final class MeetingPreflightService {
+    static let minimumAvailableDiskBytes: Int64 = 1_000_000_000
+
+    private let permissionProvider: any PermissionProviding
+    private let modelManager: ModelManager
+    private let diskSpaceProvider: any MeetingDiskSpaceProviding
+    private let workspaceURL: URL
+    private let diarizationLoader: () async throws -> Void
+
+    init(
+        permissionProvider: any PermissionProviding,
+        modelManager: ModelManager,
+        diskSpaceProvider: any MeetingDiskSpaceProviding = SystemMeetingDiskSpaceProvider(),
+        workspaceURL: URL = ManagedMediaLibrary.libraryBaseURL,
+        diarizationLoader: @escaping () async throws -> Void
+    ) {
+        self.permissionProvider = permissionProvider
+        self.modelManager = modelManager
+        self.diskSpaceProvider = diskSpaceProvider
+        self.workspaceURL = workspaceURL
+        self.diarizationLoader = diarizationLoader
+    }
+
+    func run(selectedTranscriptionModel: String) async -> MeetingPreflightReport {
+        var issues: [MeetingPreflightIssue] = []
+
+        if !(await permissionProvider.requestPermission()) {
+            issues.append(.microphonePermission)
+        }
+        if !(await permissionProvider.requestSystemAudioPermission()) {
+            issues.append(.systemAudioPermission)
+        }
+
+        await modelManager.refreshDownloadedFeatureModels()
+        switch modelManager.offlineDiarizationReadiness(at: modelManager.fluidAudioModelsRootURL) {
+        case .ready:
+            do {
+                try await diarizationLoader()
+            } catch {
+                issues.append(.diarizationLoad(error.localizedDescription))
+            }
+        case .missing:
+            issues.append(.diarizationMissing)
+        case .incomplete, .corrupt:
+            issues.append(.diarizationNeedsRepair)
+        }
+
+        await modelManager.refreshDownloadedModels()
+        if !modelManager.isModelDownloaded(selectedTranscriptionModel) {
+            issues.append(.transcriptionModelMissing(selectedTranscriptionModel))
+        }
+
+        do {
+            try FileManager.default.createDirectory(at: workspaceURL, withIntermediateDirectories: true)
+            let available = try diskSpaceProvider.availableBytes(at: workspaceURL)
+            if available < Self.minimumAvailableDiskBytes {
+                issues.append(.insufficientDiskSpace(
+                    requiredBytes: Self.minimumAvailableDiskBytes,
+                    availableBytes: available
+                ))
+            }
+        } catch {
+            issues.append(.insufficientDiskSpace(
+                requiredBytes: Self.minimumAvailableDiskBytes,
+                availableBytes: 0
+            ))
+        }
+
+        return MeetingPreflightReport(issues: issues)
+    }
+}
+
+extension ModelManager {
+    var fluidAudioModelsRootURL: URL { fluidAudioModelsURL }
+
+    nonisolated static var meetingNotesModelRootURL: URL {
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        return support
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
+            .appendingPathComponent("Models", isDirectory: true)
+            .appendingPathComponent("MeetingNotes", isDirectory: true)
+            .appendingPathComponent("Qwen3-4B-MLX-4bit", isDirectory: true)
+    }
+}

@@ -10,11 +10,9 @@ the active cursor. Successful transcripts are also saved in **History**. For a
 long-form conversation, press `Option+Shift+Space` or choose **Record Meeting**
 from the menu-bar dropdown.
 
-This is a focused fork of the MIT-licensed
-[Pindrop](https://github.com/watzon/pindrop) project. The Swift target and some
-source paths retain the `Pindrop` name to keep the fork maintainable; the
-product, bundle identifier, storage directory, and user-facing copy are
-Superduper Dictation.
+Superduper Dictation started as a fork of the MIT-licensed
+[Pindrop](https://github.com/watzon/pindrop) project and has since gone its own
+way: its own name, bundle identifier, storage, code, and features.
 
 ## Why this exists
 
@@ -202,7 +200,7 @@ Xcode is not an end-user requirement.
 
 ## Build from source
 
-Open `Pindrop.xcodeproj` in Xcode, select the `Pindrop` scheme, choose your
+Open `SuperduperDictation.xcodeproj` in Xcode, select the `SuperduperDictation` scheme, choose your
 personal development team if Xcode requests one, and press `Cmd+R`.
 
 For a command-line build, install [just](https://github.com/casey/just):
@@ -250,8 +248,8 @@ client ID in the Admin console under **Security → API controls**.
 
 A publisher build can instead ship its client ID and secret in
 `GoogleCalendarClientID` and `GoogleCalendarClientSecret` in
-`Pindrop/Info.plist`. Contributors can set `PINDROP_GOOGLE_CLIENT_ID` and
-`PINDROP_GOOGLE_CLIENT_SECRET` when launching a development build.
+`SuperduperDictation/Info.plist`. Contributors can set `SUPERDUPER_GOOGLE_CLIENT_ID` and
+`SUPERDUPER_GOOGLE_CLIENT_SECRET` when launching a development build.
 
 ### Meeting schedule
 
@@ -336,11 +334,11 @@ commits.
 ## Project layout
 
 ```text
-Pindrop/                    App source (inherited target name)
-Pindrop/Services/           Audio, transcription, storage, and integrations
-Pindrop/UI/                 SwiftUI and AppKit UI
-PindropTests/               Swift Testing unit suite
-PindropUITests/             XCTest UI suite
+SuperduperDictation/                    App source (inherited target name)
+SuperduperDictation/Services/           Audio, transcription, storage, and integrations
+SuperduperDictation/UI/                 SwiftUI and AppKit UI
+SuperduperDictationTests/               Swift Testing unit suite
+SuperduperDictationUITests/             XCTest UI suite
 Localization/               YAML-first localized strings
 scripts/                    Build, signing, and packaging helpers
 docs/                       Design, security, and research notes
@@ -390,7 +388,7 @@ license does not change the license of separately downloaded model weights.
 
 ## Acknowledgements
 
-- [Pindrop](https://github.com/watzon/pindrop), the upstream native app
+- [Pindrop](https://github.com/watzon/pindrop), the project this app was forked from
 - [WhisperKit](https://github.com/argmaxinc/WhisperKit)
 - [OpenAI Whisper](https://github.com/openai/whisper)
 - [FluidAudio](https://github.com/FluidInference/FluidAudio)

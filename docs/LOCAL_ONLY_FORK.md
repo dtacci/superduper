@@ -41,11 +41,11 @@ environment. See `SECURITY.md` for the maintained threat model.
 
 1. Install regular Xcode 16.4 or newer from Apple. Command Line Tools alone cannot
    build an Xcode application project.
-2. Open `Pindrop.xcodeproj`.
+2. Open `SuperduperDictation.xcodeproj`.
 3. If Xcode requests signing configuration, choose your personal development
-   team for the Pindrop target. The upstream maintainer's team identifier has
+   team for the SuperduperDictation target. The upstream maintainer's team identifier has
    been removed from this fork.
-4. Select the Pindrop scheme and run it.
+4. Select the SuperduperDictation scheme and run it.
 5. Complete onboarding, granting Microphone and Accessibility permissions.
 
 For an unsigned compile/test pass after Xcode is installed, install the `just`

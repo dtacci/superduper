@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "Μια εγγενής εφαρμογή υπαγόρευσης γραμμής μενού macOS που χρησιμοποιεί τοπική ομιλία σε κείμενο με το WhisperKit. 100% τοπική επεξεργασία από προεπιλογή με προαιρετική βελτίωση AI."
 about:
   _self: "Για"
-  pindrop: "Σχετικά με το Superduper Dictation"
+  superduper: "Σχετικά με το Superduper Dictation"
 accessibility:
   _self: "Προσιτότητα"
   permission: "Άδεια προσβασιμότητας"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Προσθέστε ελεύθερο χώρο"
   blank_lines_between_sentence_groups_in_longe: "Προσθέτει κενές γραμμές ανάμεσα σε ομάδες προτάσεων σε μεγαλύτερη υπαγόρευση. Πλήρως τοπικά, χωρίς AI."
   word_replacements_to_automatically_correct_c: "Προσθέστε αντικαταστάσεις λέξεων για αυτόματη διόρθωση συνηθισμένων σφαλμάτων μεταγραφής."
-  words_to_help_pindrop_recognize_them_properl: "Προσθέστε λέξεις για να βοηθήσετε τον Superduper Dictation να τις αναγνωρίσει σωστά"
+  words_to_help_superduper_recognize_them_properl: "Προσθέστε λέξεις για να βοηθήσετε τον Superduper Dictation να τις αναγνωρίσει σωστά"
   words_you_manually_correct_into_your_vocabul: "Προσθέστε λέξεις που διορθώνετε χειροκίνητα στο λεξιλόγιό σας για μελλοντικές μεταγραφές."
 advanced:
   _self: "Για προχωρημένους"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Αυτόματες ενημερώσεις και έλεγχοι μη αυτόματων ενημερώσεων"
 automatically:
   check_for_new_versions_in_the_back: "Αυτόματος έλεγχος για νέες εκδόσεις στο παρασκήνιο."
-  start_pindrop_when_you_sign_in: "Αυτόματη έναρξη του Superduper Dictation όταν συνδέεστε."
+  start_superduper_when_you_sign_in: "Αυτόματη έναρξη του Superduper Dictation όταν συνδέεστε."
 available:
   models: "Διαθέσιμα μοντέλα"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Αλλαγή μικροφώνου"
   your_choice_anytime_in_settings_privacy: "Αλλάξτε την επιλογή σας ανά πάσα στιγμή στις Ρυθμίσεις → Απόρρητο."
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
+  the_language_used_by_superduper_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "Ελέγξτε για ενημερώσεις..."
   for_updates_736b9062: "Ελέγξτε για ενημερώσεις"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Επιλέξτε μεταξύ Nemotron (με στίξη, μοντέλο με λήψη) και Apple SpeechTranscriber (macOS 26+, ενσωματωμένο στο σύστημα)."
   file: "Επιλέξτε αρχείο"
   how_dictated_text_lands_then_tune_the_fin: "Επιλέξτε τον τρόπο προσγείωσης του υπαγορευμένου κειμένου και, στη συνέχεια, συντονίστε την τελική συμπεριφορά εισαγωγής."
-  how_pindrop_appears_on_screen_while_you_d: "Επιλέξτε πώς εμφανίζεται το Superduper Dictation στην οθόνη ενώ υπαγορεύετε."
-  how_pindrop_follows_system_appearance_the: "Επιλέξτε πώς το Superduper Dictation ακολουθεί την εμφάνιση του συστήματος και, στη συνέχεια, συνδυάστε επιλεγμένες ανοιχτές και σκούρες παλέτες."
+  how_superduper_appears_on_screen_while_you_d: "Επιλέξτε πώς εμφανίζεται το Superduper Dictation στην οθόνη ενώ υπαγορεύετε."
+  how_superduper_follows_system_appearance_the: "Επιλέξτε πώς το Superduper Dictation ακολουθεί την εμφάνιση του συστήματος και, στη συνέχεια, συνδυάστε επιλεγμένες ανοιχτές και σκούρες παλέτες."
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Επιλέξτε τον τρόπο εισαγωγής των δεδομένων του λεξικού"
   how_to_import_the_preset_data: "Επιλέξτε τον τρόπο εισαγωγής των προκαθορισμένων δεδομένων"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Επιλέξτε το κέλυφος ημέρας που χρησιμοποιείται στη λειτουργία φωτός."
   the_low_glare_shell_used_in_dark_mode: "Επιλέξτε το κέλυφος χαμηλής λάμψης που χρησιμοποιείται στη σκοτεινή λειτουργία."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
+  whether_superduper_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "Επιλέξτε ποιο μικρόφωνο θα χρησιμοποιεί το Superduper Dictation για υπαγόρευση και πώς θα συμπεριφέρεται κατά την εγγραφή."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
+  which_microphone_superduper_should_use_for_d: "Επιλέξτε ποιο μικρόφωνο θα χρησιμοποιεί το Superduper Dictation για υπαγόρευση και πώς θα συμπεριφέρεται κατά την εγγραφή."
+  which_microphone_superduper_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "Επιλέξτε σε ποια πλευρά θα εμφανίζεται η πλαϊνή γραμμή πλοήγησης."
   where_to_save_the_training_data_file: "Επιλέξτε πού θα αποθηκευτεί το αρχείο δεδομένων εκπαίδευσης."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Συνεχίστε με Προεπιλογή"
   without: "Συνέχεια χωρίς"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Ελέγξτε πώς εμφανίζεται το Superduper Dictation στο macOS και εάν ξεκινά με την περίοδο λειτουργίας του υπολογιστή σας."
+  how_superduper_appears_in_macos_and_whether: "Ελέγξτε πώς εμφανίζεται το Superduper Dictation στο macOS και εάν ξεκινά με την περίοδο λειτουργίας του υπολογιστή σας."
 controls:
 copied:
   _self: "Αντιγράφηκε!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Εμφανιζόμενο όνομα"
   name_c7874aaa: "Εμφανιζόμενο όνομα"
-  pindrop_in_the_dock_instead_of_running_o: "Εμφανίστε το Superduper Dictation στο Dock αντί να εκτελείται μόνο ως εφαρμογή γραμμής μενού."
+  superduper_in_the_dock_instead_of_running_o: "Εμφανίστε το Superduper Dictation στο Dock αντί να εκτελείται μόνο ως εφαρμογή γραμμής μενού."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Στερεώστε την πλαϊνή γραμμή στην αριστερή ή τη δεξιά άκρη του παραθύρου."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Μεγάλος"
 help:
   _self: "Βοήθεια"
-  improve_pindrop: "Θέλετε να βοηθήσετε να βελτιωθεί το Superduper Dictation;"
+  improve_superduper: "Θέλετε να βοηθήσετε να βελτιωθεί το Superduper Dictation;"
 hide:
   api_key: "Απόκρυψη κλειδιού API"
   this_for_1_hour: "Κρύψτε το για 1 ώρα"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "Ιαπωνικά"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Διατηρήστε το Superduper Dictation τρέχον αυτόματα ή ενεργοποιήστε έναν μη αυτόματο έλεγχο όποτε θέλετε."
+  superduper_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  superduper_current_automatically_or_trigger_a: "Διατηρήστε το Superduper Dictation τρέχον αυτόματα ή ενεργοποιήστε έναν μη αυτόματο έλεγχο όποτε θέλετε."
   before_and_after_text_pairs_when_ai_enhance: "Διατηρήστε ζεύγη κειμένου πριν και μετά όταν η βελτίωση με AI ή οι επεξεργασίες σας βελτιώνουν μια μεταγραφή. Αποθηκεύονται μόνο σε αυτόν τον Mac — τίποτα δεν μεταφορτώνεται."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Αφήστε τον Superduper Dictation να μάθει αθόρυβα λεξιλόγιο από τις διορθώσεις που κάνετε με την πάροδο του χρόνου."
+  superduper_quietly_learn_vocabulary_from_the_co: "Αφήστε τον Superduper Dictation να μάθει αθόρυβα λεξιλόγιο από τις διορθώσεις που κάνετε με την πάροδο του χρόνου."
 library:
   _self: "Βιβλιοθήκη"
 license:
@@ -1018,7 +1018,7 @@ pill:
   _self: "Χάπι"
 pin:
   to_screen_always_on_top: "Καρφίτσωμα στην οθόνη (πάντα στην κορυφή)"
-pindrop:
+superduper:
   _self: "Πίνδροπ"
   1_19: "Superduper Dictation 1.19"
   help: "Βοήθεια Superduper Dictation"
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "Κάλεσε `fetchUser` -> μετά χάρταξε την απάντηση `==` 200."
   name: "Προκαθορισμένο όνομα"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Πατήστε παρατεταμένα για υπαγόρευση σε οποιαδήποτε εφαρμογή. Το Superduper Dictation θα μεταγράψει την ομιλία σας και θα εισαγάγει το κείμενο όπου βρίσκεται ο κέρσορας σας."
+  and_hold_to_dictate_in_any_app_superduper_wil: "Πατήστε παρατεταμένα για υπαγόρευση σε οποιαδήποτε εφαρμογή. Το Superduper Dictation θα μεταγράψει την ομιλία σας και θα εισαγάγει το κείμενο όπου βρίσκεται ο κέρσορας σας."
   esc_to_cancel: "Πατήστε Esc για ακύρωση"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Πατήστε Escape δύο φορές για να ακυρώσετε μια εγγραφή. Όταν είναι ανενεργό, αρκεί ένα πάτημα."
   keys: "Πατήστε τα πλήκτρα..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "Τραβήξτε γρήγορα την τελευταία μεταγραφή σας πίσω στο πρόχειρο."
 quit:
   _self: "Εγκαταλείπω"
-  pindrop: "Κλείστε το Superduper Dictation"
+  superduper: "Κλείστε το Superduper Dictation"
 ready:
   _self: "Ετοιμος"
   ec1296e1: "● Έτοιμος"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Μετονομάζω"
   folder: "Μετονομασία φακέλου"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
+  speakers_in_transcripts_to_teach_superduper: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "Αντικατάσταση όλων"
   words_and_phrases: "Αντικαταστήστε λέξεις και φράσεις"
@@ -1227,7 +1227,7 @@ select:
   all: "Επιλέξτε Όλα"
   language: "Επιλέξτε Γλώσσα"
   language_daea52c9: "Επιλέξτε γλώσσα"
-  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
+  the_language_superduper_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "Επιλέξτε αυτό το στυλ κυμαινόμενου δείκτη."
   voice_model: "Επιλέξτε Μοντέλο φωνής"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Ξεκινήστε την εγγραφή"
   recording_to_see_your_transcriptions_here: "Ξεκινήστε την εγγραφή για να δείτε τις μεταγραφές σας εδώ"
   stop_recording: "Έναρξη/διακοπή εγγραφής"
-  using_pindrop: "Ξεκινήστε να χρησιμοποιείτε το Superduper Dictation"
+  using_superduper: "Ξεκινήστε να χρησιμοποιείτε το Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "Έναρξη στη γραμμή μενού χωρίς άνοιγμα του κύριου παραθύρου. Μπορείτε να το ανοίξετε αργότερα από το εικονίδιο της γραμμής μενού."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Χρονικές σημάνσεις (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "να υπαγορεύσει και να αφήσει τον Πίντροπ να μεταγράψει για εσάς"
+  dictate_and_let_superduper_transcribe_for_you: "να υπαγορεύσει και να αφήσει τον Πίντροπ να μεταγράψει για εσάς"
   start_talking: "να αρχίσουμε να μιλάμε"
 today:
   _self: "Σήμερα"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
+  u7_teach_superduper_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1616,7 +1616,7 @@ u9:
   onboarding_download_background_hint: "Συνεχίστε τη ρύθμιση κατά τη λήψη — θα ολοκληρώσουμε στο παρασκήνιο."
   onboarding_enable_enhancement: "Ενεργοποίηση βελτίωσης"
   onboarding_granted_state: "Παραχωρήθηκε"
-  onboarding_pindrop_writes: "Το Superduper Dictation γράφει"
+  onboarding_superduper_writes: "Το Superduper Dictation γράφει"
   onboarding_ready_heading: "Είστε έτοιμοι."
   onboarding_ready_instruction_format: "Πατήστε %@ και αρχίστε να μιλάτε — το Superduper Dictation πληκτρολογεί όπου βρίσκεται ο δρομέας."
   onboarding_try_it_now: "Δοκιμάστε το τώρα"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Καλώς ήρθατε στο Superduper Dictation"
+  to_superduper: "Καλώς ήρθατε στο Superduper Dictation"
 what:
   s_new: "Τι νέο υπάρχει…"
-  s_new_in_pindrop: "Τι νέο υπάρχει στο Superduper Dictation"
-  does_pindrop_collect: "Τι συλλέγει το Superduper Dictation;"
+  s_new_in_superduper: "Τι νέο υπάρχει στο Superduper Dictation"
+  does_superduper_collect: "Τι συλλέγει το Superduper Dictation;"
 while:
   recording: "Κατά την εγγραφή"
 whisperkit:

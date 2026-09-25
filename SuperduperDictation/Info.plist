@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconFile</key>
+	<string>SuperduperDictation</string>
+	<key>CFBundleIconName</key>
+	<string>SuperduperDictation</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Superduper Dictation</string>
+	<key>CFBundleDisplayName</key>
+	<string>Superduper Dictation</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>ATSApplicationFontsPath</key>
+	<string>Fonts</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>Superduper Dictation records call and app audio so meeting transcripts include the other participants.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Superduper Dictation needs microphone access to transcribe your voice.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Superduper Dictation uses on-device speech recognition to transcribe your audio without sending data to any server.</string>
+	<!-- Supply a Google desktop OAuth client ID in distribution builds. Developers
+	     can override this with SUPERDUPER_GOOGLE_CLIENT_ID. -->
+	<key>GoogleCalendarClientID</key>
+	<string></string>
+</dict>
+</plist>

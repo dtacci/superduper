@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "แอพเขียนตามคำบอกบนแถบเมนู macOS ที่ใช้การแปลงคำพูดเป็นข้อความในเครื่องด้วย WhisperKit การประมวลผลภายในเครื่อง 100% ตามค่าเริ่มต้นพร้อมการเพิ่มประสิทธิภาพ AI ที่เป็นตัวเลือก"
 about:
   _self: "เกี่ยวกับ"
-  pindrop: "เกี่ยวกับ พินดรอป"
+  superduper: "เกี่ยวกับ พินดรอป"
 accessibility:
   _self: "การเข้าถึง"
   permission: "สิทธิ์การเข้าถึง"
@@ -233,7 +233,7 @@ add:
   trailing_space: "เพิ่มช่องว่างต่อท้าย"
   blank_lines_between_sentence_groups_in_longe: "เพิ่มบรรทัดว่างระหว่างกลุ่มประโยคในการพิมพ์ตามเสียงที่ยาวขึ้น ทำในเครื่องทั้งหมด ไม่ใช้ AI"
   word_replacements_to_automatically_correct_c: "เพิ่มการแทนที่คำเพื่อแก้ไขข้อผิดพลาดในการถอดเสียงทั่วไปโดยอัตโนมัติ"
-  words_to_help_pindrop_recognize_them_properl: "เพิ่มคำเพื่อช่วยให้ Superduper Dictation จดจำได้อย่างถูกต้อง"
+  words_to_help_superduper_recognize_them_properl: "เพิ่มคำเพื่อช่วยให้ Superduper Dictation จดจำได้อย่างถูกต้อง"
   words_you_manually_correct_into_your_vocabul: "เพิ่มคำที่คุณแก้ไขลงในคำศัพท์ด้วยตนเองเพื่อการถอดเสียงในอนาคต"
 advanced:
   _self: "ขั้นสูง"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "การอัปเดตอัตโนมัติและการตรวจสอบการอัปเดตด้วยตนเอง"
 automatically:
   check_for_new_versions_in_the_back: "ตรวจสอบเวอร์ชันใหม่ในเบื้องหลังโดยอัตโนมัติ"
-  start_pindrop_when_you_sign_in: "เริ่ม Superduper Dictation โดยอัตโนมัติเมื่อคุณลงชื่อเข้าใช้"
+  start_superduper_when_you_sign_in: "เริ่ม Superduper Dictation โดยอัตโนมัติเมื่อคุณลงชื่อเข้าใช้"
 available:
   models: "รุ่นที่มีจำหน่าย"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "เปลี่ยนไมโครโฟน"
   your_choice_anytime_in_settings_privacy: "เปลี่ยนตัวเลือกของคุณได้ทุกเมื่อใน การตั้งค่า → ความเป็นส่วนตัว"
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
+  the_language_used_by_superduper_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "ตรวจสอบการอัปเดต..."
   for_updates_736b9062: "ตรวจสอบการอัปเดต"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "เลือกระหว่าง Nemotron (มีเครื่องหมายวรรคตอน โมเดลที่ดาวน์โหลด) และ Apple SpeechTranscriber (macOS 26+ มาพร้อมระบบ)"
   file: "เลือกไฟล์"
   how_dictated_text_lands_then_tune_the_fin: "เลือกวิธีการป้อนข้อความตามคำบอก จากนั้นปรับแต่งลักษณะการแทรกขั้นสุดท้าย"
-  how_pindrop_appears_on_screen_while_you_d: "เลือกวิธีที่ Superduper Dictation จะปรากฏบนหน้าจอขณะที่คุณป้อนตามคำบอก"
-  how_pindrop_follows_system_appearance_the: "เลือกวิธีที่ Superduper Dictation ติดตามลักษณะที่ปรากฏของระบบ จากนั้นผสมพาเล็ตแสงและสีเข้มที่คัดสรรแล้ว"
+  how_superduper_appears_on_screen_while_you_d: "เลือกวิธีที่ Superduper Dictation จะปรากฏบนหน้าจอขณะที่คุณป้อนตามคำบอก"
+  how_superduper_follows_system_appearance_the: "เลือกวิธีที่ Superduper Dictation ติดตามลักษณะที่ปรากฏของระบบ จากนั้นผสมพาเล็ตแสงและสีเข้มที่คัดสรรแล้ว"
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "เลือกวิธีการนำเข้าข้อมูลพจนานุกรม"
   how_to_import_the_preset_data: "เลือกวิธีการนำเข้าข้อมูลที่ตั้งไว้ล่วงหน้า"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "เลือกเปลือกเวลากลางวันที่ใช้ในโหมดแสง"
   the_low_glare_shell_used_in_dark_mode: "เลือกเปลือกแสงสะท้อนต่ำที่ใช้ในโหมดมืด"
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
+  whether_superduper_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "เลือกไมโครโฟน Superduper Dictation ที่ควรใช้สำหรับการเขียนตามคำบอกและวิธีการทำงานของไมโครโฟนขณะบันทึก"
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
+  which_microphone_superduper_should_use_for_d: "เลือกไมโครโฟน Superduper Dictation ที่ควรใช้สำหรับการเขียนตามคำบอกและวิธีการทำงานของไมโครโฟนขณะบันทึก"
+  which_microphone_superduper_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "เลือกด้านที่แถบนำทางด้านข้างจะปรากฏ"
   where_to_save_the_training_data_file: "เลือกตำแหน่งที่จะบันทึกไฟล์ข้อมูลการฝึก"
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "ดำเนินการต่อด้วยค่าเริ่มต้น"
   without: "ดำเนินการต่อโดยไม่มี"
 control:
-  how_pindrop_appears_in_macos_and_whether: "ควบคุมวิธีที่ Superduper Dictation ปรากฏใน macOS และกำหนดว่าจะเริ่มต้นด้วยเซสชันเดสก์ท็อปของคุณหรือไม่"
+  how_superduper_appears_in_macos_and_whether: "ควบคุมวิธีที่ Superduper Dictation ปรากฏใน macOS และกำหนดว่าจะเริ่มต้นด้วยเซสชันเดสก์ท็อปของคุณหรือไม่"
 controls:
 copied:
   _self: "คัดลอก!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "ชื่อที่แสดง"
   name_c7874aaa: "ชื่อที่แสดง"
-  pindrop_in_the_dock_instead_of_running_o: "แสดง Superduper Dictation ใน Dock แทนที่จะทำงานเป็นแอปแถบเมนูเท่านั้น"
+  superduper_in_the_dock_instead_of_running_o: "แสดง Superduper Dictation ใน Dock แทนที่จะทำงานเป็นแอปแถบเมนูเท่านั้น"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "วางแถบด้านข้างไว้ที่ขอบซ้ายหรือขวาของหน้าต่าง"
 done:
@@ -686,7 +686,7 @@ great:
   _self: "ยอดเยี่ยม"
 help:
   _self: "ช่วยเหลือ"
-  improve_pindrop: "ช่วยปรับปรุง Superduper Dictation ไหม"
+  improve_superduper: "ช่วยปรับปรุง Superduper Dictation ไหม"
 hide:
   api_key: "ซ่อนคีย์ API"
   this_for_1_hour: "ซ่อนสิ่งนี้เป็นเวลา 1 ชั่วโมง"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "ญี่ปุ่น"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "รักษา Superduper Dictation ให้เป็นปัจจุบันโดยอัตโนมัติ หรือเรียกใช้การตรวจสอบด้วยตนเองทุกครั้งที่คุณต้องการ"
+  superduper_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  superduper_current_automatically_or_trigger_a: "รักษา Superduper Dictation ให้เป็นปัจจุบันโดยอัตโนมัติ หรือเรียกใช้การตรวจสอบด้วยตนเองทุกครั้งที่คุณต้องการ"
   before_and_after_text_pairs_when_ai_enhance: "เก็บคู่ข้อความก่อนและหลังเมื่อการปรับปรุงด้วย AI หรือการแก้ไขของคุณทำให้การถอดเสียงดีขึ้น จัดเก็บไว้บน Mac เครื่องนี้เท่านั้น — ไม่มีการอัปโหลดสิ่งใด"
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "ให้ Superduper Dictation เรียนรู้คำศัพท์อย่างเงียบๆ จากการแก้ไขที่คุณทำเมื่อเวลาผ่านไป"
+  superduper_quietly_learn_vocabulary_from_the_co: "ให้ Superduper Dictation เรียนรู้คำศัพท์อย่างเงียบๆ จากการแก้ไขที่คุณทำเมื่อเวลาผ่านไป"
 library:
   _self: "ไลบรารี"
 license:
@@ -1018,7 +1018,7 @@ pill:
   _self: "ยา"
 pin:
   to_screen_always_on_top: "ปักหมุดที่หน้าจอ (อยู่ด้านบนเสมอ)"
-pindrop:
+superduper:
   _self: "พินดรอป"
   1_19: "Superduper Dictation 1.19"
   help: "วิธีใช้ Superduper Dictation"
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "เรียก `fetchUser` -> แล้วแม็ปการตอบกลับ `==` 200"
   name: "ชื่อที่ตั้งไว้ล่วงหน้า"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "กดค้างไว้เพื่อเขียนตามคำบอกในแอปใดก็ได้ Superduper Dictation จะถอดเสียงคำพูดของคุณและแทรกข้อความในตำแหน่งที่เคอร์เซอร์ของคุณอยู่"
+  and_hold_to_dictate_in_any_app_superduper_wil: "กดค้างไว้เพื่อเขียนตามคำบอกในแอปใดก็ได้ Superduper Dictation จะถอดเสียงคำพูดของคุณและแทรกข้อความในตำแหน่งที่เคอร์เซอร์ของคุณอยู่"
   esc_to_cancel: "กด Esc เพื่อยกเลิก"
   escape_twice_to_cancel_a_recording_when_off_a_si: "กด Escape สองครั้งเพื่อยกเลิกการบันทึก หากปิดไว้ กดครั้งเดียวก็ยกเลิกได้"
   keys: "กดปุ่ม..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "ดึงข้อความถอดเสียงล่าสุดของคุณกลับไปที่คลิปบอร์ดอย่างรวดเร็ว"
 quit:
   _self: "ล้มเลิก"
-  pindrop: "ออกจากพินดรอป"
+  superduper: "ออกจากพินดรอป"
 ready:
   _self: "พร้อม"
   ec1296e1: "● พร้อมแล้ว"
@@ -1162,7 +1162,7 @@ rename:
   _self: "เปลี่ยนชื่อ"
   folder: "เปลี่ยนชื่อโฟลเดอร์"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
+  speakers_in_transcripts_to_teach_superduper: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "แทนที่ทั้งหมด"
   words_and_phrases: "แทนที่คำและวลี"
@@ -1227,7 +1227,7 @@ select:
   all: "เลือกทั้งหมด"
   language: "เลือกภาษา"
   language_daea52c9: "เลือกภาษา"
-  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
+  the_language_superduper_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "เลือกสไตล์ตัวบ่งชี้แบบลอยตัวนี้"
   voice_model: "เลือกรูปแบบเสียง"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "เริ่มการบันทึก"
   recording_to_see_your_transcriptions_here: "เริ่มบันทึกเพื่อดูการถอดเสียงของคุณที่นี่"
   stop_recording: "เริ่ม/หยุดการบันทึก"
-  using_pindrop: "เริ่มใช้ Superduper Dictation"
+  using_superduper: "เริ่มใช้ Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "เริ่มในแถบเมนูโดยไม่เปิดหน้าต่างหลัก คุณยังสามารถเปิดได้จากไอคอนแถบเมนู"
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "ตราประทับเวลา (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "เพื่อกำหนดและให้ Superduper Dictation ถอดเสียงให้คุณ"
+  dictate_and_let_superduper_transcribe_for_you: "เพื่อกำหนดและให้ Superduper Dictation ถอดเสียงให้คุณ"
   start_talking: "เพื่อเริ่มพูด"
 today:
   _self: "วันนี้"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
+  u7_teach_superduper_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1616,7 +1616,7 @@ u9:
   onboarding_download_background_hint: "ตั้งค่าต่อได้ระหว่างดาวน์โหลด — เราจะดำเนินการให้เสร็จในเบื้องหลัง"
   onboarding_enable_enhancement: "เปิดใช้การปรับปรุง"
   onboarding_granted_state: "ได้รับอนุญาตแล้ว"
-  onboarding_pindrop_writes: "Superduper Dictation เขียน"
+  onboarding_superduper_writes: "Superduper Dictation เขียน"
   onboarding_ready_heading: "พร้อมแล้ว"
   onboarding_ready_instruction_format: "กด %@ แล้วเริ่มพูด — Superduper Dictation จะพิมพ์ตรงตำแหน่งเคอร์เซอร์"
   onboarding_try_it_now: "ลองตอนนี้"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "ยินดีต้อนรับสู่พินดรอป"
+  to_superduper: "ยินดีต้อนรับสู่พินดรอป"
 what:
   s_new: "มีอะไรใหม่…"
-  s_new_in_pindrop: "มีอะไรใหม่ใน Superduper Dictation"
-  does_pindrop_collect: "Superduper Dictation เก็บข้อมูลอะไรบ้าง"
+  s_new_in_superduper: "มีอะไรใหม่ใน Superduper Dictation"
+  does_superduper_collect: "Superduper Dictation เก็บข้อมูลอะไรบ้าง"
 while:
   recording: "ขณะบันทึก"
 whisperkit:

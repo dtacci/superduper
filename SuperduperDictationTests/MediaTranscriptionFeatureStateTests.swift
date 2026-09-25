@@ -1,0 +1,206 @@
+//
+//  MediaTranscriptionFeatureStateTests.swift
+//  SuperduperDictation
+//
+//  Created on 2026-03-07.
+//
+
+import Foundation
+import Testing
+@testable import SuperduperDictation
+
+@MainActor
+@Suite
+struct MediaTranscriptionFeatureStateTests {
+    @Test func jobOptionsEnableDiarizationByDefault() {
+        let options = TranscriptionJobOptions(modelName: "tiny")
+
+        #expect(options.diarizationEnabled)
+        #expect(options.outputFormat == .plainText)
+        #expect(options.language == .automatic)
+    }
+
+    @Test func jobOptionsAllowDisablingDiarization() {
+        let options = TranscriptionJobOptions(
+            modelName: "tiny",
+            language: .english,
+            outputFormat: .plainText,
+            diarizationEnabled: false
+        )
+
+        #expect(options.diarizationEnabled == false)
+        #expect(options.language == .english)
+    }
+
+    @Test func mediaImportOptionsHonorDisabledDiarizationSelection() {
+        let options = HistoryView.makeJobOptions(
+            modelName: "openai_whisper-large-v3_turbo",
+            language: .automatic,
+            diarizationEnabled: false
+        )
+
+        #expect(options.modelName == "openai_whisper-large-v3_turbo")
+        #expect(options.language == .automatic)
+        #expect(options.outputFormat == .plainText)
+        #expect(options.diarizationEnabled == false)
+    }
+
+    @Test func mediaTranscriptionResolvesCatalogModelProviders() {
+        let models = ModelManager().availableModels
+
+        // Cloud models are deliberately absent from the local-only catalog, so a stale
+        // cloud model name safely falls back to the default local WhisperKit provider.
+        #expect(
+            AppCoordinator.mediaTranscriptionProvider(
+                named: "openai_gpt-4o-mini-transcribe",
+                availableModels: models
+            ) == .whisperKit
+        )
+        #expect(
+            AppCoordinator.mediaTranscriptionProvider(
+                named: "parakeet-tdt-0.6b-v2",
+                availableModels: models
+            ) == .parakeet
+        )
+        #expect(
+            AppCoordinator.mediaTranscriptionProvider(
+                named: "openai_whisper-base",
+                availableModels: models
+            ) == .whisperKit
+        )
+        #expect(
+            AppCoordinator.mediaTranscriptionProvider(
+                named: "unknown-model",
+                availableModels: models
+            ) == .whisperKit
+        )
+    }
+
+
+    @Test func clipboardPrefillDoesNotOverwriteUserEditedDraft() {
+        let sut = MediaTranscriptionFeatureState()
+        sut.draftLink = "https://user-entered.example"
+        sut.hasUserEditedDraftLink = true
+
+        sut.updateDraftLinkFromClipboard("https://clipboard.example")
+
+        #expect(sut.draftLink == "https://user-entered.example")
+    }
+
+    @Test func completeCurrentJobNavigatesToDetailWhenRequested() {
+        let sut = MediaTranscriptionFeatureState()
+        let recordID = UUID()
+        let job = MediaTranscriptionJobState(
+            id: UUID(),
+            request: .link("https://example.com/video"),
+            stage: .transcribing,
+            progress: 0.8,
+            detail: "Transcribing"
+        )
+
+        sut.beginJob(job)
+        sut.completeCurrentJob(with: recordID, shouldNavigateToDetail: true)
+
+        #expect(sut.route == .detail(recordID))
+        #expect(sut.selectedRecordID == recordID)
+        #expect(sut.currentJob == nil)
+        #expect(sut.completedJobs.last?.stage == .completed)
+        #expect(sut.completedJobs.last?.progress == 1.0)
+        #expect(sut.completedJobs.last?.detail == "Finished")
+    }
+
+    @Test func completeCurrentJobReturnsToLibraryWhenProcessingViewExited() {
+        let sut = MediaTranscriptionFeatureState()
+        let recordID = UUID()
+        let job = MediaTranscriptionJobState(
+            id: UUID(),
+            request: .file(URL(fileURLWithPath: "/tmp/example.mov")),
+            stage: .preparingAudio,
+            detail: "Preparing audio"
+        )
+
+        sut.beginJob(job)
+        sut.exitProcessingView()
+        sut.completeCurrentJob(with: recordID, shouldNavigateToDetail: false)
+
+        #expect(sut.route == .library)
+        #expect(sut.selectedRecordID == recordID)
+        #expect(sut.libraryMessage == nil)
+        #expect(sut.currentJob == nil)
+        #expect(sut.completedJobs.last?.stage == .completed)
+    }
+
+    @Test func selectedFolderPersistsAcrossRouteChanges() {
+        let sut = MediaTranscriptionFeatureState()
+        let folderID = UUID()
+        let recordID = UUID()
+
+        sut.selectFolder(folderID)
+        sut.selectRecord(recordID)
+        sut.showLibrary()
+
+        #expect(sut.selectedFolderID == folderID)
+        #expect(sut.route == .library)
+    }
+
+    @Test func deletingSelectedFolderClearsFolderSelection() {
+        let sut = MediaTranscriptionFeatureState()
+        let folderID = UUID()
+
+        sut.selectFolder(folderID)
+        sut.handleDeletedFolder(folderID)
+
+        #expect(sut.selectedFolderID == nil)
+    }
+
+    @Test func librarySearchAndSortStateRemainMutableDuringJobLifecycle() {
+        let sut = MediaTranscriptionFeatureState()
+        let folderID = UUID()
+
+        sut.librarySearchText = "roadmap"
+        sut.librarySortMode = .nameAscending
+        sut.selectFolder(folderID)
+        sut.beginJob(MediaTranscriptionJobState(request: .link("https://example.com"), destinationFolderID: folderID))
+        sut.completeCurrentJob(with: UUID(), shouldNavigateToDetail: false)
+
+        #expect(sut.librarySearchText == "roadmap")
+        #expect(sut.librarySortMode == .nameAscending)
+        #expect(sut.selectedFolderID == folderID)
+    }
+
+    @Test func recordingFeatureBeginRecordingUpdatesCaptureState() {
+        let sut = RecordingFeatureState()
+
+        sut.beginRecording(mode: .systemAudio, startedAt: Date(timeIntervalSince1970: 123))
+
+        #expect(sut.isRecording)
+        #expect(sut.selectedCaptureMode == .systemAudio)
+        #expect(sut.recordingStartedAt == Date(timeIntervalSince1970: 123))
+    }
+
+    @Test func recordingFeatureEndRecordingClearsCaptureState() {
+        let sut = RecordingFeatureState()
+        sut.beginRecording(mode: .microphoneAndSystemAudio)
+
+        sut.endRecording(message: "Done")
+
+        #expect(sut.isRecording == false)
+        #expect(sut.recordingStartedAt == nil)
+        #expect(sut.message == "Done")
+    }
+    @Test func diarizationDownloadStateExposesProgressToTheSetupBanner() {
+        let mediaState = MediaTranscriptionFeatureState()
+        let recordingState = RecordingFeatureState()
+
+        mediaState.isDiarizationModelDownloading = true
+        mediaState.diarizationModelDownloadProgress = 0.42
+        recordingState.isDiarizationModelDownloading = true
+        recordingState.diarizationModelDownloadProgress = 0.42
+
+        #expect(mediaState.isDiarizationModelDownloading)
+        #expect(mediaState.diarizationModelDownloadProgress == 0.42)
+        #expect(recordingState.isDiarizationModelDownloading)
+        #expect(recordingState.diarizationModelDownloadProgress == 0.42)
+    }
+
+}

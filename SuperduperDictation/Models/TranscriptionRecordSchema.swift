@@ -1,0 +1,2371 @@
+//
+//  TranscriptionRecordSchema.swift
+//  SuperduperDictation
+//
+//  Created on 2026-01-28.
+//  Schema versioning for TranscriptionRecord to support migrations
+//
+
+import Foundation
+import SwiftData
+
+enum TranscriptionRecordSchema: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 5)
+    
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+    
+    // V1: Original schema without AI enhancement metadata
+    @Model
+    final class TranscriptionRecordV1 {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        
+        init(
+            id: UUID = UUID(),
+            text: String,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String
+        ) {
+            self.id = id
+            self.text = text
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+        }
+    }
+    
+    // V3: Current schema with AI enhancement + diarization metadata
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+        
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.sourceKind = sourceKind
+        }
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+}
+
+// V1 Schema Version
+enum TranscriptionRecordSchemaV1: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 0)
+    
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecordV1.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+    
+    @Model
+    final class TranscriptionRecordV1 {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        
+        init(
+            id: UUID = UUID(),
+            text: String,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String
+        ) {
+            self.id = id
+            self.text = text
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+        }
+    }
+}
+
+// V2 Schema Version
+enum TranscriptionRecordSchemaV2: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 1)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        @Transient var wasEnhanced: Bool = false
+        
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.wasEnhanced = originalText != nil && originalText != text
+        }
+    }
+}
+
+// V3 Schema Version (Current)
+enum TranscriptionRecordSchemaV3: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 2)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        @Transient var wasEnhanced: Bool = false
+        
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.wasEnhanced = originalText != nil && originalText != text
+        }
+    }
+}
+
+// V4 Schema Version (Current)
+enum TranscriptionRecordSchemaV4: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 3)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+// V5 Schema Version (Current)
+enum TranscriptionRecordSchemaV5: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 4)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+// V6 Schema Version (Current)
+enum TranscriptionRecordSchemaV6: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 5)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+enum TranscriptionRecordSchemaV7: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 6)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+enum TranscriptionRecordSchemaV8: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 7)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        var destinationAppName: String?
+        var destinationAppBundleID: String?
+        var wordCount: Int?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil,
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil,
+            wordCount: Int? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.destinationAppName = destinationAppName
+            self.destinationAppBundleID = destinationAppBundleID
+            self.wordCount = wordCount
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+enum TranscriptionRecordSchemaV9: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 8)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var notes: String?
+        var isCurrentUser: Bool = false
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            notes: String? = nil,
+            isCurrentUser: Bool = false,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.notes = notes
+            self.isCurrentUser = isCurrentUser
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        var destinationAppName: String?
+        var destinationAppBundleID: String?
+        var wordCount: Int?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil,
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil,
+            wordCount: Int? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.destinationAppName = destinationAppName
+            self.destinationAppBundleID = destinationAppBundleID
+            self.wordCount = wordCount
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+enum TranscriptionRecordSchemaV10: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 9)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var notes: String?
+        var isCurrentUser: Bool = false
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var embeddingSpaceIdentifier: String?
+        var needsVoiceRetraining: Bool = false
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            notes: String? = nil,
+            isCurrentUser: Bool = false,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            embeddingSpaceIdentifier: String? = nil,
+            needsVoiceRetraining: Bool = false,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.notes = notes
+            self.isCurrentUser = isCurrentUser
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.needsVoiceRetraining = needsVoiceRetraining
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var embeddingSpaceIdentifier: String?
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            embeddingSpaceIdentifier: String? = nil,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        var destinationAppName: String?
+        var destinationAppBundleID: String?
+        var wordCount: Int?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil,
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil,
+            wordCount: Int? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.destinationAppName = destinationAppName
+            self.destinationAppBundleID = destinationAppBundleID
+            self.wordCount = wordCount
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+enum TranscriptionRecordSchemaV11: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 10)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self,
+            TrainingContribution.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var notes: String?
+        var isCurrentUser: Bool = false
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var embeddingSpaceIdentifier: String?
+        var needsVoiceRetraining: Bool = false
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            notes: String? = nil,
+            isCurrentUser: Bool = false,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            embeddingSpaceIdentifier: String? = nil,
+            needsVoiceRetraining: Bool = false,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.notes = notes
+            self.isCurrentUser = isCurrentUser
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.needsVoiceRetraining = needsVoiceRetraining
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var embeddingSpaceIdentifier: String?
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            embeddingSpaceIdentifier: String? = nil,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        var destinationAppName: String?
+        var destinationAppBundleID: String?
+        var wordCount: Int?
+        /// Set when the user manually edited the transcript text in the library.
+        var userEditedAt: Date?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil,
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil,
+            wordCount: Int? = nil,
+            userEditedAt: Date? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.destinationAppName = destinationAppName
+            self.destinationAppBundleID = destinationAppBundleID
+            self.wordCount = wordCount
+            self.userEditedAt = userEditedAt
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+// V12: Adds optional pipeline latency metrics JSON on transcription records.
+enum TranscriptionRecordSchemaV12: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 11)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self,
+            TrainingContribution.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var notes: String?
+        var isCurrentUser: Bool = false
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var embeddingSpaceIdentifier: String?
+        var needsVoiceRetraining: Bool = false
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            notes: String? = nil,
+            isCurrentUser: Bool = false,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            embeddingSpaceIdentifier: String? = nil,
+            needsVoiceRetraining: Bool = false,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.notes = notes
+            self.isCurrentUser = isCurrentUser
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.needsVoiceRetraining = needsVoiceRetraining
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var embeddingSpaceIdentifier: String?
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            embeddingSpaceIdentifier: String? = nil,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        var destinationAppName: String?
+        var destinationAppBundleID: String?
+        var wordCount: Int?
+        /// Set when the user manually edited the transcript text in the library.
+        var userEditedAt: Date?
+        /// Encoded `PipelineMetrics`: per-stage latency and enhancement token usage
+        /// captured while this dictation was produced. Nil for records saved by
+        /// paths that don't instrument (media imports, MCP, pre-V12 records).
+        var pipelineMetricsJSON: String?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil,
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil,
+            wordCount: Int? = nil,
+            userEditedAt: Date? = nil,
+            pipelineMetricsJSON: String? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.destinationAppName = destinationAppName
+            self.destinationAppBundleID = destinationAppBundleID
+            self.wordCount = wordCount
+            self.userEditedAt = userEditedAt
+            self.pipelineMetricsJSON = pipelineMetricsJSON
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
+// V13: Adds durable meeting series and occurrence workspaces.
+enum TranscriptionRecordSchemaV13: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 12)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self,
+            TrainingContribution.self,
+            MeetingSeries.self,
+            MeetingOccurrence.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var notes: String?
+        var isCurrentUser: Bool = false
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var embeddingSpaceIdentifier: String?
+        var needsVoiceRetraining: Bool = false
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            notes: String? = nil,
+            isCurrentUser: Bool = false,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            embeddingSpaceIdentifier: String? = nil,
+            needsVoiceRetraining: Bool = false,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.notes = notes
+            self.isCurrentUser = isCurrentUser
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.needsVoiceRetraining = needsVoiceRetraining
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var embeddingSpaceIdentifier: String?
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            embeddingSpaceIdentifier: String? = nil,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        var destinationAppName: String?
+        var destinationAppBundleID: String?
+        var wordCount: Int?
+        var userEditedAt: Date?
+        var pipelineMetricsJSON: String?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil,
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil,
+            wordCount: Int? = nil,
+            userEditedAt: Date? = nil,
+            pipelineMetricsJSON: String? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.destinationAppName = destinationAppName
+            self.destinationAppBundleID = destinationAppBundleID
+            self.wordCount = wordCount
+            self.userEditedAt = userEditedAt
+            self.pipelineMetricsJSON = pipelineMetricsJSON
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+
+    @Model
+    final class MeetingSeries {
+        @Attribute(.unique) var id: UUID
+        /// Google recurring-event identity. Nil for one-off and manual meetings.
+        @Attribute(.unique) var recurringEventIdentity: String?
+        var displayName: String
+        var createdAt: Date
+        var updatedAt: Date
+        @Relationship(deleteRule: .cascade, inverse: \MeetingOccurrence.series)
+        var occurrences: [MeetingOccurrence]
+
+        init(
+            id: UUID = UUID(),
+            recurringEventIdentity: String? = nil,
+            displayName: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            occurrences: [MeetingOccurrence] = []
+        ) {
+            self.id = id
+            self.recurringEventIdentity = recurringEventIdentity
+            self.displayName = displayName
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.occurrences = occurrences
+        }
+    }
+
+    @Model
+    final class MeetingOccurrence {
+        @Attribute(.unique) var id: UUID
+        /// Stable provider-qualified identity (for example `google:<calendar>:<event>`).
+        @Attribute(.unique) var calendarOccurrenceIdentity: String?
+        var providerRawValue: String?
+        var calendarID: String?
+        var calendarEventID: String?
+        var recurringEventID: String?
+        var calendarTitle: String?
+        var calendarSnapshotJSON: String?
+        var scheduledStart: Date
+        var scheduledEnd: Date?
+        var joinURLString: String?
+        var isArmed: Bool
+        var stateRawValue: String
+        /// UUID-based directory within the managed media library.
+        var workspacePath: String
+        var managedAudioPath: String?
+        var recoveryAudioPathsJSON: String?
+        var microphoneHealthRawValue: String?
+        var systemAudioHealthRawValue: String?
+        var sourceHealthWarning: String?
+        var notesMarkdown: String
+        var summaryMarkdown: String?
+        var decisionsJSON: String?
+        var actionItemsJSON: String?
+        var speakerLabelsJSON: String?
+        var failureMessage: String?
+        var expectedSpeakerCount: Int?
+        var createdAt: Date
+        var updatedAt: Date
+        var series: MeetingSeries?
+        var transcript: TranscriptionRecord?
+
+        init(
+            id: UUID = UUID(),
+            calendarOccurrenceIdentity: String? = nil,
+            providerRawValue: String? = nil,
+            calendarID: String? = nil,
+            calendarEventID: String? = nil,
+            recurringEventID: String? = nil,
+            calendarTitle: String? = nil,
+            calendarSnapshotJSON: String? = nil,
+            scheduledStart: Date = Date(),
+            scheduledEnd: Date? = nil,
+            joinURLString: String? = nil,
+            isArmed: Bool = false,
+            stateRawValue: String = "scheduled",
+            workspacePath: String,
+            managedAudioPath: String? = nil,
+            recoveryAudioPathsJSON: String? = nil,
+            microphoneHealthRawValue: String? = nil,
+            systemAudioHealthRawValue: String? = nil,
+            sourceHealthWarning: String? = nil,
+            notesMarkdown: String = "",
+            summaryMarkdown: String? = nil,
+            decisionsJSON: String? = nil,
+            actionItemsJSON: String? = nil,
+            speakerLabelsJSON: String? = nil,
+            failureMessage: String? = nil,
+            expectedSpeakerCount: Int? = nil,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            series: MeetingSeries? = nil,
+            transcript: TranscriptionRecord? = nil
+        ) {
+            self.id = id
+            self.calendarOccurrenceIdentity = calendarOccurrenceIdentity
+            self.providerRawValue = providerRawValue
+            self.calendarID = calendarID
+            self.calendarEventID = calendarEventID
+            self.recurringEventID = recurringEventID
+            self.calendarTitle = calendarTitle
+            self.calendarSnapshotJSON = calendarSnapshotJSON
+            self.scheduledStart = scheduledStart
+            self.scheduledEnd = scheduledEnd
+            self.joinURLString = joinURLString
+            self.isArmed = isArmed
+            self.stateRawValue = stateRawValue
+            self.workspacePath = workspacePath
+            self.managedAudioPath = managedAudioPath
+            self.recoveryAudioPathsJSON = recoveryAudioPathsJSON
+            self.microphoneHealthRawValue = microphoneHealthRawValue
+            self.systemAudioHealthRawValue = systemAudioHealthRawValue
+            self.sourceHealthWarning = sourceHealthWarning
+            self.notesMarkdown = notesMarkdown
+            self.summaryMarkdown = summaryMarkdown
+            self.decisionsJSON = decisionsJSON
+            self.actionItemsJSON = actionItemsJSON
+            self.speakerLabelsJSON = speakerLabelsJSON
+            self.failureMessage = failureMessage
+            self.expectedSpeakerCount = expectedSpeakerCount
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.series = series
+            self.transcript = transcript
+        }
+    }
+}
+
+// Migration Plan
+enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] {
+        [
+            TranscriptionRecordSchemaV1.self,
+            TranscriptionRecordSchemaV2.self,
+            TranscriptionRecordSchemaV3.self,
+            TranscriptionRecordSchemaV4.self,
+            TranscriptionRecordSchemaV5.self,
+            TranscriptionRecordSchemaV6.self,
+            TranscriptionRecordSchemaV7.self,
+            TranscriptionRecordSchemaV8.self,
+            TranscriptionRecordSchemaV9.self,
+            TranscriptionRecordSchemaV10.self,
+            TranscriptionRecordSchemaV11.self,
+            TranscriptionRecordSchemaV12.self,
+            TranscriptionRecordSchemaV13.self
+        ]
+    }
+
+    static var stages: [MigrationStage] {
+        [
+            migrateV1toV2,
+            migrateV2toV3,
+            migrateV3toV4,
+            migrateV4toV5,
+            migrateV5toV6,
+            migrateV6toV7,
+            migrateV7toV8,
+            migrateV8toV9,
+            migrateV9toV10,
+            migrateV10toV11,
+            migrateV11toV12,
+            migrateV12toV13
+        ]
+    }
+
+    // Lightweight migration from V1 to V2
+    // Adds optional originalText and enhancedWith fields
+    // Existing records will have nil values for new fields
+    static let migrateV1toV2 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV1.self,
+        toVersion: TranscriptionRecordSchemaV2.self
+    )
+
+    // Lightweight migration from V2 to V3
+    // Adds optional diarizationSegmentsJSON field
+    // Existing records will have nil values for the new field
+    static let migrateV2toV3 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV2.self,
+        toVersion: TranscriptionRecordSchemaV3.self
+    )
+
+    // Lightweight migration from V3 to V4.
+    // Adds optional media metadata fields; existing records derive voiceRecording at read time.
+    static let migrateV3toV4 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV3.self,
+        toVersion: TranscriptionRecordSchemaV4.self
+    )
+
+    // Lightweight migration from V4 to V5.
+    // Adds the optional media-folder relationship and folder table.
+    static let migrateV4toV5 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV4.self,
+        toVersion: TranscriptionRecordSchemaV5.self
+    )
+
+    // Lightweight migration from V5 to V6.
+    // Adds participant profiles and training evidence tables.
+    static let migrateV5toV6 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV5.self,
+        toVersion: TranscriptionRecordSchemaV6.self
+    )
+
+    // Lightweight migration from V6 to V7.
+    // Adds optional AI title/summary metadata and source-title provenance.
+    static let migrateV6toV7 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV6.self,
+        toVersion: TranscriptionRecordSchemaV7.self
+    )
+
+    // Lightweight migration from V7 to V8.
+    // Adds optional destination-app metadata and cached word count.
+    static let migrateV7toV8 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV7.self,
+        toVersion: TranscriptionRecordSchemaV8.self
+    )
+
+    // Lightweight migration from V8 to V9.
+    // Adds optional profile notes and a current-user marker with a false default.
+    static let migrateV8toV9 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV8.self,
+        toVersion: TranscriptionRecordSchemaV9.self
+    )
+
+    // Lightweight migration from V9 to V10.
+    // Adds optional embedding-space identifiers on profiles and training evidence.
+    static let migrateV9toV10 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV9.self,
+        toVersion: TranscriptionRecordSchemaV10.self
+    )
+
+    // Lightweight migration from V10 to V11.
+    // Adds the opt-in training-contribution table and an optional manual-edit
+    // timestamp on transcription records.
+    static let migrateV10toV11 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV10.self,
+        toVersion: TranscriptionRecordSchemaV11.self
+    )
+
+    // Lightweight migration from V11 to V12.
+    // Adds the optional pipeline latency metrics JSON on transcription records.
+    static let migrateV11toV12 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV11.self,
+        toVersion: TranscriptionRecordSchemaV12.self
+    )
+
+    static let migrateV12toV13 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV12.self,
+        toVersion: TranscriptionRecordSchemaV13.self
+    )
+}

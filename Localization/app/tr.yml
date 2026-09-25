@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit ile yerel konuşmayı metne dönüştürme özelliğini kullanan yerel bir macOS menü çubuğu dikte uygulaması. İsteğe bağlı yapay zeka geliştirmesiyle varsayılan olarak %100 yerel işleme."
 about:
   _self: "Hakkında"
-  pindrop: "Superduper Dictation Hakkında"
+  superduper: "Superduper Dictation Hakkında"
 accessibility:
   _self: "Erişilebilirlik"
   permission: "Erişilebilirlik izni"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Sondaki boşluk ekle"
   blank_lines_between_sentence_groups_in_longe: "Uzun dikte metinlerinde cümle grupları arasına boş satırlar ekler. Tamamen yerel, yapay zekâ yok."
   word_replacements_to_automatically_correct_c: "Sık karşılaşılan transkripsiyon hatalarını otomatik olarak düzeltmek için sözcük değiştirmeleri ekleyin."
-  words_to_help_pindrop_recognize_them_properl: "Superduper Dictation'un bunları doğru şekilde tanımasına yardımcı olacak kelimeler ekleyin"
+  words_to_help_superduper_recognize_them_properl: "Superduper Dictation'un bunları doğru şekilde tanımasına yardımcı olacak kelimeler ekleyin"
   words_you_manually_correct_into_your_vocabul: "Gelecekteki transkripsiyonlar için manuel olarak düzelttiğiniz kelimeleri kelime dağarcığınıza ekleyin."
 advanced:
   _self: "Gelişmiş"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Otomatik güncellemeler ve manuel güncelleme kontrolleri"
 automatically:
   check_for_new_versions_in_the_back: "Arka planda yeni sürümleri otomatik olarak kontrol edin."
-  start_pindrop_when_you_sign_in: "Oturum açtığınızda Superduper Dictation'u otomatik olarak başlatın."
+  start_superduper_when_you_sign_in: "Oturum açtığınızda Superduper Dictation'u otomatik olarak başlatın."
 available:
   models: "Mevcut Modeller"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Mikrofonu değiştir"
   your_choice_anytime_in_settings_privacy: "Seçiminizi istediğiniz zaman Ayarlar → Gizlilik bölümünden değiştirin."
 changes:
-  the_language_used_by_pindrop_s_interface: "Superduper Dictation arayüzünün dilini değiştirir."
+  the_language_used_by_superduper_s_interface: "Superduper Dictation arayüzünün dilini değiştirir."
 check:
   for_updates: "Güncellemeleri Kontrol Et..."
   for_updates_736b9062: "Güncellemeleri kontrol edin"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Nemotron (noktalama destekli, indirilen model) ile Apple SpeechTranscriber (macOS 26+, sistemle birlikte gelir) arasında seçim yapın."
   file: "Dosya seç"
   how_dictated_text_lands_then_tune_the_fin: "Dikte edilen metnin nasıl yerleştirileceğini seçin, ardından son ekleme davranışını ayarlayın."
-  how_pindrop_appears_on_screen_while_you_d: "Dikte ederken Superduper Dictation'un ekranda nasıl görüneceğini seçin."
-  how_pindrop_follows_system_appearance_the: "Superduper Dictation'un sistem görünümünü nasıl takip edeceğini seçin, ardından seçilmiş açık ve koyu paletleri karıştırın."
+  how_superduper_appears_on_screen_while_you_d: "Dikte ederken Superduper Dictation'un ekranda nasıl görüneceğini seçin."
+  how_superduper_follows_system_appearance_the: "Superduper Dictation'un sistem görünümünü nasıl takip edeceğini seçin, ardından seçilmiş açık ve koyu paletleri karıştırın."
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Sözlük verilerinin nasıl içe aktarılacağını seçin"
   how_to_import_the_preset_data: "Ön ayar verilerinin nasıl içe aktarılacağını seçin"
@@ -368,10 +368,10 @@ choose:
   model: "Model seç…"
   the_daytime_shell_used_in_light_mode: "Işık modunda kullanılan gündüz kabuğunu seçin."
   the_low_glare_shell_used_in_dark_mode: "Karanlık modda kullanılan düşük parlamalı kabuğu seçin."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
+  whether_superduper_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "Superduper Dictation'un dikte için hangi mikrofonu kullanması gerektiğini ve kayıt sırasında nasıl davranacağını seçin."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
+  which_microphone_superduper_should_use_for_d: "Superduper Dictation'un dikte için hangi mikrofonu kullanması gerektiğini ve kayıt sırasında nasıl davranacağını seçin."
+  which_microphone_superduper_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "Gezinme kenar çubuğunun hangi tarafta görüneceğini seçin."
   where_to_save_the_training_data_file: "Eğitim verileri dosyasının kaydedileceği yeri seçin."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Varsayılanla Devam Et"
   without: "Olmadan Devam Et"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Superduper Dictation'un macOS'ta nasıl görüneceğini ve masaüstü oturumunuzla başlayıp başlamayacağını kontrol edin."
+  how_superduper_appears_in_macos_and_whether: "Superduper Dictation'un macOS'ta nasıl görüneceğini ve masaüstü oturumunuzla başlayıp başlamayacağını kontrol edin."
 controls:
 copied:
   _self: "Kopyalandı!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Ekran adı"
   name_c7874aaa: "Ekran adı"
-  pindrop_in_the_dock_instead_of_running_o: "Superduper Dictation'u yalnızca bir menü çubuğu uygulaması olarak çalıştırmak yerine Dock'ta görüntüleyin."
+  superduper_in_the_dock_instead_of_running_o: "Superduper Dictation'u yalnızca bir menü çubuğu uygulaması olarak çalıştırmak yerine Dock'ta görüntüleyin."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Kenar çubuğunu pencerenin sol veya sağ kenarına sabitleyin."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Harika"
 help:
   _self: "Yardım"
-  improve_pindrop: "Superduper Dictation’u geliştirmeye yardım edilsin mi?"
+  improve_superduper: "Superduper Dictation’u geliştirmeye yardım edilsin mi?"
 hide:
   api_key: "API anahtarını gizle"
   this_for_1_hour: "Bunu 1 saatliğine gizle"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "Japonca"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Superduper Dictation'u otomatik olarak güncel tutun veya istediğiniz zaman manuel kontrolü tetikleyin."
+  superduper_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  superduper_current_automatically_or_trigger_a: "Superduper Dictation'u otomatik olarak güncel tutun veya istediğiniz zaman manuel kontrolü tetikleyin."
   before_and_after_text_pairs_when_ai_enhance: "AI geliştirmesi veya düzenlemeleriniz bir transkripsiyonu iyileştirdiğinde öncesi-sonrası metin çiftlerini saklayın. Yalnızca bu Mac’te depolanır — hiçbir şey yüklenmez."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Superduper Dictation'un zaman içinde yaptığınız düzeltmelerden sessizce kelime öğrenmesine izin verin."
+  superduper_quietly_learn_vocabulary_from_the_co: "Superduper Dictation'un zaman içinde yaptığınız düzeltmelerden sessizce kelime öğrenmesine izin verin."
 library:
   _self: "Kitaplık"
 license:
@@ -1018,7 +1018,7 @@ pill:
   _self: "Hap"
 pin:
   to_screen_always_on_top: "Ekrana sabitle (her zaman üstte)"
-pindrop:
+superduper:
   _self: "Superduper Dictation"
   1_19: "Superduper Dictation 1.19"
   help: "Superduper Dictation Yardımı"
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "`fetchUser` çağır -> sonra yanıtı `==` 200 olarak eşle."
   name: "Ön Ayar Adı"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Herhangi bir uygulamada dikte etmek için basılı tutun. Superduper Dictation konuşmanızı yazıya dökecek ve metni imlecinizin bulunduğu yere ekleyecektir."
+  and_hold_to_dictate_in_any_app_superduper_wil: "Herhangi bir uygulamada dikte etmek için basılı tutun. Superduper Dictation konuşmanızı yazıya dökecek ve metni imlecinizin bulunduğu yere ekleyecektir."
   esc_to_cancel: "İptal etmek için Esc tuşuna basın"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Kaydı iptal etmek için Escape'e iki kez basın. Kapalıyken tek basış iptal eder."
   keys: "Tuşlara basın..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "En son transkriptinizi hızla panoya geri çekin."
 quit:
   _self: "Çıkış yapmak"
-  pindrop: "Superduper Dictation'tan çık"
+  superduper: "Superduper Dictation'tan çık"
 ready:
   _self: "Hazır"
   ec1296e1: "● Hazır"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Yeniden isimlendirmek"
   folder: "Klasörü Yeniden Adlandır"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
+  speakers_in_transcripts_to_teach_superduper: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "Tümünü Değiştir"
   words_and_phrases: "Kelimeleri ve cümleleri değiştirin"
@@ -1227,7 +1227,7 @@ select:
   all: "Tümünü Seç"
   language: "Dil Seçiniz"
   language_daea52c9: "Dil seçin"
-  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
+  the_language_superduper_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "Bu kayan gösterge stilini seçin."
   voice_model: "Ses Modelini Seçin"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Kaydı Başlat"
   recording_to_see_your_transcriptions_here: "Çeviri yazılarınızı burada görmek için kaydetmeye başlayın"
   stop_recording: "Kaydı başlat/durdur"
-  using_pindrop: "Superduper Dictation'u Kullanmaya Başlayın"
+  using_superduper: "Superduper Dictation'u Kullanmaya Başlayın"
   in_the_menu_bar_without_opening_the_main_w: "Ana pencereyi açmadan menü çubuğunda başlat. Menü çubuğu simgesinden daha sonra da açabilirsiniz."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Zaman damgaları (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "dikte etmek ve Superduper Dictation'un sizin için yazıya dökmesine izin vermek"
+  dictate_and_let_superduper_transcribe_for_you: "dikte etmek ve Superduper Dictation'un sizin için yazıya dökmesine izin vermek"
   start_talking: "konuşmaya başlamak"
 today:
   _self: "Bugün"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
+  u7_teach_superduper_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1616,7 +1616,7 @@ u9:
   onboarding_download_background_hint: "İndirme sürerken kuruluma devam edin — arka planda tamamlayacağız."
   onboarding_enable_enhancement: "İyileştirmeyi etkinleştir"
   onboarding_granted_state: "Verildi"
-  onboarding_pindrop_writes: "Superduper Dictation yazar"
+  onboarding_superduper_writes: "Superduper Dictation yazar"
   onboarding_ready_heading: "Hazırsınız."
   onboarding_ready_instruction_format: "%@'ye basın ve konuşmaya başlayın — Superduper Dictation imlecinizin bulunduğu yere yazar."
   onboarding_try_it_now: "Şimdi deneyin"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Superduper Dictation'a hoş geldiniz"
+  to_superduper: "Superduper Dictation'a hoş geldiniz"
 what:
   s_new: "Yenilikler…"
-  s_new_in_pindrop: "Superduper Dictation’ta Yenilikler"
-  does_pindrop_collect: "Superduper Dictation neleri toplar?"
+  s_new_in_superduper: "Superduper Dictation’ta Yenilikler"
+  does_superduper_collect: "Superduper Dictation neleri toplar?"
 while:
   recording: "Kayıt sırasında"
 whisperkit:

@@ -7,18 +7,18 @@ Last updated: 2026-03-24
 - App: `Superduper Dictation` (menu bar macOS app, `LSUIElement` behavior)
 - Stack: Swift 5.9+, SwiftUI, SwiftData, Swift Testing, XCTest UI tests
 - Platform target: macOS 14+
-- Main dependency path: `Pindrop.xcodeproj` + SwiftPM
-- Entry points: `Pindrop/PindropApp.swift`, `Pindrop/AppCoordinator.swift`
+- Main dependency path: `SuperduperDictation.xcodeproj` + SwiftPM
+- Entry points: `SuperduperDictation/SuperduperDictationApp.swift`, `SuperduperDictation/AppCoordinator.swift`
 
 ## Source Layout
 
-- App code: `Pindrop/`
-- Services: `Pindrop/Services/`
-- UI: `Pindrop/UI/`
-- Persistence models: `Pindrop/Models/`
-- Utilities/logging: `Pindrop/Utils/`
-- Tests: `PindropTests/`
-- Test doubles: `PindropTests/TestHelpers/`
+- App code: `SuperduperDictation/`
+- Services: `SuperduperDictation/Services/`
+- UI: `SuperduperDictation/UI/`
+- Persistence models: `SuperduperDictation/Models/`
+- Utilities/logging: `SuperduperDictation/Utils/`
+- Tests: `SuperduperDictationTests/`
+- Test doubles: `SuperduperDictationTests/TestHelpers/`
 - Build automation: `justfile`, `scripts/`, `.github/workflows/`
 
 ## Required Local Tooling
@@ -50,10 +50,10 @@ just xcode                 # open Xcode project
 Direct focused test commands:
 
 ```bash
-xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -testPlan Unit -destination 'platform=macOS'
-xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -testPlan UI -destination 'platform=macOS'
-xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platform=macOS' -only-testing:PindropTests/AudioRecorderTests
-xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platform=macOS' -only-testing:PindropTests/AudioRecorderTests/testStartRecordingRequestsPermission
+xcodebuild test -project SuperduperDictation.xcodeproj -scheme SuperduperDictation -testPlan Unit -destination 'platform=macOS'
+xcodebuild test -project SuperduperDictation.xcodeproj -scheme SuperduperDictation -testPlan UI -destination 'platform=macOS'
+xcodebuild test -project SuperduperDictation.xcodeproj -scheme SuperduperDictation -destination 'platform=macOS' -only-testing:SuperduperDictationTests/AudioRecorderTests
+xcodebuild test -project SuperduperDictation.xcodeproj -scheme SuperduperDictation -destination 'platform=macOS' -only-testing:SuperduperDictationTests/AudioRecorderTests/testStartRecordingRequestsPermission
 ```
 
 ## Coding Conventions
@@ -70,7 +70,7 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 
 - Dependency injection via initializer arguments (avoid hidden globals)
 - Protocol abstractions for hardware/system boundaries
-- Example protocol seam: `AudioCaptureBackend` in `Pindrop/Services/AudioRecorder.swift`
+- Example protocol seam: `AudioCaptureBackend` in `SuperduperDictation/Services/AudioRecorder.swift`
 - Keep async boundaries explicit (`async` / `async throws`)
 - Avoid fire-and-forget tasks unless they are UI/lifecycle orchestration
 
@@ -83,8 +83,8 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 
 ## Localization
 
-- **String Catalogs**: `Pindrop/Localization/Localizable.xcstrings` (in-app copy) and `Pindrop/Localization/InfoPlist.xcstrings` (privacy strings, bundle display name). Both are in the app target’s **Copy Bundle Resources**. The top-level `Localization/` tree is the source of truth for the YAML-first pipeline.
-- **Runtime API**: `localized("English key", locale: locale)` in `Pindrop/AppLocalization.swift` now resolves through generated stable-key metadata before falling back to `Bundle`; `SettingsStore.selectedAppLocale` drives UI locale and `SettingsStore.selectedAppLanguage` drives dictation/transcription language.
+- **String Catalogs**: `SuperduperDictation/Localization/Localizable.xcstrings` (in-app copy) and `SuperduperDictation/Localization/InfoPlist.xcstrings` (privacy strings, bundle display name). Both are in the app target’s **Copy Bundle Resources**. The top-level `Localization/` tree is the source of truth for the YAML-first pipeline.
+- **Runtime API**: `localized("English key", locale: locale)` in `SuperduperDictation/AppLocalization.swift` now resolves through generated stable-key metadata before falling back to `Bundle`; `SettingsStore.selectedAppLocale` drives UI locale and `SettingsStore.selectedAppLanguage` drives dictation/transcription language.
 - **New user-facing strings**: Add an entry to the YAML source tree under `Localization/`, then run `just l10n-sync` so the catalogs and generated Swift stay in sync.
 - **New language (locale)**: Add the locale with `just l10n-add-locale <locale>` (or edit `Localization/locales.yml`), then populate the relevant `Localization/app/*.yml` and `Localization/infoplist/*.yml` files before syncing.
 - **Interface vs dictation language**: The General settings UI now separates interface language from dictation language. Keep `AppLocale`-driven UI locale changes away from `AppLanguage`/transcription behavior.
@@ -93,26 +93,26 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 
 ## Logging
 
-- Use `Log` categories from `Pindrop/Utils/Logger.swift`
+- Use `Log` categories from `SuperduperDictation/Utils/Logger.swift`
 - Categories include: `audio`, `transcription`, `model`, `output`, `hotkey`, `app`, `ui`, `update`, `aiEnhancement`, `context`
 - Log intent and failure context; avoid noisy per-frame spam
 
 ## SwiftData and Persistence
 
 - Models use SwiftData macros (`@Model`, `@Attribute(.unique)`)
-- Keep schema-related changes coordinated with schema files under `Pindrop/Models/`
+- Keep schema-related changes coordinated with schema files under `SuperduperDictation/Models/`
 - Use in-memory model containers for unit tests when testing store logic
 
 ## Testing Conventions
 
 - Test files: `*Tests.swift`
-- Unit tests use Swift Testing with `@Suite` / `@Test`; macOS UI coverage stays in `PindropUITests/` with XCTest UI APIs
+- Unit tests use Swift Testing with `@Suite` / `@Test`; macOS UI coverage stays in `SuperduperDictationUITests/` with XCTest UI APIs
 - Standard naming: `sut` for system under test
-- Prefer local fixture builders over shared `setUp` / `tearDown`; use `PindropTests/TestSupport.swift` for reusable test helpers
-- Use protocol mocks from `PindropTests/TestHelpers/` for hardware/system APIs
-- Integration tests are gated (see `PINDROP_RUN_INTEGRATION_TESTS` pattern)
-- Test mode signal exists in runtime (`PINDROP_TEST_MODE`)
-- UI tests run through `PINDROP_UI_TEST_MODE` and deterministic fixture surfaces in `Pindrop/AppTestMode.swift`
+- Prefer local fixture builders over shared `setUp` / `tearDown`; use `SuperduperDictationTests/TestSupport.swift` for reusable test helpers
+- Use protocol mocks from `SuperduperDictationTests/TestHelpers/` for hardware/system APIs
+- Integration tests are gated (see `SUPERDUPER_RUN_INTEGRATION_TESTS` pattern)
+- Test mode signal exists in runtime (`SUPERDUPER_TEST_MODE`)
+- UI tests run through `SUPERDUPER_UI_TEST_MODE` and deterministic fixture surfaces in `SuperduperDictation/AppTestMode.swift`
 
 ## Change Scope Rules
 
@@ -126,13 +126,13 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 - Local release helpers: `just build-release`, `just export-app`, `just dmg`, `just dmg-self-signed` (fallback only)
 - Manual release flow is `just release <X.Y.Z>` (local execution, not CI-driven)
   1. Create/edit contextual release notes (`release-notes/vX.Y.Z.md`)
-  2. For feature releases (X.Y.0): update the in-app What's New announcement — `AnnouncementCatalog` in `Pindrop/Models/Announcement.swift` (new id + `Pindrop X.Y.0 · <Month Year>` header + feature items) plus the `whatsnew:` strings in `Localization/app/*.yml` for all locales, then `just l10n-sync` (`just release` enforces this)
+  2. For feature releases (X.Y.0): update the in-app What's New announcement — `AnnouncementCatalog` in `SuperduperDictation/Models/Announcement.swift` (new id + `Superduper Dictation X.Y.0 · <Month Year>` header + feature items) plus the `whatsnew:` strings in `Localization/app/*.yml` for all locales, then `just l10n-sync` (`just release` enforces this)
   3. Run tests
   4. Build signed release DMG (`just dmg` exports a Developer ID-signed app first)
   5. Generate `appcast.xml`
   6. Create + push tag
   7. Create GitHub release via `gh` with notes + DMG + `appcast.xml`
-  8. Sync release notes to the website changelog: `just sync-website-changelog <X.Y.Z>` runs automatically at the end of `just release` (best-effort). It copies `release-notes/vX.Y.Z.md` with version/date frontmatter into `../pindrop-website/src/content/changelog/` (override location with `PINDROP_WEBSITE_DIR`), commits that one file in the website repo, and pushes so the site redeploys. If it fails, run it manually after the release.
+  8. Sync release notes to the website changelog: `just sync-website-changelog <X.Y.Z>` runs automatically at the end of `just release` (best-effort). It copies `release-notes/vX.Y.Z.md` with version/date frontmatter into `../superduper-website/src/content/changelog/` (override location with `SUPERDUPER_WEBSITE_DIR`), commits that one file in the website repo, and pushes so the site redeploys. If it fails, run it manually after the release.
 - CI workflows under `.github/workflows/` are for build/test validation; release publishing is manual
 - Sparkle appcast generation is scripted via `just appcast <dmg-path>`
 - Keep `just build-self-signed` / `just dmg-self-signed` only as a fallback when Apple signing is unavailable
@@ -147,13 +147,13 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 
 ## Important Paths
 
-- App lifecycle: `Pindrop/PindropApp.swift`
-- Service composition: `Pindrop/AppCoordinator.swift`
-- Settings and keychain: `Pindrop/Services/SettingsStore.swift`
-- Audio capture core: `Pindrop/Services/AudioRecorder.swift`
-- Transcription orchestration: `Pindrop/Services/TranscriptionService.swift`
-- Logging facade: `Pindrop/Utils/Logger.swift`
-- Localization: `Pindrop/AppLocalization.swift`, `Pindrop/Generated/LocalizationMetadata.swift`, `Pindrop/Generated/L10nKeys.swift`, `Pindrop/Localization/Localizable.xcstrings`, `Pindrop/Localization/InfoPlist.xcstrings`, `Localization/`
+- App lifecycle: `SuperduperDictation/SuperduperDictationApp.swift`
+- Service composition: `SuperduperDictation/AppCoordinator.swift`
+- Settings and keychain: `SuperduperDictation/Services/SettingsStore.swift`
+- Audio capture core: `SuperduperDictation/Services/AudioRecorder.swift`
+- Transcription orchestration: `SuperduperDictation/Services/TranscriptionService.swift`
+- Logging facade: `SuperduperDictation/Utils/Logger.swift`
+- Localization: `SuperduperDictation/AppLocalization.swift`, `SuperduperDictation/Generated/LocalizationMetadata.swift`, `SuperduperDictation/Generated/L10nKeys.swift`, `SuperduperDictation/Localization/Localizable.xcstrings`, `SuperduperDictation/Localization/InfoPlist.xcstrings`, `Localization/`
 - Localization tooling: `scripts/localization.py`, `justfile`
 - Build recipes: `justfile`
 - Contributor docs: `README.md`, `CONTRIBUTING.md`, `BUILD.md`
