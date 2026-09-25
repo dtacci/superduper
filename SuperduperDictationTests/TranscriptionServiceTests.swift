@@ -2375,6 +2375,17 @@ struct MeetingTranscriptAssemblerTests {
         ) == ["A", "B", "B"])
     }
 
+    // In a one-on-one, diarization splitting the other person in two must not show
+    // two different people.
+    @Test func oneOnOneCallTrackCollapsesToTheDominantSpeaker() {
+        #expect(MeetingTranscriptAssembler.collapsingToDominantSpeaker(
+            ["A", "B", "A", "others", "A"],
+            unattributedKey: "others"
+        ) == ["A", "A", "A", "A", "A"])
+        #expect(MeetingTranscriptAssembler.collapsingToDominantSpeaker(["others", "others"], unattributedKey: "others")
+            == ["others", "others"])
+    }
+
     @Test func wordsBetweenTurnsGoToTheNearestTurn() {
         let words = [word("gap", 1.6, 1.8)]
         let segments = [segment("A", 0, 1), segment("B", 2, 3)]

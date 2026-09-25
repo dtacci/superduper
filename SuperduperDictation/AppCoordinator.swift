@@ -4268,14 +4268,7 @@ final class AppCoordinator {
         if let profiles = try? speakerIdentityService.fetchAllProfiles() {
             candidates += profiles.filter { !$0.isCurrentUser }.map(\.displayName)
         }
-        // Meetings armed from the calendar carry their event; ad-hoc ones (meeting
-        // shortcut, "Save as Meeting") use the calendar event they overlapped.
-        let eventJSON = occurrence?.calendarSnapshotJSON ?? Self.calendarEvent(
-            overlappingFrom: occurrence?.scheduledStart ?? Date(),
-            to: Date(),
-            in: meetingsState.calendarEvents
-        )?.rawSnapshotJSON
-        candidates += Self.calendarAttendeeNames(fromEventJSON: eventJSON)
+        candidates += Self.calendarAttendeeNames(fromEventJSON: meetingCalendarEventJSON(for: occurrence))
 
         let terms = Self.meetingVocabulary(from: candidates)
         let packs = vocabularyPackStore.activeVocabulary()
@@ -4293,6 +4286,26 @@ final class AppCoordinator {
     }
 
     nonisolated static let meetingVocabularyLimit = 200
+
+    /// Meetings armed from the calendar carry their event; ad-hoc ones (meeting
+    /// shortcut, "Save as Meeting") use the calendar event they overlapped.
+    private func meetingCalendarEventJSON(for occurrence: MeetingOccurrence?) -> String? {
+        occurrence?.calendarSnapshotJSON ?? Self.calendarEvent(
+            overlappingFrom: occurrence?.scheduledStart ?? Date(),
+            to: Date(),
+            in: meetingsState.calendarEvents
+        )?.rawSnapshotJSON
+    }
+
+    /// The other person when the meeting is a one-on-one, so the call track can be
+    /// labeled with their name instead of "Speaker 1".
+    private func meetingCallParticipantName(for occurrence: MeetingOccurrence?) -> String? {
+        let name = Self.oneOnOneParticipantName(fromEventJSON: meetingCalendarEventJSON(for: occurrence))
+        if name != nil {
+            Log.transcription.info("One-on-one meeting: labeling the call audio with the other attendee")
+        }
+        return name
+    }
 
     /// Distinct names and terms worth boosting. Full names are kept as phrases and
     /// their parts are added too, since people are usually addressed by one name.
@@ -4342,6 +4355,38 @@ final class AppCoordinator {
             }
             return (person["email"] as? String).flatMap(nameFromEmailAddress)
         }
+    }
+
+    /// The only other person invited, if the event is a one-on-one: attendees and the
+    /// organizer minus you, rooms, and people who declined. Nil for group events and
+    /// for shared or unnamed inboxes.
+    nonisolated static func oneOnOneParticipantName(fromEventJSON json: String?) -> String? {
+        guard let data = json?.data(using: .utf8),
+              let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return nil
+        }
+        var people = (event["attendees"] as? [[String: Any]]) ?? []
+        if let organizer = event["organizer"] as? [String: Any] {
+            people.append(organizer)
+        }
+        var others: [String: [String: Any]] = [:]
+        for person in people {
+            guard person["self"] as? Bool != true,
+                  person["resource"] as? Bool != true,
+                  person["responseStatus"] as? String != "declined",
+                  let email = (person["email"] as? String)?.lowercased(), !email.isEmpty else {
+                continue
+            }
+            // The same person can appear as attendee and organizer; keep the named entry.
+            if others[email]?["displayName"] == nil {
+                others[email] = person
+            }
+        }
+        guard others.count == 1, let (email, person) = others.first else { return nil }
+        if let name = (person["displayName"] as? String)?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
+            return name
+        }
+        return nameFromEmailAddress(email)
     }
 
     /// "russ.dsa@livekit.io" → "Russ Dsa". Shared or numbered mailboxes yield nil.
@@ -6859,6 +6904,7 @@ final class AppCoordinator {
             )
 
             let sourceHealth = audioRecorder.lastMeetingSourceHealth
+            let meetingOccurrence = occurrenceID.flatMap { try? meetingStore.occurrence(id: $0) }
             let transcriptionOutput = try await transcriptionService.transcribeMeeting(
                 sources: MeetingAudioSources.load(
                     workspaceURL: meetingWorkspaceURL,
@@ -6866,10 +6912,9 @@ final class AppCoordinator {
                     microphoneHealth: sourceHealth?.microphone,
                     systemAudioHealth: sourceHealth?.systemAudio
                 ),
-                options: makeMeetingTranscriptionOptions(
-                    occurrence: occurrenceID.flatMap { try? meetingStore.occurrence(id: $0) }
-                ),
+                options: makeMeetingTranscriptionOptions(occurrence: meetingOccurrence),
                 expectedSpeakerCount: job.options.expectedSpeakerCount,
+                callParticipantName: meetingCallParticipantName(for: meetingOccurrence),
                 progressHandler: makeTranscriptionProgressHandler()
             )
             try ensureOperationCurrent(token)
@@ -7086,6 +7131,7 @@ final class AppCoordinator {
                 ),
                 options: makeMeetingTranscriptionOptions(occurrence: occurrence),
                 expectedSpeakerCount: occurrence.expectedSpeakerCount,
+                callParticipantName: meetingCallParticipantName(for: occurrence),
                 progressHandler: makeTranscriptionProgressHandler()
             )
             let text = normalizedTranscriptionText(output.text)
