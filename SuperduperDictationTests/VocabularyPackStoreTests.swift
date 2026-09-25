@@ -129,4 +129,44 @@ struct VocabularyPackStoreTests {
 
         #expect(try VocabularyPackStore.decodePack(from: Data(contentsOf: file), fallbackName: "x") == pack)
     }
+
+    // MARK: - Building packs from docs
+
+    private let docs = """
+    # LiveKit docs
+
+    > LiveKit is an open-source platform built on WebRTC. Run the SFU yourself or on LiveKit Cloud.
+
+    - [Agents](https://docs.livekit.io/agents/llms.txt): Build agents with AgentSession and the Cartesia or Deepgram plugins.
+    - [Hardware](https://docs.livekit.io/hardware/llms.txt): ESP32 support. Cartesia and Deepgram again.
+    - Use `session.say()` or call useChatToggle once. See https://example.com/deepgram_docs.
+    The API and SDK and JSON are everywhere. AgentControlBarButton appears once. Frobnicate appears once.
+    """
+
+    private let everyday: Set<String> = [
+        "is", "an", "open-source", "platform", "built", "on", "run", "the", "yourself", "or", "cloud",
+        "build", "agents", "with", "and", "plugins", "hardware", "support", "again", "use", "call",
+        "once", "see", "are", "everywhere", "appears", "docs",
+    ]
+
+    @Test func docsYieldNamesAcronymsAndRepeatedNonWords() {
+        let candidates = VocabularyPackExtractor.candidates(in: docs, isWord: { everyday.contains($0.lowercased()) })
+        let terms = candidates.map(\.term)
+
+        #expect(terms.first == "LiveKit")
+        #expect(Set(["WebRTC", "SFU", "AgentSession", "ESP32", "Cartesia", "Deepgram"]).isSubset(of: Set(terms)))
+        // Common acronyms, code, URLs, one-off long identifiers, and one-off non-words are skipped.
+        #expect(terms.allSatisfy { !["API", "SDK", "JSON", "say", "useChatToggle", "AgentControlBarButton", "Frobnicate"].contains($0) })
+        #expect(!terms.contains { $0.contains("_") || $0.contains("docs") })
+    }
+
+    @Test func docsTitleAndLinkedIndexesAreFound() throws {
+        let base = try #require(URL(string: "https://docs.livekit.io/llms.txt"))
+
+        #expect(VocabularyPackExtractor.title(in: docs) == "LiveKit docs")
+        #expect(VocabularyPackExtractor.linkedIndexURLs(in: docs, base: base).map(\.absoluteString) == [
+            "https://docs.livekit.io/agents/llms.txt",
+            "https://docs.livekit.io/hardware/llms.txt",
+        ])
+    }
 }

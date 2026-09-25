@@ -19,6 +19,7 @@ struct VocabularyPacksSection: View {
     @State private var remoteURLText = ""
     @State private var isDownloading = false
     @State private var errorMessage: String?
+    @State private var isBuildingFromDocs = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -66,10 +67,15 @@ struct VocabularyPacksSection: View {
         } message: {
             Text(errorMessage ?? "")
         }
+        .sheet(isPresented: $isBuildingFromDocs) {
+            VocabularyPackBuilderSheet(store: store)
+        }
     }
 
     private var addPackMenu: some View {
         Menu {
+            Button(localized("Build pack from docs…", locale: locale)) { isBuildingFromDocs = true }
+            Divider()
             Button(localized("Import pack file…", locale: locale)) { importFromFile() }
             Button(localized("Import pack from URL…", locale: locale)) {
                 remoteURLText = ""
@@ -204,5 +210,166 @@ struct VocabularyPacksSection: View {
     private func present(_ error: Error) {
         Log.ui.error("Vocabulary pack action failed: \(error.localizedDescription)")
         errorMessage = error.localizedDescription
+    }
+}
+
+/// Builds a pack from a documentation link: fetch, suggest terms, review, save.
+struct VocabularyPackBuilderSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
+    let store: VocabularyPackStore
+
+    @State private var urlText = ""
+    @State private var packName = ""
+    @State private var candidates: [VocabularyPackExtractor.Candidate] = []
+    @State private var selectedTerms: Set<String> = []
+    @State private var sourceHost = ""
+    @State private var isFetching = false
+    @State private var message: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(localized("Build a vocabulary pack", locale: locale))
+                    .font(AppTypography.labelStrongSelected)
+                    .foregroundStyle(AppColors.textPrimary)
+                Text(localized(
+                    "Paste a documentation link. Sites with an llms.txt index work best, like docs.livekit.io/llms.txt.",
+                    locale: locale
+                ))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+
+            HStack(spacing: 8) {
+                TextField("https://", text: $urlText)
+                    .textFieldStyle(.roundedBorder)
+                    .onSubmit(fetch)
+                    .accessibilityIdentifier("vocabularyPackBuilder.url")
+                Button(localized("Find terms", locale: locale), action: fetch)
+                    .disabled(isFetching || url == nil)
+                    .keyboardShortcut(.defaultAction)
+            }
+
+            if isFetching {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small)
+                    Text(localized("Reading the docs…", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+            } else if let message {
+                Text(message)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if !candidates.isEmpty {
+                TextField(localized("Pack name", locale: locale), text: $packName)
+                    .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("vocabularyPackBuilder.name")
+
+                HStack {
+                    Text(String(format: localized("%d of %d terms selected", locale: locale), selectedTerms.count, candidates.count))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                    Spacer()
+                    Button(localized("Select all", locale: locale)) { selectedTerms = Set(candidates.map(\.term)) }
+                        .buttonStyle(.link)
+                    Button(localized("Select none", locale: locale)) { selectedTerms = [] }
+                        .buttonStyle(.link)
+                }
+                .font(AppTypography.caption)
+
+                List(candidates) { candidate in
+                    Toggle(isOn: Binding(
+                        get: { selectedTerms.contains(candidate.term) },
+                        set: { isOn in
+                            if isOn { selectedTerms.insert(candidate.term) } else { selectedTerms.remove(candidate.term) }
+                        }
+                    )) {
+                        HStack {
+                            Text(candidate.term)
+                                .font(AppTypography.label)
+                                .foregroundStyle(AppColors.textPrimary)
+                            Spacer()
+                            Text("\(candidate.count)")
+                                .font(FontLoader.font(family: .jetbrainsMono, size: 10, weight: .medium))
+                                .foregroundStyle(AppColors.textTertiary)
+                        }
+                    }
+                    .toggleStyle(.checkbox)
+                }
+                .frame(minHeight: 220)
+            }
+
+            HStack {
+                Spacer()
+                Button(localized("Cancel", locale: locale), role: .cancel) { dismiss() }
+                Button(localized("Save pack", locale: locale), action: save)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(selectedTerms.isEmpty || packName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .accessibilityIdentifier("vocabularyPackBuilder.save")
+            }
+        }
+        .padding(20)
+        .frame(width: 480)
+        .frame(minHeight: candidates.isEmpty ? 0 : 520)
+    }
+
+    private var url: URL? {
+        let text = urlText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let withScheme = text.contains("://") ? text : "https://\(text)"
+        guard let url = URL(string: withScheme), let scheme = url.scheme?.lowercased(),
+              scheme == "https" || scheme == "http", url.host != nil else {
+            return nil
+        }
+        return url
+    }
+
+    private func fetch() {
+        guard let url, !isFetching else { return }
+        isFetching = true
+        message = nil
+        Task { @MainActor in
+            defer { isFetching = false }
+            do {
+                let docs = try await VocabularyPackStore.fetchDocumentation(from: url)
+                let found = VocabularyPackExtractor.candidates(in: docs.text)
+                candidates = found
+                // Terms mentioned more than once are pre-selected; one-offs are optional.
+                selectedTerms = Set(found.filter { $0.count > 1 }.map(\.term))
+                sourceHost = url.host ?? ""
+                if packName.isEmpty {
+                    packName = docs.title ?? sourceHost
+                }
+                if found.isEmpty {
+                    message = localized("No likely terms found on that page.", locale: locale)
+                }
+            } catch {
+                Log.ui.error("Building a vocabulary pack failed: \(error.localizedDescription)")
+                candidates = []
+                message = String(format: localized("Couldn't read that page: %@", locale: locale), error.localizedDescription)
+            }
+        }
+    }
+
+    private func save() {
+        let name = packName.trimmingCharacters(in: .whitespaces)
+        let terms = candidates.filter { selectedTerms.contains($0.term) }.map { VocabularyPackTerm($0.term) }
+        let pack = VocabularyPack(
+            id: VocabularyPack.slug(for: name),
+            name: name,
+            summary: String(format: localized("Built from %@", locale: locale), sourceHost),
+            terms: terms
+        )
+        do {
+            try store.save(pack)
+            dismiss()
+        } catch {
+            message = error.localizedDescription
+        }
     }
 }

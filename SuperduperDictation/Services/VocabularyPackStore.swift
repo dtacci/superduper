@@ -356,3 +356,198 @@ extension VocabularyPackStore {
         ]
     )
 }
+
+// MARK: - Building packs from documentation
+
+/// Picks likely jargon out of documentation text (an `llms.txt` index works best):
+/// product and API names ("LiveKit", "AgentSession"), acronyms ("SFU"), names with
+/// digits ("ESP32"), and repeated words that aren't in the dictionary ("Cartesia").
+/// Everyday words and short acronyms speech recognition already gets right are
+/// skipped. The result is a suggestion list for the person to review.
+enum VocabularyPackExtractor {
+    struct Candidate: Equatable, Identifiable {
+        let term: String
+        let count: Int
+        var id: String { term }
+    }
+
+    static let maximumCandidates = 200
+
+    /// Common acronyms that recognizers already spell correctly.
+    static let commonAcronyms: Set<String> = [
+        "AI", "AM", "API", "APIS", "BSD", "CEO", "CLI", "CPU", "CSS", "CSV", "DNS", "EU", "FAQ",
+        "GPU", "HTML", "HTTP", "HTTPS", "ID", "IDS", "IOS", "IP", "JSON", "MIT", "OK", "OS", "PDF",
+        "PM", "RAM", "README", "REST", "SDK", "SDKS", "SQL", "SSL", "TLS", "TODO", "TV", "UI", "UK",
+        "URL", "URLS", "US", "USB", "UX", "XML", "YAML",
+    ]
+
+    @MainActor
+    static func candidates(
+        in text: String,
+        isWord: (String) -> Bool = ParakeetEngine.isEverydayWord
+    ) -> [Candidate] {
+        let tokens = tokenize(cleaned(text))
+        var counts: [String: Int] = [:]
+        var spellings: [String: [String: Int]] = [:]
+        func add(_ term: String) {
+            let key = term.lowercased()
+            counts[key, default: 0] += 1
+            spellings[key, default: [:]][term, default: 0] += 1
+        }
+
+        var wordVerdicts: [String: Bool] = [:]
+        for token in tokens {
+            switch classify(token) {
+            case .compound, .withDigits, .acronym:
+                add(token)
+            case .plain:
+                let key = token.lowercased()
+                let isKnownWord = wordVerdicts[key] ?? {
+                    let verdict = isWord(token)
+                    wordVerdicts[key] = verdict
+                    return verdict
+                }()
+                if !isKnownWord && token.count >= 4 {
+                    add(token)
+                }
+            case .skip:
+                break
+            }
+        }
+
+        return counts
+            .compactMap { key, count -> Candidate? in
+                guard let spelling = spellings[key]?.max(by: { $0.value < $1.value || ($0.value == $1.value && $0.key > $1.key) })?.key else {
+                    return nil
+                }
+                // One mention is enough for a short name ("AgentSession"); plain
+                // non-words, long identifiers ("AgentControlBarButton"), and code
+                // names starting in lowercase ("useChatToggle") must repeat.
+                let needsRepeat = classify(spelling) == .plain
+                    || capitalHumps(in: spelling) >= 3
+                    || (classify(spelling) == .compound && spelling.first?.isLowercase == true)
+                return needsRepeat && count < 2 ? nil : Candidate(term: spelling, count: count)
+            }
+            .sorted { $0.count != $1.count ? $0.count > $1.count : $0.term.localizedCaseInsensitiveCompare($1.term) == .orderedAscending }
+            .prefix(maximumCandidates)
+            .map { $0 }
+    }
+
+    /// "AgentSession" → 2, "AgentControlBar" → 3.
+    static func capitalHumps(in token: String) -> Int {
+        let characters = Array(token)
+        return characters.indices.filter { index in
+            characters[index].isUppercase && (index == 0 || characters[index - 1].isLowercase)
+        }.count
+    }
+
+    enum Kind: Equatable {
+        case compound    // LiveKit, WebRTC, AgentSession
+        case withDigits  // ESP32, I2S
+        case acronym     // SFU, RPC
+        case plain
+        case skip
+    }
+
+    static func classify(_ token: String) -> Kind {
+        let letters = token.filter(\.isLetter)
+        guard token.count >= 3, token.count <= 32, !letters.isEmpty else { return .skip }
+        if token.contains(where: \.isNumber) {
+            return .withDigits
+        }
+        if letters.allSatisfy(\.isUppercase) {
+            return token.count <= 6 && !commonAcronyms.contains(token.uppercased()) ? .acronym : .skip
+        }
+        let characters = Array(token)
+        let hasInnerCapital = characters.indices.dropFirst().contains { index in
+            characters[index].isUppercase && characters[index - 1].isLowercase
+        }
+        return hasInnerCapital ? .compound : .plain
+    }
+
+    /// Drops URLs, markdown link targets, and code-ish punctuation.
+    static func cleaned(_ text: String) -> String {
+        text
+            .replacingOccurrences(of: #"\]\([^)]*\)"#, with: "] ", options: .regularExpression)
+            .replacingOccurrences(of: #"https?://\S+"#, with: " ", options: .regularExpression)
+            .replacingOccurrences(of: #"\S*(?:[_/\\@=<>{}]|\w\.\w)\S*"#, with: " ", options: .regularExpression)
+    }
+
+    static func tokenize(_ text: String) -> [String] {
+        let pattern = try! NSRegularExpression(pattern: #"[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*"#)
+        let range = NSRange(text.startIndex..., in: text)
+        return pattern.matches(in: text, range: range).compactMap { Range($0.range, in: text).map { String(text[$0]) } }
+    }
+
+    /// The document's first `# Heading`, used to name the pack.
+    static func title(in text: String) -> String? {
+        text.split(separator: "\n", omittingEmptySubsequences: true)
+            .first { $0.hasPrefix("# ") }
+            .map { $0.dropFirst(2).trimmingCharacters(in: .whitespaces) }
+    }
+
+    /// Other `llms.txt` indexes on the same site that a root `llms.txt` links to.
+    static func linkedIndexURLs(in text: String, base: URL, limit: Int = 15) -> [URL] {
+        let pattern = try! NSRegularExpression(pattern: #"https?://[^\s)\]]+/llms(?:-full)?\.txt"#)
+        let range = NSRange(text.startIndex..., in: text)
+        var seen = Set<URL>([base])
+        var urls: [URL] = []
+        for match in pattern.matches(in: text, range: range) {
+            guard let swiftRange = Range(match.range, in: text),
+                  let url = URL(string: String(text[swiftRange])),
+                  url.host == base.host,
+                  !url.lastPathComponent.contains("full"),
+                  seen.insert(url).inserted else {
+                continue
+            }
+            urls.append(url)
+            if urls.count == limit { break }
+        }
+        return urls
+    }
+}
+
+extension VocabularyPackStore {
+    /// Documentation text for building a pack. A web page falls back to the site's
+    /// `/llms.txt`; a root `llms.txt` also pulls in the section indexes it links to.
+    nonisolated static func fetchDocumentation(
+        from url: URL,
+        session: URLSession = .shared
+    ) async throws -> (title: String?, text: String) {
+        func text(at url: URL) async throws -> String {
+            let (data, response) = try await session.data(from: url)
+            if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+                throw VocabularyPackError.unreadable("the server returned HTTP \(http.statusCode)")
+            }
+            guard data.count <= 8_000_000, let string = String(data: data, encoding: .utf8) else {
+                throw VocabularyPackError.unreadable("the page is too large or isn't text")
+            }
+            return string
+        }
+
+        var sourceURL = url
+        var main = try await text(at: url)
+        if main.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("<"),
+           var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+            components.path = "/llms.txt"
+            components.query = nil
+            if let llmsURL = components.url {
+                main = try await text(at: llmsURL)
+                sourceURL = llmsURL
+            }
+        }
+
+        let linked = VocabularyPackExtractor.linkedIndexURLs(in: main, base: sourceURL)
+        let sections = await withTaskGroup(of: String?.self) { group in
+            for url in linked {
+                group.addTask { try? await text(at: url) }
+            }
+            var collected: [String] = []
+            for await section in group {
+                if let section { collected.append(section) }
+            }
+            return collected
+        }
+        return (VocabularyPackExtractor.title(in: main), ([main] + sections).joined(separator: "\n\n"))
+    }
+}
