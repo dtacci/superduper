@@ -471,3 +471,33 @@ struct AutomaticDictionaryLearningServiceTests {
         )
     }
 }
+
+@MainActor
+@Suite
+struct TranscriptCorrectionLearnerTests {
+    private let everyday: Set<String> = [
+        "i", "flashed", "the", "last", "night", "we", "are", "going", "heading", "to", "store",
+        "said", "hello", "rust", "russ", "met", "with", "on", "it", "uses", "and",
+    ]
+
+    private func corrections(_ original: String, _ edited: String) -> [LearnedCorrectionCandidate] {
+        TranscriptCorrectionLearner.corrections(original: original, edited: edited, isWord: { everyday.contains($0.lowercased()) })
+    }
+
+    @Test func mishearingsAreLearned() {
+        #expect(corrections("I flashed the TNC last night.", "I flashed the Teensy last night.")
+            == [LearnedCorrectionCandidate(original: "TNC", replacement: "Teensy")])
+        #expect(corrections("Rust said hello.", "Russ said hello.")
+            == [LearnedCorrectionCandidate(original: "Rust", replacement: "Russ")])
+        #expect(corrections("It uses live kit and Deep gram.", "It uses LiveKit and Deepgram.") == [
+            LearnedCorrectionCandidate(original: "live kit", replacement: "LiveKit"),
+            LearnedCorrectionCandidate(original: "Deep gram", replacement: "Deepgram"),
+        ])
+    }
+
+    @Test func rewordingAndCapitalizationAreNotLearned() {
+        #expect(corrections("We are going to the store.", "We are heading to the store.").isEmpty)
+        #expect(corrections("met with russ on it", "Met with Russ on it").isEmpty)
+        #expect(corrections("We are going.", "We are going to the store and then some more places.").isEmpty)
+    }
+}

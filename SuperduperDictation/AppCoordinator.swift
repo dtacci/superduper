@@ -1111,6 +1111,23 @@ final class AppCoordinator {
     private func setupNotifications() {
         notificationResources.install(
             NotificationCenter.default.addObserver(
+                forName: .transcriptTextEdited,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                guard let original = notification.userInfo?["originalText"] as? String,
+                      let edited = notification.userInfo?["editedText"] as? String else {
+                    return
+                }
+                Task { @MainActor [weak self] in
+                    guard let self, !self.isShutdown else { return }
+                    self.learnCorrections(from: original, to: edited)
+                }
+            }
+        )
+
+        notificationResources.install(
+            NotificationCenter.default.addObserver(
                 forName: .switchModel,
                 object: nil,
                 queue: .main
@@ -4296,6 +4313,50 @@ final class AppCoordinator {
     }
 
     nonisolated static let meetingVocabularyLimit = 200
+
+    /// Word fixes made while editing a transcript become dictionary replacements, the
+    /// same way fixes made right after pasting are learned.
+    private func learnCorrections(from original: String, to edited: String) {
+        guard settingsStore.automaticDictionaryLearningEnabled else { return }
+        let candidates = TranscriptCorrectionLearner.corrections(original: original, edited: edited)
+        var changes: [LearnedReplacementChange] = []
+        for candidate in candidates {
+            do {
+                if let change = try dictionaryStore.upsertLearnedReplacement(
+                    original: candidate.original,
+                    replacement: candidate.replacement
+                ) {
+                    changes.append(change)
+                }
+            } catch {
+                Log.app.error("Could not learn a transcript correction: \(error.localizedDescription)")
+            }
+        }
+        guard !changes.isEmpty else { return }
+        Log.app.info("Learned \(changes.count) correction(s) from a transcript edit")
+
+        let locale = settingsStore.selectedAppLocale.locale
+        let message = changes.count == 1
+            ? String(format: localized("Added “%@” to dictionary", locale: locale), changes[0].replacement)
+            : String(format: localized("Added %d corrections to dictionary", locale: locale), changes.count)
+        toastService.show(
+            ToastPayload(
+                message: message,
+                actions: [
+                    ToastAction(title: localized("Undo", locale: locale), role: .primary) { [weak self] in
+                        guard let self else { return }
+                        for change in changes.reversed() {
+                            do {
+                                try self.dictionaryStore.undoLearnedReplacement(change)
+                            } catch {
+                                Log.app.error("Could not undo a learned correction: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                ]
+            )
+        )
+    }
 
     /// Meetings armed from the calendar carry their event; ad-hoc ones (meeting
     /// shortcut, "Save as Meeting") use the calendar event they overlapped.
