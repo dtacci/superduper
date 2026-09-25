@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "Apl imlak bar menu macOS asli menggunakan pertuturan-ke-teks tempatan dengan WhisperKit. 100% pemprosesan tempatan secara lalai dengan peningkatan AI pilihan."
 about:
   _self: "Tentang"
-  pindrop: "Mengenai Pindrop"
+  pindrop: "Mengenai Superduper Dictation"
 accessibility:
   _self: "Kebolehcapaian"
   permission: "Kebenaran kebolehaksesan"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Tambah ruang belakang"
   blank_lines_between_sentence_groups_in_longe: "Menambah baris kosong antara kumpulan ayat dalam dikte yang lebih panjang. Sepenuhnya tempatan, tanpa AI."
   word_replacements_to_automatically_correct_c: "Tambahkan penggantian perkataan untuk membetulkan ralat transkripsi biasa secara automatik."
-  words_to_help_pindrop_recognize_them_properl: "Tambahkan perkataan untuk membantu Pindrop mengenalinya dengan betul"
+  words_to_help_pindrop_recognize_them_properl: "Tambahkan perkataan untuk membantu Superduper Dictation mengenalinya dengan betul"
   words_you_manually_correct_into_your_vocabul: "Tambahkan perkataan yang anda betulkan secara manual ke dalam perbendaharaan kata anda untuk transkripsi masa hadapan."
 advanced:
   _self: "Lanjutan"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Kemas kini automatik dan semakan kemas kini manual"
 automatically:
   check_for_new_versions_in_the_back: "Semak versi baharu di latar belakang secara automatik."
-  start_pindrop_when_you_sign_in: "Mulakan Pindrop secara automatik apabila anda log masuk."
+  start_pindrop_when_you_sign_in: "Mulakan Superduper Dictation secara automatik apabila anda log masuk."
 available:
   models: "Model Tersedia"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Tukar mikrofon"
   your_choice_anytime_in_settings_privacy: "Tukar pilihan anda pada bila-bila masa dalam Tetapan → Privasi."
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "Semak Kemas Kini..."
   for_updates_736b9062: "Semak kemas kini"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Pilih antara Nemotron (bertanda baca, model dimuat turun) dan Apple SpeechTranscriber (macOS 26+, disertakan dengan OS)."
   file: "Pilih fail"
   how_dictated_text_lands_then_tune_the_fin: "Pilih cara teks yang ditentukan tiba, kemudian sesuaikan gelagat sisipan akhir."
-  how_pindrop_appears_on_screen_while_you_d: "Pilih cara Pindrop dipaparkan pada skrin semasa anda mendikte."
-  how_pindrop_follows_system_appearance_the: "Pilih cara Pindrop mengikuti penampilan sistem, kemudian campurkan palet terang dan gelap yang dipilih susun."
+  how_pindrop_appears_on_screen_while_you_d: "Pilih cara Superduper Dictation dipaparkan pada skrin semasa anda mendikte."
+  how_pindrop_follows_system_appearance_the: "Pilih cara Superduper Dictation mengikuti penampilan sistem, kemudian campurkan palet terang dan gelap yang dipilih susun."
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Pilih cara mengimport data kamus"
   how_to_import_the_preset_data: "Pilih cara mengimport data pratetap"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Pilih cangkerang siang hari yang digunakan dalam mod cahaya."
   the_low_glare_shell_used_in_dark_mode: "Pilih cangkerang silau rendah yang digunakan dalam mod gelap."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "Pilih mikrofon yang Pindrop harus gunakan untuk imlak dan cara ia berkelakuan semasa merakam."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
+  which_microphone_pindrop_should_use_for_d: "Pilih mikrofon yang Superduper Dictation harus gunakan untuk imlak dan cara ia berkelakuan semasa merakam."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "Pilih sebelah mana bar sisi navigasi muncul."
   where_to_save_the_training_data_file: "Pilih tempat untuk menyimpan fail data latihan."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Teruskan dengan Lalai"
   without: "Teruskan Tanpa"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Kawal cara Pindrop muncul dalam macOS dan sama ada ia bermula dengan sesi desktop anda."
+  how_pindrop_appears_in_macos_and_whether: "Kawal cara Superduper Dictation muncul dalam macOS dan sama ada ia bermula dengan sesi desktop anda."
 controls:
 copied:
   _self: "disalin!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Nama Paparan"
   name_c7874aaa: "Nama paparan"
-  pindrop_in_the_dock_instead_of_running_o: "Paparkan Pindrop dalam Dok dan bukannya berjalan hanya sebagai apl bar menu."
+  pindrop_in_the_dock_instead_of_running_o: "Paparkan Superduper Dictation dalam Dok dan bukannya berjalan hanya sebagai apl bar menu."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Dok bar sisi ke tepi kiri atau kanan tetingkap."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Hebat"
 help:
   _self: "Bantuan"
-  improve_pindrop: "Bantu tingkatkan Pindrop?"
+  improve_pindrop: "Bantu tingkatkan Superduper Dictation?"
 hide:
   api_key: "Sembunyikan kunci API"
   this_for_1_hour: "Sembunyikan ini selama 1 jam"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "Jepun"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Pastikan Pindrop semasa secara automatik, atau cetuskan semakan manual pada bila-bila masa anda mahu."
+  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Pastikan Superduper Dictation semasa secara automatik, atau cetuskan semakan manual pada bila-bila masa anda mahu."
   before_and_after_text_pairs_when_ai_enhance: "Simpan pasangan teks sebelum-dan-selepas apabila penambahbaikan AI atau suntingan anda memperbaik transkripsi. Disimpan hanya pada Mac ini — tiada apa-apa dimuat naik."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Biarkan Pindrop mempelajari perbendaharaan kata secara senyap-senyap daripada pembetulan yang anda buat dari semasa ke semasa."
+  pindrop_quietly_learn_vocabulary_from_the_co: "Biarkan Superduper Dictation mempelajari perbendaharaan kata secara senyap-senyap daripada pembetulan yang anda buat dari semasa ke semasa."
 library:
   _self: "Pustaka"
 license:
@@ -822,7 +822,7 @@ low:
 main:
   window: "Tetingkap utama"
 manage:
-  local_speech_models_feature_models_and_th: "Urus model pertuturan tempatan, model ciri dan enjin lalai yang digunakan Pindrop untuk transkripsi."
+  local_speech_models_feature_models_and_th: "Urus model pertuturan tempatan, model ciri dan enjin lalai yang digunakan Superduper Dictation untuk transkripsi."
   models: "Urus model"
   presets: "Urus Pratetap"
   presets_ab87986d: "Urus Pratetap..."
@@ -1019,24 +1019,24 @@ pill:
 pin:
   to_screen_always_on_top: "Semat pada skrin (sentiasa di atas)"
 pindrop:
-  _self: "Pindrop"
-  1_19: "Pindrop 1.19"
-  help: "Bantuan Pindrop"
+  _self: "Superduper Dictation"
+  1_19: "Superduper Dictation 1.19"
+  help: "Bantuan Superduper Dictation"
   is_ready_to_use_click_the_menu_bar_icon: |-
-    Pindrop sedia untuk digunakan.
+    Superduper Dictation sedia untuk digunakan.
     Klik ikon bar menu untuk bermula.
-  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop sedia untuk digunakan.nKlik ikon bar menu untuk bermula."
-  needs_a_few_permissions_to_work_nyour_pr: "Pindrop memerlukan beberapa kebenaran untuk berfungsi.nPrivasi anda sentiasa dihormati."
+  is_ready_to_use_nclick_the_menu_bar_icon: "Superduper Dictation sedia untuk digunakan.nKlik ikon bar menu untuk bermula."
+  needs_a_few_permissions_to_work_nyour_pr: "Superduper Dictation memerlukan beberapa kebenaran untuk berfungsi.nPrivasi anda sentiasa dihormati."
   needs_a_few_permissions_to_work_your_pri: |-
-    Pindrop memerlukan beberapa kebenaran untuk berfungsi.
+    Superduper Dictation memerlukan beberapa kebenaran untuk berfungsi.
     Privasi anda sentiasa dihormati.
-  needs_accessibility_permission_to_insert: "\"\" Pindrop memerlukan kebenaran Kebolehaksesan untuk memasukkan teks pada kursor anda.                          Untuk memberikan kebenaran: 1. Klik \"Buka Tetapan Sistem\" di bawah 2. Klik butang + 3. Navigasi ke apl yang ditunjukkan dalam Finder 4. Mulakan semula Pindrop selepas memberikan kebenaran Tanpa kebenaran ini, teks hanya akan disalin ke papan keratan anda.             \"\""
-  needs_microphone_access_to_record_and_tr: "Pindrop memerlukan akses mikrofon untuk merakam dan menyalin suara anda.nnSila berikan kebenaran dalam Tetapan Sistem."
-  on_github: "Pindrop pada GitHub"
-  orb: "Orb Pindrop"
-  pill: "Pil Pindrop"
-  theme: "Tema Pindrop"
-  can_send_anonymous_privacy_preserving_si: "Pindrop boleh menghantar isyarat tanpa nama yang melindungi privasi supaya pepijat diperbaiki dengan lebih cepat."
+  needs_accessibility_permission_to_insert: "\"\" Superduper Dictation memerlukan kebenaran Kebolehaksesan untuk memasukkan teks pada kursor anda.                          Untuk memberikan kebenaran: 1. Klik \"Buka Tetapan Sistem\" di bawah 2. Klik butang + 3. Navigasi ke apl yang ditunjukkan dalam Finder 4. Mulakan semula Superduper Dictation selepas memberikan kebenaran Tanpa kebenaran ini, teks hanya akan disalin ke papan keratan anda.             \"\""
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation memerlukan akses mikrofon untuk merakam dan menyalin suara anda.nnSila berikan kebenaran dalam Tetapan Sistem."
+  on_github: "Superduper Dictation pada GitHub"
+  orb: "Orb Superduper Dictation"
+  pill: "Pil Superduper Dictation"
+  theme: "Tema Superduper Dictation"
+  can_send_anonymous_privacy_preserving_si: "Superduper Dictation boleh menghantar isyarat tanpa nama yang melindungi privasi supaya pepijat diperbaiki dengan lebih cepat."
 pinned:
   _self: "Disemat"
 plain:
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "Panggil `fetchUser` -> kemudian peta respons `==` 200."
   name: "Nama Pratetap"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Tekan dan tahan untuk menentukan dalam mana-mana apl. Pindrop akan menyalin pertuturan anda dan memasukkan teks di mana kursor anda berada."
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Tekan dan tahan untuk menentukan dalam mana-mana apl. Superduper Dictation akan menyalin pertuturan anda dan memasukkan teks di mana kursor anda berada."
   esc_to_cancel: "Tekan Esc untuk membatalkan"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Tekan Escape dua kali untuk membatalkan rakaman. Jika dimatikan, satu tekanan akan membatalkan."
   keys: "Tekan kekunci..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "Tarik transkrip terbaharu anda kembali ke papan keratan dengan cepat."
 quit:
   _self: "Berhenti"
-  pindrop: "Berhenti Pindrop"
+  pindrop: "Berhenti Superduper Dictation"
 ready:
   _self: "sedia"
   ec1296e1: "● Sedia"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Namakan semula"
   folder: "Namakan semula Folder"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "Gantikan Semua"
   words_and_phrases: "Gantikan perkataan dan frasa"
@@ -1227,7 +1227,7 @@ select:
   all: "Pilih Semua"
   language: "Pilih Bahasa"
   language_daea52c9: "Pilih bahasa"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
+  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "Pilih gaya penunjuk terapung ini."
   voice_model: "Pilih Model Suara"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Mulakan Rakaman"
   recording_to_see_your_transcriptions_here: "Mulakan rakaman untuk melihat transkripsi anda di sini"
   stop_recording: "Mula/hentikan rakaman"
-  using_pindrop: "Mula Menggunakan Pindrop"
+  using_pindrop: "Mula Menggunakan Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "Mula dalam bar menu tanpa membuka tetingkap utama. Anda masih boleh membukanya daripada ikon bar menu."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Cap masa (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "untuk menentukan dan biarkan Pindrop menyalin untuk anda"
+  dictate_and_let_pindrop_transcribe_for_you: "untuk menentukan dan biarkan Superduper Dictation menyalin untuk anda"
   start_talking: "untuk mula bercakap"
 today:
   _self: "Hari ini"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1557,9 +1557,9 @@ u8:
   settings_audio_on_disk_format: "Audio pada disk: %@ · %@"
   settings_beta_channel: "Beta"
   settings_bundled_fonts_ofl: "Fon yang disertakan (Newsreader, Inter, JetBrains Mono) dilesenkan di bawah SIL Open Font License."
-  settings_checks_for_updates_automatically: "Pindrop menyemak kemas kini secara automatik."
+  settings_checks_for_updates_automatically: "Superduper Dictation menyemak kemas kini secara automatik."
   settings_choose_a_provider: "Pilih pembekal"
-  settings_choose_folder_export_logs: "Pilih folder untuk menyalin fail log Pindrop ke dalamnya."
+  settings_choose_folder_export_logs: "Pilih folder untuk menyalin fail log Superduper Dictation ke dalamnya."
   settings_copy_last_transcript: "Salin Transkrip Terakhir"
   settings_copy_token: "Salin token"
   settings_days_30: "30 hari"
@@ -1610,15 +1610,15 @@ u8:
   settings_warning: "Amaran"
   settings_website: "Laman Web"
 u9:
-  onboarding_accessibility_clipboard_fallback: "Tanpa Kebolehcapaian, Pindrop menyalin teks ke papan klip."
+  onboarding_accessibility_clipboard_fallback: "Tanpa Kebolehcapaian, Superduper Dictation menyalin teks ke papan klip."
   onboarding_change_hotkey_hint: "Tekan gabungan lain untuk mengubahnya"
   onboarding_download_amount_format: "%@ daripada %@"
   onboarding_download_background_hint: "Teruskan persediaan semasa muat turun — kami akan menyelesaikannya di latar belakang."
   onboarding_enable_enhancement: "Dayakan peningkatan"
   onboarding_granted_state: "Diberikan"
-  onboarding_pindrop_writes: "Pindrop menulis"
+  onboarding_pindrop_writes: "Superduper Dictation menulis"
   onboarding_ready_heading: "Anda sudah bersedia."
-  onboarding_ready_instruction_format: "Tekan %@ dan mula bercakap — Pindrop menaip di mana sahaja kursor berada."
+  onboarding_ready_instruction_format: "Tekan %@ dan mula bercakap — Superduper Dictation menaip di mana sahaja kursor berada."
   onboarding_try_it_now: "Cuba sekarang"
   onboarding_you_say: "Anda sebut"
 ukrainian:
@@ -1665,7 +1665,7 @@ via:
 vibe:
   mode: "Mod Vibe"
   mode_captures_structured_ui_context_when_re: "Mod vibe menangkap konteks UI berstruktur apabila rakaman bermula supaya peningkatan AI boleh menggunakan keadaan apl aktif anda sebagai rujukan."
-  mode_works_best_with_accessibility_permissi: "Mod vibe berfungsi paling baik dengan kebenaran Kebolehaksesan. Tanpa itu, Pindrop kembali kepada metadata apl terhad dan transkripsi masih berfungsi seperti biasa."
+  mode_works_best_with_accessibility_permissi: "Mod vibe berfungsi paling baik dengan kebenaran Kebolehaksesan. Tanpa itu, Superduper Dictation kembali kepada metadata apl terhad dan transkripsi masih berfungsi seperti biasa."
 view:
   _self: "Lihat"
   all: "Lihat semua"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Selamat datang ke Pindrop"
+  to_pindrop: "Selamat datang ke Superduper Dictation"
 what:
   s_new: "Apa yang Baharu…"
-  s_new_in_pindrop: "Apa yang Baharu dalam Pindrop"
-  does_pindrop_collect: "Apakah yang dikumpul oleh Pindrop?"
+  s_new_in_pindrop: "Apa yang Baharu dalam Superduper Dictation"
+  does_pindrop_collect: "Apakah yang dikumpul oleh Superduper Dictation?"
 while:
   recording: "Semasa merakam"
 whisperkit:
@@ -1742,7 +1742,7 @@ whatsnew:
   sensevoice_body: "Panggilan balik penstriman, penutupan dan kemas kini UI langsung kini kekal teratur dan cekap."
   sensevoice_title: "Imlak yang lebih boleh dipercayai"
   summary: "Diagnostik peribadi, sejarah boleh sunting, cerapan prestasi yang lebih mendalam dan imlak yang lebih boleh dipercayai."
-  version_line: "Pindrop 1.22.0 · Julai 2026"
+  version_line: "Superduper Dictation 1.22.0 · Julai 2026"
 privacy:
   _self: "Privasi"
 share:

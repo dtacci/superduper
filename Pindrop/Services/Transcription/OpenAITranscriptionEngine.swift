@@ -204,7 +204,7 @@ public final class OpenAITranscriptionEngine: TranscriptionEngine {
         do {
             return try await Task.detached(priority: .userInitiated) {
                 let destination = FileManager.default.temporaryDirectory
-                    .appendingPathComponent("pindrop-openai-\(UUID().uuidString)")
+                    .appendingPathComponent("superduper-dictation-openai-\(UUID().uuidString)")
                     .appendingPathExtension("m4a")
                 defer { try? FileManager.default.removeItem(at: destination) }
 

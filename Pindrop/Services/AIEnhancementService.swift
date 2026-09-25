@@ -939,7 +939,9 @@ final class AIEnhancementService {
     }
 
     private let session: URLSessionProtocol
-    private let keychainService = "com.pindrop.ai-enhancement"
+    private let keychainService = "com.dantacci.superduper-dictation.ai-enhancement"
+    /// Where builds from before the rename kept API keys; moved on first read.
+    private let legacyKeychainService = "com.pindrop.ai-enhancement"
 
     // Boxed storage for the @available(macOS 26, *) AppleFoundationModelsEnhancer.
     // Accessed only through the typed computed property below.
@@ -1553,9 +1555,25 @@ final class AIEnhancementService {
     }
 
     func loadAPIKey(for endpoint: String) throws -> String? {
+        if let key = try apiKey(for: endpoint, service: keychainService) {
+            return key
+        }
+        guard let legacyKey = try? apiKey(for: endpoint, service: legacyKeychainService) else {
+            return nil
+        }
+        do {
+            try saveAPIKey(legacyKey, for: endpoint)
+            try deleteAPIKey(for: endpoint, service: legacyKeychainService)
+        } catch {
+            Log.aiEnhancement.warning("Could not move an API key to the renamed Keychain service: \(error.localizedDescription)")
+        }
+        return legacyKey
+    }
+
+    private func apiKey(for endpoint: String, service: String) throws -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
+            kSecAttrService as String: service,
             kSecAttrAccount as String: endpoint,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
@@ -1580,9 +1598,14 @@ final class AIEnhancementService {
     }
 
     func deleteAPIKey(for endpoint: String) throws {
+        try deleteAPIKey(for: endpoint, service: keychainService)
+        try deleteAPIKey(for: endpoint, service: legacyKeychainService)
+    }
+
+    private func deleteAPIKey(for endpoint: String, service: String) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
+            kSecAttrService as String: service,
             kSecAttrAccount as String: endpoint
         ]
 

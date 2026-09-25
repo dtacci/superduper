@@ -78,7 +78,7 @@ body:
     id: permissions
     attributes:
       label: Permissions
-      description: Which permissions have you granted to Pindrop?
+      description: Which permissions have you granted to Superduper Dictation?
       options:
         - label: Microphone access
         - label: Accessibility access

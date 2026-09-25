@@ -3,10 +3,10 @@ cfbundledisplayname:
 cfbundlename:
   _self: "พินดรอป"
 nsaudiocaptureusagedescription:
-  _self: "Pindrop ต้องการการเข้าถึงเสียงของระบบเพื่อถอดเสียงการโทร การประชุม และเสียงอื่นๆ ของแอป"
+  _self: "Superduper Dictation ต้องการการเข้าถึงเสียงของระบบเพื่อถอดเสียงการโทร การประชุม และเสียงอื่นๆ ของแอป"
 nshumanreadablecopyright:
   _self: ""
 nsmicrophoneusagedescription:
-  _self: "Pindrop จำเป็นต้องเข้าถึงไมโครโฟนเพื่อถอดเสียงของคุณ"
+  _self: "Superduper Dictation จำเป็นต้องเข้าถึงไมโครโฟนเพื่อถอดเสียงของคุณ"
 nsspeechrecognitionusagedescription:
-  _self: "Pindrop ใช้การรู้จำคำพูดบนอุปกรณ์เพื่อถอดเสียงของคุณโดยไม่ต้องส่งข้อมูลไปยังเซิร์ฟเวอร์ใดๆ"
+  _self: "Superduper Dictation ใช้การรู้จำคำพูดบนอุปกรณ์เพื่อถอดเสียงของคุณโดยไม่ต้องส่งข้อมูลไปยังเซิร์ฟเวอร์ใดๆ"

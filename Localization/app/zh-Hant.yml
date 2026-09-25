@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "一款使用 WhisperKit 進行本地語音轉文字的原生 macOS 選單欄聽寫應用。預設 100% 本地處理，可選 AI 增強。"
 about:
   _self: "關於"
-  pindrop: "關於 Pindrop"
+  pindrop: "關於 Superduper Dictation"
 accessibility:
   _self: "輔助功能"
   permission: "輔助使用權限"
@@ -233,7 +233,7 @@ add:
   trailing_space: "新增尾隨空格"
   blank_lines_between_sentence_groups_in_longe: "在較長聽寫中於句組之間加入空行。完全本地處理，不使用 AI。"
   word_replacements_to_automatically_correct_c: "新增詞彙替換以自動糾正常見的轉錄錯誤。"
-  words_to_help_pindrop_recognize_them_properl: "新增詞彙以幫助 Pindrop 正確識別它們"
+  words_to_help_pindrop_recognize_them_properl: "新增詞彙以幫助 Superduper Dictation 正確識別它們"
   words_you_manually_correct_into_your_vocabul: "將您手動更正的詞彙新增到詞彙表中，以供將來的轉錄使用。"
 advanced:
   _self: "進階"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "自動更新和手動更新檢查"
 automatically:
   check_for_new_versions_in_the_back: "自動在後臺檢查新版本。"
-  start_pindrop_when_you_sign_in: "登入時自動啟動 Pindrop。"
+  start_pindrop_when_you_sign_in: "登入時自動啟動 Superduper Dictation。"
 available:
   models: "可用模型"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "更改麥克風"
   your_choice_anytime_in_settings_privacy: "隨時可在設定 → 隱私權中更改你的選擇。"
 changes:
-  the_language_used_by_pindrop_s_interface: "變更 Pindrop 介面使用的語言。"
+  the_language_used_by_pindrop_s_interface: "變更 Superduper Dictation 介面使用的語言。"
 check:
   for_updates: "檢查更新..."
   for_updates_736b9062: "檢查更新"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "在 Nemotron（含標點、需下載的模型）與 Apple SpeechTranscriber（macOS 26+，隨系統提供）之間選擇。"
   file: "選擇檔案"
   how_dictated_text_lands_then_tune_the_fin: "選擇聽寫文字的插入方式，然後調整最終插入行為。"
-  how_pindrop_appears_on_screen_while_you_d: "選擇聽寫時 Pindrop 在螢幕上的顯示方式。"
-  how_pindrop_follows_system_appearance_the: "選擇 Pindrop 如何跟隨系統外觀，然後混合精選的淺色和深色調色盤。"
+  how_pindrop_appears_on_screen_while_you_d: "選擇聽寫時 Superduper Dictation 在螢幕上的顯示方式。"
+  how_pindrop_follows_system_appearance_the: "選擇 Superduper Dictation 如何跟隨系統外觀，然後混合精選的淺色和深色調色盤。"
   how_recording_and_processing_status_appea: "選擇工作時錄音與處理狀態的顯示方式。"
   how_to_import_the_dictionary_data: "選擇如何匯入詞典資料"
   how_to_import_the_preset_data: "選擇如何匯入預設資料"
@@ -368,10 +368,10 @@ choose:
   model: "選擇模型…"
   the_daytime_shell_used_in_light_mode: "選擇在淺色模式下使用的日間外觀。"
   the_low_glare_shell_used_in_dark_mode: "選擇在深色模式下使用的低眩光外觀。"
-  whether_pindrop_starts_when_you_sign_in_a: "選擇是否在登入時啟動 Pindrop 並顯示在 Dock。"
+  whether_pindrop_starts_when_you_sign_in_a: "選擇是否在登入時啟動 Superduper Dictation 並顯示在 Dock。"
   which_edge_of_the_main_window_holds_the_n: "選擇主視窗導覽側邊欄所在的一側。"
-  which_microphone_pindrop_should_use_for_d: "選擇 Pindrop 用於聽寫的麥克風以及錄製時的行為。"
-  which_microphone_pindrop_uses_for_dictati: "選擇 Pindrop 用於聽寫的麥克風。"
+  which_microphone_pindrop_should_use_for_d: "選擇 Superduper Dictation 用於聽寫的麥克風以及錄製時的行為。"
+  which_microphone_pindrop_uses_for_dictati: "選擇 Superduper Dictation 用於聽寫的麥克風。"
   which_side_the_navigation_sidebar_appears: "選擇導航側邊欄顯示在哪一側。"
   where_to_save_the_training_data_file: "選擇訓練資料檔案的儲存位置。"
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "使用預設繼續"
   without: "繼續不使用"
 control:
-  how_pindrop_appears_in_macos_and_whether: "控制 Pindrop 在 macOS 中的顯示方式以及是否隨桌面會話啟動。"
+  how_pindrop_appears_in_macos_and_whether: "控制 Superduper Dictation 在 macOS 中的顯示方式以及是否隨桌面會話啟動。"
 controls:
 copied:
   _self: "已複製！"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "顯示名稱"
   name_c7874aaa: "顯示名稱"
-  pindrop_in_the_dock_instead_of_running_o: "在 Dock 中顯示 Pindrop，而不是僅作為選單欄應用執行。"
+  pindrop_in_the_dock_instead_of_running_o: "在 Dock 中顯示 Superduper Dictation，而不是僅作為選單欄應用執行。"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "將側邊欄固定到視窗的左側或右側邊緣。"
 done:
@@ -686,7 +686,7 @@ great:
   _self: "很好"
 help:
   _self: "說明"
-  improve_pindrop: "協助改進 Pindrop？"
+  improve_pindrop: "協助改進 Superduper Dictation？"
 hide:
   api_key: "隱藏 API 金鑰"
   this_for_1_hour: "隱藏 1 小時"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "日語"
 keep:
-  pindrop_current_automatically_or_check_for: "自動保持 Pindrop 最新，或立即檢查新版本。"
-  pindrop_current_automatically_or_trigger_a: "自動保持 Pindrop 最新，或隨時觸發手動檢查。"
+  pindrop_current_automatically_or_check_for: "自動保持 Superduper Dictation 最新，或立即檢查新版本。"
+  pindrop_current_automatically_or_trigger_a: "自動保持 Superduper Dictation 最新，或隨時觸發手動檢查。"
   before_and_after_text_pairs_when_ai_enhance: "當 AI 增強或你的編輯改進轉錄時，保留修改前後的文字配對。僅儲存在此 Mac 上 — 不會上傳任何內容。"
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "讓 Pindrop 悄悄地從您隨時間做出的更正中學習詞彙。"
+  pindrop_quietly_learn_vocabulary_from_the_co: "讓 Superduper Dictation 悄悄地從您隨時間做出的更正中學習詞彙。"
 library:
   _self: "資料庫"
 license:
@@ -822,7 +822,7 @@ low:
 main:
   window: "主視窗"
 manage:
-  local_speech_models_feature_models_and_th: "管理本地語音模型、功能模型和 Pindrop 用於轉錄的預設引擎。"
+  local_speech_models_feature_models_and_th: "管理本地語音模型、功能模型和 Superduper Dictation 用於轉錄的預設引擎。"
   models: "管理模型"
   presets: "管理預設"
   presets_ab87986d: "管理預設..."
@@ -1019,24 +1019,24 @@ pill:
 pin:
   to_screen_always_on_top: "固定到螢幕（始終置頂）"
 pindrop:
-  _self: "Pindrop"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop 說明"
+  _self: "Superduper Dictation"
+  1_19: "Superduper Dictation 1.19"
+  help: "Superduper Dictation 說明"
   is_ready_to_use_click_the_menu_bar_icon: |-
-    Pindrop 已準備好使用。
+    Superduper Dictation 已準備好使用。
     點選選單欄圖示開始使用。
-  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop 已準備好使用。n點選選單欄圖示開始使用。"
-  needs_a_few_permissions_to_work_nyour_pr: "Pindrop 需要一些許可權才能工作。n您的隱私始終受到尊重。"
+  is_ready_to_use_nclick_the_menu_bar_icon: "Superduper Dictation 已準備好使用。n點選選單欄圖示開始使用。"
+  needs_a_few_permissions_to_work_nyour_pr: "Superduper Dictation 需要一些許可權才能工作。n您的隱私始終受到尊重。"
   needs_a_few_permissions_to_work_your_pri: |-
-    Pindrop 需要一些許可權才能工作。
+    Superduper Dictation 需要一些許可權才能工作。
     您的隱私始終受到尊重。
-  needs_accessibility_permission_to_insert: "\"\"             Pindrop 需要輔助功能許可權才能在您的游標處插入文字。                          授予許可權：             1. 點選下方\"開啟系統設定\"             2. 點選 + 按鈕             3. 導航到 Finder 中顯示的應用             4. 授予許可權後重新啟動 Pindrop                          沒有此許可權，文字將只複製到您的剪貼簿。             \"\""
-  needs_microphone_access_to_record_and_tr: "Pindrop 需要麥克風訪問許可權來錄製和轉錄您的語音。nn請在系統設定中授予許可權。"
-  on_github: "GitHub 上的 Pindrop"
-  orb: "Pindrop 光球"
-  pill: "Pindrop 膠囊"
-  theme: "Pindrop 主題"
-  can_send_anonymous_privacy_preserving_si: "Pindrop 可傳送匿名且保護隱私的訊號，以便更快修正錯誤。"
+  needs_accessibility_permission_to_insert: "\"\"             Superduper Dictation 需要輔助功能許可權才能在您的游標處插入文字。                          授予許可權：             1. 點選下方\"開啟系統設定\"             2. 點選 + 按鈕             3. 導航到 Finder 中顯示的應用             4. 授予許可權後重新啟動 Superduper Dictation                          沒有此許可權，文字將只複製到您的剪貼簿。             \"\""
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation 需要麥克風訪問許可權來錄製和轉錄您的語音。nn請在系統設定中授予許可權。"
+  on_github: "GitHub 上的 Superduper Dictation"
+  orb: "Superduper Dictation 光球"
+  pill: "Superduper Dictation 膠囊"
+  theme: "Superduper Dictation 主題"
+  can_send_anonymous_privacy_preserving_si: "Superduper Dictation 可傳送匿名且保護隱私的訊號，以便更快修正錯誤。"
 pinned:
   _self: "已釘選"
 plain:
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "呼叫 `fetchUser` -> 然後把回應 `==` 200 做對應。"
   name: "預設名稱"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "按住以在任何應用中聽寫。Pindrop 將轉錄您的語音並在游標位置插入文字。"
+  and_hold_to_dictate_in_any_app_pindrop_wil: "按住以在任何應用中聽寫。Superduper Dictation 將轉錄您的語音並在游標位置插入文字。"
   esc_to_cancel: "按 Esc 取消"
   escape_twice_to_cancel_a_recording_when_off_a_si: "按兩次 Escape 取消錄音。關閉後，按一次即可取消。"
   keys: "按按鍵..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "快速將您最新的轉錄拉回剪貼簿。"
 quit:
   _self: "退出"
-  pindrop: "退出 Pindrop"
+  pindrop: "退出 Superduper Dictation"
 ready:
   _self: "就緒"
   ec1296e1: "● 就緒"
@@ -1162,7 +1162,7 @@ rename:
   _self: "重新命名"
   folder: "重新命名資料夾"
   participant: "重新命名參與者"
-  speakers_in_transcripts_to_teach_pindrop: "在轉錄中重新命名說話者，讓 Pindrop 學會自動辨識聲音。"
+  speakers_in_transcripts_to_teach_pindrop: "在轉錄中重新命名說話者，讓 Superduper Dictation 學會自動辨識聲音。"
 replace:
   all: "全部替換"
   words_and_phrases: "替換詞彙和短語"
@@ -1227,7 +1227,7 @@ select:
   all: "全選"
   language: "選擇語言"
   language_daea52c9: "選擇語言"
-  the_language_pindrop_should_expect_when_t: "選擇 Pindrop 在轉錄語音時應預期的語言。"
+  the_language_pindrop_should_expect_when_t: "選擇 Superduper Dictation 在轉錄語音時應預期的語言。"
   this_floating_indicator_style: "選擇此浮動指示器樣式。"
   voice_model: "選擇語音模型"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "開始錄製"
   recording_to_see_your_transcriptions_here: "開始錄製以在此處檢視您的轉錄"
   stop_recording: "開始/停止錄製"
-  using_pindrop: "開始使用 Pindrop"
+  using_pindrop: "開始使用 Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "在選單列中啟動且不開啟主視窗。你仍可透過選單列圖示開啟它。"
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "時間戳記 (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "進行聽寫並讓 Pindrop 為您轉錄"
+  dictate_and_let_pindrop_transcribe_for_you: "進行聽寫並讓 Superduper Dictation 為您轉錄"
   start_talking: "開始說話"
 today:
   _self: "今天"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "替換"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "未命名筆記"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1557,9 +1557,9 @@ u8:
   settings_audio_on_disk_format: "磁碟上的音訊：%@ · %@"
   settings_beta_channel: "測試版"
   settings_bundled_fonts_ofl: "隨附字型（Newsreader、Inter、JetBrains Mono）採用 SIL Open Font License 授權。"
-  settings_checks_for_updates_automatically: "Pindrop 會自動檢查更新。"
+  settings_checks_for_updates_automatically: "Superduper Dictation 會自動檢查更新。"
   settings_choose_a_provider: "選擇提供商"
-  settings_choose_folder_export_logs: "選擇一個資料夾，將 Pindrop 日誌檔案複製到其中。"
+  settings_choose_folder_export_logs: "選擇一個資料夾，將 Superduper Dictation 日誌檔案複製到其中。"
   settings_copy_last_transcript: "複製上次轉錄"
   settings_copy_token: "複製權杖"
   settings_days_30: "30 天"
@@ -1610,15 +1610,15 @@ u8:
   settings_warning: "警告"
   settings_website: "網站"
 u9:
-  onboarding_accessibility_clipboard_fallback: "沒有輔助使用權限時，Pindrop 會將文字複製到剪貼簿。"
+  onboarding_accessibility_clipboard_fallback: "沒有輔助使用權限時，Superduper Dictation 會將文字複製到剪貼簿。"
   onboarding_change_hotkey_hint: "按下其他組合鍵即可更改"
   onboarding_download_amount_format: "%@ / %@"
   onboarding_download_background_hint: "下載時可繼續設定 — 我們會在背景完成。"
   onboarding_enable_enhancement: "啟用增強"
   onboarding_granted_state: "已授予"
-  onboarding_pindrop_writes: "Pindrop 寫成"
+  onboarding_pindrop_writes: "Superduper Dictation 寫成"
   onboarding_ready_heading: "一切就緒。"
-  onboarding_ready_instruction_format: "按下 %@ 並開始說話 — Pindrop 會在游標所在位置輸入。"
+  onboarding_ready_instruction_format: "按下 %@ 並開始說話 — Superduper Dictation 會在游標所在位置輸入。"
   onboarding_try_it_now: "立即試用"
   onboarding_you_say: "你說"
 ukrainian:
@@ -1665,7 +1665,7 @@ via:
 vibe:
   mode: "Vibe 模式"
   mode_captures_structured_ui_context_when_re: "Vibe 模式在錄製開始時捕獲結構化的 UI 上下文，以便 AI 增強可以將您的活動應用狀態作為參考。"
-  mode_works_best_with_accessibility_permissi: "Vibe 模式在具有輔助功能許可權時效果最佳。沒有它，Pindrop 將回退到有限的應用後設資料，轉錄仍能正常工作。"
+  mode_works_best_with_accessibility_permissi: "Vibe 模式在具有輔助功能許可權時效果最佳。沒有它，Superduper Dictation 將回退到有限的應用後設資料，轉錄仍能正常工作。"
 view:
   _self: "檢視"
   all: "檢視全部"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "歡迎使用 Pindrop"
+  to_pindrop: "歡迎使用 Superduper Dictation"
 what:
   s_new: "新功能…"
-  s_new_in_pindrop: "Pindrop 的新功能"
-  does_pindrop_collect: "Pindrop 收集哪些資料？"
+  s_new_in_pindrop: "Superduper Dictation 的新功能"
+  does_pindrop_collect: "Superduper Dictation 收集哪些資料？"
 while:
   recording: "錄音時"
 whisperkit:
@@ -1742,7 +1742,7 @@ whatsnew:
   sensevoice_body: "串流回呼、關閉流程與即時介面更新現在保持有序且高效。"
   sensevoice_title: "更可靠的聽寫"
   summary: "私密診斷、可編輯歷史、更深入的效能洞察，以及更可靠的聽寫。"
-  version_line: "Pindrop 1.22.0 · 2026 年 7 月"
+  version_line: "Superduper Dictation 1.22.0 · 2026 年 7 月"
 privacy:
   _self: "隱私權"
 share:

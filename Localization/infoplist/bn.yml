@@ -3,10 +3,10 @@ cfbundledisplayname:
 cfbundlename:
   _self: "পিনড্রপ"
 nsaudiocaptureusagedescription:
-  _self: "কল, মিটিং এবং অন্যান্য অ্যাপ অডিও প্রতিলিপি করার জন্য Pindrop-এর সিস্টেম অডিও অ্যাক্সেস প্রয়োজন।"
+  _self: "কল, মিটিং এবং অন্যান্য অ্যাপ অডিও প্রতিলিপি করার জন্য Superduper Dictation-এর সিস্টেম অডিও অ্যাক্সেস প্রয়োজন।"
 nshumanreadablecopyright:
   _self: ""
 nsmicrophoneusagedescription:
-  _self: "আপনার ভয়েস প্রতিলিপি করার জন্য Pindrop-এর মাইক্রোফোন অ্যাক্সেস প্রয়োজন।"
+  _self: "আপনার ভয়েস প্রতিলিপি করার জন্য Superduper Dictation-এর মাইক্রোফোন অ্যাক্সেস প্রয়োজন।"
 nsspeechrecognitionusagedescription:
-  _self: "Pindrop কোনো সার্ভারে ডেটা না পাঠিয়ে আপনার অডিও প্রতিলিপি করতে ডিভাইসে স্পিচ রিকগনিশন ব্যবহার করে।"
+  _self: "Superduper Dictation কোনো সার্ভারে ডেটা না পাঠিয়ে আপনার অডিও প্রতিলিপি করতে ডিভাইসে স্পিচ রিকগনিশন ব্যবহার করে।"

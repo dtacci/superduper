@@ -138,7 +138,7 @@ struct PrivacySettingsView: View {
 
     private func exportContributions() {
         let panel = NSSavePanel()
-        panel.nameFieldStringValue = "pindrop-training-data.jsonl"
+        panel.nameFieldStringValue = "superduper-dictation-training-data.jsonl"
         panel.canCreateDirectories = true
         panel.message = localized("Choose where to save the training data file.", locale: locale)
         let data = ContributionService.jsonlData(from: contributions)

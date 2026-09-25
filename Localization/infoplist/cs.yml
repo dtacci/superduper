@@ -1,12 +1,12 @@
 cfbundledisplayname:
-  _self: "Pindrop"
+  _self: "Superduper Dictation"
 cfbundlename:
-  _self: "Pindrop"
+  _self: "Superduper Dictation"
 nsaudiocaptureusagedescription:
-  _self: "Pindrop potřebuje systémový přístup ke zvuku, aby mohl přepisovat hovory, schůzky a další zvuky aplikací."
+  _self: "Superduper Dictation potřebuje systémový přístup ke zvuku, aby mohl přepisovat hovory, schůzky a další zvuky aplikací."
 nshumanreadablecopyright:
   _self: ""
 nsmicrophoneusagedescription:
-  _self: "Pindrop potřebuje přístup k mikrofonu, aby mohl přepsat váš hlas."
+  _self: "Superduper Dictation potřebuje přístup k mikrofonu, aby mohl přepsat váš hlas."
 nsspeechrecognitionusagedescription:
-  _self: "Pindrop používá rozpoznávání řeči na zařízení k přepisu vašeho zvuku bez odesílání dat na jakýkoli server."
+  _self: "Superduper Dictation používá rozpoznávání řeči na zařízení k přepisu vašeho zvuku bez odesílání dat na jakýkoli server."

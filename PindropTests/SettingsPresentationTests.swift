@@ -212,9 +212,10 @@ struct SettingsPresentationTests {
         #expect(library.secondaryHex == "#EFD9A8")
         #expect(library.glowHex == "#1F6D53")
 
-        let pindrop = OrbWaveformPalette.forPresetID("pindrop")
-        #expect(pindrop.primaryHex == "#F2B54A")
-        #expect(pindrop.secondaryHex == "#F7E3BC")
+        let superduper = OrbWaveformPalette.forPresetID("superduper")
+        #expect(superduper.primaryHex == "#F2B54A")
+        #expect(superduper.secondaryHex == "#F7E3BC")
+        #expect(OrbWaveformPalette.forPresetID("pindrop") == superduper)
 
         let harbor = OrbWaveformPalette.forPresetID("harbor")
         #expect(harbor.primaryHex == "#4FB3D1")

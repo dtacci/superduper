@@ -362,7 +362,7 @@ private final class LogFileSink {
     }
 
     private func nextLogFileURL(segment: Int) -> URL {
-        let fileName = "pindrop-\(sessionIdentifier)-\(segment).log"
+        let fileName = "superduper-dictation-\(sessionIdentifier)-\(segment).log"
         return logsDirectoryURL.appendingPathComponent(fileName, isDirectory: false)
     }
 

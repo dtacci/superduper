@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "Natív macOS-menüsoros diktálóalkalmazás, amely helyi beszéd-szövegké alakítást használ a WhisperKit funkcióval. Alapértelmezés szerint 100%-ban helyi feldolgozás opcionális AI-javítással."
 about:
   _self: "Körülbelül"
-  pindrop: "Körülbelül Pindrop"
+  pindrop: "Körülbelül Superduper Dictation"
 accessibility:
   _self: "Megközelíthetőség"
   permission: "Kisegítő lehetőségek engedély"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Adjon hozzá záró szóközt"
   blank_lines_between_sentence_groups_in_longe: "Üres sorokat ad mondatcsoportok közé hosszabb diktáláskor. Teljesen helyi, AI nélkül."
   word_replacements_to_automatically_correct_c: "Szóhelyettesítések hozzáadása a gyakori átírási hibák automatikus kijavításához."
-  words_to_help_pindrop_recognize_them_properl: "Adjon hozzá szavakat, hogy segítsen Pindrop helyesen felismerni őket"
+  words_to_help_pindrop_recognize_them_properl: "Adjon hozzá szavakat, hogy segítsen Superduper Dictation helyesen felismerni őket"
   words_you_manually_correct_into_your_vocabul: "Adjon hozzá kézzel javított szavakat szókincséhez a későbbi átírásokhoz."
 advanced:
   _self: "Haladó"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Automatikus frissítések és kézi frissítés-ellenőrzések"
 automatically:
   check_for_new_versions_in_the_back: "Az új verziók automatikus keresése a háttérben."
-  start_pindrop_when_you_sign_in: "A Pindrop automatikus indítása bejelentkezéskor."
+  start_pindrop_when_you_sign_in: "A Superduper Dictation automatikus indítása bejelentkezéskor."
 available:
   models: "Elérhető modellek"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Mikrofon csere"
   your_choice_anytime_in_settings_privacy: "Módosítsd a döntésed bármikor itt: Beállítások → Adatvédelem."
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "Frissítések keresése..."
   for_updates_736b9062: "Ellenőrizze a frissítéseket"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Válasszon a Nemotron (központozott, letöltött modell) és az Apple SpeechTranscriber (macOS 26+, a rendszer része) között."
   file: "Válasszon fájlt"
   how_dictated_text_lands_then_tune_the_fin: "Válassza ki a diktált szöveg érkezési módját, majd hangolja be a végső beillesztési viselkedést."
-  how_pindrop_appears_on_screen_while_you_d: "Válaszd ki, hogyan jelenjen meg a Pindrop a képernyőn diktálás közben."
-  how_pindrop_follows_system_appearance_the: "Válassza ki, hogy a Pindrop hogyan kövesse a rendszer megjelenését, majd keverje össze a világos és sötét palettákat."
+  how_pindrop_appears_on_screen_while_you_d: "Válaszd ki, hogyan jelenjen meg a Superduper Dictation a képernyőn diktálás közben."
+  how_pindrop_follows_system_appearance_the: "Válassza ki, hogy a Superduper Dictation hogyan kövesse a rendszer megjelenését, majd keverje össze a világos és sötét palettákat."
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Válassza ki a szótári adatok importálásának módját"
   how_to_import_the_preset_data: "Válassza ki az előre beállított adatok importálásának módját"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Válassza ki a világos módban használt nappali kagylót."
   the_low_glare_shell_used_in_dark_mode: "Válassza a sötét módban használt alacsony vakító héjat."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "Válassza ki, hogy a Pindrop melyik mikrofont használja a diktáláshoz, és hogyan viselkedjen felvétel közben."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
+  which_microphone_pindrop_should_use_for_d: "Válassza ki, hogy a Superduper Dictation melyik mikrofont használja a diktáláshoz, és hogyan viselkedjen felvétel közben."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "Válassza ki, hogy a navigációs oldalsáv melyik oldalon jelenjen meg."
   where_to_save_the_training_data_file: "Válaszd ki, hová mentsük a betanítási adatfájlt."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Folytatás az Alapértelmezettel"
   without: "Folytatás nélkül"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Szabályozza, hogy a Pindrop hogyan jelenjen meg a macOS rendszerben, és hogy elinduljon-e az asztali munkamenettel."
+  how_pindrop_appears_in_macos_and_whether: "Szabályozza, hogy a Superduper Dictation hogyan jelenjen meg a macOS rendszerben, és hogy elinduljon-e az asztali munkamenettel."
 controls:
 copied:
   _self: "Másolva!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Megjelenítési név"
   name_c7874aaa: "Megjelenítési név"
-  pindrop_in_the_dock_instead_of_running_o: "A Pindrop megjelenítése a Dockban, ahelyett, hogy csak menüsor-alkalmazásként futna."
+  pindrop_in_the_dock_instead_of_running_o: "A Superduper Dictation megjelenítése a Dockban, ahelyett, hogy csak menüsor-alkalmazásként futna."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Rögzítse az oldalsávot az ablak bal vagy jobb széléhez."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Nagy"
 help:
   _self: "Súgó"
-  improve_pindrop: "Segít jobbá tenni a Pindropot?"
+  improve_pindrop: "Segít jobbá tenni a Superduper Dictationot?"
 hide:
   api_key: "API-kulcs elrejtése"
   this_for_1_hour: "Rejtse el ezt 1 órán keresztül"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "japán"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Tartsa Pindrop automatikusan aktuális, vagy indítson el egy kézi ellenőrzést, amikor csak akarja."
+  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Tartsa Superduper Dictation automatikusan aktuális, vagy indítson el egy kézi ellenőrzést, amikor csak akarja."
   before_and_after_text_pairs_when_ai_enhance: "Őrizd meg az előtte-utána szövegpárokat, amikor az AI-fejlesztés vagy a szerkesztéseid javítanak egy átiraton. Csak ezen a Mac gépen tárolva — semmi sem kerül feltöltésre."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Hagyja, hogy Pindrop csendesen tanulja meg a szókincset az idők során elvégzett javításokból."
+  pindrop_quietly_learn_vocabulary_from_the_co: "Hagyja, hogy Superduper Dictation csendesen tanulja meg a szókincset az idők során elvégzett javításokból."
 library:
   _self: "Könyvtár"
 license:
@@ -822,7 +822,7 @@ low:
 main:
   window: "Főablak"
 manage:
-  local_speech_models_feature_models_and_th: "Kezelheti a helyi beszédmodelleket, funkciómodelleket és az átíráshoz használt Pindrop alapértelmezett motort."
+  local_speech_models_feature_models_and_th: "Kezelheti a helyi beszédmodelleket, funkciómodelleket és az átíráshoz használt Superduper Dictation alapértelmezett motort."
   models: "Modellek kezelése"
   presets: "Előbeállítások kezelése"
   presets_ab87986d: "Előbeállítások kezelése..."
@@ -1019,24 +1019,24 @@ pill:
 pin:
   to_screen_always_on_top: "Rögzítés a képernyőn (mindig felül)"
 pindrop:
-  _self: "Pindrop"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop súgó"
+  _self: "Superduper Dictation"
+  1_19: "Superduper Dictation 1.19"
+  help: "Superduper Dictation súgó"
   is_ready_to_use_click_the_menu_bar_icon: |-
-    Pindrop használatra kész.
+    Superduper Dictation használatra kész.
     A kezdéshez kattintson a menüsor ikonjára.
-  is_ready_to_use_nclick_the_menu_bar_icon: "A Pindrop használatra kész.nKattintson a menüsor ikonjára a kezdéshez."
-  needs_a_few_permissions_to_work_nyour_pr: "A Pindrop működéséhez néhány engedélyre van szüksége.nA magánéletét mindig tiszteletben tartják."
+  is_ready_to_use_nclick_the_menu_bar_icon: "A Superduper Dictation használatra kész.nKattintson a menüsor ikonjára a kezdéshez."
+  needs_a_few_permissions_to_work_nyour_pr: "A Superduper Dictation működéséhez néhány engedélyre van szüksége.nA magánéletét mindig tiszteletben tartják."
   needs_a_few_permissions_to_work_your_pri: |-
-    A Pindrop működéséhez néhány engedélyre van szüksége.
+    A Superduper Dictation működéséhez néhány engedélyre van szüksége.
     Az Ön személyes adatait mindig tiszteletben tartják.
-  needs_accessibility_permission_to_insert: "\"\" A Pindrop kisegítő lehetőségeket igényel, hogy szöveget illesszen be a kurzorba.                          Engedély megadása: 1. Kattintson az alábbi \"Rendszerbeállítások megnyitása\" lehetőségre. 2. Kattintson a + gombra 3. Navigáljon a Finderben látható alkalmazáshoz 4. Indítsa újra a Pindrop alkalmazást az engedély megadása után Ezen engedély nélkül a szöveg csak a vágólapra kerül.             \"\""
-  needs_microphone_access_to_record_and_tr: "A Pindrop-nak mikrofon-hozzáférésre van szüksége a hang rögzítéséhez és átírásához.nnKérjük, adjon engedélyt a rendszerbeállításokban."
-  on_github: "Pindrop a GitHubon"
-  orb: "Pindrop-gömb"
-  pill: "Pindrop Tabletta"
-  theme: "Pindrop téma"
-  can_send_anonymous_privacy_preserving_si: "A Pindrop névtelen, adatvédelmet tiszteletben tartó jelzéseket küldhet, hogy a hibák gyorsabban elháruljanak."
+  needs_accessibility_permission_to_insert: "\"\" A Superduper Dictation kisegítő lehetőségeket igényel, hogy szöveget illesszen be a kurzorba.                          Engedély megadása: 1. Kattintson az alábbi \"Rendszerbeállítások megnyitása\" lehetőségre. 2. Kattintson a + gombra 3. Navigáljon a Finderben látható alkalmazáshoz 4. Indítsa újra a Superduper Dictation alkalmazást az engedély megadása után Ezen engedély nélkül a szöveg csak a vágólapra kerül.             \"\""
+  needs_microphone_access_to_record_and_tr: "A Superduper Dictation-nak mikrofon-hozzáférésre van szüksége a hang rögzítéséhez és átírásához.nnKérjük, adjon engedélyt a rendszerbeállításokban."
+  on_github: "Superduper Dictation a GitHubon"
+  orb: "Superduper Dictation-gömb"
+  pill: "Superduper Dictation Tabletta"
+  theme: "Superduper Dictation téma"
+  can_send_anonymous_privacy_preserving_si: "A Superduper Dictation névtelen, adatvédelmet tiszteletben tartó jelzéseket küldhet, hogy a hibák gyorsabban elháruljanak."
 pinned:
   _self: "Kitűzött"
 plain:
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "Hívd a `fetchUser` -> aztán mapeld a választ `==` 200."
   name: "Előre beállított név"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Nyomja meg és tartsa lenyomva a diktáláshoz bármely alkalmazásban. A Pindrop átírja a beszédet, és beszúrja a szöveget oda, ahol a kurzor van."
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Nyomja meg és tartsa lenyomva a diktáláshoz bármely alkalmazásban. A Superduper Dictation átírja a beszédet, és beszúrja a szöveget oda, ahol a kurzor van."
   esc_to_cancel: "A törléshez nyomja meg az Esc billentyűt"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Nyomja meg kétszer az Escape billentyűt a felvétel megszakításához. Kikapcsolva egyetlen lenyomás is megszakítja."
   keys: "Nyomd meg a gombokat..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "Gyorsan húzza vissza legújabb átiratát a vágólapra."
 quit:
   _self: "Kilép"
-  pindrop: "Kilépés: Pindrop"
+  pindrop: "Kilépés: Superduper Dictation"
 ready:
   _self: "Kész"
   ec1296e1: "● Kész"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Átnevezés"
   folder: "Mappa átnevezése"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "Cserélje ki az összeset"
   words_and_phrases: "Cserélje ki a szavakat és kifejezéseket"
@@ -1227,7 +1227,7 @@ select:
   all: "Válassza az Összes lehetőséget"
   language: "Válassza a Nyelv lehetőséget"
   language_daea52c9: "Válasszon nyelvet"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
+  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "Válassza ezt a lebegő indikátorstílust."
   voice_model: "Válassza a Hangmodell lehetőséget"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Indítsa el a Felvételt"
   recording_to_see_your_transcriptions_here: "Kezdje el a rögzítést, hogy itt lássa az átiratokat"
   stop_recording: "Felvétel indítása/leállítása"
-  using_pindrop: "Kezdje el használni a Pindrop"
+  using_pindrop: "Kezdje el használni a Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "Indítás a menüsorban a főablak megnyitása nélkül. Az ablakot továbbra is megnyithatja a menüsor ikonjáról."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Időbélyegek (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "diktálni, és hagyni, hogy Pindrop átírja helyetted"
+  dictate_and_let_pindrop_transcribe_for_you: "diktálni, és hagyni, hogy Superduper Dictation átírja helyetted"
   start_talking: "hogy elkezdjen beszélni"
 today:
   _self: "Ma"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1557,9 +1557,9 @@ u8:
   settings_audio_on_disk_format: "Hang a lemezen: %@ · %@"
   settings_beta_channel: "Beta"
   settings_bundled_fonts_ofl: "A mellékelt betűtípusok (Newsreader, Inter, JetBrains Mono) a SIL Open Font License feltételei szerint használhatók."
-  settings_checks_for_updates_automatically: "A Pindrop automatikusan keres frissítéseket."
+  settings_checks_for_updates_automatically: "A Superduper Dictation automatikusan keres frissítéseket."
   settings_choose_a_provider: "Válasszon szolgáltatót"
-  settings_choose_folder_export_logs: "Válasszon mappát a Pindrop naplófájljainak másolásához."
+  settings_choose_folder_export_logs: "Válasszon mappát a Superduper Dictation naplófájljainak másolásához."
   settings_copy_last_transcript: "Legutóbbi átirat másolása"
   settings_copy_token: "Token másolása"
   settings_days_30: "30 nap"
@@ -1610,15 +1610,15 @@ u8:
   settings_warning: "Figyelmeztetés"
   settings_website: "Weboldal"
 u9:
-  onboarding_accessibility_clipboard_fallback: "Kisegítő lehetőségek nélkül a Pindrop a vágólapra másolja a szöveget."
+  onboarding_accessibility_clipboard_fallback: "Kisegítő lehetőségek nélkül a Superduper Dictation a vágólapra másolja a szöveget."
   onboarding_change_hotkey_hint: "A módosításhoz nyomjon meg egy másik kombinációt"
   onboarding_download_amount_format: "%@ / %@"
   onboarding_download_background_hint: "Folytassa a beállítást letöltés közben — a háttérben befejezzük."
   onboarding_enable_enhancement: "Javítás engedélyezése"
   onboarding_granted_state: "Megadva"
-  onboarding_pindrop_writes: "A Pindrop írja"
+  onboarding_pindrop_writes: "A Superduper Dictation írja"
   onboarding_ready_heading: "Minden kész."
-  onboarding_ready_instruction_format: "Nyomja meg ezt: %@, és kezdjen beszélni — a Pindrop oda gépel, ahol a kurzor van."
+  onboarding_ready_instruction_format: "Nyomja meg ezt: %@, és kezdjen beszélni — a Superduper Dictation oda gépel, ahol a kurzor van."
   onboarding_try_it_now: "Próbálja ki most"
   onboarding_you_say: "Ön mondja"
 ukrainian:
@@ -1665,7 +1665,7 @@ via:
 vibe:
   mode: "Vibe mód"
   mode_captures_structured_ui_context_when_re: "A Vibe mód rögzíti a strukturált felhasználói felület kontextusát a felvétel indításakor, így az AI-javítás referenciaként használhatja az aktív alkalmazásállapotot."
-  mode_works_best_with_accessibility_permissi: "A Vibe mód a Kisegítő lehetőségek engedéllyel működik a legjobban. Enélkül a Pindrop korlátozott alkalmazás-metaadatokra tér vissza, és az átírás továbbra is normálisan működik."
+  mode_works_best_with_accessibility_permissi: "A Vibe mód a Kisegítő lehetőségek engedéllyel működik a legjobban. Enélkül a Superduper Dictation korlátozott alkalmazás-metaadatokra tér vissza, és az átírás továbbra is normálisan működik."
 view:
   _self: "Kilátás"
   all: "Az összes megtekintése"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Üdvözli a Pindrop"
+  to_pindrop: "Üdvözli a Superduper Dictation"
 what:
   s_new: "Újdonságok…"
-  s_new_in_pindrop: "Újdonságok a Pindropban"
-  does_pindrop_collect: "Mit gyűjt a Pindrop?"
+  s_new_in_pindrop: "Újdonságok a Superduper Dictationban"
+  does_pindrop_collect: "Mit gyűjt a Superduper Dictation?"
 while:
   recording: "Felvétel közben"
 whisperkit:
@@ -1742,7 +1742,7 @@ whatsnew:
   sensevoice_body: "A streamelési visszahívások, a leállítás és az élő UI-frissítések mostantól rendezettek és hatékonyak maradnak."
   sensevoice_title: "Megbízhatóbb diktálás"
   summary: "Privát diagnosztika, szerkeszthető előzmények, mélyebb teljesítmény-betekintések és megbízhatóbb diktálás."
-  version_line: "Pindrop 1.22.0 · 2026. július"
+  version_line: "Superduper Dictation 1.22.0 · 2026. július"
 privacy:
   _self: "Adatvédelem"
 share:

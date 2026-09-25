@@ -1,12 +1,12 @@
 cfbundledisplayname:
-  _self: "Pindrop"
+  _self: "Superduper Dictation"
 cfbundlename:
-  _self: "Pindrop"
+  _self: "Superduper Dictation"
 nsaudiocaptureusagedescription:
-  _self: "Pindrop potrzebuje dostępu do dźwięku systemowego, aby transkrybować rozmowy, spotkania i inne dźwięki z aplikacji."
+  _self: "Superduper Dictation potrzebuje dostępu do dźwięku systemowego, aby transkrybować rozmowy, spotkania i inne dźwięki z aplikacji."
 nshumanreadablecopyright:
   _self: ""
 nsmicrophoneusagedescription:
-  _self: "Pindrop potrzebuje dostępu do mikrofonu, aby dokonać transkrypcji Twojego głosu."
+  _self: "Superduper Dictation potrzebuje dostępu do mikrofonu, aby dokonać transkrypcji Twojego głosu."
 nsspeechrecognitionusagedescription:
-  _self: "Pindrop korzysta z rozpoznawania mowy na urządzeniu, aby transkrybować dźwięk bez wysyłania danych na jakikolwiek serwer."
+  _self: "Superduper Dictation korzysta z rozpoznawania mowy na urządzeniu, aby transkrybować dźwięk bez wysyłania danych na jakikolwiek serwer."

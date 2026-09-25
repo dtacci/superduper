@@ -2673,7 +2673,7 @@ final class MeetingStore {
         for occurrence in interrupted {
             occurrence.state = .failed
             occurrence.isArmed = false
-            occurrence.failureMessage = "Pindrop stopped before meeting processing completed."
+            occurrence.failureMessage = "Superduper Dictation stopped before meeting processing completed."
             occurrence.updatedAt = Date()
             refreshRecoveryPaths(for: occurrence)
         }

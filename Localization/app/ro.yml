@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "O aplicație nativă de dictare a barei de meniu macOS care folosește conversia vocală în text local cu WhisperKit. Procesare 100% locală în mod implicit, cu îmbunătățire opțională AI."
 about:
   _self: "Despre"
-  pindrop: "Despre Pindrop"
+  pindrop: "Despre Superduper Dictation"
 accessibility:
   _self: "Accesibilitate"
   permission: "Permisiune de accesibilitate"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Adăugați spațiu de sfârșit"
   blank_lines_between_sentence_groups_in_longe: "Adaugă linii goale între grupuri de propoziții în dictări mai lungi. Complet local, fără AI."
   word_replacements_to_automatically_correct_c: "Adăugați înlocuiri de cuvinte pentru a corecta automat erorile comune de transcriere."
-  words_to_help_pindrop_recognize_them_properl: "Adăugați cuvinte pentru a ajuta Pindrop să le recunoască corect"
+  words_to_help_pindrop_recognize_them_properl: "Adăugați cuvinte pentru a ajuta Superduper Dictation să le recunoască corect"
   words_you_manually_correct_into_your_vocabul: "Adăugați cuvinte pe care le corectați manual în vocabularul dvs. pentru transcrieri viitoare."
 advanced:
   _self: "Avansat"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Actualizări automate și verificări manuale ale actualizărilor"
 automatically:
   check_for_new_versions_in_the_back: "Verificați automat versiunile noi în fundal."
-  start_pindrop_when_you_sign_in: "Porniți automat Pindrop când vă conectați."
+  start_pindrop_when_you_sign_in: "Porniți automat Superduper Dictation când vă conectați."
 available:
   models: "Modele disponibile"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Schimbați microfonul"
   your_choice_anytime_in_settings_privacy: "Schimbă-ți alegerea oricând în Setări → Confidențialitate."
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "Verificați actualizările..."
   for_updates_736b9062: "Verificați actualizările"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Alegeți între Nemotron (cu punctuație, model descărcat) și Apple SpeechTranscriber (macOS 26+, livrat cu sistemul)."
   file: "Alegeți fișierul"
   how_dictated_text_lands_then_tune_the_fin: "Alegeți cum aterizează textul dictat, apoi reglați comportamentul final de inserare."
-  how_pindrop_appears_on_screen_while_you_d: "Alege cum apare Pindrop pe ecran în timp ce dictezi."
-  how_pindrop_follows_system_appearance_the: "Alegeți modul în care Pindrop urmărește aspectul sistemului, apoi amestecați paletele luminoase și întunecate."
+  how_pindrop_appears_on_screen_while_you_d: "Alege cum apare Superduper Dictation pe ecran în timp ce dictezi."
+  how_pindrop_follows_system_appearance_the: "Alegeți modul în care Superduper Dictation urmărește aspectul sistemului, apoi amestecați paletele luminoase și întunecate."
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Alegeți cum să importați datele din dicționar"
   how_to_import_the_preset_data: "Alegeți cum să importați datele presetate"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Alegeți carcasa de zi folosită în modul de lumină."
   the_low_glare_shell_used_in_dark_mode: "Alegeți carcasa cu strălucire redusă utilizată în modul întunecat."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "Alegeți ce microfon ar trebui să folosească Pindrop pentru dictare și cum se comportă în timpul înregistrării."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
+  which_microphone_pindrop_should_use_for_d: "Alegeți ce microfon ar trebui să folosească Superduper Dictation pentru dictare și cum se comportă în timpul înregistrării."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "Alegeți pe ce parte apare bara laterală de navigare."
   where_to_save_the_training_data_file: "Alege unde să salvezi fișierul cu date de antrenament."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Continuați cu Implicit"
   without: "Continuați fără"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Controlați cum apare Pindrop în macOS și dacă începe cu sesiunea desktop."
+  how_pindrop_appears_in_macos_and_whether: "Controlați cum apare Superduper Dictation în macOS și dacă începe cu sesiunea desktop."
 controls:
 copied:
   _self: "Copiat!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Numele de afișare"
   name_c7874aaa: "Numele de afișare"
-  pindrop_in_the_dock_instead_of_running_o: "Afișați Pindrop în Dock în loc să rulați doar ca aplicație pentru bara de meniu."
+  pindrop_in_the_dock_instead_of_running_o: "Afișați Superduper Dictation în Dock în loc să rulați doar ca aplicație pentru bara de meniu."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Fixați bara laterală la marginea stângă sau dreaptă a ferestrei."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Mare"
 help:
   _self: "Ajutor"
-  improve_pindrop: "Vrei să ajuți la îmbunătățirea Pindrop?"
+  improve_pindrop: "Vrei să ajuți la îmbunătățirea Superduper Dictation?"
 hide:
   api_key: "Ascunde cheia API"
   this_for_1_hour: "Ascunde asta timp de 1 oră"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "japonez"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Păstrați curentul Pindrop în mod automat sau declanșați o verificare manuală oricând doriți."
+  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Păstrați curentul Superduper Dictation în mod automat sau declanșați o verificare manuală oricând doriți."
   before_and_after_text_pairs_when_ai_enhance: "Păstrează perechile de text înainte și după, când îmbunătățirea prin AI sau modificările tale îmbunătățesc o transcriere. Stocate doar pe acest Mac — nu se încarcă nimic."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Lăsați-l pe Pindrop să învețe în liniște vocabularul din corecțiile pe care le faceți în timp."
+  pindrop_quietly_learn_vocabulary_from_the_co: "Lăsați-l pe Superduper Dictation să învețe în liniște vocabularul din corecțiile pe care le faceți în timp."
 library:
   _self: "Bibliotecă"
 license:
@@ -822,7 +822,7 @@ low:
 main:
   window: "Fereastra principală"
 manage:
-  local_speech_models_feature_models_and_th: "Gestionați modelele locale de vorbire, modelele de caracteristici și motorul implicit pe care Pindrop îl folosește pentru transcriere."
+  local_speech_models_feature_models_and_th: "Gestionați modelele locale de vorbire, modelele de caracteristici și motorul implicit pe care Superduper Dictation îl folosește pentru transcriere."
   models: "Gestionați modelele"
   presets: "Gestionați presetări"
   presets_ab87986d: "Gestionați presetări..."
@@ -1019,24 +1019,24 @@ pill:
 pin:
   to_screen_always_on_top: "Fixați pe ecran (întotdeauna în partea de sus)"
 pindrop:
-  _self: "Pindrop"
-  1_19: "Pindrop 1.19"
-  help: "Ajutor Pindrop"
+  _self: "Superduper Dictation"
+  1_19: "Superduper Dictation 1.19"
+  help: "Ajutor Superduper Dictation"
   is_ready_to_use_click_the_menu_bar_icon: |-
-    Pindrop este gata de utilizare.
+    Superduper Dictation este gata de utilizare.
     Faceți clic pe pictograma barei de meniu pentru a începe.
-  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop este gata de utilizare.n Faceți clic pe pictograma barei de meniu pentru a începe."
-  needs_a_few_permissions_to_work_nyour_pr: "Pindrop are nevoie de câteva permisiuni pentru a funcționa.nConfidențialitatea dvs. este întotdeauna respectată."
+  is_ready_to_use_nclick_the_menu_bar_icon: "Superduper Dictation este gata de utilizare.n Faceți clic pe pictograma barei de meniu pentru a începe."
+  needs_a_few_permissions_to_work_nyour_pr: "Superduper Dictation are nevoie de câteva permisiuni pentru a funcționa.nConfidențialitatea dvs. este întotdeauna respectată."
   needs_a_few_permissions_to_work_your_pri: |-
-    Pindrop are nevoie de câteva permisiuni pentru a funcționa.
+    Superduper Dictation are nevoie de câteva permisiuni pentru a funcționa.
     Intimitatea ta este întotdeauna respectată.
-  needs_accessibility_permission_to_insert: "„” Pindrop are nevoie de permisiunea de accesibilitate pentru a insera text la cursor.                          Pentru a acorda permisiunea: 1. Faceți clic pe „Open System Settings” de mai jos 2. Faceți clic pe butonul + 3. Navigați la aplicația afișată în Finder 4. Reporniți Pindrop după acordarea permisiunii Fără această permisiune, textul va fi copiat numai în clipboard.             \"\""
-  needs_microphone_access_to_record_and_tr: "Pindrop are nevoie de acces la microfon pentru a vă înregistra și a transcrie vocea.nnVă rugăm să acordați permisiunea în Setările de sistem."
-  on_github: "Pindrop pe GitHub"
-  orb: "Sfera Pindrop"
-  pill: "Pilula Pindrop"
-  theme: "Tema Pindrop"
-  can_send_anonymous_privacy_preserving_si: "Pindrop poate trimite semnale anonime, care protejează confidențialitatea, pentru ca erorile să fie remediate mai rapid."
+  needs_accessibility_permission_to_insert: "„” Superduper Dictation are nevoie de permisiunea de accesibilitate pentru a insera text la cursor.                          Pentru a acorda permisiunea: 1. Faceți clic pe „Open System Settings” de mai jos 2. Faceți clic pe butonul + 3. Navigați la aplicația afișată în Finder 4. Reporniți Superduper Dictation după acordarea permisiunii Fără această permisiune, textul va fi copiat numai în clipboard.             \"\""
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation are nevoie de acces la microfon pentru a vă înregistra și a transcrie vocea.nnVă rugăm să acordați permisiunea în Setările de sistem."
+  on_github: "Superduper Dictation pe GitHub"
+  orb: "Sfera Superduper Dictation"
+  pill: "Pilula Superduper Dictation"
+  theme: "Tema Superduper Dictation"
+  can_send_anonymous_privacy_preserving_si: "Superduper Dictation poate trimite semnale anonime, care protejează confidențialitatea, pentru ca erorile să fie remediate mai rapid."
 pinned:
   _self: "Fixate"
 plain:
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "Apelează `fetchUser` -> apoi mapează răspunsul `==` 200."
   name: "Nume presetat"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Apăsați lung pentru a dicta în orice aplicație. Pindrop vă va transcrie discursul și va insera textul acolo unde se află cursorul."
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Apăsați lung pentru a dicta în orice aplicație. Superduper Dictation vă va transcrie discursul și va insera textul acolo unde se află cursorul."
   esc_to_cancel: "Apăsați Esc pentru a anula"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Apăsați Escape de două ori pentru a anula o înregistrare. Când este dezactivat, o singură apăsare anulează."
   keys: "Apăsați tastele..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "Trageți rapid cea mai recentă transcriere înapoi în clipboard."
 quit:
   _self: "Renunță"
-  pindrop: "Părăsiți Pindrop"
+  pindrop: "Părăsiți Superduper Dictation"
 ready:
   _self: "Gata"
   ec1296e1: "● Gata"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Redenumiți"
   folder: "Redenumiți folderul"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "Înlocuiește toate"
   words_and_phrases: "Înlocuiește cuvinte și expresii"
@@ -1227,7 +1227,7 @@ select:
   all: "Selectați Toate"
   language: "Selectați Limbă"
   language_daea52c9: "Selectați limba"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
+  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "Selectați acest stil de indicator plutitor."
   voice_model: "Selectați Voice Model"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Începeți înregistrarea"
   recording_to_see_your_transcriptions_here: "Începeți înregistrarea pentru a vă vedea transcripțiile aici"
   stop_recording: "Porniți/opriți înregistrarea"
-  using_pindrop: "Începeți să utilizați Pindrop"
+  using_pindrop: "Începeți să utilizați Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "Pornește în bara de meniu fără a deschide fereastra principală. O poți deschide ulterior din pictograma barei de meniu."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Marcaje temporale (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "să dicteze și să-l lase pe Pindrop să transpună pentru tine"
+  dictate_and_let_pindrop_transcribe_for_you: "să dicteze și să-l lase pe Superduper Dictation să transpună pentru tine"
   start_talking: "să înceapă să vorbească"
 today:
   _self: "Astăzi"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1557,9 +1557,9 @@ u8:
   settings_audio_on_disk_format: "Audio pe disc: %@ · %@"
   settings_beta_channel: "Beta"
   settings_bundled_fonts_ofl: "Fonturile incluse (Newsreader, Inter, JetBrains Mono) sunt licențiate sub SIL Open Font License."
-  settings_checks_for_updates_automatically: "Pindrop verifică automat actualizările."
+  settings_checks_for_updates_automatically: "Superduper Dictation verifică automat actualizările."
   settings_choose_a_provider: "Alegeți un furnizor"
-  settings_choose_folder_export_logs: "Alegeți un folder în care să copiați fișierele jurnal Pindrop."
+  settings_choose_folder_export_logs: "Alegeți un folder în care să copiați fișierele jurnal Superduper Dictation."
   settings_copy_last_transcript: "Copiază ultima transcriere"
   settings_copy_token: "Copiază token-ul"
   settings_days_30: "30 de zile"
@@ -1610,15 +1610,15 @@ u8:
   settings_warning: "Avertisment"
   settings_website: "Site web"
 u9:
-  onboarding_accessibility_clipboard_fallback: "Fără Accesibilitate, Pindrop copiază textul în clipboard."
+  onboarding_accessibility_clipboard_fallback: "Fără Accesibilitate, Superduper Dictation copiază textul în clipboard."
   onboarding_change_hotkey_hint: "Apăsați o altă combinație pentru a o schimba"
   onboarding_download_amount_format: "%@ din %@"
   onboarding_download_background_hint: "Continuați configurarea în timpul descărcării — vom finaliza în fundal."
   onboarding_enable_enhancement: "Activează îmbunătățirea"
   onboarding_granted_state: "Acordat"
-  onboarding_pindrop_writes: "Pindrop scrie"
+  onboarding_pindrop_writes: "Superduper Dictation scrie"
   onboarding_ready_heading: "Totul este gata."
-  onboarding_ready_instruction_format: "Apăsați %@ și începeți să vorbiți — Pindrop scrie oriunde se află cursorul."
+  onboarding_ready_instruction_format: "Apăsați %@ și începeți să vorbiți — Superduper Dictation scrie oriunde se află cursorul."
   onboarding_try_it_now: "Încercați acum"
   onboarding_you_say: "Spuneți"
 ukrainian:
@@ -1665,7 +1665,7 @@ via:
 vibe:
   mode: "Modul Vibe"
   mode_captures_structured_ui_context_when_re: "Modul Vibe captează contextul structurat al interfeței de utilizare atunci când începe înregistrarea, astfel încât îmbunătățirea AI să poată utiliza starea dvs. activă a aplicației ca referință."
-  mode_works_best_with_accessibility_permissi: "Modul Vibe funcționează cel mai bine cu permisiunea Accesibilitate. Fără aceasta, Pindrop se întoarce la metadatele limitate ale aplicației, iar transcrierea funcționează în continuare normal."
+  mode_works_best_with_accessibility_permissi: "Modul Vibe funcționează cel mai bine cu permisiunea Accesibilitate. Fără aceasta, Superduper Dictation se întoarce la metadatele limitate ale aplicației, iar transcrierea funcționează în continuare normal."
 view:
   _self: "Vedere"
   all: "Vezi toate"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Bun venit la Pindrop"
+  to_pindrop: "Bun venit la Superduper Dictation"
 what:
   s_new: "Noutăți…"
-  s_new_in_pindrop: "Noutăți în Pindrop"
-  does_pindrop_collect: "Ce colectează Pindrop?"
+  s_new_in_pindrop: "Noutăți în Superduper Dictation"
+  does_pindrop_collect: "Ce colectează Superduper Dictation?"
 while:
   recording: "În timpul înregistrării"
 whisperkit:
@@ -1742,7 +1742,7 @@ whatsnew:
   sensevoice_body: "Callback-urile de streaming, oprirea și actualizările UI live rămân acum ordonate și eficiente."
   sensevoice_title: "Dictare mai fiabilă"
   summary: "Diagnostice private, istoric editabil, perspective mai profunde de performanță și dictare mai fiabilă."
-  version_line: "Pindrop 1.22.0 · iulie 2026"
+  version_line: "Superduper Dictation 1.22.0 · iulie 2026"
 privacy:
   _self: "Confidențialitate"
 share:

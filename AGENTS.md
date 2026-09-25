@@ -4,7 +4,7 @@ Last updated: 2026-03-24
 
 ## Project Snapshot
 
-- App: `Pindrop` (menu bar macOS app, `LSUIElement` behavior)
+- App: `Superduper Dictation` (menu bar macOS app, `LSUIElement` behavior)
 - Stack: Swift 5.9+, SwiftUI, SwiftData, Swift Testing, XCTest UI tests
 - Platform target: macOS 14+
 - Main dependency path: `Pindrop.xcodeproj` + SwiftPM
