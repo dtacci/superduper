@@ -653,6 +653,10 @@ final class AppCoordinator {
     private var capturedRoutingSignal: PromptRoutingSignal?
     /// The app that was frontmost when dictation started, for vocabulary pack rules.
     private var dictationTargetBundleID: String?
+    /// True while the microphone is starting (before `isRecording`), so a key-up or
+    /// second press in that window isn't lost.
+    private var isStartingRecording = false
+    private var stopRequestedDuringStart = false
     private var contextSessionState: ContextSessionState?
     private var contextSessionPollTimer: Timer?
     private var contextSessionAppActivationObserver: NSObjectProtocol?
@@ -3542,7 +3546,7 @@ final class AppCoordinator {
     }
     
     private func handlePushToTalkStart() async {
-        guard !isRecording && !isProcessing else { return }
+        guard !isRecording && !isProcessing && !isStartingRecording else { return }
         guard NoteAppendGate.canStartGlobalDictation(isNoteAppendListening: isNoteAppendMode) else {
             Log.app.info("Refuse global dictation: note-append listening is active")
             return
@@ -3572,7 +3576,13 @@ final class AppCoordinator {
             Log.app.debug("Ignore global PTT end during note-append listening")
             return
         }
-        guard isRecording else { return }
+        guard isRecording else {
+            // Released before the microphone finished starting: stop right after it does.
+            if isStartingRecording {
+                stopRequestedDuringStart = true
+            }
+            return
+        }
         // A push-to-talk key-up during a meeting started from the meeting shortcut
         // belongs to a tap of the dictation key, not to the meeting.
         guard !isStandaloneMeetingCapture else {
@@ -3592,7 +3602,7 @@ final class AppCoordinator {
     // MARK: - Quick Capture Handlers (Push-to-Talk)
 
     private func handleQuickCapturePTTStart() async {
-        guard !isRecording && !isProcessing else { return }
+        guard !isRecording && !isProcessing && !isStartingRecording else { return }
         guard NoteAppendGate.canStartGlobalDictation(isNoteAppendListening: isNoteAppendMode) else {
             Log.app.info("Refuse quick-capture: note-append listening is active")
             return
@@ -3613,7 +3623,12 @@ final class AppCoordinator {
     }
 
     private func handleQuickCapturePTTEnd() async {
-        guard isRecording && isQuickCaptureMode else { return }
+        guard isRecording && isQuickCaptureMode else {
+            if isStartingRecording && isQuickCaptureMode {
+                stopRequestedDuringStart = true
+            }
+            return
+        }
 
         do {
             try await dispatchRecordingStop()
@@ -3638,7 +3653,9 @@ final class AppCoordinator {
                 Log.app.error("Failed to stop quick capture recording: \(error)")
             }
             isQuickCaptureMode = false
-        } else if !isRecording && !isProcessing {
+        } else if isStartingRecording && isQuickCaptureMode {
+            stopRequestedDuringStart = true
+        } else if !isRecording && !isProcessing && !isStartingRecording {
             guard NoteAppendGate.canStartGlobalDictation(isNoteAppendListening: isNoteAppendMode) else {
                 Log.app.info("Refuse quick-capture toggle: note-append listening is active")
                 return
@@ -4029,6 +4046,9 @@ final class AppCoordinator {
                 audioRecorder.resetAudioEngine()
                 Log.app.error("Failed to stop recording: \(error)")
             }
+        } else if isStartingRecording {
+            // Pressed again while the microphone was still starting.
+            stopRequestedDuringStart = true
         } else if !isProcessing {
             guard NoteAppendGate.canStartGlobalDictation(isNoteAppendListening: isNoteAppendMode) else {
                 Log.app.info("Refuse global dictation toggle: note-append listening is active")
@@ -4046,6 +4066,29 @@ final class AppCoordinator {
     }
     
     private func startRecording(source: RecordingTriggerSource) async throws {
+        guard !isStartingRecording else {
+            Log.app.debug("Recording start already in progress; ignoring duplicate start request")
+            return
+        }
+        isStartingRecording = true
+        stopRequestedDuringStart = false
+        // Show the indicator on key press rather than after the microphone and
+        // context capture are ready; Bluetooth mics can take most of a second.
+        let showsGlobalIndicator = source != .noteAppend
+        if showsGlobalIndicator {
+            startRecordingIndicatorSession()
+        }
+        var didBecomeRecording = false
+        defer {
+            isStartingRecording = false
+            if !didBecomeRecording {
+                stopRequestedDuringStart = false
+                if showsGlobalIndicator {
+                    finishIndicatorSession()
+                }
+            }
+        }
+
         automaticDictionaryLearningService.cancelObservation()
         logRecordingStartAttempt(source: source)
 
@@ -4106,6 +4149,7 @@ final class AppCoordinator {
         }
         
         isRecording = true
+        didBecomeRecording = true
         recordingStartTime = recoverySession.startedAt
         dictationTargetBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         capturedAdapterCapabilities = nil
@@ -4170,14 +4214,31 @@ final class AppCoordinator {
 
         statusBarController.setRecordingState()
 
-        // Speak-to-append uses the in-editor listening chip only — no global orb/pill.
-        if source != .noteAppend {
-            startRecordingIndicatorSession()
-        }
+        // Speak-to-append uses the in-editor listening chip only — no global orb/pill
+        // (the global indicator was already shown when the key was pressed).
         lastOfferedMeetingPinIdentity = nil
         offerActiveRecordingMeetingPinIfNeeded()
         if source != .noteAppend {
             scheduleLongDictationMeetingOffer()
+        }
+
+        if stopRequestedDuringStart {
+            stopRequestedDuringStart = false
+            Log.app.info("Stopping a recording whose stop was requested while it was starting")
+            Task { @MainActor [weak self] in
+                guard let self, self.isRecording else { return }
+                let wasQuickCapture = self.isQuickCaptureMode
+                defer {
+                    if wasQuickCapture { self.isQuickCaptureMode = false }
+                }
+                do {
+                    try await self.dispatchRecordingStop()
+                } catch {
+                    self.error = error
+                    self.audioRecorder.resetAudioEngine()
+                    Log.app.error("Failed to stop recording: \(error)")
+                }
+            }
         }
     }
 
