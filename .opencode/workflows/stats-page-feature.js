@@ -1,6 +1,6 @@
 export const meta = {
   name: "stats-page-feature",
-  description: "Inspect Pindrop navigation, analytics data, UI conventions, and tests for a Stats page implementation.",
+  description: "Inspect Superduper Dictation navigation, analytics data, UI conventions, and tests for a Stats page implementation.",
   argsSchema: {
     type: "object",
     properties: {
@@ -9,7 +9,7 @@ export const meta = {
     required: ["request"],
     additionalProperties: false,
   },
-  whenToUse: "When implementing or reviewing the Pindrop Stats page and its Home-page entry point.",
+  whenToUse: "When implementing or reviewing the Superduper Dictation Stats page and its Home-page entry point.",
   phases: [
     { title: "inspect", detail: "Inspect navigation, analytics, and UI/test concerns in parallel" },
     { title: "synthesize", detail: "Produce a focused implementation and verification plan" },
@@ -22,9 +22,9 @@ export async function run(args, api) {
 
   await api.phase("inspect")
   const prompts = [
-    `Inspect this SwiftUI repository's main navigation and Home dashboard for the requested Stats page. Focus on Pindrop/UI/Main/MainWindow.swift and DashboardView.swift. Identify exact integration points, callback changes, shortcut ordering, and likely regressions. Do not edit files. Return concise findings with file paths. Request: ${args.request}`,
+    `Inspect this SwiftUI repository's main navigation and Home dashboard for the requested Stats page. Focus on SuperduperDictation/UI/Main/MainWindow.swift and DashboardView.swift. Identify exact integration points, callback changes, shortcut ordering, and likely regressions. Do not edit files. Return concise findings with file paths. Request: ${args.request}`,
     `Inspect analytics-related code and models in this SwiftUI repository for a rich Stats page. Focus on DashboardStatsService, TranscriptionRecord fields, and pure presentation helpers/tests. Propose useful computable stats and chart datasets without inventing unavailable data. Do not edit files. Return concise findings with file paths. Request: ${args.request}`,
-    `Inspect the current Pindrop visual system and tests for adding an interactive, animated Stats page consistent with Home. Focus on reusable components, accessibility/reduced-motion expectations, localization obligations, and exact tests to add or update. Do not edit files. Return concise findings with file paths. Request: ${args.request}`,
+    `Inspect the current Superduper Dictation visual system and tests for adding an interactive, animated Stats page consistent with Home. Focus on reusable components, accessibility/reduced-motion expectations, localization obligations, and exact tests to add or update. Do not edit files. Return concise findings with file paths. Request: ${args.request}`,
   ]
   const findings = await api.parallel(
     prompts.map((prompt, index) => () => api.agent(prompt, {

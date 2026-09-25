@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "Một ứng dụng đọc chính tả trên thanh menu macOS gốc sử dụng tính năng chuyển giọng nói thành văn bản cục bộ với WhisperKit. Xử lý cục bộ 100% theo mặc định với cải tiến AI tùy chọn."
 about:
   _self: "Về"
-  pindrop: "Giới thiệu về Superduper Dictation"
+  superduper: "Giới thiệu về Superduper Dictation"
 accessibility:
   _self: "Khả năng tiếp cận"
   permission: "Quyền trợ năng"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Thêm dấu cách"
   blank_lines_between_sentence_groups_in_longe: "Thêm dòng trống giữa các nhóm câu trong đoạn chính tả dài. Hoàn toàn cục bộ, không dùng AI."
   word_replacements_to_automatically_correct_c: "Thêm từ thay thế để tự động sửa các lỗi phiên âm phổ biến."
-  words_to_help_pindrop_recognize_them_properl: "Thêm từ để giúp Superduper Dictation nhận biết chúng đúng cách"
+  words_to_help_superduper_recognize_them_properl: "Thêm từ để giúp Superduper Dictation nhận biết chúng đúng cách"
   words_you_manually_correct_into_your_vocabul: "Thêm các từ bạn sửa theo cách thủ công vào từ vựng của mình để phiên âm trong tương lai."
 advanced:
   _self: "Nâng cao"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Cập nhật tự động và kiểm tra cập nhật thủ công"
 automatically:
   check_for_new_versions_in_the_back: "Tự động kiểm tra các phiên bản mới trong nền."
-  start_pindrop_when_you_sign_in: "Tự động khởi động Superduper Dictation khi bạn đăng nhập."
+  start_superduper_when_you_sign_in: "Tự động khởi động Superduper Dictation khi bạn đăng nhập."
 available:
   models: "Các mẫu có sẵn"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Thay đổi micrô"
   your_choice_anytime_in_settings_privacy: "Thay đổi lựa chọn của bạn bất cứ lúc nào trong Cài đặt → Quyền riêng tư."
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
+  the_language_used_by_superduper_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "Kiểm tra cập nhật..."
   for_updates_736b9062: "Kiểm tra các bản cập nhật"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Chọn giữa Nemotron (có dấu câu, mô hình tải về) và Apple SpeechTranscriber (macOS 26+, đi kèm hệ điều hành)."
   file: "Chọn tập tin"
   how_dictated_text_lands_then_tune_the_fin: "Chọn cách hiển thị văn bản chính tả, sau đó điều chỉnh hành vi chèn cuối cùng."
-  how_pindrop_appears_on_screen_while_you_d: "Chọn cách Superduper Dictation hiển thị trên màn hình khi bạn đọc chính tả."
-  how_pindrop_follows_system_appearance_the: "Chọn cách Superduper Dictation theo dõi giao diện của hệ thống, sau đó trộn các bảng màu sáng và tối được tuyển chọn."
+  how_superduper_appears_on_screen_while_you_d: "Chọn cách Superduper Dictation hiển thị trên màn hình khi bạn đọc chính tả."
+  how_superduper_follows_system_appearance_the: "Chọn cách Superduper Dictation theo dõi giao diện của hệ thống, sau đó trộn các bảng màu sáng và tối được tuyển chọn."
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Chọn cách nhập dữ liệu từ điển"
   how_to_import_the_preset_data: "Chọn cách nhập dữ liệu đặt trước"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Chọn vỏ ban ngày được sử dụng ở chế độ ánh sáng."
   the_low_glare_shell_used_in_dark_mode: "Chọn lớp vỏ có độ chói thấp được sử dụng ở chế độ tối."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
+  whether_superduper_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "Chọn micrô mà Superduper Dictation sẽ sử dụng để đọc chính tả và cách micrô hoạt động trong khi ghi âm."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
+  which_microphone_superduper_should_use_for_d: "Chọn micrô mà Superduper Dictation sẽ sử dụng để đọc chính tả và cách micrô hoạt động trong khi ghi âm."
+  which_microphone_superduper_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "Chọn bên nào thanh bên điều hướng sẽ xuất hiện."
   where_to_save_the_training_data_file: "Chọn nơi lưu tệp dữ liệu huấn luyện."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Tiếp tục với mặc định"
   without: "Tiếp tục mà không có"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Kiểm soát cách Superduper Dictation xuất hiện trong macOS và liệu nó có bắt đầu bằng phiên trên máy tính để bàn của bạn hay không."
+  how_superduper_appears_in_macos_and_whether: "Kiểm soát cách Superduper Dictation xuất hiện trong macOS và liệu nó có bắt đầu bằng phiên trên máy tính để bàn của bạn hay không."
 controls:
 copied:
   _self: "Đã sao chép!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Tên hiển thị"
   name_c7874aaa: "Tên hiển thị"
-  pindrop_in_the_dock_instead_of_running_o: "Hiển thị Superduper Dictation trong Dock thay vì chỉ chạy dưới dạng ứng dụng trên thanh menu."
+  superduper_in_the_dock_instead_of_running_o: "Hiển thị Superduper Dictation trong Dock thay vì chỉ chạy dưới dạng ứng dụng trên thanh menu."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Gắn thanh bên vào cạnh trái hoặc phải của cửa sổ."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Tuyệt"
 help:
   _self: "Trợ giúp"
-  improve_pindrop: "Giúp cải thiện Superduper Dictation?"
+  improve_superduper: "Giúp cải thiện Superduper Dictation?"
 hide:
   api_key: "Ẩn khóa API"
   this_for_1_hour: "Ẩn cái này trong 1 giờ"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "tiếng Nhật"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Tự động cập nhật Superduper Dictation hoặc kích hoạt kiểm tra thủ công bất cứ khi nào bạn muốn."
+  superduper_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  superduper_current_automatically_or_trigger_a: "Tự động cập nhật Superduper Dictation hoặc kích hoạt kiểm tra thủ công bất cứ khi nào bạn muốn."
   before_and_after_text_pairs_when_ai_enhance: "Giữ lại các cặp văn bản trước-và-sau khi cải thiện bằng AI hoặc chỉnh sửa của bạn cải thiện một bản phiên âm. Chỉ lưu trên máy Mac này — không có gì được tải lên."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Hãy để Superduper Dictation lặng lẽ học từ vựng từ những chỉnh sửa mà bạn thực hiện theo thời gian."
+  superduper_quietly_learn_vocabulary_from_the_co: "Hãy để Superduper Dictation lặng lẽ học từ vựng từ những chỉnh sửa mà bạn thực hiện theo thời gian."
 library:
   _self: "Thư viện"
 license:
@@ -1018,7 +1018,7 @@ pill:
   _self: "Thuốc viên"
 pin:
   to_screen_always_on_top: "Ghim vào màn hình (luôn ở trên cùng)"
-pindrop:
+superduper:
   _self: "ghim"
   1_19: "Superduper Dictation 1.19"
   help: "Trợ giúp Superduper Dictation"
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "Gọi `fetchUser` -> rồi ánh xạ phản hồi `==` 200."
   name: "Tên đặt trước"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Nhấn và giữ để đọc chính tả trong bất kỳ ứng dụng nào. Superduper Dictation sẽ phiên âm lời nói của bạn và chèn văn bản vào vị trí con trỏ của bạn."
+  and_hold_to_dictate_in_any_app_superduper_wil: "Nhấn và giữ để đọc chính tả trong bất kỳ ứng dụng nào. Superduper Dictation sẽ phiên âm lời nói của bạn và chèn văn bản vào vị trí con trỏ của bạn."
   esc_to_cancel: "Nhấn Esc để hủy"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Nhấn Escape hai lần để hủy bản ghi âm. Khi tắt, chỉ cần nhấn một lần để hủy."
   keys: "Nhấn phím..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "Nhanh chóng kéo bản ghi mới nhất của bạn trở lại bảng tạm."
 quit:
   _self: "Từ bỏ"
-  pindrop: "Thoát khỏi Superduper Dictation"
+  superduper: "Thoát khỏi Superduper Dictation"
 ready:
   _self: "Sẵn sàng"
   ec1296e1: "● Sẵn sàng"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Đổi tên"
   folder: "Đổi tên thư mục"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
+  speakers_in_transcripts_to_teach_superduper: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "Thay thế tất cả"
   words_and_phrases: "Thay thế các từ và cụm từ"
@@ -1227,7 +1227,7 @@ select:
   all: "Chọn tất cả"
   language: "Chọn ngôn ngữ"
   language_daea52c9: "Chọn ngôn ngữ"
-  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
+  the_language_superduper_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "Chọn kiểu chỉ báo nổi này."
   voice_model: "Chọn mẫu giọng nói"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Bắt đầu ghi"
   recording_to_see_your_transcriptions_here: "Bắt đầu ghi để xem bản chép lời của bạn tại đây"
   stop_recording: "Bắt đầu/dừng ghi âm"
-  using_pindrop: "Bắt đầu sử dụng Superduper Dictation"
+  using_superduper: "Bắt đầu sử dụng Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "Bắt đầu trên thanh menu mà không mở cửa sổ chính. Bạn vẫn có thể mở nó từ biểu tượng thanh menu."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Dấu thời gian (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "ra lệnh và để Superduper Dictation chép lời cho bạn"
+  dictate_and_let_superduper_transcribe_for_you: "ra lệnh và để Superduper Dictation chép lời cho bạn"
   start_talking: "bắt đầu nói chuyện"
 today:
   _self: "Hôm nay"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
+  u7_teach_superduper_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1616,7 +1616,7 @@ u9:
   onboarding_download_background_hint: "Tiếp tục thiết lập trong khi tải xuống — chúng tôi sẽ hoàn tất trong nền."
   onboarding_enable_enhancement: "Bật tính năng cải thiện"
   onboarding_granted_state: "Đã cấp"
-  onboarding_pindrop_writes: "Superduper Dictation viết"
+  onboarding_superduper_writes: "Superduper Dictation viết"
   onboarding_ready_heading: "Bạn đã sẵn sàng."
   onboarding_ready_instruction_format: "Nhấn %@ và bắt đầu nói — Superduper Dictation nhập tại vị trí con trỏ."
   onboarding_try_it_now: "Thử ngay"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Chào mừng đến với Superduper Dictation"
+  to_superduper: "Chào mừng đến với Superduper Dictation"
 what:
   s_new: "Có gì mới…"
-  s_new_in_pindrop: "Có gì mới trong Superduper Dictation"
-  does_pindrop_collect: "Superduper Dictation thu thập những gì?"
+  s_new_in_superduper: "Có gì mới trong Superduper Dictation"
+  does_superduper_collect: "Superduper Dictation thu thập những gì?"
 while:
   recording: "Khi ghi âm"
 whisperkit:

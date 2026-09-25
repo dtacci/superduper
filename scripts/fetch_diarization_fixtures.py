@@ -19,7 +19,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MANIFEST = ROOT / "PindropTests/Fixtures/Diarization/manifest.json"
+DEFAULT_MANIFEST = ROOT / "SuperduperDictationTests/Fixtures/Diarization/manifest.json"
 
 
 def sha256(path: Path) -> str:
@@ -31,7 +31,7 @@ def sha256(path: Path) -> str:
 
 
 def download(url: str, destination: Path) -> None:
-    request = urllib.request.Request(url, headers={"User-Agent": "Pindrop diarization fixture fetcher"})
+    request = urllib.request.Request(url, headers={"User-Agent": "SuperduperDictation diarization fixture fetcher"})
     with urllib.request.urlopen(request, timeout=120) as response, destination.open("wb") as output:
         shutil.copyfileobj(response, output)
 
@@ -62,7 +62,7 @@ def convert_to_16k_mono(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
-    parser.add_argument("--output-root", type=Path, default=ROOT / "PindropTests/Fixtures/Diarization/Generated")
+    parser.add_argument("--output-root", type=Path, default=ROOT / "SuperduperDictationTests/Fixtures/Diarization/Generated")
     args = parser.parse_args()
 
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
@@ -71,7 +71,7 @@ def main() -> int:
         raise SystemExit("manifest contains no checksum-pinned fixtures; populate it from official AMI windows first")
 
     args.output_root.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="pindrop-diarization-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="superduper-diarization-") as temporary:
         temporary_root = Path(temporary)
         generated_fixtures = []
         for fixture in fixtures:

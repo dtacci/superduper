@@ -1,0 +1,679 @@
+//
+//  DictionaryStoreTests.swift
+//  SuperduperDictation
+//
+//  Created on 2026-01-27.
+//
+
+import Foundation
+import SwiftData
+import Testing
+@testable import SuperduperDictation
+
+@MainActor
+@Suite(.serialized)
+struct DictionaryStoreTests {
+    private func makeStore() throws -> DictionaryStore {
+        let schema = Schema([WordReplacement.self, VocabularyWord.self])
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let modelContainer = try ModelContainer(for: schema, configurations: [configuration])
+        let modelContext = ModelContext(modelContainer)
+        return DictionaryStore(modelContext: modelContext)
+    }
+
+    @Test func addWordReplacement() throws {
+        let dictionaryStore = try makeStore()
+        let replacement = WordReplacement(
+            originals: ["dr", "Dr"],
+            replacement: "Doctor",
+            sortOrder: 0
+        )
+
+        try dictionaryStore.add(replacement)
+
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.count == 1)
+        #expect(replacements.first?.originals == ["dr", "Dr"])
+        #expect(replacements.first?.replacement == "Doctor")
+    }
+
+    @Test func fetchAllReplacements() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["a"], replacement: "A", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["b"], replacement: "B", sortOrder: 1)
+        let r3 = WordReplacement(originals: ["c"], replacement: "C", sortOrder: 2)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+        try dictionaryStore.add(r3)
+
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.count == 3)
+        #expect(replacements[0].sortOrder == 0)
+        #expect(replacements[1].sortOrder == 1)
+        #expect(replacements[2].sortOrder == 2)
+    }
+
+    @Test func deleteWordReplacement() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["keep"], replacement: "Keep", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["delete"], replacement: "Delete", sortOrder: 1)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+
+        var replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.count == 2)
+
+        let toDelete = try #require(replacements.first { $0.originals.contains("delete") })
+        try dictionaryStore.delete(toDelete)
+
+        replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.count == 1)
+        #expect(replacements.first?.originals == ["keep"])
+    }
+
+    @Test func reorderReplacements() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["a"], replacement: "A", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["b"], replacement: "B", sortOrder: 1)
+        let r3 = WordReplacement(originals: ["c"], replacement: "C", sortOrder: 2)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+        try dictionaryStore.add(r3)
+
+        var replacements = try dictionaryStore.fetchAllReplacements()
+        try dictionaryStore.reorder(replacements, from: IndexSet(integer: 0), to: 3)
+
+        replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements[0].originals == ["b"])
+        #expect(replacements[1].originals == ["c"])
+        #expect(replacements[2].originals == ["a"])
+    }
+
+    @Test func addVocabularyWord() throws {
+        let dictionaryStore = try makeStore()
+        let word = VocabularyWord(word: "supercalifragilisticexpialidocious")
+
+        try dictionaryStore.add(word)
+
+        let words = try dictionaryStore.fetchAllVocabularyWords()
+        #expect(words.count == 1)
+        #expect(words.first?.word == "supercalifragilisticexpialidocious")
+    }
+
+    @Test func fetchAllVocabularyWords() throws {
+        let dictionaryStore = try makeStore()
+        let w1 = VocabularyWord(word: "apple")
+        let w2 = VocabularyWord(word: "banana")
+        let w3 = VocabularyWord(word: "cherry")
+
+        try dictionaryStore.add(w1)
+        try dictionaryStore.add(w2)
+        try dictionaryStore.add(w3)
+
+        let words = try dictionaryStore.fetchAllVocabularyWords()
+        #expect(words.count == 3)
+    }
+
+    @Test func deleteVocabularyWord() throws {
+        let dictionaryStore = try makeStore()
+        let w1 = VocabularyWord(word: "keep")
+        let w2 = VocabularyWord(word: "delete")
+
+        try dictionaryStore.add(w1)
+        try dictionaryStore.add(w2)
+
+        var words = try dictionaryStore.fetchAllVocabularyWords()
+        #expect(words.count == 2)
+
+        let toDelete = try #require(words.first { $0.word == "delete" })
+        try dictionaryStore.delete(toDelete)
+
+        words = try dictionaryStore.fetchAllVocabularyWords()
+        #expect(words.count == 1)
+        #expect(words.first?.word == "keep")
+    }
+
+    @Test func upsertLearnedReplacementCreatesNewReplacement() throws {
+        let dictionaryStore = try makeStore()
+        let change = try dictionaryStore.upsertLearnedReplacement(original: "teh", replacement: "the")
+
+        let requiredChange = try #require(change)
+        #expect(requiredChange.learnedOriginal == "teh")
+        #expect(requiredChange.replacement == "the")
+        #expect(requiredChange.createdReplacement == true)
+
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.count == 1)
+        #expect(replacements.first?.originals == ["teh"])
+        #expect(replacements.first?.replacement == "the")
+    }
+
+    @Test func upsertLearnedReplacementMergesIntoExistingReplacement() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["adress"],
+                replacement: "address",
+                sortOrder: 0
+            )
+        )
+
+        let change = try dictionaryStore.upsertLearnedReplacement(original: "addres", replacement: "address")
+
+        #expect(change?.createdReplacement == false)
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.count == 1)
+        #expect(replacements.first?.originals == ["adress", "addres"])
+    }
+
+    @Test func undoLearnedReplacementRemovesOnlyLearnedOriginal() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["adress"],
+                replacement: "address",
+                sortOrder: 0
+            )
+        )
+        let change = try dictionaryStore.upsertLearnedReplacement(original: "addres", replacement: "address")
+
+        try dictionaryStore.undoLearnedReplacement(try #require(change))
+
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.count == 1)
+        #expect(replacements.first?.originals == ["adress"])
+    }
+
+    @Test func undoLearnedReplacementDeletesEmptyReplacementRow() throws {
+        let dictionaryStore = try makeStore()
+        let change = try dictionaryStore.upsertLearnedReplacement(original: "teh", replacement: "the")
+
+        try dictionaryStore.undoLearnedReplacement(try #require(change))
+
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.isEmpty)
+    }
+
+    @Test func wordBoundaryMatching() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["dr"], replacement: "Doctor", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["is"], replacement: "was", sortOrder: 1)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+
+        let (result1, applied1) = try dictionaryStore.applyReplacements(to: "dr smith")
+        #expect(result1 == "Doctor smith")
+        #expect(applied1.count == 1)
+        #expect(applied1[0].original == "dr")
+        #expect(applied1[0].replacement == "Doctor")
+
+        let (result2, applied2) = try dictionaryStore.applyReplacements(to: "address")
+        #expect(result2 == "address")
+        #expect(applied2.count == 0)
+
+        let (result3, applied3) = try dictionaryStore.applyReplacements(to: "this is a test")
+        #expect(result3 == "this was a test")
+        #expect(applied3.count == 1)
+        #expect(applied3[0].original == "is")
+        #expect(applied3[0].replacement == "was")
+    }
+
+    @Test func caseInsensitiveMatching() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["hello"], replacement: "hi", sortOrder: 0)
+
+        try dictionaryStore.add(r1)
+
+        let (result1, applied1) = try dictionaryStore.applyReplacements(to: "HELLO world")
+        #expect(result1 == "hi world")
+        #expect(applied1.count == 1)
+
+        let (result2, applied2) = try dictionaryStore.applyReplacements(to: "Hello World")
+        #expect(result2 == "hi World")
+        #expect(applied2.count == 1)
+
+        let (result3, applied3) = try dictionaryStore.applyReplacements(to: "hello there")
+        #expect(result3 == "hi there")
+        #expect(applied3.count == 1)
+    }
+
+    /// sortOrder-primary: earlier rule wins overlapping spans (not longest-first).
+    /// When the longer phrase is listed first, it still wins — same outcome as the old
+    /// length-priority path for this fixture, but for order reasons.
+    @Test func sortOrderEarlierRuleWinsOverlappingLongerPhraseFirst() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["new york"], replacement: "NYC", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["york"], replacement: "York City", sortOrder: 1)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "new york city")
+        #expect(result == "NYC city")
+        #expect(applied.count == 1)
+        #expect(applied[0].original == "new york")
+        #expect(applied[0].replacement == "NYC")
+    }
+
+    /// Flipping sortOrder flips the outcome: shorter earlier rule consumes "york".
+    @Test func sortOrderEarlierRuleWinsWhenShorterIsFirst() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["york"], replacement: "York City", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["new york"], replacement: "NYC", sortOrder: 1)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "new york city")
+        #expect(result == "new York City city")
+        #expect(applied.count == 1)
+        #expect(applied[0].original == "york")
+        #expect(applied[0].replacement == "York City")
+    }
+
+    @Test func exactModeIsCaseSensitive() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["GitHub"],
+                replacement: "GitHub",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.exact.rawValue
+            )
+        )
+
+        let (hit, appliedHit) = try dictionaryStore.applyReplacements(to: "Check GitHub please")
+        #expect(hit == "Check GitHub please")
+        #expect(appliedHit.count == 1)
+
+        let (miss, appliedMiss) = try dictionaryStore.applyReplacements(to: "Check github please")
+        #expect(miss == "Check github please")
+        #expect(appliedMiss.isEmpty)
+    }
+
+    @Test func caseInsensitiveModeIgnoresCase() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["GitHub"],
+                replacement: "GH",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.caseInsensitive.rawValue
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "Check github please")
+        #expect(result == "Check GH please")
+        #expect(applied.count == 1)
+    }
+
+    @Test func commandModeResolvesPaletteTokens() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["new paragraph"],
+                replacement: "newParagraph",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["new line"],
+                replacement: "new line",
+                sortOrder: 1,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["indent"],
+                replacement: "tab",
+                sortOrder: 2,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(
+            to: "Hello new paragraph world new line indent here"
+        )
+        #expect(result == "Hello \n\n world \n \t here")
+        #expect(applied.count == 3)
+        #expect(applied.contains { $0.replacement == "\n\n" })
+        #expect(applied.contains { $0.replacement == "\n" })
+        #expect(applied.contains { $0.replacement == "\t" })
+    }
+
+    @Test func commandModeMatchesSpokenPhraseCaseInsensitively() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["new paragraph"],
+                replacement: "newParagraph",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "NEW PARAGRAPH")
+        #expect(result == "\n\n")
+        #expect(applied.count == 1)
+    }
+
+    @Test func commandModeAcceptsLiteralControlSequences() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["break"],
+                replacement: "\n\n",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+
+        let (result, _) = try dictionaryStore.applyReplacements(to: "break")
+        #expect(result == "\n\n")
+    }
+
+    @Test func firstMatchWinsSpanIsNotRematched() throws {
+        let dictionaryStore = try makeStore()
+        // First rule consumes "alpha beta"; second rule would match "beta" alone.
+        try dictionaryStore.add(
+            WordReplacement(originals: ["alpha beta"], replacement: "AB", sortOrder: 0)
+        )
+        try dictionaryStore.add(
+            WordReplacement(originals: ["beta"], replacement: "B", sortOrder: 1)
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "alpha beta gamma")
+        #expect(result == "AB gamma")
+        #expect(applied.count == 1)
+        #expect(applied[0].replacement == "AB")
+    }
+
+    @Test func usageCountIncrementsWhenRuleFires() throws {
+        let dictionaryStore = try makeStore()
+        let rule = WordReplacement(originals: ["teh"], replacement: "the", sortOrder: 0)
+        try dictionaryStore.add(rule)
+
+        _ = try dictionaryStore.applyReplacements(to: "teh cat and teh dog")
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.first?.usageCount == 2)
+    }
+
+    @Test func usageCountDoesNotIncrementWhenRuleDoesNotFire() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(originals: ["teh"], replacement: "the", sortOrder: 0)
+        )
+
+        _ = try dictionaryStore.applyReplacements(to: "the cat")
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.first?.usageCount == 0)
+    }
+
+    @Test func usageCountSkippedWhenTrackUsageFalse() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(originals: ["teh"], replacement: "the", sortOrder: 0)
+        )
+
+        _ = try dictionaryStore.applyReplacements(to: "teh cat", trackUsage: false)
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.first?.usageCount == 0)
+    }
+
+    @Test func vocabularyHitCountingIncrementsPerOccurrence() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(VocabularyWord(word: "Superduper"))
+        try dictionaryStore.add(VocabularyWord(word: "WhisperKit"))
+
+        try dictionaryStore.recordVocabularyHits(
+            in: "Superduper and superduper use WhisperKit; SUPERDUPER rocks."
+        )
+
+        let words = try dictionaryStore.fetchAllVocabularyWords()
+        let superduper = try #require(words.first { $0.word == "Superduper" })
+        let whisper = try #require(words.first { $0.word == "WhisperKit" })
+        #expect(superduper.usageCount == 3)
+        #expect(whisper.usageCount == 1)
+    }
+
+    @Test func vocabularyHitCountingRespectsWordBoundaries() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(VocabularyWord(word: "cat"))
+
+        try dictionaryStore.recordVocabularyHits(in: "cat category concatenate cat")
+        let words = try dictionaryStore.fetchAllVocabularyWords()
+        #expect(words.first?.usageCount == 2)
+    }
+
+    @Test func vocabularyBiasWordsOrdersByUsageThenRecency() throws {
+        let dictionaryStore = try makeStore()
+        let older = Date(timeIntervalSince1970: 1_000)
+        let newer = Date(timeIntervalSince1970: 2_000)
+        try dictionaryStore.add(VocabularyWord(word: "low", createdAt: newer, usageCount: 1))
+        try dictionaryStore.add(VocabularyWord(word: "high", createdAt: older, usageCount: 10))
+        try dictionaryStore.add(VocabularyWord(word: "midNew", createdAt: newer, usageCount: 5))
+        try dictionaryStore.add(VocabularyWord(word: "midOld", createdAt: older, usageCount: 5))
+
+        let bias = try dictionaryStore.vocabularyBiasWords()
+        #expect(bias == ["high", "midNew", "midOld", "low"])
+    }
+
+    @Test func singlePassReplacement() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["a"], replacement: "b", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["b"], replacement: "c", sortOrder: 1)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "a")
+        #expect(result == "b")
+        #expect(applied.count == 1)
+        #expect(applied[0].original == "a")
+        #expect(applied[0].replacement == "b")
+    }
+
+    @Test func multipleOriginalsPerReplacement() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(
+            originals: ["dr", "Dr", "DR"],
+            replacement: "Doctor",
+            sortOrder: 0
+        )
+
+        try dictionaryStore.add(r1)
+
+        let (result1, applied1) = try dictionaryStore.applyReplacements(to: "dr smith")
+        #expect(result1 == "Doctor smith")
+        #expect(applied1.count == 1)
+
+        let (result2, applied2) = try dictionaryStore.applyReplacements(to: "Dr Jones")
+        #expect(result2 == "Doctor Jones")
+        #expect(applied2.count == 1)
+
+        let (result3, applied3) = try dictionaryStore.applyReplacements(to: "DR Brown")
+        #expect(result3 == "Doctor Brown")
+        #expect(applied3.count == 1)
+    }
+
+    @Test func noReplacements() throws {
+        let dictionaryStore = try makeStore()
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "hello world")
+        #expect(result == "hello world")
+        #expect(applied.count == 0)
+    }
+
+    @Test func emptyInput() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["hello"], replacement: "hi", sortOrder: 0)
+        try dictionaryStore.add(r1)
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "")
+        #expect(result == "")
+        #expect(applied.count == 0)
+    }
+
+    @Test func multipleReplacementsInSameText() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["hello"], replacement: "hi", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["world"], replacement: "universe", sortOrder: 1)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "hello world")
+        #expect(result == "hi universe")
+        #expect(applied.count == 2)
+        #expect(applied.contains { $0.original == "hello" && $0.replacement == "hi" })
+        #expect(applied.contains { $0.original == "world" && $0.replacement == "universe" })
+    }
+
+    @Test func specialCharactersInReplacement() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["test"], replacement: "test-123", sortOrder: 0)
+
+        try dictionaryStore.add(r1)
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "this is a test")
+        #expect(result == "this is a test-123")
+        #expect(applied.count == 1)
+    }
+
+    /// Unknown persisted `matchModeRawValue` must behave like case-insensitive application
+    /// (same fallback as `WordReplacement.matchMode`).
+    @Test func applyReplacementsUnknownMatchModeFallsBackToCaseInsensitive() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["GitHub"],
+                replacement: "GH",
+                sortOrder: 0,
+                matchModeRawValue: "not-a-real-mode"
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "check github today")
+        #expect(result == "check GH today")
+        #expect(applied.count == 1)
+    }
+
+    /// Punctuation-containing patterns (e.g. `C++`) use lookaround token boundaries
+    /// `(?<!\w)…(?!\w)` (not classic `\b…\b`).
+    ///
+    /// Semantics:
+    /// - Match a standalone token `C++` when not adjacent to a word char (`[A-Za-z0-9_]`),
+    ///   including when flanked by whitespace, punctuation, or string edges.
+    /// - Do **not** match a bare `C` (full pattern required).
+    /// - Do **not** match as a prefix of `C++abi` (followed by a word char).
+    /// - Do **not** match when glued to a leading word char (`myC++`).
+    ///
+    /// Rationale: `\b` is a word↔non-word *transition*, so `C++` followed by space has no
+    /// trailing `\b` (both non-word) while `C++abi` spuriously has one (`+`→`a`). Lookarounds
+    /// give the sane "whole token" behavior for punctuated terms.
+    @Test func punctuationContainingPatternMatchesAtWordBoundaries() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["C++"],
+                replacement: "CXX",
+                sortOrder: 0
+            )
+        )
+
+        let (standalone, appliedStandalone) = try dictionaryStore.applyReplacements(
+            to: "I write C++ code"
+        )
+        #expect(standalone == "I write CXX code")
+        #expect(appliedStandalone.count == 1)
+
+        let (noBareC, appliedBare) = try dictionaryStore.applyReplacements(to: "grade C only")
+        #expect(noBareC == "grade C only")
+        #expect(appliedBare.isEmpty)
+
+        let (embedded, appliedEmbedded) = try dictionaryStore.applyReplacements(
+            to: "see C++abi notes"
+        )
+        #expect(embedded == "see C++abi notes")
+        #expect(appliedEmbedded.isEmpty)
+
+        let (leadingGlue, appliedGlue) = try dictionaryStore.applyReplacements(to: "myC++ tool")
+        #expect(leadingGlue == "myC++ tool")
+        #expect(appliedGlue.isEmpty)
+    }
+
+    // MARK: - Import vocabulary dedup
+
+    @Test func importDeduplicatesVocabularyWithinPayloadReplace() throws {
+        let store = try makeStore()
+        let payload = """
+        {
+          "version": 1,
+          "replacements": [],
+          "vocabulary": [
+            {"word": "Superduper"},
+            {"word": "superduper"},
+            {"word": "SUPERDUPER"},
+            {"word": "Alpha"},
+            {"word": "alpha"}
+          ]
+        }
+        """.data(using: .utf8)!
+
+        try store.importFromJSON(payload, strategy: .replace)
+
+        let words = try store.fetchAllVocabularyWords().map(\.word)
+        #expect(words.count == 2)
+        let lower = Set(words.map { $0.lowercased() })
+        #expect(lower == Set(["superduper", "alpha"]))
+        // First spelling wins.
+        #expect(words.contains("Superduper"))
+        #expect(words.contains("Alpha"))
+    }
+
+    @Test func importDeduplicatesVocabularyWithinPayloadAdditive() throws {
+        let store = try makeStore()
+        try store.add(VocabularyWord(word: "Existing"))
+
+        let payload = """
+        {
+          "version": 1,
+          "replacements": [],
+          "vocabulary": [
+            {"word": "existing"},
+            {"word": "NewWord"},
+            {"word": "newword"},
+            {"word": "NEWWORD"}
+          ]
+        }
+        """.data(using: .utf8)!
+
+        try store.importFromJSON(payload, strategy: .additive)
+
+        let words = try store.fetchAllVocabularyWords().map(\.word)
+        #expect(words.count == 2)
+        let lower = Set(words.map { $0.lowercased() })
+        #expect(lower == Set(["existing", "newword"]))
+        #expect(words.contains("Existing"))
+        #expect(words.contains("NewWord"))
+    }
+
+    @Test func deduplicatedVocabularyWordsHelperFirstWins() {
+        let result = DictionaryStore.deduplicatedVocabularyWords([
+            "  Swift  ",
+            "swift",
+            "SWIFT",
+            "Rust",
+            "rust",
+            "  ",
+            "Go",
+        ])
+        #expect(result == ["Swift", "Rust", "Go"])
+    }
+}

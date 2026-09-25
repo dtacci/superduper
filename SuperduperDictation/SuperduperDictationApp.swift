@@ -1,0 +1,1359 @@
+//
+//  SuperduperDictationApp.swift
+//  SuperduperDictation
+//
+//  Created on 2026-01-25.
+//
+
+import SwiftUI
+import SwiftData
+import AppKit
+import SQLite3
+import Darwin
+
+enum LocalDataProtection {
+    private static let ownerDirectoryPermissions = 0o700
+    private static let ownerFilePermissions = 0o600
+
+    /// New transcripts, audio, logs, and databases should never be group/world readable.
+    static func applyRestrictiveProcessUmask() {
+        _ = Darwin.umask(mode_t(0o077))
+    }
+
+    /// Repairs permissions created by older builds. The app-support root is the
+    /// primary boundary; smaller sensitive trees are repaired recursively without
+    /// walking the much larger downloaded-model directory on every launch.
+    static func hardenExistingApplicationSupport(fileManager: FileManager = .default) throws {
+        guard let supportURL = fileManager.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first else { return }
+
+        let rootURL = supportURL.appendingPathComponent("Superduper Dictation", isDirectory: true)
+        try fileManager.createDirectory(
+            at: rootURL,
+            withIntermediateDirectories: true,
+            attributes: [.posixPermissions: ownerDirectoryPermissions]
+        )
+        try setOwnerOnlyPermissions(at: rootURL, isDirectory: true, fileManager: fileManager)
+
+        for storeName in ["default.store", "default.store-wal", "default.store-shm"] {
+            let storeURL = rootURL.appendingPathComponent(storeName)
+            if fileManager.fileExists(atPath: storeURL.path) {
+                try setOwnerOnlyPermissions(at: storeURL, isDirectory: false, fileManager: fileManager)
+            }
+        }
+
+        for directoryName in ["Logs", "MediaLibrary", "DatabaseBackups"] {
+            let directoryURL = rootURL.appendingPathComponent(directoryName, isDirectory: true)
+            guard fileManager.fileExists(atPath: directoryURL.path) else { continue }
+            try hardenTree(at: directoryURL, fileManager: fileManager)
+        }
+
+        let modelsURL = rootURL.appendingPathComponent("models", isDirectory: true)
+        if fileManager.fileExists(atPath: modelsURL.path) {
+            try setOwnerOnlyPermissions(at: modelsURL, isDirectory: true, fileManager: fileManager)
+        }
+    }
+
+    private static func hardenTree(at rootURL: URL, fileManager: FileManager) throws {
+        try setOwnerOnlyPermissions(at: rootURL, isDirectory: true, fileManager: fileManager)
+        guard let enumerator = fileManager.enumerator(
+            at: rootURL,
+            includingPropertiesForKeys: [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey],
+            options: [.skipsHiddenFiles]
+        ) else { return }
+
+        for case let itemURL as URL in enumerator {
+            let values = try itemURL.resourceValues(
+                forKeys: [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey]
+            )
+            if values.isSymbolicLink == true {
+                if values.isDirectory == true {
+                    enumerator.skipDescendants()
+                }
+                continue
+            }
+            if values.isDirectory == true {
+                try setOwnerOnlyPermissions(at: itemURL, isDirectory: true, fileManager: fileManager)
+            } else if values.isRegularFile == true {
+                try setOwnerOnlyPermissions(at: itemURL, isDirectory: false, fileManager: fileManager)
+            }
+        }
+    }
+
+    private static func setOwnerOnlyPermissions(
+        at url: URL,
+        isDirectory: Bool,
+        fileManager: FileManager
+    ) throws {
+        try fileManager.setAttributes(
+            [.posixPermissions: isDirectory ? ownerDirectoryPermissions : ownerFilePermissions],
+            ofItemAtPath: url.path
+        )
+    }
+}
+
+@main
+struct SuperduperDictationApp: App {
+    
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
+    var body: some Scene {
+        WindowGroup(id: "placeholder") {
+            if AppUITestFixture.isEnabled {
+                AppUITestFixture.rootView()
+            } else {
+                EmptyView()
+            }
+        }
+        .defaultSize(width: AppUITestFixture.isEnabled ? 1240 : 0, height: AppUITestFixture.isEnabled ? 920 : 0)
+        .windowResizability(.contentSize)
+    }
+}
+
+extension AppDelegate {
+    static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+
+    static var isRunningTests: Bool {
+        AppTestMode.isRunningUnitTests
+    }
+
+    static var isRunningUITests: Bool {
+        AppTestMode.isRunningUITests
+    }
+}
+
+struct SettingsPresentationSnapshot: Equatable {
+    let showInDock: Bool
+    let appLocale: AppLocale
+
+    func changes(from previous: SettingsPresentationSnapshot?) -> (dockVisibility: Bool, mainMenu: Bool) {
+        guard let previous else { return (true, true) }
+        return (
+            dockVisibility: showInDock != previous.showInDock,
+            mainMenu: appLocale != previous.appLocale
+        )
+    }
+}
+
+@MainActor
+class AppDelegate: NSObject, NSApplicationDelegate {
+    
+    private var coordinator: AppCoordinator?
+    private var settingsStore: SettingsStore?
+    
+    private var modelContainer: ModelContainer?
+    private let storeRepairService = SwiftDataStoreRepairService()
+    private var lastSettingsPresentationSnapshot: SettingsPresentationSnapshot?
+    private var pendingSettingsPresentationUpdate: Task<Void, Never>?
+    /// Temporary menu-bar surface shown while store probing / ModelContainer setup
+    /// blocks the main thread. Owned only by AppDelegate; removed before the real
+    /// `StatusBarController` item is ensured so ownership never overlaps.
+    private var earlyLaunchStatusItem: NSStatusItem?
+    /// Captured synchronously at the start of `applicationDidFinishLaunching`
+    /// while the open-application AppleEvent is still available.
+    private var launchSemantics: StartupLaunchSemantics = .normal
+
+    private var currentLocale: Locale {
+        settingsStore?.selectedAppLocale.locale ?? .autoupdatingCurrent
+    }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        guard !Self.isPreview else { return }
+        LocalDataProtection.applyRestrictiveProcessUmask()
+        do {
+            try LocalDataProtection.hardenExistingApplicationSupport()
+        } catch {
+            NSLog("Superduper Dictation could not tighten local data permissions: %@", error.localizedDescription)
+        }
+        // Capture before any async hop; `currentAppleEvent` is only reliable here.
+        launchSemantics = StartupWindowPresentationPolicy.captureLaunchSemantics()
+        let bootStarted = CFAbsoluteTimeGetCurrent()
+        Log.bootstrap()
+        FontLoader.bootstrap()
+        Log.boot.info(
+            "applicationDidFinishLaunching begin logFile=\(Log.currentLogFileName) hideFlag=\(launchSemantics.launchServicesRequestedHide)"
+        )
+        guard !Self.isRunningUITests else {
+            AppUITestFixture.configureApplication()
+            Log.app.debug("Detected UI test environment, launching fixture surface")
+            Log.boot.info("Boot aborted: UI test fixture mode")
+            return
+        }
+        guard !Self.isRunningTests else {
+            Log.app.debug("Detected XCTest environment, skipping app startup flow")
+            Log.boot.info("Boot aborted: XCTest environment")
+            return
+        }
+
+        installEarlyLaunchStatusItem()
+
+        Log.boot.info("Preparing SwiftData store location")
+        do {
+            try storeRepairService.prepareStoreLocation()
+            Log.boot.info("Creating ModelContainer")
+            modelContainer = try makeModelContainer()
+            Log.boot.info("ModelContainer ready elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
+        } catch {
+            let initialError = error
+            Log.app.error("Failed to create ModelContainer: \(describe(error: initialError))")
+            Log.boot.error("ModelContainer creation failed: \(describe(error: initialError))")
+
+            do {
+                let repairOutcome = try storeRepairService.repairIfNeeded(storeURL: storeRepairService.storeURL())
+                guard repairOutcome.repaired else {
+                    Log.boot.error("SwiftData repair not applied; terminating")
+                    showModelContainerErrorAlert(error: initialError)
+                    removeEarlyLaunchStatusItem()
+                    NSApplication.shared.terminate(nil)
+                    return
+                }
+
+                Log.app.info("Retrying ModelContainer creation after repairing the SwiftData store")
+                Log.boot.info("SwiftData repair applied; retrying ModelContainer creation")
+                modelContainer = try makeModelContainer()
+                Log.boot.info("ModelContainer ready after repair elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
+            } catch {
+                Log.app.error("Failed to repair ModelContainer store: \(describe(error: error))")
+                Log.boot.error("ModelContainer repair retry failed: \(describe(error: error))")
+                showModelContainerErrorAlert(error: initialError)
+                removeEarlyLaunchStatusItem()
+                NSApplication.shared.terminate(nil)
+                return
+            }
+        }
+        
+        guard let container = modelContainer else {
+            Log.boot.error("ModelContainer nil after setup; terminating")
+            removeEarlyLaunchStatusItem()
+            NSApplication.shared.terminate(nil)
+            return
+        }
+        
+        let context = container.mainContext
+        // Atomic handoff: drop the launch placeholder immediately before constructing
+        // AppCoordinator / StatusBarController, which allocates the real item in init.
+        // There must never be two live Superduper Dictation status items at any handoff point.
+        removeEarlyLaunchStatusItem()
+        Log.boot.info("Constructing AppCoordinator")
+        coordinator = AppCoordinator(modelContext: context, modelContainer: container)
+        settingsStore = coordinator?.settingsStore
+        let onboardingDone = settingsStore?.hasCompletedOnboarding ?? false
+        Log.boot.info("AppCoordinator ready hasCompletedOnboarding=\(onboardingDone) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
+        SuperduperThemeController.shared.refresh()
+
+        applySettingsPresentationChanges()
+        coordinator?.statusBarController.ensureStatusItem()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(settingsDidChange),
+            name: UserDefaults.didChangeNotification,
+            object: nil
+        )
+        
+        Log.boot.info("Scheduling coordinator.start()")
+        let capturedLaunchSemantics = launchSemantics
+        Task { @MainActor in
+            Log.boot.info("coordinator.start() begin")
+            coordinator?.statusBarController.ensureStatusItem()
+            await coordinator?.start(launchSemantics: capturedLaunchSemantics)
+            Log.boot.info("coordinator.start() returned elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
+        }
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard !Self.isPreview, !Self.isRunningTests, !Self.isRunningUITests else {
+            return .terminateNow
+        }
+        // Enqueue tracked mid-debounce drafts, close every live editor window,
+        // re-enqueue tracked drafts, then await each note's latest save task.
+        Task { @MainActor in
+            await NoteEditorPersistenceController.shared.prepareForTermination()
+            coordinator?.shutdown()
+            NotificationCenter.default.removeObserver(self)
+            NSApp.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        pendingSettingsPresentationUpdate?.cancel()
+        pendingSettingsPresentationUpdate = nil
+        coordinator?.shutdown()
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+
+    // MARK: - Early Launch Status Item
+
+    private func installEarlyLaunchStatusItem() {
+        guard earlyLaunchStatusItem == nil else { return }
+
+        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        earlyLaunchStatusItem = statusItem
+
+        if let button = statusItem.button {
+            button.imagePosition = .imageOnly
+            button.appearsDisabled = false
+            button.image = earlyLaunchStatusIcon()
+            button.image?.isTemplate = true
+            button.toolTip = "Superduper Dictation"
+        }
+
+        let locale = currentLocale
+        let menu = NSMenu()
+
+        let startingItem = NSMenuItem(
+            title: localized("Starting…", locale: locale),
+            action: nil,
+            keyEquivalent: ""
+        )
+        startingItem.isEnabled = false
+        menu.addItem(startingItem)
+
+        // Keep the surface usable if store probing hangs — never trap the user.
+        menu.addItem(NSMenuItem.separator())
+        let quitItem = NSMenuItem(
+            title: localized("Quit Superduper Dictation", locale: locale),
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        )
+        menu.addItem(quitItem)
+
+        statusItem.menu = menu
+        Log.boot.info("Early launch status item installed")
+    }
+
+    private func removeEarlyLaunchStatusItem() {
+        guard let statusItem = earlyLaunchStatusItem else { return }
+
+        if let menu = statusItem.menu {
+            for item in menu.items {
+                item.target = nil
+                item.action = nil
+            }
+            statusItem.menu = nil
+        }
+
+        if let button = statusItem.button {
+            button.target = nil
+            button.action = nil
+            button.menu = nil
+        }
+
+        NSStatusBar.system.removeStatusItem(statusItem)
+        earlyLaunchStatusItem = nil
+        Log.boot.info("Early launch status item removed")
+    }
+
+    private func earlyLaunchStatusIcon() -> NSImage? {
+        if let customIcon = NSImage(named: "SuperduperDictationIcon") {
+            let targetSize: CGFloat = 18
+            let resizedIcon = NSImage(size: NSSize(width: targetSize, height: targetSize))
+            resizedIcon.lockFocus()
+            NSGraphicsContext.current?.imageInterpolation = .high
+            customIcon.draw(
+                in: NSRect(x: 0, y: 0, width: targetSize, height: targetSize),
+                from: NSRect(origin: .zero, size: customIcon.size),
+                operation: .copy,
+                fraction: 1.0
+            )
+            resizedIcon.unlockFocus()
+            resizedIcon.isTemplate = true
+            return resizedIcon
+        }
+        return NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Superduper Dictation")
+    }
+
+    private func setupMainMenu() {
+        Log.app.infoVisible("Rebuilding main menu for locale=\(currentLocale.identifier)")
+        let locale = currentLocale
+        let mainMenu = NSMenu()
+
+        // MARK: App menu
+        let appMenu = NSMenu()
+        let appMenuItem = NSMenuItem()
+        appMenuItem.submenu = appMenu
+
+        appMenu.addItem(NSMenuItem(title: localized("About Superduper Dictation", locale: locale), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: ""))
+        appMenu.addItem(NSMenuItem.separator())
+
+        let settingsItem = NSMenuItem(title: localized("Settings…", locale: locale), action: #selector(openSettings(_:)), keyEquivalent: ",")
+        settingsItem.target = self
+        appMenu.addItem(settingsItem)
+
+        appMenu.addItem(NSMenuItem.separator())
+        appMenu.addItem(NSMenuItem(title: localized("Quit Superduper Dictation", locale: locale), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+
+        mainMenu.addItem(appMenuItem)
+
+        // MARK: File menu
+        let fileMenu = NSMenu(title: localized("File", locale: locale))
+        let fileMenuItem = NSMenuItem()
+        fileMenuItem.submenu = fileMenu
+
+        let newNoteItem = NSMenuItem(
+            title: localized("New Note", locale: locale),
+            action: #selector(menuNewNote(_:)),
+            keyEquivalent: "n"
+        )
+        newNoteItem.target = self
+        fileMenu.addItem(newNoteItem)
+
+        let exportItem = NSMenuItem(
+            title: localized("Export Last Transcript...", locale: locale),
+            action: #selector(menuExportLastTranscript(_:)),
+            keyEquivalent: ""
+        )
+        exportItem.target = self
+        fileMenu.addItem(exportItem)
+
+        fileMenu.addItem(NSMenuItem.separator())
+
+        fileMenu.addItem(NSMenuItem(
+            title: localized("Close", locale: locale),
+            action: #selector(NSWindow.performClose(_:)),
+            keyEquivalent: "w"
+        ))
+
+        mainMenu.addItem(fileMenuItem)
+
+        // MARK: Edit menu (required for Command-V paste to work in TextFields)
+        let editMenu = NSMenu(title: localized("Edit", locale: locale))
+        let editMenuItem = NSMenuItem()
+        editMenuItem.submenu = editMenu
+
+        editMenu.addItem(NSMenuItem(title: localized("Undo", locale: locale), action: Selector(("undo:")), keyEquivalent: "z"))
+        editMenu.addItem(NSMenuItem(title: localized("Redo", locale: locale), action: Selector(("redo:")), keyEquivalent: "Z"))
+        editMenu.addItem(NSMenuItem.separator())
+        editMenu.addItem(NSMenuItem(title: localized("Cut", locale: locale), action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
+        editMenu.addItem(NSMenuItem(title: localized("Copy", locale: locale), action: #selector(NSText.copy(_:)), keyEquivalent: "c"))
+        editMenu.addItem(NSMenuItem(title: localized("Paste", locale: locale), action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
+        editMenu.addItem(NSMenuItem(title: localized("Select All", locale: locale), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
+
+        mainMenu.addItem(editMenuItem)
+
+        // MARK: View menu
+        let viewMenu = NSMenu(title: localized("View", locale: locale))
+        let viewMenuItem = NSMenuItem()
+        viewMenuItem.submenu = viewMenu
+
+        // Home ⌘1, Stats ⌘2, History ⌘3, Notes ⌘4, Dictionary ⌘5, Models ⌘6
+        for nav in MainNavItem.primaryNavigationItems {
+            guard let key = MainNavItem.viewMenuShortcut(for: nav) else { continue }
+            let item = NSMenuItem(
+                title: nav.title(locale: locale),
+                action: #selector(menuNavigate(_:)),
+                keyEquivalent: key
+            )
+            item.target = self
+            item.representedObject = nav.rawValue
+            viewMenu.addItem(item)
+        }
+
+        viewMenu.addItem(NSMenuItem.separator())
+
+        let findItem = NSMenuItem(
+            title: localized("Find", locale: locale),
+            action: #selector(menuFind(_:)),
+            keyEquivalent: "f"
+        )
+        findItem.target = self
+        findItem.tag = MainMenuItemTag.find.rawValue
+        viewMenu.addItem(findItem)
+
+        mainMenu.addItem(viewMenuItem)
+
+        // MARK: Window menu
+        let windowMenu = NSMenu(title: localized("Window", locale: locale))
+        let windowMenuItem = NSMenuItem()
+        windowMenuItem.submenu = windowMenu
+
+        windowMenu.addItem(NSMenuItem(
+            title: localized("Minimize", locale: locale),
+            action: #selector(NSWindow.performMiniaturize(_:)),
+            keyEquivalent: "m"
+        ))
+        windowMenu.addItem(NSMenuItem(
+            title: localized("Zoom", locale: locale),
+            action: #selector(NSWindow.performZoom(_:)),
+            keyEquivalent: ""
+        ))
+        windowMenu.addItem(NSMenuItem.separator())
+        windowMenu.addItem(NSMenuItem(
+            title: localized("Bring All to Front", locale: locale),
+            action: #selector(NSApplication.arrangeInFront(_:)),
+            keyEquivalent: ""
+        ))
+        windowMenu.addItem(NSMenuItem.separator())
+
+        let mainWindowItem = NSMenuItem(
+            title: localized("Superduper Dictation", locale: locale),
+            action: #selector(menuShowMainWindow(_:)),
+            keyEquivalent: ""
+        )
+        mainWindowItem.target = self
+        windowMenu.addItem(mainWindowItem)
+
+        mainMenu.addItem(windowMenuItem)
+        NSApp.windowsMenu = windowMenu
+
+        applyInterfaceLayoutDirection(to: mainMenu, locale: locale)
+        NSApplication.shared.mainMenu = mainMenu
+    }
+
+    private enum MainMenuItemTag: Int {
+        case find = 1001
+    }
+    
+    /// `UserDefaults.didChangeNotification` is delivered synchronously on whatever
+    /// thread mutated the defaults — not necessarily the main thread. (First observed
+    /// crash: CoreML's model-load queue calls `-[NSUserDefaults registerDefaults:]`
+    /// via `MLFeatureFlags` while loading the first mlprogram-format model, which
+    /// delivered this notification on that queue and drove `setMainMenu` off-main.)
+    /// The selector is `nonisolated` because ObjC dispatch bypasses actor isolation;
+    /// all AppKit work hops to the main actor explicitly.
+    @objc nonisolated private func settingsDidChange() {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            self.pendingSettingsPresentationUpdate?.cancel()
+            self.pendingSettingsPresentationUpdate = Task { @MainActor [weak self] in
+                await Task.yield()
+                guard !Task.isCancelled else { return }
+                self?.applySettingsPresentationChanges()
+            }
+        }
+    }
+
+    private func applySettingsPresentationChanges() {
+        let snapshot = SettingsPresentationSnapshot(
+            showInDock: settingsStore?.showInDock ?? false,
+            appLocale: settingsStore?.selectedAppLocale ?? .automatic
+        )
+        let changes = snapshot.changes(from: lastSettingsPresentationSnapshot)
+        guard changes.dockVisibility || changes.mainMenu else { return }
+
+        if changes.dockVisibility {
+            updateDockVisibility(showInDock: snapshot.showInDock)
+        }
+        if changes.mainMenu {
+            setupMainMenu()
+        }
+        lastSettingsPresentationSnapshot = snapshot
+    }
+
+    private func updateDockVisibility(showInDock: Bool) {
+        guard !Self.isPreview else { return }
+        let policy: NSApplication.ActivationPolicy = showInDock ? .regular : .accessory
+        NSApplication.shared.setActivationPolicy(policy)
+    }
+    
+    @objc func openSettings(_ sender: Any?) {
+        Task { @MainActor in
+            coordinator?.statusBarController.showSettings()
+        }
+    }
+
+    @objc func menuNewNote(_ sender: Any?) {
+        coordinator?.openNewNoteFromMenu()
+    }
+
+    @objc func menuExportLastTranscript(_ sender: Any?) {
+        Task { @MainActor in
+            await coordinator?.exportLastTranscriptFromMenu()
+        }
+    }
+
+    @objc func menuNavigate(_ sender: NSMenuItem) {
+        guard let rawValue = sender.representedObject as? String,
+              let item = MainNavItem(rawValue: rawValue) else { return }
+        coordinator?.mainWindowController.showNavigationItem(item)
+    }
+
+    @objc func menuFind(_ sender: Any?) {
+        coordinator?.mainWindowController.focusHistorySearch()
+    }
+
+    @objc func menuShowMainWindow(_ sender: Any?) {
+        coordinator?.mainWindowController.show()
+    }
+
+    /// Menu validation: nav items stay enabled when the main window is closed
+    /// (they open it). Find is enabled whenever History is reachable.
+    @objc func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        guard coordinator != nil else { return false }
+
+        if menuItem.action == #selector(menuFind(_:)) {
+            // History is always a primary nav destination — enable Find so ⌘F
+            // can open the main window and focus the History search field.
+            return true
+        }
+
+        if menuItem.action == #selector(menuNavigate(_:))
+            || menuItem.action == #selector(menuNewNote(_:))
+            || menuItem.action == #selector(menuExportLastTranscript(_:))
+            || menuItem.action == #selector(menuShowMainWindow(_:))
+            || menuItem.action == #selector(openSettings(_:)) {
+            return true
+        }
+
+        return true
+    }
+    
+    private func makeModelContainer() throws -> ModelContainer {
+        try Self.makeModelContainer(at: storeRepairService.storeURL())
+    }
+
+    /// Keeps the schema and store URL in one configuration. Stores with
+    /// persistent history can otherwise defer an option mismatch until the
+    /// first fetch, which is where Library and stop-recording surface it.
+    static func makeModelContainer(at storeURL: URL) throws -> ModelContainer {
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: TranscriptionRecordMigrationPlan.self,
+            configurations: configuration
+        )
+
+        // SwiftData can defer opening a damaged or metadata-incompatible store
+        // until an affected entity is first fetched. Probe every current model
+        // so AppDelegate repairs the store before any service retains it.
+        func validateStoreAccess<Model: PersistentModel>(_: Model.Type) throws {
+            var healthCheck = FetchDescriptor<Model>()
+            healthCheck.fetchLimit = 1
+            _ = try container.mainContext.fetch(healthCheck)
+        }
+
+        try validateStoreAccess(TranscriptionRecord.self)
+        try validateStoreAccess(MediaFolder.self)
+        try validateStoreAccess(ParticipantProfile.self)
+        try validateStoreAccess(ParticipantTrainingEvidence.self)
+        try validateStoreAccess(WordReplacement.self)
+        try validateStoreAccess(VocabularyWord.self)
+        try validateStoreAccess(Note.self)
+        try validateStoreAccess(PromptPreset.self)
+        try validateStoreAccess(TrainingContribution.self)
+        try validateStoreAccess(MeetingSeries.self)
+        try validateStoreAccess(MeetingOccurrence.self)
+        return container
+    }
+
+    private func describe(error: Error) -> String {
+        let nsError = error as NSError
+        return "\(error.localizedDescription) [domain=\(nsError.domain) code=\(nsError.code) userInfo=\(nsError.userInfo)]"
+    }
+    
+    private func showModelContainerErrorAlert(error: Error) {
+        let alert = NSAlert()
+        alert.messageText = localized("Database Error", locale: currentLocale)
+        let format = localized("Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists.", locale: currentLocale)
+        alert.informativeText = String(format: format, error.localizedDescription)
+        alert.alertStyle = .critical
+        alert.addButton(withTitle: localized("Quit", locale: currentLocale))
+        applyInterfaceLayoutDirection(to: alert.window, locale: currentLocale)
+        alert.runModal()
+    }
+}
+
+@MainActor
+final class SwiftDataStoreRepairService {
+    private enum StoreSchemaVersion: String {
+        case v1 = "1.0.0"
+        case v2 = "1.0.1"
+        case v3 = "1.0.2"
+        case v4 = "1.0.3"
+        case v5 = "1.0.4"
+        case v6 = "1.0.5"
+        case v7 = "1.0.6"
+        case v8 = "1.0.7"
+        case v9 = "1.0.8"
+        case v10 = "1.0.9"
+        case v11 = "1.0.10"
+        case v12 = "1.0.11"
+        case v13 = "1.0.12"
+
+        var versionedSchema: any VersionedSchema.Type {
+            switch self {
+            case .v1: return TranscriptionRecordSchemaV1.self
+            case .v2: return TranscriptionRecordSchemaV2.self
+            case .v3: return TranscriptionRecordSchemaV3.self
+            case .v4: return TranscriptionRecordSchemaV4.self
+            case .v5: return TranscriptionRecordSchemaV5.self
+            case .v6: return TranscriptionRecordSchemaV6.self
+            case .v7: return TranscriptionRecordSchemaV7.self
+            case .v8: return TranscriptionRecordSchemaV8.self
+            case .v9: return TranscriptionRecordSchemaV9.self
+            case .v10: return TranscriptionRecordSchemaV10.self
+            case .v11: return TranscriptionRecordSchemaV11.self
+            case .v12: return TranscriptionRecordSchemaV12.self
+            case .v13: return TranscriptionRecordSchemaV13.self
+            }
+        }
+    }
+
+    struct RepairOutcome {
+        let repaired: Bool
+        let backupDirectoryURL: URL?
+    }
+
+    private struct SchemaObjectDefinition {
+        let name: String
+        let sql: String
+    }
+
+    private struct SchemaColumnDefinition {
+        let tableName: String
+        let name: String
+        let sql: String
+    }
+
+    private struct ReferenceArtifacts {
+        let metadataBlob: Data
+        let modelCacheBlob: Data
+        let schemaDefinitions: [SchemaObjectDefinition]
+        let columnDefinitions: [SchemaColumnDefinition]
+    }
+
+    private let fileManager: FileManager
+    private let applicationSupportRootURL: URL
+
+    init(fileManager: FileManager = .default, applicationSupportRootURL: URL? = nil) {
+        self.fileManager = fileManager
+        self.applicationSupportRootURL = applicationSupportRootURL
+            ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+    }
+
+    func prepareStoreLocation() throws {
+        let currentStoreURL = storeURL()
+        let legacyStoreURL = legacyStoreURL()
+
+        try fileManager.createDirectory(at: currentStoreURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+
+        let currentStoreExists = fileManager.fileExists(atPath: currentStoreURL.path)
+        let legacyStoreExists = fileManager.fileExists(atPath: legacyStoreURL.path)
+
+        let currentStoreVersion = currentStoreExists ? try inferredStoreVersion(at: currentStoreURL) : nil
+        let legacyStoreVersion = legacyStoreExists ? try inferredStoreVersion(at: legacyStoreURL) : nil
+
+        if currentStoreExists {
+            guard currentStoreVersion == nil, legacyStoreVersion != nil else {
+                return
+            }
+
+            let backupDirectoryURL = try backupStoreArtifacts(for: currentStoreURL)
+            try removeStoreArtifacts(at: currentStoreURL)
+            try copyStoreArtifacts(from: legacyStoreURL, to: currentStoreURL)
+            Log.app.warning(
+                "Replaced unrecognized SwiftData store at \(currentStoreURL.path) using legacy store \(legacyStoreURL.path); backup: \(backupDirectoryURL.path)"
+            )
+            return
+        }
+
+        guard legacyStoreExists else {
+            return
+        }
+
+        guard legacyStoreVersion != nil else {
+            Log.app.warning(
+                "Ignoring legacy SwiftData store at \(legacyStoreURL.path) because it does not match this app's schema"
+            )
+            return
+        }
+
+        try copyStoreArtifacts(from: legacyStoreURL, to: currentStoreURL)
+        Log.app.info("Migrated SwiftData store from legacy location \(legacyStoreURL.path) to \(currentStoreURL.path)")
+    }
+
+    func storeURL() -> URL {
+        Self.defaultStoreURL(applicationSupportRootURL: applicationSupportRootURL)
+    }
+
+    func repairIfNeeded(storeURL: URL? = nil) throws -> RepairOutcome {
+        let targetStoreURL = storeURL ?? self.storeURL()
+
+        guard fileManager.fileExists(atPath: targetStoreURL.path) else {
+            return RepairOutcome(repaired: false, backupDirectoryURL: nil)
+        }
+
+        guard let inferredVersion = try inferredStoreVersion(at: targetStoreURL) else {
+            Log.app.warning("SwiftData store repair skipped because the transcription table shape could not be inferred")
+            return RepairOutcome(repaired: false, backupDirectoryURL: nil)
+        }
+
+        let metadataVersion = try readMetadataVersionIdentifier(at: targetStoreURL)
+        let referenceArtifacts = try makeReferenceArtifacts(for: inferredVersion)
+        let (missingSchemaDefinitions, missingColumnDefinitions) = try withDatabase(at: targetStoreURL) { database in
+            let existingObjectNames = try fetchSchemaObjectNames(on: database)
+            let existingTableNames = try fetchTableNames(on: database)
+            let missingSchemaDefinitions = referenceArtifacts.schemaDefinitions.filter {
+                !existingObjectNames.contains($0.name)
+            }
+            var missingColumnDefinitions: [SchemaColumnDefinition] = []
+
+            for tableName in existingTableNames.sorted() {
+                let existingColumnNames = try fetchColumnNames(table: tableName, on: database)
+                missingColumnDefinitions.append(
+                    contentsOf: referenceArtifacts.columnDefinitions.filter {
+                        $0.tableName == tableName && !existingColumnNames.contains($0.name)
+                    }
+                )
+            }
+
+            return (missingSchemaDefinitions, missingColumnDefinitions)
+        }
+
+        guard metadataVersion != inferredVersion.rawValue
+            || !missingSchemaDefinitions.isEmpty
+            || !missingColumnDefinitions.isEmpty else {
+            return RepairOutcome(repaired: false, backupDirectoryURL: nil)
+        }
+
+        let backupDirectoryURL = try backupStoreArtifacts(for: targetStoreURL)
+
+        try withDatabase(at: targetStoreURL) { database in
+            try execute("BEGIN IMMEDIATE TRANSACTION", on: database)
+            do {
+                for columnDefinition in missingColumnDefinitions {
+                    let tableName = quotedIdentifier(columnDefinition.tableName)
+                    try execute(
+                        "ALTER TABLE \(tableName) ADD COLUMN \(columnDefinition.sql)",
+                        on: database
+                    )
+                }
+                for schemaDefinition in missingSchemaDefinitions {
+                    try execute(schemaDefinition.sql, on: database)
+                }
+                try updateMetadata(referenceArtifacts.metadataBlob, on: database)
+                try replaceModelCache(referenceArtifacts.modelCacheBlob, on: database)
+                try execute("COMMIT TRANSACTION", on: database)
+            } catch {
+                try? execute("ROLLBACK TRANSACTION", on: database)
+                throw error
+            }
+        }
+
+        if missingSchemaDefinitions.isEmpty && missingColumnDefinitions.isEmpty {
+            Log.app.info(
+                "Repaired SwiftData store metadata from \(metadataVersion ?? "unknown") to \(inferredVersion.rawValue); backup: \(backupDirectoryURL.path)"
+            )
+        } else {
+            var repairDetails: [String] = []
+            if !missingColumnDefinitions.isEmpty {
+                let addedColumns = missingColumnDefinitions
+                    .map { "\($0.tableName).\($0.name)" }
+                    .joined(separator: ", ")
+                repairDetails.append("added missing columns (\(addedColumns))")
+            }
+            if !missingSchemaDefinitions.isEmpty {
+                let recreatedNames = missingSchemaDefinitions.map(\.name).joined(separator: ", ")
+                repairDetails.append("recreated missing schema objects (\(recreatedNames))")
+            }
+            Log.app.info(
+                "Repaired SwiftData store by \(repairDetails.joined(separator: " and ")) and refreshing metadata to \(inferredVersion.rawValue); backup: \(backupDirectoryURL.path)"
+            )
+        }
+        return RepairOutcome(repaired: true, backupDirectoryURL: backupDirectoryURL)
+    }
+
+    static func defaultStoreURL(fileManager: FileManager = .default) -> URL {
+        let supportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        return defaultStoreURL(applicationSupportRootURL: supportURL)
+    }
+
+    static func legacyStoreURL(fileManager: FileManager = .default) -> URL {
+        let supportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        return legacyStoreURL(applicationSupportRootURL: supportURL)
+    }
+
+    private func inferredStoreVersion(at storeURL: URL) throws -> StoreSchemaVersion? {
+        try withDatabase(at: storeURL) { database in
+            let columns = try fetchColumnNames(table: "ZTRANSCRIPTIONRECORD", on: database)
+
+            guard !columns.isEmpty else {
+                return nil
+            }
+
+            // Newest first: every check below is a feature the next-older
+            // version lacks, so the first hit is the store's actual version.
+            if try tableExists(named: "ZMEETINGOCCURRENCE", on: database) {
+                return .v13
+            }
+
+            if columns.contains("ZPIPELINEMETRICSJSON") {
+                return .v12
+            }
+
+            if try tableExists(named: "ZTRAININGCONTRIBUTION", on: database) {
+                return .v11
+            }
+
+            let profileColumns = try fetchColumnNames(table: "ZPARTICIPANTPROFILE", on: database)
+            if profileColumns.contains("ZEMBEDDINGSPACEIDENTIFIER") {
+                return .v10
+            }
+
+            if profileColumns.contains("ZISCURRENTUSER") {
+                return .v9
+            }
+
+            if columns.contains("ZWORDCOUNT") || columns.contains("ZDESTINATIONAPPBUNDLEID") {
+                return .v8
+            }
+
+            if columns.contains("ZGENERATEDTITLE") || columns.contains("ZAISUMMARY") {
+                return .v7
+            }
+
+            let hasParticipantEvidence = try tableExists(named: "ZPARTICIPANTTRAININGEVIDENCE", on: database)
+            if !profileColumns.isEmpty || hasParticipantEvidence {
+                return .v6
+            }
+
+            if try tableExists(named: "ZMEDIAFOLDER", on: database) || columns.contains("ZFOLDER") {
+                return .v5
+            }
+
+            if columns.contains("ZSOURCEKINDRAWVALUE") {
+                return .v4
+            }
+
+            if columns.contains("ZDIARIZATIONSEGMENTSJSON") {
+                return .v3
+            }
+
+            if columns.contains("ZORIGINALTEXT") || columns.contains("ZENHANCEDWITH") {
+                return .v2
+            }
+
+            return .v1
+        }
+    }
+
+    private func readMetadataVersionIdentifier(at storeURL: URL) throws -> String? {
+        try withDatabase(at: storeURL) { database in
+            guard let metadataBlob = try fetchBlob(
+                sql: "SELECT Z_PLIST FROM Z_METADATA LIMIT 1",
+                on: database
+            ) else {
+                return nil
+            }
+
+            let plist = try PropertyListSerialization.propertyList(from: metadataBlob, format: nil)
+            let dictionary = plist as? [String: Any]
+            let versionIdentifiers = dictionary?["NSStoreModelVersionIdentifiers"] as? [String]
+            return versionIdentifiers?.first
+        }
+    }
+
+    private func backupStoreArtifacts(for storeURL: URL) throws -> URL {
+        let backupsRootURL = applicationSupportRootURL
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
+            .appendingPathComponent("DatabaseBackups", isDirectory: true)
+        // Include a UUID so concurrent repair paths (e.g. parallel unit tests) never
+        // collide on second-granularity timestamp folders (NSCocoaErrorDomain 516).
+        let backupDirectoryName = "\(Self.repairTimestampString())_\(UUID().uuidString)"
+        let backupDirectoryURL = backupsRootURL.appendingPathComponent(backupDirectoryName, isDirectory: true)
+
+        try fileManager.createDirectory(at: backupDirectoryURL, withIntermediateDirectories: true)
+
+        for artifactURL in storeArtifactURLs(for: storeURL) where fileManager.fileExists(atPath: artifactURL.path) {
+            let backupURL = backupDirectoryURL.appendingPathComponent(artifactURL.lastPathComponent)
+            try fileManager.copyItem(at: artifactURL, to: backupURL)
+        }
+
+        return backupDirectoryURL
+    }
+
+    private func makeReferenceArtifacts(for version: StoreSchemaVersion) throws -> ReferenceArtifacts {
+        let directoryURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storeURL = directoryURL.appendingPathComponent("reference.store")
+        try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+
+        defer {
+            try? fileManager.removeItem(at: directoryURL)
+        }
+
+        // The reference store must be built from the exact versioned schema so
+        // its metadata carries that version's identifier and entity set. The
+        // staged migration plan matches stores by this metadata; stamping
+        // artifacts from ad-hoc model lists (which default to version 1.0.0)
+        // leaves the store unopenable by the production container.
+        let schema = Schema(versionedSchema: version.versionedSchema)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL)
+        let container = try ModelContainer(for: schema, configurations: configuration)
+
+        try container.mainContext.save()
+
+        return try withDatabase(at: storeURL) { database in
+            guard let metadataBlob = try fetchBlob(
+                sql: "SELECT Z_PLIST FROM Z_METADATA LIMIT 1",
+                on: database
+            ) else {
+                throw StoreRepairError.missingMetadata
+            }
+
+            guard let modelCacheBlob = try fetchBlob(
+                sql: "SELECT Z_CONTENT FROM Z_MODELCACHE LIMIT 1",
+                on: database
+            ) else {
+                throw StoreRepairError.missingModelCache
+            }
+
+            let schemaDefinitions = try fetchSchemaDefinitions(on: database)
+            let columnDefinitions = try fetchSchemaColumnDefinitions(on: database)
+            return ReferenceArtifacts(
+                metadataBlob: metadataBlob,
+                modelCacheBlob: modelCacheBlob,
+                schemaDefinitions: schemaDefinitions,
+                columnDefinitions: columnDefinitions
+            )
+        }
+    }
+
+    private func storeArtifactURLs(for storeURL: URL) -> [URL] {
+        [
+            storeURL,
+            URL(fileURLWithPath: storeURL.path + "-shm"),
+            URL(fileURLWithPath: storeURL.path + "-wal")
+        ]
+    }
+
+    private func copyStoreArtifacts(from sourceStoreURL: URL, to destinationStoreURL: URL) throws {
+        try fileManager.createDirectory(at: destinationStoreURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+
+        for sourceArtifactURL in storeArtifactURLs(for: sourceStoreURL) where fileManager.fileExists(atPath: sourceArtifactURL.path) {
+            let suffix = String(sourceArtifactURL.path.dropFirst(sourceStoreURL.path.count))
+            let destinationArtifactURL = URL(fileURLWithPath: destinationStoreURL.path + suffix)
+            try fileManager.copyItem(at: sourceArtifactURL, to: destinationArtifactURL)
+        }
+    }
+
+    private func removeStoreArtifacts(at storeURL: URL) throws {
+        for artifactURL in storeArtifactURLs(for: storeURL) where fileManager.fileExists(atPath: artifactURL.path) {
+            try fileManager.removeItem(at: artifactURL)
+        }
+    }
+
+    private func legacyStoreURL() -> URL {
+        Self.legacyStoreURL(applicationSupportRootURL: applicationSupportRootURL)
+    }
+
+    private static func defaultStoreURL(applicationSupportRootURL: URL) -> URL {
+        applicationSupportRootURL
+            .appendingPathComponent("Superduper Dictation", isDirectory: true)
+            .appendingPathComponent("default.store")
+    }
+
+    private static func legacyStoreURL(applicationSupportRootURL: URL) -> URL {
+        applicationSupportRootURL.appendingPathComponent("default.store")
+    }
+
+    private func fetchColumnNames(table: String, on database: OpaquePointer) throws -> Set<String> {
+        var statement: OpaquePointer?
+        let sql = "PRAGMA table_info(\(quotedIdentifier(table)))"
+
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        var columns = Set<String>()
+        while sqlite3_step(statement) == SQLITE_ROW {
+            if let namePointer = sqlite3_column_text(statement, 1) {
+                columns.insert(String(cString: namePointer))
+            }
+        }
+
+        return columns
+    }
+
+    private func fetchSchemaColumnDefinitions(on database: OpaquePointer) throws -> [SchemaColumnDefinition] {
+        var definitions: [SchemaColumnDefinition] = []
+
+        for tableName in try fetchTableNames(on: database).sorted() {
+            var statement: OpaquePointer?
+            let sql = "PRAGMA table_info(\(quotedIdentifier(tableName)))"
+
+            guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+                throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+            }
+
+            defer { sqlite3_finalize(statement) }
+
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let namePointer = sqlite3_column_text(statement, 1) else {
+                    continue
+                }
+
+                let name = String(cString: namePointer)
+                let declaredType = sqlite3_column_text(statement, 2).map { String(cString: $0) } ?? ""
+                let isNotNull = sqlite3_column_int(statement, 3) != 0
+                let defaultValue = sqlite3_column_text(statement, 4).map { String(cString: $0) }
+                let isPrimaryKey = sqlite3_column_int(statement, 5) != 0
+                var sqlParts = [quotedIdentifier(name)]
+
+                if !declaredType.isEmpty {
+                    sqlParts.append(declaredType)
+                }
+                if isPrimaryKey {
+                    sqlParts.append("PRIMARY KEY")
+                }
+                if isNotNull {
+                    sqlParts.append("NOT NULL")
+                }
+                if let defaultValue {
+                    sqlParts.append("DEFAULT \(defaultValue)")
+                }
+
+                definitions.append(
+                    SchemaColumnDefinition(
+                        tableName: tableName,
+                        name: name,
+                        sql: sqlParts.joined(separator: " ")
+                    )
+                )
+            }
+        }
+
+        return definitions
+    }
+
+    private func fetchTableNames(on database: OpaquePointer) throws -> Set<String> {
+        var statement: OpaquePointer?
+        let sql = """
+        SELECT name
+        FROM sqlite_master
+        WHERE type = 'table'
+          AND name NOT LIKE 'sqlite_%'
+        """
+
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        var tableNames = Set<String>()
+        while sqlite3_step(statement) == SQLITE_ROW {
+            if let namePointer = sqlite3_column_text(statement, 0) {
+                tableNames.insert(String(cString: namePointer))
+            }
+        }
+
+        return tableNames
+    }
+
+    private func tableExists(named table: String, on database: OpaquePointer) throws -> Bool {
+        var statement: OpaquePointer?
+        let sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1"
+
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        guard sqlite3_bind_text(
+            statement,
+            1,
+            (table as NSString).utf8String,
+            -1,
+            unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+        ) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        return sqlite3_step(statement) == SQLITE_ROW
+    }
+
+    private func fetchSchemaDefinitions(on database: OpaquePointer) throws -> [SchemaObjectDefinition] {
+        var statement: OpaquePointer?
+        let sql = """
+        SELECT name, sql
+        FROM sqlite_master
+        WHERE type IN ('table', 'index')
+          AND name NOT LIKE 'sqlite_%'
+          AND sql IS NOT NULL
+        ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name
+        """
+
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        var definitions: [SchemaObjectDefinition] = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            guard let namePointer = sqlite3_column_text(statement, 0),
+                  let sqlPointer = sqlite3_column_text(statement, 1) else {
+                continue
+            }
+
+            definitions.append(
+                SchemaObjectDefinition(
+                    name: String(cString: namePointer),
+                    sql: String(cString: sqlPointer)
+                )
+            )
+        }
+
+        return definitions
+    }
+
+    private func fetchSchemaObjectNames(on database: OpaquePointer) throws -> Set<String> {
+        let definitions = try fetchSchemaDefinitions(on: database)
+        return Set(definitions.map(\.name))
+    }
+
+    private func fetchBlob(sql: String, on database: OpaquePointer) throws -> Data? {
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        let stepResult = sqlite3_step(statement)
+        guard stepResult == SQLITE_ROW else {
+            if stepResult == SQLITE_DONE {
+                return nil
+            }
+
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        guard let bytes = sqlite3_column_blob(statement, 0) else {
+            return Data()
+        }
+
+        let count = Int(sqlite3_column_bytes(statement, 0))
+        return Data(bytes: bytes, count: count)
+    }
+
+    private func updateMetadata(_ metadataBlob: Data, on database: OpaquePointer) throws {
+        var statement: OpaquePointer?
+        let sql = "UPDATE Z_METADATA SET Z_PLIST = ? WHERE Z_VERSION = 1"
+
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        try bind(data: metadataBlob, at: 1, to: statement)
+        guard sqlite3_step(statement) == SQLITE_DONE else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+    }
+
+    private func replaceModelCache(_ modelCacheBlob: Data, on database: OpaquePointer) throws {
+        try execute("DELETE FROM Z_MODELCACHE", on: database)
+
+        var statement: OpaquePointer?
+        let sql = "INSERT INTO Z_MODELCACHE (Z_CONTENT) VALUES (?)"
+
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        try bind(data: modelCacheBlob, at: 1, to: statement)
+        guard sqlite3_step(statement) == SQLITE_DONE else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+    }
+
+    private func bind(data: Data, at index: Int32, to statement: OpaquePointer?) throws {
+        let result = data.withUnsafeBytes { rawBuffer in
+            sqlite3_bind_blob(
+                statement,
+                index,
+                rawBuffer.baseAddress,
+                Int32(data.count),
+                Self.sqliteTransientDestructor
+            )
+        }
+
+        guard result == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: "Failed to bind SQLite blob parameter")
+        }
+    }
+
+    private func execute(_ sql: String, on database: OpaquePointer) throws {
+        guard sqlite3_exec(database, sql, nil, nil, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+    }
+
+    private func quotedIdentifier(_ identifier: String) -> String {
+        "\"\(identifier.replacingOccurrences(of: "\"", with: "\"\""))\""
+    }
+
+    private func withDatabase<T>(at url: URL, _ work: (OpaquePointer) throws -> T) throws -> T {
+        var database: OpaquePointer?
+        guard sqlite3_open_v2(url.path, &database, SQLITE_OPEN_READWRITE, nil) == SQLITE_OK else {
+            let message = lastSQLiteErrorMessage(on: database)
+            sqlite3_close(database)
+            throw StoreRepairError.sqlite(message: message)
+        }
+
+        defer { sqlite3_close(database) }
+
+        guard let database else {
+            throw StoreRepairError.sqlite(message: "Failed to open database")
+        }
+
+        return try work(database)
+    }
+
+    private func lastSQLiteErrorMessage(on database: OpaquePointer?) -> String {
+        guard let database,
+              let errorPointer = sqlite3_errmsg(database) else {
+            return "Unknown SQLite error"
+        }
+        return String(cString: errorPointer)
+    }
+
+    private static func repairTimestampString() -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+        return formatter.string(from: Date())
+    }
+
+    private static let sqliteTransientDestructor = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+}
+
+private enum StoreRepairError: LocalizedError {
+    case missingMetadata
+    case missingModelCache
+    case sqlite(message: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .missingMetadata:
+            return "The store repair process could not find SwiftData metadata in the database."
+        case .missingModelCache:
+            return "The store repair process could not find the SwiftData model cache in the database."
+        case let .sqlite(message):
+            return message
+        }
+    }
+}

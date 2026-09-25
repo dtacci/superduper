@@ -15,7 +15,7 @@ SIGN_IDENTITY="${2:--}"
 REQUESTED_SIGNING_MODE="${SIGN_IDENTITY}"
 SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(dirname "${SCRIPT_DIRECTORY}")"
-APP_ENTITLEMENTS="${REPOSITORY_ROOT}/Pindrop/Pindrop.entitlements"
+APP_ENTITLEMENTS="${REPOSITORY_ROOT}/SuperduperDictation/SuperduperDictation.entitlements"
 
 if [ "${SIGN_IDENTITY}" = "local" ]; then
     LOCAL_CERTIFICATE_NAME="Superduper Dictation Local Signing"

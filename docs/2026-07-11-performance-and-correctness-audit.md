@@ -7,7 +7,7 @@
 ## Validation Baseline
 
 - `just build` passed.
-- `just test` passed: 1,003 tests in 71 suites. One opt-in integration test was skipped as expected because `PINDROP_RUN_INTEGRATION_TESTS` was not enabled.
+- `just test` passed: 1,003 tests in 71 suites. One opt-in integration test was skipped as expected because `SUPERDUPER_RUN_INTEGRATION_TESTS` was not enabled.
 - The worktree was clean before the audit. This document is the only resulting repository change.
 - The audit is static and test-backed, not profile-backed. The attempted Axiom `xcprof doctor --human` invocation failed internally with `undefined is not an object (evaluating 'session.data.location')`, so it did not produce a usable runtime trace.
 
@@ -15,7 +15,7 @@
 
 ### 1. High: Direct media downloads can wait forever after an early completion
 
-**References:** `Pindrop/Services/MediaIngestionService.swift:449-489`, `Pindrop/Services/MediaIngestionService.swift:657-674`
+**References:** `SuperduperDictation/Services/MediaIngestionService.swift:449-489`, `SuperduperDictation/Services/MediaIngestionService.swift:657-674`
 
 `downloadDirectMedia` resumes its `URLSessionDownloadTask` before calling `waitForCompletion`, which installs the delegate's checked continuation. An immediate failure, cancellation, or fast completion can reach `didCompleteWithError` or `didFinishDownloadingTo` while `continuation` is `nil`. The delegate drops the result and the subsequent waiter suspends indefinitely. The continuation is also read and written from URLSession delegate callbacks without synchronization.
 
@@ -25,7 +25,7 @@
 
 ### 2. High: Media preparation does synchronous decode and conversion on the main actor
 
-**References:** `Pindrop/Services/MediaPreparationService.swift:40`, `Pindrop/Services/MediaPreparationService.swift:109-238`, `Pindrop/AppCoordinator.swift:4506-4509`
+**References:** `SuperduperDictation/Services/MediaPreparationService.swift:40`, `SuperduperDictation/Services/MediaPreparationService.swift:109-238`, `SuperduperDictation/AppCoordinator.swift:4506-4509`
 
 `MediaPreparationService` is `@MainActor`. Its async entry point opens `AVAudioFile`, loops over synchronous reads and converter calls, and appends all samples to a `Data` value. `await` does not move this synchronous loop off the main actor. The media-transcription task calls it from the main actor.
 
@@ -35,7 +35,7 @@
 
 ### 3. High: Recording memory is unbounded and stop/finalization multiplies copies
 
-**References:** `Pindrop/Services/AudioRecorder.swift:241-293`, `Pindrop/Services/AudioRecorder.swift:940-981`, `Pindrop/Services/AudioRecorder.swift:1960-1989`, `Pindrop/Services/StreamingSessionController.swift:437-450`
+**References:** `SuperduperDictation/Services/AudioRecorder.swift:241-293`, `SuperduperDictation/Services/AudioRecorder.swift:940-981`, `SuperduperDictation/Services/AudioRecorder.swift:1960-1989`, `SuperduperDictation/Services/StreamingSessionController.swift:437-450`
 
 Every converted ASR buffer is retained in `AudioBufferStorage` for the whole recording. Native-audio retention can retain a second, higher-rate stream. Streaming audio also enters an `AsyncStream` configured with `.unbounded`, so processing that falls behind capture can add a third growing queue.
 
@@ -47,7 +47,7 @@ At stop, `combineBuffersToData` first creates a complete `[Float]` from all buff
 
 ### 4. High: Task-group timeouts do not enforce a hard deadline for noncooperative work
 
-**References:** `Pindrop/Services/StreamingSessionController.swift:511-526`, `Pindrop/Services/TranscriptionService.swift:179-194`, `Pindrop/Services/TranscriptionService.swift:237-251`, `Pindrop/Services/WorkspaceFileIndexService.swift:273-352`
+**References:** `SuperduperDictation/Services/StreamingSessionController.swift:511-526`, `SuperduperDictation/Services/TranscriptionService.swift:179-194`, `SuperduperDictation/Services/TranscriptionService.swift:237-251`, `SuperduperDictation/Services/WorkspaceFileIndexService.swift:273-352`
 
 The timeout helpers race an operation against `Task.sleep` in a structured task group, then call `cancelAll()`. Structured task-group scope cannot return until all children have stopped. Consequently, cancellation only works when the timed-out operation cooperatively exits. Synchronous file enumeration, process work, and cancellation-insensitive model/inference work can continue past the documented deadline.
 
@@ -57,7 +57,7 @@ The timeout helpers race an operation against `Task.sleep` in a structured task 
 
 ### 5. Medium: `HistoryStore.save` can report failure after the record is committed
 
-**References:** `Pindrop/Services/HistoryStore.swift:672-691`
+**References:** `SuperduperDictation/Services/HistoryStore.swift:672-691`
 
 `HistoryStore.save` saves the new `TranscriptionRecord`, then runs potentially throwing speaker-training work in the same `do` block. If `learnFromDictation` fails, the catch reports `HistoryStoreError.saveFailed`, even though the record is durable. The history-change notification is also skipped.
 
@@ -67,7 +67,7 @@ The timeout helpers race an operation against `Task.sleep` in a structured task 
 
 ### 6. Medium: Note editing saves SwiftData on every keystroke
 
-**References:** `Pindrop/UI/NoteEditor/NoteEditorWindow.swift:228-241`, `Pindrop/UI/NoteEditor/NoteEditorWindow.swift:471-500`
+**References:** `SuperduperDictation/UI/NoteEditor/NoteEditorWindow.swift:228-241`, `SuperduperDictation/UI/NoteEditor/NoteEditorWindow.swift:471-500`
 
 Changes to title and content immediately call `saveNote()`. That updates `updatedAt`, saves the model context, and invokes the save callback for every typed character.
 
@@ -77,7 +77,7 @@ Changes to title and content immediately call `saveNote()`. That updates `update
 
 ### 7. Medium: History search repeatedly loads the full matching store
 
-**References:** `Pindrop/Services/HistoryStore.swift:781-827`, `Pindrop/UI/Main/HistoryView.swift:877-998`
+**References:** `SuperduperDictation/Services/HistoryStore.swift:781-827`, `SuperduperDictation/UI/Main/HistoryView.swift:877-998`
 
 For a nonempty search, `countTranscriptions`, `totalSpokenDuration`, and the paginated fetch each materialize all matching records through `fetchAllTranscriptions`, then filter and slice in memory. Even with an empty query, computing total spoken duration fetches every matching record. These methods are invoked during reload and refresh paths on main-actor-owned state.
 
@@ -87,7 +87,7 @@ For a nonempty search, `countTranscriptions`, `totalSpokenDuration`, and the pag
 
 ### 8. Medium: Core Audio property reads use an unsafe `CFString` output representation
 
-**References:** `Pindrop/Services/AudioRecorder.swift:1508-1513`, `Pindrop/Services/AudioRecorder.swift:1542-1547`
+**References:** `SuperduperDictation/Services/AudioRecorder.swift:1508-1513`, `SuperduperDictation/Services/AudioRecorder.swift:1542-1547`
 
 The build reports that the code forms an `UnsafeMutableRawPointer` to a `CFString` variable when calling `AudioObjectGetPropertyData`. The API's returned object pointer should be represented as an optional `CFString?`, matching the buffer size already computed with `MemoryLayout<CFString?>`.
 
@@ -97,7 +97,7 @@ The build reports that the code forms an `UnsafeMutableRawPointer` to a `CFStrin
 
 ### 9. Medium: Note editor controllers created by `NotesView` are not retained
 
-**References:** `Pindrop/UI/Main/NotesView.swift:395-404`, `Pindrop/UI/NoteEditor/NoteEditorWindow.swift:14-119`, `Pindrop/AppCoordinator.swift:308`, `Pindrop/AppCoordinator.swift:497-498`
+**References:** `SuperduperDictation/UI/Main/NotesView.swift:395-404`, `SuperduperDictation/UI/NoteEditor/NoteEditorWindow.swift:14-119`, `SuperduperDictation/AppCoordinator.swift:308`, `SuperduperDictation/AppCoordinator.swift:497-498`
 
 `NotesView` creates `NoteEditorWindowController` instances in local variables and does not retain them. The controller holds the window and is its delegate, while window callbacks capture the controller weakly. `AppCoordinator` already owns a retained note editor controller for its menu-driven path, but `NotesView` bypasses it.
 
@@ -107,7 +107,7 @@ The build reports that the code forms an `UnsafeMutableRawPointer` to a `CFStrin
 
 ### 10. Low/Medium: Every `UserDefaults` change rebuilds the main menu and reapplies Dock policy
 
-**References:** `Pindrop/PindropApp.swift:303-322`
+**References:** `SuperduperDictation/SuperduperDictationApp.swift:303-322`
 
 The app observes the global `UserDefaults.didChangeNotification`. Every notification schedules `updateDockVisibility()` and a complete `setupMainMenu()` rebuild, regardless of whether `showInDock` or the interface locale actually changed. The notification can originate from framework defaults activity, not only user settings.
 
@@ -120,9 +120,9 @@ The app observes the global `UserDefaults.didChangeNotification`. Every notifica
 The following were not ranked as confirmed current runtime defects, but should be addressed as part of ongoing maintenance:
 
 - The test build emits Swift 6 concurrency warnings in `TranscriptionService`, `StreamingRefinementCoordinator`, `WorkspaceFileIndexService`, `FloatingIndicatorShared`, `FloatingIndicatorFocusTracker`, and `MainWindow`. They will become migration blockers when Swift 6 language mode is enabled.
-- `FloatingIndicatorState` uses `Timer.scheduledTimer` for its duration ticker at `Pindrop/UI/FloatingIndicatorShared.swift:623-625`; it runs in the default run-loop mode and can pause during menu tracking or other event tracking. The project already has a `.common`-mode timer helper.
-- `HistoryView` constructs a new `HistoryStore` and `SpeakerIdentityService` through a computed property at `Pindrop/UI/Main/HistoryView.swift:63-67`. Caching that service would avoid repeated construction and avoid future loss of in-memory service state.
-- `StatusBarController` creates a new `DateFormatter` for each recent-transcript entry at `Pindrop/UI/StatusBarController.swift:312-317`. A cached formatter would avoid repeated allocation during menu refreshes.
+- `FloatingIndicatorState` uses `Timer.scheduledTimer` for its duration ticker at `SuperduperDictation/UI/FloatingIndicatorShared.swift:623-625`; it runs in the default run-loop mode and can pause during menu tracking or other event tracking. The project already has a `.common`-mode timer helper.
+- `HistoryView` constructs a new `HistoryStore` and `SpeakerIdentityService` through a computed property at `SuperduperDictation/UI/Main/HistoryView.swift:63-67`. Caching that service would avoid repeated construction and avoid future loss of in-memory service state.
+- `StatusBarController` creates a new `DateFormatter` for each recent-transcript entry at `SuperduperDictation/UI/StatusBarController.swift:312-317`. A cached formatter would avoid repeated allocation during menu refreshes.
 
 ## Recommended Remediation Order
 

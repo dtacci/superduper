@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit によるローカル音声テキスト変換を使用するネイティブ macOS メニュー バー ディクテーション アプリ。デフォルトで 100% ローカル処理、オプションの AI 強化。"
 about:
   _self: "について"
-  pindrop: "ピンドロップについて"
+  superduper: "ピンドロップについて"
 accessibility:
   _self: "アクセシビリティ"
   permission: "アクセシビリティの許可"
@@ -233,7 +233,7 @@ add:
   trailing_space: "末尾のスペースを追加する"
   blank_lines_between_sentence_groups_in_longe: "長い音声入力で文のグループの間に空行を入れます。完全にローカルで、AI は使いません。"
   word_replacements_to_automatically_correct_c: "単語の置換を追加して、一般的な転写エラーを自動的に修正します。"
-  words_to_help_pindrop_recognize_them_properl: "Superduper Dictation が正しく認識できるように単語を追加します"
+  words_to_help_superduper_recognize_them_properl: "Superduper Dictation が正しく認識できるように単語を追加します"
   words_you_manually_correct_into_your_vocabul: "今後の文字起こしのために、手動で修正した単語を語彙に追加します。"
 advanced:
   _self: "詳細"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "自動更新と手動更新チェック"
 automatically:
   check_for_new_versions_in_the_back: "バックグラウンドで新しいバージョンを自動的にチェックします。"
-  start_pindrop_when_you_sign_in: "サインインすると Superduper Dictation が自動的に起動します。"
+  start_superduper_when_you_sign_in: "サインインすると Superduper Dictation が自動的に起動します。"
 available:
   models: "利用可能なモデル"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "マイクを変更する"
   your_choice_anytime_in_settings_privacy: "設定 → プライバシー でいつでも選択を変更できます。"
 changes:
-  the_language_used_by_pindrop_s_interface: "Superduper Dictation のインターフェース言語を変更します。"
+  the_language_used_by_superduper_s_interface: "Superduper Dictation のインターフェース言語を変更します。"
 check:
   for_updates: "アップデートを確認してください..."
   for_updates_736b9062: "アップデートを確認する"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Nemotron（句読点対応、ダウンロード型モデル）とApple SpeechTranscriber（macOS 26以降、OS同梱）から選択します。"
   file: "ファイルを選択してください"
   how_dictated_text_lands_then_tune_the_fin: "口述テキストの挿入方法を選択し、最終的な挿入動作を調整します。"
-  how_pindrop_appears_on_screen_while_you_d: "音声入力中に Superduper Dictation を画面にどう表示するかを選択します。"
-  how_pindrop_follows_system_appearance_the: "Superduper Dictation がシステムの外観に従う方法を選択し、厳選された明るいパレットと暗いパレットを組み合わせます。"
+  how_superduper_appears_on_screen_while_you_d: "音声入力中に Superduper Dictation を画面にどう表示するかを選択します。"
+  how_superduper_follows_system_appearance_the: "Superduper Dictation がシステムの外観に従う方法を選択し、厳選された明るいパレットと暗いパレットを組み合わせます。"
   how_recording_and_processing_status_appea: "作業中の録音・処理ステータスの表示方法を選びます。"
   how_to_import_the_dictionary_data: "辞書データのインポート方法を選択します"
   how_to_import_the_preset_data: "プリセットデータのインポート方法を選択します"
@@ -368,10 +368,10 @@ choose:
   model: "モデルを選択…"
   the_daytime_shell_used_in_light_mode: "ライトモードで使用するデイタイムシェルを選択します。"
   the_low_glare_shell_used_in_dark_mode: "ダークモードで使用される低光沢シェルを選択してください。"
-  whether_pindrop_starts_when_you_sign_in_a: "ログイン時に Superduper Dictation を起動し、Dock に表示するかを選びます。"
+  whether_superduper_starts_when_you_sign_in_a: "ログイン時に Superduper Dictation を起動し、Dock に表示するかを選びます。"
   which_edge_of_the_main_window_holds_the_n: "メインウィンドウのどちら側にナビゲーションサイドバーを置くか選びます。"
-  which_microphone_pindrop_should_use_for_d: "Superduper Dictation がディクテーションに使用するマイクと、録音中のマイクの動作を選択します。"
-  which_microphone_pindrop_uses_for_dictati: "音声入力に使うマイクを選びます。"
+  which_microphone_superduper_should_use_for_d: "Superduper Dictation がディクテーションに使用するマイクと、録音中のマイクの動作を選択します。"
+  which_microphone_superduper_uses_for_dictati: "音声入力に使うマイクを選びます。"
   which_side_the_navigation_sidebar_appears: "ナビゲーションサイドバーを表示する側を選択してください。"
   where_to_save_the_training_data_file: "トレーニングデータファイルの保存先を選択してください。"
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "デフォルトで続行"
   without: "なしで続行"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Superduper Dictation が macOS でどのように表示されるか、およびデスクトップ セッションで開始されるかどうかを制御します。"
+  how_superduper_appears_in_macos_and_whether: "Superduper Dictation が macOS でどのように表示されるか、およびデスクトップ セッションで開始されるかどうかを制御します。"
 controls:
 copied:
   _self: "コピーしました！"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "表示名"
   name_c7874aaa: "表示名"
-  pindrop_in_the_dock_instead_of_running_o: "メニュー バー アプリとしてのみ実行するのではなく、Dock に Superduper Dictation を表示します。"
+  superduper_in_the_dock_instead_of_running_o: "メニュー バー アプリとしてのみ実行するのではなく、Dock に Superduper Dictation を表示します。"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "サイドバーをウィンドウの左端または右端にドッキングします。"
 done:
@@ -686,7 +686,7 @@ great:
   _self: "素晴らしい"
 help:
   _self: "ヘルプ"
-  improve_pindrop: "Superduper Dictation の改善に協力しますか？"
+  improve_superduper: "Superduper Dictation の改善に協力しますか？"
 hide:
   api_key: "API キーを隠す"
   this_for_1_hour: "これを1時間非表示にします"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "日本語"
 keep:
-  pindrop_current_automatically_or_check_for: "Superduper Dictation を自動更新するか、今すぐ新しいバージョンを確認します。"
-  pindrop_current_automatically_or_trigger_a: "Superduper Dictation を自動的に最新の状態に保つことも、必要に応じていつでも手動チェックをトリガーすることもできます。"
+  superduper_current_automatically_or_check_for: "Superduper Dictation を自動更新するか、今すぐ新しいバージョンを確認します。"
+  superduper_current_automatically_or_trigger_a: "Superduper Dictation を自動的に最新の状態に保つことも、必要に応じていつでも手動チェックをトリガーすることもできます。"
   before_and_after_text_pairs_when_ai_enhance: "AI 強化やあなたの編集で文字起こしが改善されたとき、変更前後のテキストペアを保存します。この Mac にのみ保存され — 何もアップロードされません。"
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Superduper Dictation は、時間をかけて修正した単語を静かに学習させてください。"
+  superduper_quietly_learn_vocabulary_from_the_co: "Superduper Dictation は、時間をかけて修正した単語を静かに学習させてください。"
 library:
   _self: "ライブラリ"
 license:
@@ -1018,7 +1018,7 @@ pill:
   _self: "ピル"
 pin:
   to_screen_always_on_top: "画面にピン留めする (常に一番上)"
-pindrop:
+superduper:
   _self: "ピンドロップ"
   1_19: "Superduper Dictation 1.19"
   help: "Superduper Dictationヘルプ"
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "`fetchUser` を呼んで -> それからレスポンスを `==` 200 にマップ。"
   name: "プリセット名"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "どのアプリでも押し続けると口述入力できます。 Superduper Dictation はあなたのスピーチを文字に起こし、カーソルがある場所にテキストを挿入します。"
+  and_hold_to_dictate_in_any_app_superduper_wil: "どのアプリでも押し続けると口述入力できます。 Superduper Dictation はあなたのスピーチを文字に起こし、カーソルがある場所にテキストを挿入します。"
   esc_to_cancel: "キャンセルするにはEscを押してください"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Escapeを2回押すと録音をキャンセルします。オフの場合は1回押すだけでキャンセルされます。"
   keys: "キーを押してください..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "最新のトランスクリプトをクリップボードにすばやく取り込みます。"
 quit:
   _self: "やめる"
-  pindrop: "ピンドロップを終了する"
+  superduper: "ピンドロップを終了する"
 ready:
   _self: "準備ができて"
   ec1296e1: "● 準備完了"
@@ -1162,7 +1162,7 @@ rename:
   _self: "名前の変更"
   folder: "フォルダー名の変更"
   participant: "参加者の名前を変更"
-  speakers_in_transcripts_to_teach_pindrop: "文字起こしで話者名を変え、Superduper Dictation に声の自動認識を教えましょう。"
+  speakers_in_transcripts_to_teach_superduper: "文字起こしで話者名を変え、Superduper Dictation に声の自動認識を教えましょう。"
 replace:
   all: "すべて置換"
   words_and_phrases: "単語やフレーズを置き換える"
@@ -1227,7 +1227,7 @@ select:
   all: "すべて選択"
   language: "言語の選択"
   language_daea52c9: "言語を選択してください"
-  the_language_pindrop_should_expect_when_t: "音声を文字起こしするときに想定する言語を選びます。"
+  the_language_superduper_should_expect_when_t: "音声を文字起こしするときに想定する言語を選びます。"
   this_floating_indicator_style: "このフローティング インジケーター スタイルを選択します。"
   voice_model: "音声モデルの選択"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "録音を開始する"
   recording_to_see_your_transcriptions_here: "録音を開始すると、ここで文字起こしが表示されます"
   stop_recording: "録音の開始/停止"
-  using_pindrop: "ピンドロップの使用を開始する"
+  using_superduper: "ピンドロップの使用を開始する"
   in_the_menu_bar_without_opening_the_main_w: "メインウィンドウを開かずにメニューバーで起動します。メニューバーのアイコンから後で開くこともできます。"
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "タイムスタンプ (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "Superduper Dictation に口述して文字起こししてもらう"
+  dictate_and_let_superduper_transcribe_for_you: "Superduper Dictation に口述して文字起こししてもらう"
   start_talking: "話し始める"
 today:
   _self: "今日"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "置換は順番に実行されます。行をドラッグして並べ替え — 最初の一致が優先されます。"
   u7_replacements_section: "置換"
   u7_speech_to_text: "音声テキスト変換"
-  u7_teach_pindrop_your_words: "Superduper Dictation にあなたの言葉を教える"
+  u7_teach_superduper_your_words: "Superduper Dictation にあなたの言葉を教える"
   u7_unpin: "ピンを外す"
   u7_untitled_note: "無題のメモ"
   u7_words_recognizer_should_trust: "認識エンジンが信頼すべき単語"
@@ -1616,7 +1616,7 @@ u9:
   onboarding_download_background_hint: "ダウンロード中も設定を続けられます。残りはバックグラウンドで完了します。"
   onboarding_enable_enhancement: "補正を有効にする"
   onboarding_granted_state: "許可済み"
-  onboarding_pindrop_writes: "Superduper Dictation の文章"
+  onboarding_superduper_writes: "Superduper Dictation の文章"
   onboarding_ready_heading: "準備ができました。"
   onboarding_ready_instruction_format: "%@ を押して話し始めてください。Superduper Dictation がカーソルの位置に入力します。"
   onboarding_try_it_now: "今すぐ試す"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "ピンドロップへようこそ"
+  to_superduper: "ピンドロップへようこそ"
 what:
   s_new: "新機能…"
-  s_new_in_pindrop: "Superduper Dictation の新機能"
-  does_pindrop_collect: "Superduper Dictation は何を収集しますか？"
+  s_new_in_superduper: "Superduper Dictation の新機能"
+  does_superduper_collect: "Superduper Dictation は何を収集しますか？"
 while:
   recording: "録音中"
 whisperkit:

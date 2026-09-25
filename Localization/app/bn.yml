@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "হুইস্পারকিটের সাথে স্থানীয় স্পিচ-টু-টেক্সট ব্যবহার করে একটি নেটিভ macOS মেনু বার ডিকটেশন অ্যাপ। ঐচ্ছিক AI বর্ধন সহ ডিফল্টরূপে 100% স্থানীয় প্রক্রিয়াকরণ।"
 about:
   _self: "সম্পর্কে"
-  pindrop: "পিনড্রপ সম্পর্কে"
+  superduper: "পিনড্রপ সম্পর্কে"
 accessibility:
   _self: "অ্যাক্সেসযোগ্যতা"
   permission: "অ্যাক্সেসিবিলিটি অনুমতি"
@@ -233,7 +233,7 @@ add:
   trailing_space: "পিছনের স্থান যোগ করুন"
   blank_lines_between_sentence_groups_in_longe: "দীর্ঘ ডিকটেশনে বাক্যগোষ্ঠীর মাঝে ফাঁকা লাইন যোগ করে। সম্পূর্ণ স্থানীয়, AI ছাড়া।"
   word_replacements_to_automatically_correct_c: "স্বয়ংক্রিয়ভাবে সাধারণ ট্রান্সক্রিপশন ত্রুটি সংশোধন করতে শব্দ প্রতিস্থাপন যোগ করুন।"
-  words_to_help_pindrop_recognize_them_properl: "Superduper Dictation তাদের সঠিকভাবে চিনতে সাহায্য করার জন্য শব্দ যোগ করুন"
+  words_to_help_superduper_recognize_them_properl: "Superduper Dictation তাদের সঠিকভাবে চিনতে সাহায্য করার জন্য শব্দ যোগ করুন"
   words_you_manually_correct_into_your_vocabul: "ভবিষ্যত ট্রান্সক্রিপশনের জন্য আপনার শব্দভান্ডারে ম্যানুয়ালি ঠিক করা শব্দ যোগ করুন।"
 advanced:
   _self: "উন্নত"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "স্বয়ংক্রিয় আপডেট এবং ম্যানুয়াল আপডেট চেক"
 automatically:
   check_for_new_versions_in_the_back: "স্বয়ংক্রিয়ভাবে পটভূমিতে নতুন সংস্করণগুলির জন্য পরীক্ষা করুন৷"
-  start_pindrop_when_you_sign_in: "আপনি সাইন ইন করার সময় স্বয়ংক্রিয়ভাবে Superduper Dictation শুরু করুন।"
+  start_superduper_when_you_sign_in: "আপনি সাইন ইন করার সময় স্বয়ংক্রিয়ভাবে Superduper Dictation শুরু করুন।"
 available:
   models: "উপলব্ধ মডেল"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "মাইক্রোফোন পরিবর্তন করুন"
   your_choice_anytime_in_settings_privacy: "সেটিংস → গোপনীয়তা-তে যেকোনো সময় আপনার পছন্দ পরিবর্তন করুন।"
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
+  the_language_used_by_superduper_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "আপডেটের জন্য চেক করুন..."
   for_updates_736b9062: "আপডেটের জন্য চেক করুন"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Nemotron (যতিচিহ্নসহ, ডাউনলোড করা মডেল) এবং Apple SpeechTranscriber (macOS 26+, OS-এর সাথে আসে) এর মধ্যে বেছে নিন।"
   file: "ফাইল নির্বাচন করুন"
   how_dictated_text_lands_then_tune_the_fin: "টেক্সট ল্যান্ড কিভাবে নির্দেশিত চয়ন করুন, তারপর চূড়ান্ত সন্নিবেশ আচরণ টিউন."
-  how_pindrop_appears_on_screen_while_you_d: "ডিক্টেশনের সময় Superduper Dictation স্ক্রিনে কীভাবে দেখা যাবে তা বেছে নিন।"
-  how_pindrop_follows_system_appearance_the: "পিনড্রপ কীভাবে সিস্টেমের চেহারা অনুসরণ করে তা চয়ন করুন, তারপরে কিউরেটেড আলো এবং অন্ধকার প্যালেটগুলি মিশ্রিত করুন।"
+  how_superduper_appears_on_screen_while_you_d: "ডিক্টেশনের সময় Superduper Dictation স্ক্রিনে কীভাবে দেখা যাবে তা বেছে নিন।"
+  how_superduper_follows_system_appearance_the: "পিনড্রপ কীভাবে সিস্টেমের চেহারা অনুসরণ করে তা চয়ন করুন, তারপরে কিউরেটেড আলো এবং অন্ধকার প্যালেটগুলি মিশ্রিত করুন।"
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "কীভাবে অভিধান ডেটা আমদানি করতে হয় তা চয়ন করুন৷"
   how_to_import_the_preset_data: "প্রিসেট ডেটা কীভাবে আমদানি করবেন তা চয়ন করুন"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "হালকা মোডে ব্যবহৃত দিনের সময় শেল চয়ন করুন।"
   the_low_glare_shell_used_in_dark_mode: "অন্ধকার মোডে ব্যবহৃত লো-গ্লেয়ার শেল বেছে নিন।"
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
+  whether_superduper_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "ডিক্টেশনের জন্য কোন মাইক্রোফোন Superduper Dictation ব্যবহার করা উচিত এবং রেকর্ডিংয়ের সময় এটি কীভাবে আচরণ করবে তা চয়ন করুন৷"
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
+  which_microphone_superduper_should_use_for_d: "ডিক্টেশনের জন্য কোন মাইক্রোফোন Superduper Dictation ব্যবহার করা উচিত এবং রেকর্ডিংয়ের সময় এটি কীভাবে আচরণ করবে তা চয়ন করুন৷"
+  which_microphone_superduper_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "নেভিগেশন সাইডবার কোন দিকে প্রদর্শিত হবে তা চয়ন করুন৷"
   where_to_save_the_training_data_file: "প্রশিক্ষণ ডেটা ফাইলটি কোথায় সংরক্ষণ করবেন তা বেছে নিন।"
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "ডিফল্ট দিয়ে চালিয়ে যান"
   without: "ছাড়া চালিয়ে যান"
 control:
-  how_pindrop_appears_in_macos_and_whether: "MacOS-এ Superduper Dictation কীভাবে উপস্থিত হয় এবং এটি আপনার ডেস্কটপ সেশন দিয়ে শুরু হয় কিনা তা নিয়ন্ত্রণ করুন।"
+  how_superduper_appears_in_macos_and_whether: "MacOS-এ Superduper Dictation কীভাবে উপস্থিত হয় এবং এটি আপনার ডেস্কটপ সেশন দিয়ে শুরু হয় কিনা তা নিয়ন্ত্রণ করুন।"
 controls:
 copied:
   _self: "কপি করা !"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "প্রদর্শনের নাম"
   name_c7874aaa: "প্রদর্শনের নাম"
-  pindrop_in_the_dock_instead_of_running_o: "শুধুমাত্র একটি মেনু বার অ্যাপ হিসাবে চালানোর পরিবর্তে ডকে পিনড্রপ প্রদর্শন করুন।"
+  superduper_in_the_dock_instead_of_running_o: "শুধুমাত্র একটি মেনু বার অ্যাপ হিসাবে চালানোর পরিবর্তে ডকে পিনড্রপ প্রদর্শন করুন।"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "উইন্ডোর বাম বা ডান প্রান্তে সাইডবার ডক করুন।"
 done:
@@ -686,7 +686,7 @@ great:
   _self: "দারুণ"
 help:
   _self: "সহায়তা"
-  improve_pindrop: "Superduper Dictation উন্নত করতে সাহায্য করবেন?"
+  improve_superduper: "Superduper Dictation উন্নত করতে সাহায্য করবেন?"
 hide:
   api_key: "API কী লুকান"
   this_for_1_hour: "এটি 1 ঘন্টার জন্য লুকিয়ে রাখুন"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "জাপানিজ"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Superduper Dictation কে স্বয়ংক্রিয়ভাবে বর্তমান রাখুন, অথবা আপনি যখনই চান একটি ম্যানুয়াল চেক ট্রিগার করুন।"
+  superduper_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  superduper_current_automatically_or_trigger_a: "Superduper Dictation কে স্বয়ংক্রিয়ভাবে বর্তমান রাখুন, অথবা আপনি যখনই চান একটি ম্যানুয়াল চেক ট্রিগার করুন।"
   before_and_after_text_pairs_when_ai_enhance: "AI উন্নতি বা আপনার সম্পাদনা কোনো প্রতিলিপি উন্নত করলে আগে-ও-পরের টেক্সট জোড়া রাখুন। শুধুমাত্র এই Mac-এ সংরক্ষিত — কিছুই আপলোড করা হয় না।"
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "সময়ের সাথে আপনার করা সংশোধনগুলি থেকে Superduper Dictation কে শান্তভাবে শব্দভান্ডার শিখতে দিন।"
+  superduper_quietly_learn_vocabulary_from_the_co: "সময়ের সাথে আপনার করা সংশোধনগুলি থেকে Superduper Dictation কে শান্তভাবে শব্দভান্ডার শিখতে দিন।"
 library:
   _self: "লাইব্রেরি"
 license:
@@ -1019,7 +1019,7 @@ pill:
   _self: "পিল"
 pin:
   to_screen_always_on_top: "স্ক্রিনে পিন করুন (সর্বদা উপরে)"
-pindrop:
+superduper:
   _self: "পিনড্রপ"
   1_19: "Superduper Dictation 1.19"
   help: "Superduper Dictation সহায়তা"
@@ -1083,7 +1083,7 @@ preset:
   example_technical_output: "`fetchUser` কল করো -> তারপর রেসপন্স `==` 200 ম্যাপ করো।"
   name: "পূর্বনির্ধারিত নাম"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "যেকোন অ্যাপে নির্দেশ দিতে টিপুন এবং ধরে রাখুন। Superduper Dictation আপনার বক্তৃতা প্রতিলিপি এবং আপনার কার্সার যেখানে পাঠ্য সন্নিবেশ করা হবে."
+  and_hold_to_dictate_in_any_app_superduper_wil: "যেকোন অ্যাপে নির্দেশ দিতে টিপুন এবং ধরে রাখুন। Superduper Dictation আপনার বক্তৃতা প্রতিলিপি এবং আপনার কার্সার যেখানে পাঠ্য সন্নিবেশ করা হবে."
   esc_to_cancel: "বাতিল করতে Esc টিপুন"
   escape_twice_to_cancel_a_recording_when_off_a_si: "রেকর্ডিং বাতিল করতে Escape দুবার চাপুন। বন্ধ থাকলে, একবার চাপলেই বাতিল হয়।"
   keys: "কী টিপুন..."
@@ -1124,7 +1124,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "ক্লিপবোর্ডে আপনার সাম্প্রতিক প্রতিলিপিটি দ্রুত টেনে আনুন।"
 quit:
   _self: "প্রস্থান করুন"
-  pindrop: "পিনড্রপ প্রস্থান করুন"
+  superduper: "পিনড্রপ প্রস্থান করুন"
 ready:
   _self: "প্রস্তুত"
   ec1296e1: "● প্রস্তুত"
@@ -1166,7 +1166,7 @@ rename:
   _self: "নাম পরিবর্তন করুন"
   folder: "ফোল্ডারের নাম পরিবর্তন করুন"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
+  speakers_in_transcripts_to_teach_superduper: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "সমস্ত প্রতিস্থাপন করুন"
   words_and_phrases: "শব্দ এবং বাক্যাংশ প্রতিস্থাপন করুন"
@@ -1231,7 +1231,7 @@ select:
   all: "সব নির্বাচন করুন"
   language: "ভাষা নির্বাচন করুন"
   language_daea52c9: "ভাষা নির্বাচন করুন"
-  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
+  the_language_superduper_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "এই ভাসমান নির্দেশক শৈলী নির্বাচন করুন."
   voice_model: "ভয়েস মডেল নির্বাচন করুন"
 selected:
@@ -1315,7 +1315,7 @@ start:
   recording: "রেকর্ডিং শুরু করুন"
   recording_to_see_your_transcriptions_here: "এখানে আপনার ট্রান্সক্রিপশন দেখতে রেকর্ডিং শুরু করুন"
   stop_recording: "রেকর্ডিং শুরু/স্টপ করুন"
-  using_pindrop: "Superduper Dictation ব্যবহার করা শুরু করুন"
+  using_superduper: "Superduper Dictation ব্যবহার করা শুরু করুন"
   in_the_menu_bar_without_opening_the_main_w: "মূল উইন্ডো না খুলে মেনু বারে শুরু করুন। মেনু বার আইকন থেকে পরেও খুলতে পারবেন।"
 stats:
   _self: "Stats"
@@ -1398,7 +1398,7 @@ time:
 timestamps:
   json: "টাইমস্ট্যাম্প (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "নির্দেশ দিতে এবং আপনার জন্য Superduper Dictation প্রতিলিপি করতে দেয়"
+  dictate_and_let_superduper_transcribe_for_you: "নির্দেশ দিতে এবং আপনার জন্য Superduper Dictation প্রতিলিপি করতে দেয়"
   start_talking: "কথা শুরু করতে"
 today:
   _self: "আজ"
@@ -1554,7 +1554,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
+  u7_teach_superduper_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1623,7 +1623,7 @@ u9:
   onboarding_download_background_hint: "ডাউনলোড চলার সময় সেটআপ চালিয়ে যান — আমরা পটভূমিতে শেষ করব।"
   onboarding_enable_enhancement: "উন্নয়ন চালু করুন"
   onboarding_granted_state: "মঞ্জুর"
-  onboarding_pindrop_writes: "Superduper Dictation লেখে"
+  onboarding_superduper_writes: "Superduper Dictation লেখে"
   onboarding_ready_heading: "আপনি প্রস্তুত।"
   onboarding_ready_instruction_format: "%@ চাপুন এবং কথা বলা শুরু করুন — কার্সর যেখানে আছে Superduper Dictation সেখানেই টাইপ করে।"
   onboarding_try_it_now: "এখনই চেষ্টা করুন"
@@ -1688,11 +1688,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Superduper Dictation স্বাগতম"
+  to_superduper: "Superduper Dictation স্বাগতম"
 what:
   s_new: "নতুন কী…"
-  s_new_in_pindrop: "Superduper Dictation-এ নতুন কী"
-  does_pindrop_collect: "Superduper Dictation কী সংগ্রহ করে?"
+  s_new_in_superduper: "Superduper Dictation-এ নতুন কী"
+  does_superduper_collect: "Superduper Dictation কী সংগ্রহ করে?"
 while:
   recording: "রেকর্ডিংয়ের সময়"
 whisperkit:

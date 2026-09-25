@@ -1,0 +1,1077 @@
+//
+//  DashboardView.swift
+//  SuperduperDictation
+//
+//  Home page (U4 scorched-earth restyle) — date kicker, hero, stats strip,
+//  recent rows, THIS WEEK chart.
+//
+
+import SwiftUI
+import SwiftData
+
+struct DashboardView: View {
+    @Environment(\.layoutDirection) private var layoutDirection
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.locale) private var locale
+    @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
+    /// Shared settings reference — not observed at the root so unrelated
+    /// SettingsStore publications do not invalidate the whole Home page.
+    private let settingsStore: SettingsStore
+    /// Aggregation cache keyed by record projection + calendar day. Hover/selection
+    /// live in chart children so pointer movement cannot invalidate this work.
+    @State private var statsCache = DashboardStatsCache()
+    @State private var showMeetingCaptureOptions = false
+    @State private var chartRowWidth: CGFloat = 0
+
+    var onOpenHotkeys: (() -> Void)?
+    var onViewAllHistory: (() -> Void)?
+    var onShowMoreStats: (() -> Void)?
+    var onOpenHistoryRecord: ((UUID) -> Void)?
+    var onNewTranscription: (() -> Void)?
+    var onTranscribeFile: (() -> Void)?
+    var onRecordMeeting: ((Int?) -> Void)?
+    var onNewNote: (() -> Void)?
+    var onDownloadDiarizationModel: (() -> Void)?
+    var recordingState: RecordingFeatureState?
+
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+
+    init(
+        floatingIndicatorState: FloatingIndicatorState? = nil,
+        settingsStore: SettingsStore,
+        recordingState: RecordingFeatureState? = nil,
+        onOpenHotkeys: (() -> Void)? = nil,
+        onViewAllHistory: (() -> Void)? = nil,
+        onShowMoreStats: (() -> Void)? = nil,
+        onOpenHistoryRecord: ((UUID) -> Void)? = nil,
+        onNewTranscription: (() -> Void)? = nil,
+        onTranscribeFile: (() -> Void)? = nil,
+        onRecordMeeting: ((Int?) -> Void)? = nil,
+        onNewNote: (() -> Void)? = nil,
+        onDownloadDiarizationModel: (() -> Void)? = nil
+    ) {
+        // Indicator state is owned by the shell chrome; Home must not observe it.
+        _ = floatingIndicatorState
+        self.settingsStore = settingsStore
+        self.recordingState = recordingState
+        self.onOpenHotkeys = onOpenHotkeys
+        self.onViewAllHistory = onViewAllHistory
+        self.onShowMoreStats = onShowMoreStats
+        self.onOpenHistoryRecord = onOpenHistoryRecord
+        self.onNewTranscription = onNewTranscription
+        self.onTranscribeFile = onTranscribeFile
+        self.onRecordMeeting = onRecordMeeting
+        self.onNewNote = onNewNote
+        self.onDownloadDiarizationModel = onDownloadDiarizationModel
+    }
+
+    // MARK: - Stats
+
+    private var calendar: Calendar { Calendar.current }
+
+    private var recentRecords: [TranscriptionRecord] {
+        Array(transcriptions.prefix(5))
+    }
+
+    private var isFirstRun: Bool {
+        transcriptions.isEmpty
+    }
+
+    /// Sendable value projection for cache invalidation (data changes, not object identity).
+    private var recordProjection: [StatsSample] {
+        transcriptions.map(DashboardStatsService.sample(from:))
+    }
+
+    private func stats(now: Date) -> DashboardStats {
+        statsCache.stats(
+            for: DashboardStatsCache.Key(
+                samples: recordProjection,
+                dayStart: calendar.startOfDay(for: now),
+                firstWeekday: calendar.firstWeekday,
+                timeZoneIdentifier: calendar.timeZone.identifier
+            ),
+            calendar: calendar,
+            now: now
+        )
+    }
+
+    // MARK: - Body
+
+    var body: some View {
+        // Re-render at each calendar midnight so date kicker, WORDS TODAY, STREAK,
+        // and the today-bar highlight do not freeze while the window stays open.
+        // Schedule is calendar midnights only (no per-minute / per-second timers).
+        TimelineView(HomeDayBoundarySchedule(calendar: calendar)) { _ in
+            // Date() is re-sampled when the schedule fires and when records change.
+            homeContent(now: Date())
+        }
+    }
+
+    private func homeContent(now: Date) -> some View {
+        let dashboardStats = stats(now: now)
+        return ScrollView(showsIndicators: true) {
+            VStack(alignment: .leading, spacing: 0) {
+                if let setupIssue = recordingState?.setupIssue {
+                    diarizationSetupIssueBanner(
+                        message: setupIssue,
+                        isDownloading: recordingState?.isDiarizationModelDownloading ?? false,
+                        progress: recordingState?.diarizationModelDownloadProgress ?? 0.0,
+                        requiresRepair: recordingState?.diarizationIssueNeedsRepair ?? false
+                    )
+                        .padding(.bottom, 16)
+                }
+
+                heroBlock(now: now, stats: dashboardStats)
+                meetingQuickAction
+                statsStrip(stats: dashboardStats)
+                recentSection
+                chartRowWidthProbe
+                thisWeekChart(now: now, stats: dashboardStats)
+            }
+            .padding(.horizontal, 40)
+            .padding(.top, 40)
+            .padding(.bottom, 40)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .background(AppColors.contentBackground)
+        .sheet(isPresented: $showMeetingCaptureOptions) {
+            MeetingCaptureOptionsSheet(stopHotkey: settingsStore.meetingHotkey) { expectedSpeakerCount in
+                onRecordMeeting?(expectedSpeakerCount)
+            }
+        }
+    }
+
+    private func startMeetingCaptureNow() {
+        guard onRecordMeeting != nil else { return }
+        onRecordMeeting?(nil)
+    }
+
+    private func requestMeetingCaptureOptions() {
+        guard onRecordMeeting != nil else { return }
+        showMeetingCaptureOptions = true
+    }
+
+    @ViewBuilder
+    private var meetingQuickAction: some View {
+        if onRecordMeeting != nil {
+            HStack(spacing: 14) {
+                Image(systemName: "person.2.wave.2")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(AppColors.accent)
+                    .frame(width: 32, height: 32)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(localized("Meetings", locale: locale))
+                        .font(AppTypography.labelStrongSelected)
+                        .foregroundStyle(AppColors.textPrimary)
+
+                    HStack(spacing: 10) {
+                        Label(localized("Local", locale: locale), systemImage: "lock.shield")
+                        Label(localized("Speaker diarization", locale: locale), systemImage: "person.2")
+                        if !settingsStore.meetingHotkey.isEmpty {
+                            Label(settingsStore.meetingHotkey, systemImage: "keyboard")
+                        }
+                    }
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+                }
+
+                Spacer(minLength: 12)
+
+                PrimaryButton(
+                    title: localized("Record Meeting", locale: locale),
+                    systemImage: "record.circle",
+                    isEnabled: recordingState?.isRecording != true,
+                    action: startMeetingCaptureNow
+                )
+                .accessibilityIdentifier("home.button.recordMeeting")
+
+                Button(action: requestMeetingCaptureOptions) {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .frame(width: 30, height: 30)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(AppColors.contentBackground)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .strokeBorder(AppColors.border, lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
+                .disabled(recordingState?.isRecording == true)
+                .help(localized("Meeting options…", locale: locale))
+                .accessibilityLabel(localized("Meeting options…", locale: locale))
+                .accessibilityIdentifier("home.button.meetingOptions")
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(AppColors.windowBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(AppColors.border, lineWidth: 1)
+            )
+            .padding(.top, 20)
+        }
+    }
+
+    private func diarizationSetupIssueBanner(
+        message: String,
+        isDownloading: Bool,
+        progress: Double,
+        requiresRepair: Bool
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: isDownloading ? "arrow.down.circle" : "exclamationmark.triangle")
+                .font(.system(size: 14))
+                .foregroundStyle(isDownloading ? AppColors.accent : AppColors.warning)
+
+            if isDownloading {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(message)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    ProgressView(value: min(max(progress, 0), 1))
+                        .progressViewStyle(.linear)
+                        .tint(AppColors.accent)
+                        .frame(maxWidth: 180)
+                        .accessibilityValue("\(Int(progress * 100))%")
+                }
+            } else {
+                Text(message)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 8)
+
+            if !isDownloading, onDownloadDiarizationModel != nil {
+                Button(localized(requiresRepair ? "Repair diarization model" : "Download model", locale: locale)) {
+                    onDownloadDiarizationModel?()
+                }
+                .buttonStyle(.plain)
+                .font(AppTypography.caption.weight(.semibold))
+                .foregroundStyle(AppColors.accent)
+                .accessibilityIdentifier("diarizationSetupIssueDownloadButton")
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(AppColors.warningBackground)
+        )
+    }
+
+    // MARK: - Hero
+
+    private func heroBlock(now: Date, stats: DashboardStats) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(HomePresentation.dateKicker(date: now, locale: locale, calendar: calendar))
+                .font(FontLoader.font(family: .inter, size: HomeLayoutMetrics.kickerSize, weight: .semibold))
+                .foregroundStyle(AppColors.textTertiary)
+                .tracking(HomeLayoutMetrics.kickerTrackingEm * HomeLayoutMetrics.kickerSize)
+
+            if isFirstRun {
+                DashboardFirstRunWelcome(settingsStore: settingsStore)
+                    .padding(.top, 8)
+                    .padding(.bottom, HomeLayoutMetrics.heroBottomPadding)
+            } else {
+                heroSentence(stats: stats)
+                    .padding(.top, 6)
+                    .padding(.bottom, HomeLayoutMetrics.heroBottomPadding)
+
+                let sub = HomePresentation.subLine(
+                    dictationDuration: stats.dictationDurationThisWeek,
+                    timeSaved: stats.timeSavedThisWeek,
+                    locale: locale
+                )
+                if !sub.isEmpty {
+                    Text(sub)
+                        .font(AppTypography.bodyMeta)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .lineSpacing(AppTypography.bodyMetaLineSpacing)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+
+    private func heroSentence(stats: DashboardStats) -> some View {
+        let parts = HomePresentation.heroSentenceParts(
+            wordsThisWeek: stats.wordsThisWeek,
+            locale: locale
+        )
+        let heroFont = FontLoader.font(
+            family: .newsreader,
+            size: HomeLayoutMetrics.heroFontSize,
+            weight: .regular
+        )
+        let metricFont = FontLoader.font(
+            family: .newsreader,
+            size: HomeLayoutMetrics.heroFontSize,
+            weight: .medium,
+            italic: true
+        )
+        let tracking = HomeLayoutMetrics.heroTrackingEm * HomeLayoutMetrics.heroFontSize
+        let lineSpacing = HomeLayoutMetrics.heroLineHeight - HomeLayoutMetrics.heroFontSize
+
+        return (
+            Text(parts.before)
+                .font(heroFont)
+                .foregroundStyle(AppColors.textPrimary)
+            + Text(parts.metric)
+                .font(metricFont)
+                .foregroundStyle(AppColors.accent)
+            + Text(parts.after)
+                .font(heroFont)
+                .foregroundStyle(AppColors.textPrimary)
+        )
+        .tracking(tracking)
+        .lineSpacing(lineSpacing)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    // MARK: - Stats strip
+
+    private func statsStrip(stats: DashboardStats) -> some View {
+        HStack(spacing: 0) {
+            homeStat(
+                value: HomePresentation.formatGrouped(stats.wordsToday, locale: locale),
+                label: localized("Words today", locale: locale)
+            )
+
+            statsDivider
+
+            homeStat(
+                value: HomePresentation.formatWPM(stats.wpmThisWeek, locale: locale),
+                label: localized("Words / min", locale: locale)
+            )
+
+            statsDivider
+
+            homeStat(
+                value: HomePresentation.formatGrouped(stats.sessionsThisWeek, locale: locale),
+                label: localized("Sessions", locale: locale)
+            )
+
+            statsDivider
+
+            homeStat(
+                value: HomePresentation.streakLabel(days: stats.streakDays, locale: locale),
+                label: localized("Streak", locale: locale)
+            )
+
+            Spacer(minLength: 0)
+        }
+        .padding(.top, HomeLayoutMetrics.statsTopPadding)
+        .padding(.bottom, HomeLayoutMetrics.statsBottomPadding)
+    }
+
+    private var statsDivider: some View {
+        Rectangle()
+            .fill(AppColors.border)
+            .frame(width: HomeLayoutMetrics.statsDividerWidth, height: HomeLayoutMetrics.statsDividerHeight)
+            .padding(.horizontal, HomeLayoutMetrics.statsGroupPadding)
+    }
+
+    private func homeStat(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: HomeLayoutMetrics.statsInnerGap) {
+            Text(value)
+                .font(FontLoader.font(
+                    family: .jetbrainsMono,
+                    size: HomeLayoutMetrics.statsNumberSize,
+                    weight: .medium
+                ))
+                .foregroundStyle(AppColors.textPrimary)
+                .monospacedDigit()
+
+            Text(label.uppercased(with: locale))
+                .font(FontLoader.font(
+                    family: .inter,
+                    size: HomeLayoutMetrics.statsLabelSize,
+                    weight: .semibold
+                ))
+                .foregroundStyle(AppColors.textTertiary)
+                .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(value), \(label)")
+    }
+
+    // MARK: - Recent
+
+    private var recentSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionHeader(title: localized("Recent", locale: locale), isFirst: true) {
+                Button {
+                    onViewAllHistory?()
+                } label: {
+                    HStack(spacing: 3) {
+                        Text(localized("Open History", locale: locale))
+                        Image(systemName: "arrow.right")
+                            .flipsForRightToLeftLayoutDirection(true)
+                    }
+                    .font(FontLoader.font(family: .inter, size: 11, weight: .semibold))
+                    .foregroundStyle(AppColors.accent)
+                }
+                .buttonStyle(.plain)
+            }
+
+            if recentRecords.isEmpty {
+                emptyRecentHint
+                    .padding(.top, 16)
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(recentRecords) { record in
+                        homeRecentRow(record)
+                    }
+                }
+                .padding(.top, 4)
+            }
+        }
+    }
+
+    private var emptyRecentHint: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localized("Your latest dictations will show up here.", locale: locale))
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textTertiary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+        }
+        .padding(.vertical, 12)
+    }
+
+    private static let rowTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        return formatter
+    }()
+
+    private func homeRecentRow(_ record: TranscriptionRecord) -> some View {
+        let kind = record.resolvedSourceKind
+        let hasAudio = TranscriptionDetailAccess.shouldShowPlayback(for: record)
+        let isExpired = record.managedMediaPath == nil && kind == .voiceRecording
+        let preview: String = {
+            if kind == .manualCapture {
+                if let title = record.preferredTitle, !title.isEmpty { return title }
+            }
+            let text = record.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if text.isEmpty {
+                return record.preferredTitle ?? localized("Untitled", locale: locale)
+            }
+            return text
+        }()
+        let previewMeta: String? = {
+            guard kind == .manualCapture else { return nil }
+            let meta = record.meetingMetadataString(locale: locale)
+            return meta.isEmpty ? nil : meta
+        }()
+        let showExpiredChip = isExpired || (!hasAudio && record.duration > 0 && kind == .voiceRecording)
+
+        return LibraryRowChrome(
+            timeText: Self.rowTimeFormatter.string(from: record.timestamp),
+            preview: preview,
+            previewMeta: previewMeta,
+            destination: LibraryKindPresentation.destinationPill(
+                appName: record.destinationAppName,
+                layoutDirection: layoutDirection
+            ),
+            icon: {
+                Image(systemName: LibraryKindPresentation.systemImage(for: kind))
+                    .font(.system(size: 13))
+                    .foregroundStyle(AppColors.textTertiary)
+            },
+            playChip: {
+                PlayChip(
+                    durationText: formatDuration(record.duration),
+                    isExpired: showExpiredChip,
+                    action: { onOpenHistoryRecord?(record.id) }
+                )
+            },
+            action: {
+                onOpenHistoryRecord?(record.id)
+            }
+        )
+        // Row chrome includes 24 pt horizontal padding; counteract outer 40 so lanes
+        // sit flush with the page content edge the way Library rows do.
+        .padding(.horizontal, -24)
+    }
+
+    // MARK: - THIS WEEK chart
+
+    /// Measures the width proposed to the chart row. Must be a sibling of the row,
+    /// not attached to it: the heatmap's fixed-size cells give the row itself a
+    /// minimum width, so measuring the row would ratchet — once grown, it could
+    /// never report a narrower width to shrink back from.
+    private var chartRowWidthProbe: some View {
+        GeometryReader { proxy in
+            Color.clear.onChange(of: proxy.size.width, initial: true) { _, width in
+                chartRowWidth = width
+            }
+        }
+        .frame(height: 0)
+        .accessibilityHidden(true)
+    }
+
+    private func thisWeekChart(now: Date, stats: DashboardStats) -> some View {
+        let heatmapWidth = HomePresentation.activityAvailableWidth(chartRowWidth: chartRowWidth)
+        let cellMetrics = HomePresentation.activityCellMetrics(availableWidth: heatmapWidth)
+        let rowGrowth = HomePresentation.chartRowGrowth(cellMetrics: cellMetrics)
+
+        return HStack(alignment: .top, spacing: HomeLayoutMetrics.chartPanelGap) {
+            DashboardWeeklyBarsChart(
+                buckets: stats.wordsPerWeekday,
+                now: now,
+                locale: locale,
+                calendar: calendar,
+                barAreaHeight: HomeLayoutMetrics.chartBarAreaHeight + rowGrowth
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(
+                minWidth: HomeLayoutMetrics.chartMinimumWidth,
+                maxWidth: HomeLayoutMetrics.chartMaximumWidth,
+                alignment: .leading
+            )
+
+            Rectangle()
+                .fill(AppColors.border)
+                .frame(
+                    width: HomeLayoutMetrics.chartPanelDividerWidth,
+                    height: HomeLayoutMetrics.chartPanelDividerHeight + rowGrowth
+                )
+                .padding(.top, 6)
+
+            DashboardActivityHeatmap(
+                buckets: stats.wordsPerActivityDay,
+                streakDays: stats.streakDays,
+                now: now,
+                locale: locale,
+                calendar: calendar,
+                cellMetrics: cellMetrics,
+                availableWidth: heatmapWidth,
+                onShowMoreStats: onShowMoreStats
+            )
+            // minWidth 0 keeps the fixed-size grid from becoming the row's minimum
+            // width: without it the window could grow but never shrink back, since
+            // the probe would only ever see the already-grown width.
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(1)
+        }
+        .padding(.top, HomeLayoutMetrics.chartTopPadding)
+    }
+}
+
+// MARK: - Weekly bars (hover/selection isolated)
+
+/// Owns weekly-bar selection and hover so pointer movement invalidates only this subtree.
+private struct DashboardWeeklyBarsChart: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    let buckets: [Int]
+    let now: Date
+    let locale: Locale
+    let calendar: Calendar
+    let barAreaHeight: CGFloat
+
+    @State private var selectedWeekdayIndex: Int?
+    @State private var hoveredWeekdayIndex: Int?
+    @State private var chartHasAppeared = false
+
+    var body: some View {
+        let maxWords = buckets.max() ?? 0
+        let labels = HomePresentation.weekdayLabels(calendar: calendar, locale: locale)
+        let names = HomePresentation.weekdayNames(calendar: calendar, locale: locale)
+        let todayIndex = HomePresentation.todayBarIndex(now: now, calendar: calendar)
+        let activeIndex = hoveredWeekdayIndex.flatMap { $0 <= todayIndex ? $0 : nil }
+            ?? selectedWeekdayIndex.flatMap { $0 <= todayIndex ? $0 : nil }
+            ?? todayIndex
+        let activeWords = activeIndex < buckets.count ? buckets[activeIndex] : 0
+        let activeName = activeIndex < names.count ? names[activeIndex] : ""
+
+        VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
+            SectionHeader(
+                title: localized("This week", locale: locale),
+                trailing: HomePresentation.wordMetric(count: activeWords, locale: locale),
+                isFirst: true
+            )
+
+            ZStack(alignment: .bottom) {
+                Rectangle()
+                    .fill(AppColors.border)
+                    .frame(height: 1)
+                    .padding(.bottom, 19)
+
+                HStack(alignment: .bottom, spacing: HomeLayoutMetrics.chartBarGap) {
+                    ForEach(0..<7, id: \.self) { index in
+                        let words = index < buckets.count ? buckets[index] : 0
+                        let kind = HomePresentation.barDayKind(index: index, now: now, calendar: calendar)
+                        let height: CGFloat = {
+                            if kind == .future {
+                                return 0
+                            }
+                            return HomePresentation.barHeight(
+                                words: words,
+                                maxWords: maxWords,
+                                chartHeight: barAreaHeight
+                            )
+                        }()
+                        let isActive = index == activeIndex
+                        let barColor: Color = isActive ? AppColors.accent : AppColors.border
+                        let labelColor: Color = isActive ? AppColors.accent : AppColors.textTertiary
+                        let weekdayLabel = index < labels.count ? labels[index] : ""
+                        let weekdayName = index < names.count ? names[index] : weekdayLabel
+
+                        Button {
+                            selectedWeekdayIndex = index
+                        } label: {
+                            VStack(spacing: HomeLayoutMetrics.chartLabelGap) {
+                                UnevenRoundedRectangle(
+                                    topLeadingRadius: HomeLayoutMetrics.chartBarTopRadius,
+                                    bottomLeadingRadius: HomeLayoutMetrics.chartBarBottomRadius,
+                                    bottomTrailingRadius: HomeLayoutMetrics.chartBarBottomRadius,
+                                    topTrailingRadius: HomeLayoutMetrics.chartBarTopRadius,
+                                    style: .continuous
+                                )
+                                .fill(barColor)
+                                .frame(
+                                    width: HomeLayoutMetrics.chartBarWidth,
+                                    height: chartHasAppeared ? height : 0
+                                )
+                                .frame(maxHeight: barAreaHeight, alignment: .bottom)
+                                .animation(
+                                    reduceMotion
+                                        ? nil
+                                        : .easeOut(duration: 0.42).delay(Double(index) * 0.035),
+                                    value: chartHasAppeared
+                                )
+                                .appAnimation(.normal, value: words)
+
+                                Text(weekdayLabel)
+                                    .font(FontLoader.font(
+                                        family: .inter,
+                                        size: 11,
+                                        weight: isActive ? .semibold : .medium
+                                    ))
+                                    .foregroundStyle(labelColor)
+                            }
+                            .frame(width: HomeLayoutMetrics.chartBarWidth)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(kind == .future)
+                        .keyboardFocusRing(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .appAnimation(.fast, value: isActive)
+                        .onHover { hovering in
+                            guard kind != .future else { return }
+                            if hovering {
+                                hoveredWeekdayIndex = index
+                            } else if hoveredWeekdayIndex == index {
+                                hoveredWeekdayIndex = nil
+                            }
+                        }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(
+                            HomePresentation.barAccessibilityLabel(
+                                weekdayName: weekdayName,
+                                words: words,
+                                locale: locale
+                            )
+                        )
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(activeName.uppercased(with: locale))
+                .font(FontLoader.font(
+                    family: .inter,
+                    size: HomeLayoutMetrics.statsLabelSize,
+                    weight: .semibold
+                ))
+                .foregroundStyle(AppColors.textTertiary)
+                .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
+                .appAnimation(.fast, value: activeIndex)
+        }
+        .onAppear {
+            chartHasAppeared = true
+        }
+    }
+}
+
+// MARK: - Activity heatmap (hover isolated)
+
+/// Owns the 53×7 activity grid structure. Hover invalidation is confined to
+/// individual cells for scale/tooltip chrome; only the hovered week column is
+/// promoted in the outer HStack so tooltips stack above later weeks.
+private struct DashboardActivityHeatmap: View {
+    let buckets: [Int]
+    let streakDays: Int
+    let now: Date
+    let locale: Locale
+    let calendar: Calendar
+    let cellMetrics: HomePresentation.ActivityCellMetrics
+    let availableWidth: CGFloat
+    var onShowMoreStats: (() -> Void)?
+
+    /// Outer-week stacking only — not per-cell grid state. Invalidates the
+    /// heatmap when the pointer crosses week boundaries, not every day cell.
+    @State private var elevatedWeekIndex: Int?
+
+    var body: some View {
+        let maxWords = buckets.max() ?? 0
+        let startDate = HomePresentation.activityStartDate(now: now, calendar: calendar)
+        let leadingBlankCount = startDate.map {
+            HomePresentation.activityLeadingBlankCount(startDate: $0, calendar: calendar)
+        } ?? 0
+        let gridStartDate = startDate.flatMap {
+            HomePresentation.activityGridStartDate(startDate: $0, calendar: calendar)
+        }
+
+        VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
+            SectionHeader(title: localized("History", locale: locale), isFirst: true) {
+                Button {
+                    onShowMoreStats?()
+                } label: {
+                    HStack(spacing: 3) {
+                        Text(localized("Show more stats", locale: locale))
+                        Image(systemName: "arrow.right")
+                            .flipsForRightToLeftLayoutDirection(true)
+                    }
+                    .font(FontLoader.font(family: .inter, size: 11, weight: .semibold))
+                    .foregroundStyle(AppColors.accent)
+                }
+                .buttonStyle(.plain)
+                .keyboardFocusRing(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                .accessibilityIdentifier("home.button.showMoreStats")
+                .help(localized("Show more stats", locale: locale))
+            }
+
+            if let startDate, let gridStartDate {
+                let cellSize = cellMetrics.cellSize
+                let cellGap = cellMetrics.cellGap
+
+                VStack(alignment: .leading, spacing: 7) {
+                    HStack(spacing: cellGap) {
+                        ForEach(0..<53, id: \.self) { weekIndex in
+                            Text(HomePresentation.activityMonthLabel(
+                                weekIndex: weekIndex,
+                                startDate: gridStartDate,
+                                calendar: calendar,
+                                locale: locale
+                            ))
+                            .font(FontLoader.font(family: .inter, size: 9, weight: .medium))
+                            .foregroundStyle(AppColors.textTertiary)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .frame(width: cellSize, alignment: .leading)
+                        }
+                    }
+
+                    HStack(spacing: cellGap) {
+                        ForEach(0..<53, id: \.self) { weekIndex in
+                            VStack(spacing: cellGap) {
+                                ForEach(0..<7, id: \.self) { dayIndex in
+                                    let gridIndex = weekIndex * 7 + dayIndex
+                                    let bucketIndex = gridIndex - leadingBlankCount
+
+                                    if buckets.indices.contains(bucketIndex) {
+                                        let words = buckets[bucketIndex]
+                                        let date = calendar.date(
+                                            byAdding: .day,
+                                            value: bucketIndex,
+                                            to: startDate
+                                        ) ?? startDate
+                                        let isToday = calendar.isDate(date, inSameDayAs: now)
+                                        let intensity = HomePresentation.activityIntensity(
+                                            words: words,
+                                            maxWords: maxWords
+                                        )
+                                        let cellX = CGFloat(weekIndex) * (cellSize + cellGap)
+                                        // Month-label row (~18 pt) + day offset.
+                                        let cellY = 18 + CGFloat(dayIndex) * (cellSize + cellGap)
+
+                                        DashboardActivityHeatmapCell(
+                                            date: date,
+                                            words: words,
+                                            intensity: intensity,
+                                            isToday: isToday,
+                                            cellSize: cellSize,
+                                            dayIndex: dayIndex,
+                                            cellX: cellX,
+                                            cellY: cellY,
+                                            availableWidth: availableWidth,
+                                            locale: locale,
+                                            calendar: calendar
+                                        )
+                                    } else {
+                                        Color.clear
+                                            .frame(width: cellSize, height: cellSize)
+                                            .accessibilityHidden(true)
+                                    }
+                                }
+                            }
+                            // Elevate the whole week column while the pointer is
+                            // inside it so a cell tooltip can paint above later
+                            // weeks. Cell-local hover still owns the tooltip.
+                            .onHover { hovering in
+                                if hovering {
+                                    elevatedWeekIndex = weekIndex
+                                } else if elevatedWeekIndex == weekIndex {
+                                    elevatedWeekIndex = nil
+                                }
+                            }
+                            .zIndex(elevatedWeekIndex == weekIndex ? 1 : 0)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(
+                    height: HomeLayoutMetrics.activityGridHeight
+                        + HomePresentation.chartRowGrowth(cellMetrics: cellMetrics),
+                    alignment: .top
+                )
+
+                HStack(spacing: 4) {
+                    Text(localized("Streak", locale: locale).uppercased(with: locale))
+                    Text(HomePresentation.streakLabel(days: streakDays, locale: locale))
+                        .foregroundStyle(AppColors.textSecondary)
+
+                    Spacer(minLength: 8)
+
+                    ForEach(0...4, id: \.self) { intensity in
+                        RoundedRectangle(cornerRadius: 1.5, style: .continuous)
+                            .fill(DashboardActivityHeatmapCell.activityColor(intensity: intensity))
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .font(FontLoader.font(family: .inter, size: 9, weight: .semibold))
+                .foregroundStyle(AppColors.textTertiary)
+            }
+        }
+    }
+}
+
+/// One activity cell owns its own hover state so enter/exit invalidates only
+/// that cell (plus its local tooltip) rather than the full 371-cell grid.
+/// Week-column stacking is promoted by `DashboardActivityHeatmap`.
+private struct DashboardActivityHeatmapCell: View {
+    let date: Date
+    let words: Int
+    let intensity: Int
+    let isToday: Bool
+    let cellSize: CGFloat
+    let dayIndex: Int
+    let cellX: CGFloat
+    let cellY: CGFloat
+    let availableWidth: CGFloat
+    let locale: Locale
+    let calendar: Calendar
+
+    @State private var isHovered = false
+
+    var body: some View {
+        let corner = min(3, cellSize / 4)
+        // Tooltip positions match the previous grid-level overlay math so
+        // edge clamping near left/right and top/bottom stays identical.
+        let tooltipX = min(
+            max(0, cellX - 76),
+            max(0, availableWidth - 160)
+        )
+        let tooltipY = dayIndex < 4
+            ? cellY + cellSize + 6
+            : max(0, cellY - 48)
+
+        RoundedRectangle(cornerRadius: corner, style: .continuous)
+            .fill(Self.activityColor(intensity: intensity))
+            .frame(width: cellSize, height: cellSize)
+            .overlay {
+                if isToday || isHovered {
+                    RoundedRectangle(cornerRadius: corner, style: .continuous)
+                        .strokeBorder(
+                            isHovered ? AppColors.textPrimary : AppColors.accent,
+                            lineWidth: isHovered ? 1.5 : 1
+                        )
+                }
+            }
+            .scaleEffect(isHovered ? 1.35 : 1)
+            .contentShape(Rectangle())
+            .onHover { hovering in
+                isHovered = hovering
+            }
+            .appAnimation(.fast, value: isHovered)
+            .accessibilityLabel(HomePresentation.activityAccessibilityLabel(
+                date: date,
+                words: words,
+                calendar: calendar,
+                locale: locale
+            ))
+            // Tooltip is drawn as an unconstrained overlay so it is not clipped
+            // by the cell's layout size; only this cell invalidates on hover.
+            // Intra-week day stacking uses local zIndex; cross-week stacking is
+            // handled by the parent week column.
+            .overlay(alignment: .topLeading) {
+                if isHovered {
+                    activityTooltip
+                        .offset(x: tooltipX - cellX, y: tooltipY - cellY)
+                        .allowsHitTesting(false)
+                }
+            }
+            .zIndex(isHovered ? 1 : 0)
+    }
+
+    private var activityTooltip: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(HomePresentation.activityDateLabel(
+                date: date,
+                calendar: calendar,
+                locale: locale
+            ).uppercased(with: locale))
+                .font(FontLoader.font(family: .inter, size: 9, weight: .semibold))
+                .foregroundStyle(AppColors.textTertiary)
+                .lineLimit(1)
+
+            Text(HomePresentation.wordMetric(count: words, locale: locale))
+                .font(FontLoader.font(family: .jetbrainsMono, size: 11, weight: .medium))
+                .foregroundStyle(AppColors.textPrimary)
+                .monospacedDigit()
+                .lineLimit(1)
+        }
+        .frame(width: 136, alignment: .leading)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(AppColors.elevatedSurface, in: .rect(cornerRadius: 7))
+        .overlay {
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        }
+        .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 8, y: 4)
+    }
+
+    static func activityColor(intensity: Int) -> Color {
+        switch intensity {
+        case 1: AppColors.accent.opacity(0.24)
+        case 2: AppColors.accent.opacity(0.44)
+        case 3: AppColors.accent.opacity(0.68)
+        case 4: AppColors.accent
+        default: AppColors.border.opacity(0.55)
+        }
+    }
+}
+
+// MARK: - First-run welcome (settings observation isolated)
+
+/// Only this child observes SettingsStore so unrelated settings changes do not
+/// invalidate the rest of the Dashboard.
+private struct DashboardFirstRunWelcome: View {
+    @ObservedObject var settingsStore: SettingsStore
+    @Environment(\.locale) private var locale
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localized("Speak. It's written.", locale: locale))
+                .font(FontLoader.font(family: .newsreader, size: HomeLayoutMetrics.heroFontSize, weight: .regular))
+                .foregroundStyle(AppColors.textPrimary)
+                .tracking(HomeLayoutMetrics.heroTrackingEm * HomeLayoutMetrics.heroFontSize)
+                .lineSpacing(HomeLayoutMetrics.heroLineHeight - HomeLayoutMetrics.heroFontSize)
+
+            let hotkey = settingsStore.toggleHotkey.isEmpty
+                ? localized("⌥Space", locale: locale)
+                : settingsStore.toggleHotkey
+            Text(String(format: localized("Press %@ anywhere to start dictating.", locale: locale), hotkey))
+                .font(AppTypography.bodyMeta)
+                .foregroundStyle(AppColors.textSecondary)
+        }
+    }
+}
+
+// MARK: - Dashboard stats cache
+
+/// Recomputes dashboard aggregates only when the record projection or calendar day changes.
+/// Class init stays nonisolated for `@State` default construction under Swift 5.9;
+/// mutation is method-isolated (`@MainActor` accessors only).
+private final class DashboardStatsCache {
+    struct Key: Equatable {
+        let samples: [StatsSample]
+        let dayStart: Date
+        let firstWeekday: Int
+        let timeZoneIdentifier: String
+    }
+
+    private var key: Key?
+    private var value: DashboardStats = .empty
+
+    @MainActor
+    func stats(for key: Key, calendar: Calendar, now: Date) -> DashboardStats {
+        if self.key == key {
+            return value
+        }
+        self.key = key
+        value = DashboardStatsService.compute(
+            samples: key.samples,
+            calendar: calendar,
+            now: now
+        )
+        return value
+    }
+}
+
+// MARK: - Day-boundary timeline
+
+/// Fires once per calendar midnight (local), not on a fixed wall-clock interval.
+/// Cheap: no per-minute / per-second ticks while the Home window is open.
+private struct HomeDayBoundarySchedule: TimelineSchedule {
+    let calendar: Calendar
+
+    func entries(from startDate: Date, mode: TimelineScheduleMode) -> Entries {
+        Entries(calendar: calendar, startDate: startDate)
+    }
+
+    struct Entries: Sequence, IteratorProtocol {
+        let calendar: Calendar
+        private var upcoming: Date
+
+        init(calendar: Calendar, startDate: Date) {
+            self.calendar = calendar
+            self.upcoming = HomePresentation.nextMidnight(after: startDate, calendar: calendar)
+        }
+
+        mutating func next() -> Date? {
+            let value = upcoming
+            // Advance by one calendar day from this midnight so DST stays correct.
+            upcoming = HomePresentation.nextMidnight(after: value, calendar: calendar)
+            return value
+        }
+    }
+}
+
+#Preview("Dashboard - With Data") {
+    DashboardView(settingsStore: SettingsStore())
+        .modelContainer(PreviewContainer.withSampleData)
+        .frame(width: 800, height: 700)
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dashboard - Empty") {
+    DashboardView(settingsStore: SettingsStore())
+        .modelContainer(PreviewContainer.empty)
+        .frame(width: 800, height: 700)
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dashboard - Dark") {
+    DashboardView(settingsStore: SettingsStore())
+        .modelContainer(PreviewContainer.withSampleData)
+        .frame(width: 800, height: 700)
+        .preferredColorScheme(.dark)
+}

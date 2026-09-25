@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "Nativní aplikace pro diktování na liště nabídek macOS využívající místní převod řeči na text pomocí WhisperKit. 100% místní zpracování ve výchozím nastavení s volitelným vylepšením AI."
 about:
   _self: "O"
-  pindrop: "O Superduper Dictationovi"
+  superduper: "O Superduper Dictationovi"
 accessibility:
   _self: "Přístupnost"
   permission: "Oprávnění usnadnění"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Přidejte mezeru na konci"
   blank_lines_between_sentence_groups_in_longe: "Přidá prázdné řádky mezi skupiny vět u delšího diktování. Plně lokálně, bez AI."
   word_replacements_to_automatically_correct_c: "Přidáním náhrad slov automaticky opravíte běžné chyby v přepisu."
-  words_to_help_pindrop_recognize_them_properl: "Přidejte slova, abyste je Superduper Dictation mohli správně rozpoznat"
+  words_to_help_superduper_recognize_them_properl: "Přidejte slova, abyste je Superduper Dictation mohli správně rozpoznat"
   words_you_manually_correct_into_your_vocabul: "Přidejte slova, která ručně opravíte, do své slovní zásoby pro budoucí přepisy."
 advanced:
   _self: "Pokročilé"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Automatické aktualizace a ruční kontrola aktualizací"
 automatically:
   check_for_new_versions_in_the_back: "Automaticky kontrolovat nové verze na pozadí."
-  start_pindrop_when_you_sign_in: "Automaticky spustit Superduper Dictation, když se přihlásíte."
+  start_superduper_when_you_sign_in: "Automaticky spustit Superduper Dictation, když se přihlásíte."
 available:
   models: "Dostupné modely"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Vyměňte mikrofon"
   your_choice_anytime_in_settings_privacy: "Svou volbu můžete kdykoli změnit v Nastavení → Soukromí."
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
+  the_language_used_by_superduper_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "Zkontrolovat aktualizace..."
   for_updates_736b9062: "Zkontrolujte aktualizace"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Vyberte mezi Nemotron (s interpunkcí, stahovaný model) a Apple SpeechTranscriber (macOS 26+, součást systému)."
   file: "Vyberte soubor"
   how_dictated_text_lands_then_tune_the_fin: "Vyberte, jak bude diktovaný text přistávat, a poté vylaďte konečné chování vkládání."
-  how_pindrop_appears_on_screen_while_you_d: "Zvolte, jak se Superduper Dictation zobrazuje na obrazovce během diktování."
-  how_pindrop_follows_system_appearance_the: "Vyberte, jak Superduper Dictation sleduje vzhled systému, a poté smíchejte upravené světlé a tmavé palety."
+  how_superduper_appears_on_screen_while_you_d: "Zvolte, jak se Superduper Dictation zobrazuje na obrazovce během diktování."
+  how_superduper_follows_system_appearance_the: "Vyberte, jak Superduper Dictation sleduje vzhled systému, a poté smíchejte upravené světlé a tmavé palety."
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Vyberte, jak importovat data slovníku"
   how_to_import_the_preset_data: "Vyberte způsob importu přednastavených dat"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Vyberte denní skořepinu používanou ve světelném režimu."
   the_low_glare_shell_used_in_dark_mode: "Vyberte skořepinu s nízkým oslněním použitou v tmavém režimu."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
+  whether_superduper_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "Vyberte, který mikrofon má Superduper Dictation používat pro diktování a jak se chová při nahrávání."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
+  which_microphone_superduper_should_use_for_d: "Vyberte, který mikrofon má Superduper Dictation používat pro diktování a jak se chová při nahrávání."
+  which_microphone_superduper_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "Vyberte, na které straně se zobrazí postranní navigační panel."
   where_to_save_the_training_data_file: "Zvolte, kam uložit soubor s trénovacími daty."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Pokračujte s Výchozí"
   without: "Pokračovat bez"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Určete, jak se Superduper Dictation zobrazí v macOS a zda se spustí s vaší relací na ploše."
+  how_superduper_appears_in_macos_and_whether: "Určete, jak se Superduper Dictation zobrazí v macOS a zda se spustí s vaší relací na ploše."
 controls:
 copied:
   _self: "Zkopírováno!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Zobrazovaný název"
   name_c7874aaa: "Zobrazovaný název"
-  pindrop_in_the_dock_instead_of_running_o: "Zobrazte Superduper Dictation v doku místo toho, aby běžel pouze jako aplikace na liště nabídek."
+  superduper_in_the_dock_instead_of_running_o: "Zobrazte Superduper Dictation v doku místo toho, aby běžel pouze jako aplikace na liště nabídek."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Ukotvete postranní panel k levému nebo pravému okraji okna."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Velký"
 help:
   _self: "Nápověda"
-  improve_pindrop: "Pomoct vylepšit Superduper Dictation?"
+  improve_superduper: "Pomoct vylepšit Superduper Dictation?"
 hide:
   api_key: "Skrýt API klíč"
   this_for_1_hour: "Skryjte to na 1 hodinu"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "japonský"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Udržujte Superduper Dictation aktuální automaticky nebo spusťte ruční kontrolu, kdykoli budete chtít."
+  superduper_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  superduper_current_automatically_or_trigger_a: "Udržujte Superduper Dictation aktuální automaticky nebo spusťte ruční kontrolu, kdykoli budete chtít."
   before_and_after_text_pairs_when_ai_enhance: "Uchovávejte textové páry před a po, když vylepšení pomocí AI nebo vaše úpravy zlepší přepis. Uloženo pouze v tomto Macu — nic se nenahrává."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Nechte Superduper Dictation tiše se učit slovní zásobu z oprav, které v průběhu času uděláte."
+  superduper_quietly_learn_vocabulary_from_the_co: "Nechte Superduper Dictation tiše se učit slovní zásobu z oprav, které v průběhu času uděláte."
 library:
   _self: "Knihovna"
 license:
@@ -1018,7 +1018,7 @@ pill:
   _self: "Pilulka"
 pin:
   to_screen_always_on_top: "Připnout na obrazovku (vždy nahoře)"
-pindrop:
+superduper:
   _self: "Superduper Dictation"
   1_19: "Superduper Dictation 1.19"
   help: "Nápověda Superduper Dictation"
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "Zavolej `fetchUser` -> pak namapuj odpověď `==` 200."
   name: "Název předvolby"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Stisknutím a podržením můžete diktovat v libovolné aplikaci. Superduper Dictation přepíše vaši řeč a vloží text tam, kde je váš kurzor."
+  and_hold_to_dictate_in_any_app_superduper_wil: "Stisknutím a podržením můžete diktovat v libovolné aplikaci. Superduper Dictation přepíše vaši řeč a vloží text tam, kde je váš kurzor."
   esc_to_cancel: "Pro zrušení stiskněte Esc"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Stisknutím klávesy Escape dvakrát zrušíte nahrávání. Pokud je vypnuto, stačí jedno stisknutí."
   keys: "Stiskněte klávesy..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "Rychle stáhněte svůj nejnovější přepis zpět do schránky."
 quit:
   _self: "Přestat"
-  pindrop: "Ukončete Superduper Dictation"
+  superduper: "Ukončete Superduper Dictation"
 ready:
   _self: "Připraveno"
   ec1296e1: "● Připraveno"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Přejmenovat"
   folder: "Přejmenovat složku"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
+  speakers_in_transcripts_to_teach_superduper: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "Nahradit vše"
   words_and_phrases: "Nahraďte slova a fráze"
@@ -1227,7 +1227,7 @@ select:
   all: "Vyberte Vše"
   language: "Vyberte Jazyk"
   language_daea52c9: "Vyberte jazyk"
-  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
+  the_language_superduper_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "Vyberte tento styl plovoucího indikátoru."
   voice_model: "Vyberte Hlasový model"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Spusťte nahrávání"
   recording_to_see_your_transcriptions_here: "Chcete-li zde vidět své přepisy, spusťte nahrávání"
   stop_recording: "Spuštění/zastavení nahrávání"
-  using_pindrop: "Začněte používat Superduper Dictation"
+  using_superduper: "Začněte používat Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "Spustit v řádku nabídek bez otevření hlavního okna. Okno stále můžete otevřít z ikony v řádku nabídek."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Časová razítka (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "diktovat a nechat Superduper Dictation přepisovat za vás"
+  dictate_and_let_superduper_transcribe_for_you: "diktovat a nechat Superduper Dictation přepisovat za vás"
   start_talking: "začít mluvit"
 today:
   _self: "Dnes"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
+  u7_teach_superduper_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1616,7 +1616,7 @@ u9:
   onboarding_download_background_hint: "Pokračujte v nastavení během stahování — dokončíme ho na pozadí."
   onboarding_enable_enhancement: "Zapnout vylepšení"
   onboarding_granted_state: "Uděleno"
-  onboarding_pindrop_writes: "Superduper Dictation napíše"
+  onboarding_superduper_writes: "Superduper Dictation napíše"
   onboarding_ready_heading: "Vše je připraveno."
   onboarding_ready_instruction_format: "Stiskněte %@ a začněte mluvit — Superduper Dictation píše všude, kde je kurzor."
   onboarding_try_it_now: "Vyzkoušet nyní"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Vítejte v destinaci Superduper Dictation"
+  to_superduper: "Vítejte v destinaci Superduper Dictation"
 what:
   s_new: "Co je nového…"
-  s_new_in_pindrop: "Co je nového v Superduper Dictationu"
-  does_pindrop_collect: "Co Superduper Dictation shromažďuje?"
+  s_new_in_superduper: "Co je nového v Superduper Dictationu"
+  does_superduper_collect: "Co Superduper Dictation shromažďuje?"
 while:
   recording: "Během nahrávání"
 whisperkit:

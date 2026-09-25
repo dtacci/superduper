@@ -1,6 +1,6 @@
 # Build guide
 
-The Xcode project, scheme, and Swift module retain the inherited name `Pindrop`;
+The Xcode project, scheme, and Swift module are named `SuperduperDictation`;
 the built application is `Superduper Dictation.app`.
 
 ## Prerequisites
@@ -52,7 +52,7 @@ A public release should use:
 
 1. An Apple Developer Program account.
 2. A Developer ID Application certificate.
-3. Hardened runtime and the minimal entitlements in `Pindrop/Pindrop.entitlements`.
+3. Hardened runtime and the minimal entitlements in `SuperduperDictation/SuperduperDictation.entitlements`.
 4. Apple notarization and ticket stapling.
 5. Signature verification on the exact artifact being uploaded.
 
