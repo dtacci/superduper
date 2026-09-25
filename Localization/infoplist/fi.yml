@@ -1,12 +1,12 @@
 cfbundledisplayname:
-  _self: "Pindrop"
+  _self: "Superduper Dictation"
 cfbundlename:
-  _self: "Pindrop"
+  _self: "Superduper Dictation"
 nsaudiocaptureusagedescription:
-  _self: "Pindrop tarvitsee järjestelmän äänen pääsyn puheluiden, kokousten ja muiden sovellusten äänien litterointiin."
+  _self: "Superduper Dictation tarvitsee järjestelmän äänen pääsyn puheluiden, kokousten ja muiden sovellusten äänien litterointiin."
 nshumanreadablecopyright:
   _self: ""
 nsmicrophoneusagedescription:
-  _self: "Pindrop tarvitsee mikrofonin pääsyn äänesi litteroimiseen."
+  _self: "Superduper Dictation tarvitsee mikrofonin pääsyn äänesi litteroimiseen."
 nsspeechrecognitionusagedescription:
-  _self: "Pindrop käyttää laitteen puheentunnistusta äänen litteroimiseen lähettämättä tietoja millekään palvelimelle."
+  _self: "Superduper Dictation käyttää laitteen puheentunnistusta äänen litteroimiseen lähettämättä tietoja millekään palvelimelle."

@@ -438,7 +438,7 @@ private actor MediaAudioPreparationWorker {
 
     private func ffmpegTranscode(mediaURL: URL, ffmpegPath: String) async throws -> URL {
         let outputURL = temporaryDirectory
-            .appendingPathComponent("pindrop-prep-\(UUID().uuidString)")
+            .appendingPathComponent("superduper-dictation-prep-\(UUID().uuidString)")
             .appendingPathExtension("wav")
         let outputCleanup = DeferredProcessOutputCleanup(fileManager: fileManager, outputURL: outputURL)
         if fileManager.fileExists(atPath: outputURL.path) {
@@ -531,7 +531,7 @@ private actor MediaAudioPreparationWorker {
         }
 
         let outputURL = temporaryDirectory
-            .appendingPathComponent("pindrop-export-\(UUID().uuidString)")
+            .appendingPathComponent("superduper-dictation-export-\(UUID().uuidString)")
             .appendingPathExtension("m4a")
 
         if fileManager.fileExists(atPath: outputURL.path) {

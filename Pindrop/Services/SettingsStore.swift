@@ -599,7 +599,9 @@ final class SettingsStore: ObservableObject {
 
    // MARK: - Keychain Properties
 
-   private let keychainService = "com.pindrop.settings"
+   private let keychainService = "com.dantacci.superduper-dictation.settings"
+   /// Where builds from before the rename kept secrets; moved on first read.
+   private let legacyKeychainService = "com.pindrop.settings"
    private let apiEndpointAccount = "api-endpoint"
    /// Per Custom / Ollama / LM Studio endpoint storage (OpenAI-compatible URLs).
    private func apiEndpointCustomAccount(for type: CustomProviderType) -> String {
@@ -865,6 +867,14 @@ final class SettingsStore: ObservableObject {
        // for one release as a rollback path.
        migrateToAIConfigV2IfNeeded()
        migrateOutputModeToCopyOnlySemanticsIfNeeded()
+       migrateRenamedThemePresetIDs()
+    }
+
+    /// The amber theme's ID was "pindrop" before the rename.
+    private func migrateRenamedThemePresetIDs() {
+       let renamed = PindropThemePresetCatalog.renamedPresetIDs
+       if let newID = renamed[lightThemePresetID] { lightThemePresetID = newID }
+       if let newID = renamed[darkThemePresetID] { darkThemePresetID = newID }
     }
 
     /// The UserDefaults instance backing @AppStorage (isolated suite under tests,
@@ -1611,9 +1621,25 @@ final class SettingsStore: ObservableObject {
          return Self.inMemoryKeychainStorage[account]
       }
 
+      if let value = try keychainValue(account: account, service: keychainService) {
+         return value
+      }
+      guard let legacyValue = try? keychainValue(account: account, service: legacyKeychainService) else {
+         return nil
+      }
+      do {
+         try saveToKeychain(value: legacyValue, account: account)
+         try deleteKeychainItem(account: account, service: legacyKeychainService)
+      } catch {
+         Log.app.warning("Could not move a Keychain item to the renamed service: \(error.localizedDescription)")
+      }
+      return legacyValue
+   }
+
+   private func keychainValue(account: String, service: String) throws -> String? {
       let query: [String: Any] = [
          kSecClass as String: kSecClassGenericPassword,
-         kSecAttrService as String: keychainService,
+         kSecAttrService as String: service,
          kSecAttrAccount as String: account,
          kSecReturnData as String: true,
          kSecMatchLimit as String: kSecMatchLimitOne,
@@ -1644,9 +1670,14 @@ final class SettingsStore: ObservableObject {
          return
       }
 
+      try deleteKeychainItem(account: account, service: keychainService)
+      try deleteKeychainItem(account: account, service: legacyKeychainService)
+   }
+
+   private func deleteKeychainItem(account: String, service: String) throws {
       let query: [String: Any] = [
          kSecClass as String: kSecClassGenericPassword,
-         kSecAttrService as String: keychainService,
+         kSecAttrService as String: service,
          kSecAttrAccount as String: account,
       ]
 

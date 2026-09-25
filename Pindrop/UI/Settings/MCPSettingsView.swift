@@ -394,7 +394,7 @@ enum MCPClient: String, CaseIterable, Identifiable {
             """
             {
               "mcpServers": {
-                "pindrop": {
+                "superduper-dictation": {
                   "type": "http",
                   "url": "http://localhost:\(port)/mcp",
                   "headers": {
@@ -408,7 +408,7 @@ enum MCPClient: String, CaseIterable, Identifiable {
             """
             {
               "mcpServers": {
-                "pindrop": {
+                "superduper-dictation": {
                   "url": "http://localhost:\(port)/mcp",
                   "headers": {
                     "Authorization": "Bearer \(token)"
@@ -419,7 +419,7 @@ enum MCPClient: String, CaseIterable, Identifiable {
             """
         case .codex:
             """
-            [mcp_servers.pindrop]
+            [mcp_servers.superduper-dictation]
             url = "http://localhost:\(port)/mcp"
             http_headers = { "Authorization" = "Bearer \(token)" }
             """
@@ -428,7 +428,7 @@ enum MCPClient: String, CaseIterable, Identifiable {
             {
               "$schema": "https://opencode.ai/config.json",
               "mcp": {
-                "pindrop": {
+                "superduper-dictation": {
                   "type": "remote",
                   "url": "http://localhost:\(port)/mcp",
                   "headers": {

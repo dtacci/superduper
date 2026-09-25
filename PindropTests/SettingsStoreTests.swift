@@ -48,6 +48,19 @@ struct SettingsStoreTests {
         #expect(relaunched.outputMode == "clipboard")
     }
 
+    @Test func renamedThemePresetIDsMigrateOnLaunch() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        let store = SettingsStore.backingUserDefaults
+        store.set("pindrop", forKey: PindropThemeStorageKeys.lightThemePresetID)
+        store.set("paper", forKey: PindropThemeStorageKeys.darkThemePresetID)
+
+        let migrated = SettingsStore()
+        #expect(migrated.lightThemePresetID == "superduper")
+        #expect(migrated.darkThemePresetID == "paper")
+    }
+
     @Test func testSaveAndLoadSettings() {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }

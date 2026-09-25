@@ -451,7 +451,7 @@ extension AudioCaptureUtilities {
         let outputURL = isPersistent
             ? microphone.fileURL.deletingLastPathComponent().appendingPathComponent("capture-mixed.pcm")
             : FileManager.default.temporaryDirectory
-                .appendingPathComponent("pindrop-mixed-audio-\(UUID().uuidString).pcm")
+                .appendingPathComponent("superduper-dictation-mixed-audio-\(UUID().uuidString).pcm")
         if FileManager.default.fileExists(atPath: outputURL.path) {
             try FileManager.default.removeItem(at: outputURL)
         }
@@ -637,7 +637,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
                 url = persistentURL
             } else {
                 url = FileManager.default.temporaryDirectory
-                    .appendingPathComponent("pindrop-audio-\(UUID().uuidString).pcm")
+                    .appendingPathComponent("superduper-dictation-audio-\(UUID().uuidString).pcm")
             }
             guard FileManager.default.createFile(atPath: url.path, contents: nil) else {
                 throw AudioRecorderError.engineStartFailed("Unable to create temporary audio spool")

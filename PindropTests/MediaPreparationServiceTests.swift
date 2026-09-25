@@ -94,7 +94,7 @@ struct MediaPreparationServiceTests {
     private func waitForPartialOutput(in directory: URL) async -> Bool {
         for _ in 0..<100 {
             let names = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
-            if names.contains(where: { $0.hasPrefix("pindrop-prep-") }) {
+            if names.contains(where: { $0.hasPrefix("superduper-dictation-prep-") }) {
                 return true
             }
             try? await Task.sleep(nanoseconds: 10_000_000)
@@ -104,7 +104,7 @@ struct MediaPreparationServiceTests {
 
     private func firstPartialOutput(in directory: URL) -> URL? {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
-        return names.first(where: { $0.hasPrefix("pindrop-prep-") })
+        return names.first(where: { $0.hasPrefix("superduper-dictation-prep-") })
             .map { directory.appendingPathComponent($0) }
     }
 

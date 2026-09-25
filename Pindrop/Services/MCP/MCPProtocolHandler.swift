@@ -50,7 +50,7 @@ enum MCPProtocolHandler {
             "protocolVersion": .string("2024-11-05"),
             "capabilities": .object(["tools": .object([:])]),
             "serverInfo": .object([
-                "name": .string("pindrop"),
+                "name": .string("superduper-dictation"),
                 "version": .string(Bundle.main.appShortVersionString)
             ])
         ])

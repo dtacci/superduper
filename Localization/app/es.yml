@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "Una app nativa de dictado para la barra de menús de macOS que usa voz a texto local con WhisperKit. Procesamiento 100% local por defecto con mejora opcional con IA."
 about:
   _self: "Acerca de"
-  pindrop: "Acerca de Pindrop"
+  pindrop: "Acerca de Superduper Dictation"
 accessibility:
   _self: "Accesibilidad"
   permission: "Permiso de accesibilidad"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Añadir espacio al final"
   blank_lines_between_sentence_groups_in_longe: "Añade líneas en blanco entre grupos de oraciones en dictados largos. Totalmente local, sin IA."
   word_replacements_to_automatically_correct_c: "Añade reemplazos de palabras para corregir automáticamente errores comunes de transcripción."
-  words_to_help_pindrop_recognize_them_properl: "Add words to help Pindrop recognize them properly"
+  words_to_help_pindrop_recognize_them_properl: "Add words to help Superduper Dictation recognize them properly"
   words_you_manually_correct_into_your_vocabul: "Añade palabras que corrijas manualmente a tu vocabulario para futuras transcripciones."
 advanced:
   _self: "Avanzado"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Actualizaciones automáticas y verificación manual"
 automatically:
   check_for_new_versions_in_the_back: "Buscar automáticamente nuevas versiones en segundo plano."
-  start_pindrop_when_you_sign_in: "Inicia Pindrop automáticamente cuando entres."
+  start_pindrop_when_you_sign_in: "Inicia Superduper Dictation automáticamente cuando entres."
 available:
   models: "Modelos disponibles"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Change microphone"
   your_choice_anytime_in_settings_privacy: "Cambia tu elección cuando quieras en Ajustes → Privacidad."
 changes:
-  the_language_used_by_pindrop_s_interface: "Cambia el idioma de la interfaz de Pindrop."
+  the_language_used_by_pindrop_s_interface: "Cambia el idioma de la interfaz de Superduper Dictation."
 check:
   for_updates: "Buscar actualizaciones..."
   for_updates_736b9062: "Buscar actualizaciones"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Elige entre Nemotron (con puntuación, modelo descargado) y Apple SpeechTranscriber (macOS 26+, incluido con el sistema)."
   file: "Elegir archivo"
   how_dictated_text_lands_then_tune_the_fin: "Choose how dictated text lands, then tune the final insertion behavior."
-  how_pindrop_appears_on_screen_while_you_d: "Elige cómo aparece Pindrop en pantalla mientras dictas."
-  how_pindrop_follows_system_appearance_the: "Elige cómo Pindrop sigue la apariencia del sistema, luego mezcla paletas claras y oscuras curadas."
+  how_pindrop_appears_on_screen_while_you_d: "Elige cómo aparece Superduper Dictation en pantalla mientras dictas."
+  how_pindrop_follows_system_appearance_the: "Elige cómo Superduper Dictation sigue la apariencia del sistema, luego mezcla paletas claras y oscuras curadas."
   how_recording_and_processing_status_appea: "Elige cómo se muestra el estado de grabación y procesamiento mientras trabajas."
   how_to_import_the_dictionary_data: "Elige cómo importar los datos del diccionario"
   how_to_import_the_preset_data: "Elige cómo importar los datos del preajuste"
@@ -368,10 +368,10 @@ choose:
   model: "Elegir modelo…"
   the_daytime_shell_used_in_light_mode: "Elige la interfaz diurna usada en modo claro."
   the_low_glare_shell_used_in_dark_mode: "Elige la interfaz de bajo brillo usada en modo oscuro."
-  whether_pindrop_starts_when_you_sign_in_a: "Elige si Pindrop se inicia al iniciar sesión y aparece en el Dock."
+  whether_pindrop_starts_when_you_sign_in_a: "Elige si Superduper Dictation se inicia al iniciar sesión y aparece en el Dock."
   which_edge_of_the_main_window_holds_the_n: "Elige en qué lado de la ventana principal está la barra de navegación."
-  which_microphone_pindrop_should_use_for_d: "Choose which microphone Pindrop should use for dictation and how it behaves while recording."
-  which_microphone_pindrop_uses_for_dictati: "Elige el micrófono que Pindrop usa para el dictado."
+  which_microphone_pindrop_should_use_for_d: "Choose which microphone Superduper Dictation should use for dictation and how it behaves while recording."
+  which_microphone_pindrop_uses_for_dictati: "Elige el micrófono que Superduper Dictation usa para el dictado."
   which_side_the_navigation_sidebar_appears: "Elige en qué lado aparece la barra de navegación lateral."
   where_to_save_the_training_data_file: "Elige dónde guardar el archivo de datos de entrenamiento."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Continuar con predeterminado"
   without: "Continuar sin"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Control how Pindrop appears in macOS and whether it starts with your desktop session."
+  how_pindrop_appears_in_macos_and_whether: "Control how Superduper Dictation appears in macOS and whether it starts with your desktop session."
 controls:
 copied:
   _self: "¡Copiado!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Nombre para mostrar"
   name_c7874aaa: "Nombre para mostrar"
-  pindrop_in_the_dock_instead_of_running_o: "Muestra Pindrop en el Dock en lugar de ejecutarlo solo como app de barra de menús."
+  pindrop_in_the_dock_instead_of_running_o: "Muestra Superduper Dictation en el Dock en lugar de ejecutarlo solo como app de barra de menús."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Ancla la barra lateral al borde izquierdo o derecho de la ventana."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Excelente"
 help:
   _self: "Ayuda"
-  improve_pindrop: "¿Ayudar a mejorar Pindrop?"
+  improve_pindrop: "¿Ayudar a mejorar Superduper Dictation?"
 hide:
   api_key: "Ocultar clave API"
   this_for_1_hour: "Hide this for 1 hour"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "Japonés"
 keep:
-  pindrop_current_automatically_or_check_for: "Mantén Pindrop actualizado automáticamente o busca una nueva versión ahora."
-  pindrop_current_automatically_or_trigger_a: "Mantén Pindrop actualizado automáticamente, o activa una búsqueda manual cuando quieras."
+  pindrop_current_automatically_or_check_for: "Mantén Superduper Dictation actualizado automáticamente o busca una nueva versión ahora."
+  pindrop_current_automatically_or_trigger_a: "Mantén Superduper Dictation actualizado automáticamente, o activa una búsqueda manual cuando quieras."
   before_and_after_text_pairs_when_ai_enhance: "Conserva pares de texto de antes y después cuando la mejora con IA o tus ediciones mejoren una transcripción. Se guardan solo en este Mac — no se sube nada."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Deja que Pindrop aprenda vocabulario silenciosamente de las correcciones que hagas con el tiempo."
+  pindrop_quietly_learn_vocabulary_from_the_co: "Deja que Superduper Dictation aprenda vocabulario silenciosamente de las correcciones que hagas con el tiempo."
 library:
   _self: "Biblioteca"
 license:
@@ -822,7 +822,7 @@ low:
 main:
   window: "Ventana principal"
 manage:
-  local_speech_models_feature_models_and_th: "Gestiona los modelos de voz locales, los modelos de funciones y el motor predeterminado que Pindrop usa para la transcripción."
+  local_speech_models_feature_models_and_th: "Gestiona los modelos de voz locales, los modelos de funciones y el motor predeterminado que Superduper Dictation usa para la transcripción."
   models: "Gestionar modelos"
   presets: "Gestionar preajustes"
   presets_ab87986d: "Gestionar preajustes..."
@@ -1019,24 +1019,24 @@ pill:
 pin:
   to_screen_always_on_top: "Fijar en pantalla (siempre visible)"
 pindrop:
-  _self: "Pindrop"
-  1_19: "Pindrop 1.19"
-  help: "Ayuda de Pindrop"
+  _self: "Superduper Dictation"
+  1_19: "Superduper Dictation 1.19"
+  help: "Ayuda de Superduper Dictation"
   is_ready_to_use_click_the_menu_bar_icon: |-
-    Pindrop está listo para usar.
+    Superduper Dictation está listo para usar.
     Haz clic en el icono de la barra de menús para empezar.
-  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop is ready to use.nClick the menu bar icon to get started."
-  needs_a_few_permissions_to_work_nyour_pr: "Pindrop needs a few permissions to work.nYour privacy is always respected."
+  is_ready_to_use_nclick_the_menu_bar_icon: "Superduper Dictation is ready to use.nClick the menu bar icon to get started."
+  needs_a_few_permissions_to_work_nyour_pr: "Superduper Dictation needs a few permissions to work.nYour privacy is always respected."
   needs_a_few_permissions_to_work_your_pri: |-
-    Pindrop necesita algunos permisos para funcionar.
+    Superduper Dictation necesita algunos permisos para funcionar.
     Tu privacidad siempre se respeta.
-  needs_accessibility_permission_to_insert: "\"\"             Pindrop needs Accessibility permission to insert text at your cursor.                          To grant permission:             1. Click \"Open System Settings\" below             2. Click the + button             3. Navigate to the app shown in Finder             4. Restart Pindrop after granting permission                          Without this permission, text will only be copied to your clipboard.             \"\""
-  needs_microphone_access_to_record_and_tr: "Pindrop needs microphone access to record and transcribe your voice.nnPlease grant permission in System Settings."
-  on_github: "Pindrop en GitHub"
-  orb: "Orbe de Pindrop"
-  pill: "Pindrop Pill"
-  theme: "Tema de Pindrop"
-  can_send_anonymous_privacy_preserving_si: "Pindrop puede enviar señales anónimas que respetan tu privacidad para que los errores se corrijan más rápido."
+  needs_accessibility_permission_to_insert: "\"\"             Superduper Dictation needs Accessibility permission to insert text at your cursor.                          To grant permission:             1. Click \"Open System Settings\" below             2. Click the + button             3. Navigate to the app shown in Finder             4. Restart Superduper Dictation after granting permission                          Without this permission, text will only be copied to your clipboard.             \"\""
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation needs microphone access to record and transcribe your voice.nnPlease grant permission in System Settings."
+  on_github: "Superduper Dictation en GitHub"
+  orb: "Orbe de Superduper Dictation"
+  pill: "Superduper Dictation Pill"
+  theme: "Tema de Superduper Dictation"
+  can_send_anonymous_privacy_preserving_si: "Superduper Dictation puede enviar señales anónimas que respetan tu privacidad para que los errores se corrijan más rápido."
 pinned:
   _self: "Fijadas"
 plain:
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "Llama a `fetchUser` -> luego mapea la respuesta `==` 200."
   name: "Nombre del preajuste"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Mantén pulsado para dictar en cualquier app. Pindrop transcribirá tu voz e insertará el texto donde esté el cursor."
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Mantén pulsado para dictar en cualquier app. Superduper Dictation transcribirá tu voz e insertará el texto donde esté el cursor."
   esc_to_cancel: "Pulsa Esc para cancelar"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Pulsa Escape dos veces para cancelar una grabación. Si está desactivado, una sola pulsación cancela."
   keys: "Pulsa las teclas..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "Rápidamente vuelve a poner tu última transcripción en el portapapeles."
 quit:
   _self: "Quit"
-  pindrop: "Salir de Pindrop"
+  pindrop: "Salir de Superduper Dictation"
 ready:
   _self: "Listo"
   ec1296e1: "● Ready"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Rebautizar"
   folder: "Renombrar carpeta"
   participant: "Renombrar participante"
-  speakers_in_transcripts_to_teach_pindrop: "Renombra oradores en las transcripciones para que Pindrop aprenda a reconocer voces."
+  speakers_in_transcripts_to_teach_pindrop: "Renombra oradores en las transcripciones para que Superduper Dictation aprenda a reconocer voces."
 replace:
   all: "Reemplazar todo"
   words_and_phrases: "Replace words and phrases"
@@ -1227,7 +1227,7 @@ select:
   all: "Select All"
   language: "Select Language"
   language_daea52c9: "Select language"
-  the_language_pindrop_should_expect_when_t: "Selecciona el idioma que Pindrop debe esperar al transcribir."
+  the_language_pindrop_should_expect_when_t: "Selecciona el idioma que Superduper Dictation debe esperar al transcribir."
   this_floating_indicator_style: "Selecciona este estilo de indicador flotante."
   voice_model: "Select Voice Model"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Empezar a grabar"
   recording_to_see_your_transcriptions_here: "Empieza a grabar para ver aquí tus transcripciones"
   stop_recording: "Start/stop recording"
-  using_pindrop: "Empezar a usar Pindrop"
+  using_pindrop: "Empezar a usar Superduper Dictation"
   in_the_menu_bar_without_opening_the_main_w: "Inicia en la barra de menús sin abrir la ventana principal. Aún puedes abrirla desde el icono de la barra de menús."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Marcas de tiempo (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "para dictar y dejar que Pindrop transcriba por ti"
+  dictate_and_let_pindrop_transcribe_for_you: "para dictar y dejar que Superduper Dictation transcriba por ti"
   start_talking: "to start talking"
 today:
   _self: "Hoy"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Los reemplazos se ejecutan en orden. Arrastra filas para reordenar: gana la primera coincidencia."
   u7_replacements_section: "Reemplazos"
   u7_speech_to_text: "Voz a texto"
-  u7_teach_pindrop_your_words: "Enseña a Pindrop tus palabras"
+  u7_teach_pindrop_your_words: "Enseña a Superduper Dictation tus palabras"
   u7_unpin: "Desanclar"
   u7_untitled_note: "Nota sin título"
   u7_words_recognizer_should_trust: "Palabras en las que el reconocedor debe confiar"
@@ -1557,9 +1557,9 @@ u8:
   settings_audio_on_disk_format: "Audio en disco: %@ · %@"
   settings_beta_channel: "Beta"
   settings_bundled_fonts_ofl: "Las fuentes incluidas (Newsreader, Inter, JetBrains Mono) están bajo la SIL Open Font License."
-  settings_checks_for_updates_automatically: "Pindrop busca actualizaciones automáticamente."
+  settings_checks_for_updates_automatically: "Superduper Dictation busca actualizaciones automáticamente."
   settings_choose_a_provider: "Elegir un proveedor"
-  settings_choose_folder_export_logs: "Elige una carpeta para copiar los archivos de registro de Pindrop."
+  settings_choose_folder_export_logs: "Elige una carpeta para copiar los archivos de registro de Superduper Dictation."
   settings_copy_last_transcript: "Copiar última transcripción"
   settings_copy_token: "Copiar token"
   settings_days_30: "30 días"
@@ -1610,15 +1610,15 @@ u8:
   settings_warning: "Advertencia"
   settings_website: "Sitio web"
 u9:
-  onboarding_accessibility_clipboard_fallback: "Sin Accesibilidad, Pindrop copia el texto al portapapeles."
+  onboarding_accessibility_clipboard_fallback: "Sin Accesibilidad, Superduper Dictation copia el texto al portapapeles."
   onboarding_change_hotkey_hint: "Pulsa otra combinación para cambiarla"
   onboarding_download_amount_format: "%@ de %@"
   onboarding_download_background_hint: "Sigue configurando mientras se descarga; terminaremos en segundo plano."
   onboarding_enable_enhancement: "Activar mejora"
   onboarding_granted_state: "Concedido"
-  onboarding_pindrop_writes: "Pindrop escribe"
+  onboarding_pindrop_writes: "Superduper Dictation escribe"
   onboarding_ready_heading: "Todo listo."
-  onboarding_ready_instruction_format: "Pulsa %@ y empieza a hablar: Pindrop escribe donde esté el cursor."
+  onboarding_ready_instruction_format: "Pulsa %@ y empieza a hablar: Superduper Dictation escribe donde esté el cursor."
   onboarding_try_it_now: "Pruébalo ahora"
   onboarding_you_say: "Tú dices"
 ukrainian:
@@ -1665,7 +1665,7 @@ via:
 vibe:
   mode: "Vibe Mode"
   mode_captures_structured_ui_context_when_re: "El modo vibe captura contexto estructurado de la UI cuando empieza la grabación para que la mejora con IA pueda usar el estado de tu app activa como referencia."
-  mode_works_best_with_accessibility_permissi: "El modo vibe funciona mejor con el permiso de Accesibilidad. Sin él, Pindrop recurre a metadatos limitados de la app y la transcripción sigue funcionando con normalidad."
+  mode_works_best_with_accessibility_permissi: "El modo vibe funciona mejor con el permiso de Accesibilidad. Sin él, Superduper Dictation recurre a metadatos limitados de la app y la transcripción sigue funcionando con normalidad."
 view:
   _self: "Ver"
   all: "Ver todo"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Bienvenido a Pindrop"
+  to_pindrop: "Bienvenido a Superduper Dictation"
 what:
   s_new: "Novedades…"
-  s_new_in_pindrop: "Novedades de Pindrop"
-  does_pindrop_collect: "¿Qué recopila Pindrop?"
+  s_new_in_pindrop: "Novedades de Superduper Dictation"
+  does_pindrop_collect: "¿Qué recopila Superduper Dictation?"
 while:
   recording: "Durante la grabación"
 whisperkit:
@@ -1742,7 +1742,7 @@ whatsnew:
   sensevoice_body: "Las devoluciones de llamada en streaming, el apagado y las actualizaciones de UI en vivo ahora se mantienen ordenados y eficientes."
   sensevoice_title: "Dictado más fiable"
   summary: "Diagnósticos privados, historial editable, información de rendimiento más profunda y dictado más fiable."
-  version_line: "Pindrop 1.22.0 · julio de 2026"
+  version_line: "Superduper Dictation 1.22.0 · julio de 2026"
 privacy:
   _self: "Privacidad"
 share:

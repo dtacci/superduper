@@ -2062,7 +2062,7 @@ struct OrbWaveformPalette: Equatable {
                 glowHex: "#1F6D53",
                 glowOpacity: 0.45
             )
-        case "pindrop":
+        case "superduper", "pindrop":
             return OrbWaveformPalette(
                 primaryHex: "#F2B54A",
                 secondaryHex: "#F7E3BC",

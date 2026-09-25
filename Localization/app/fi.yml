@@ -201,7 +201,7 @@ a:
   native_macos_menu_bar_dictation_app_using_loca: "Natiivi macOS-valikkopalkin sanelusovellus, joka käyttää paikallista puheen muuntamista tekstiksi WhisperKitin kanssa. 100 % paikallinen käsittely oletuksena valinnaisella AI-parannuksella."
 about:
   _self: "Noin"
-  pindrop: "Tietoja Pindropista"
+  pindrop: "Tietoja Superduper Dictationista"
 accessibility:
   _self: "Esteettömyys"
   permission: "Käyttöoikeus: Käyttöapu"
@@ -233,7 +233,7 @@ add:
   trailing_space: "Lisää lopputila"
   blank_lines_between_sentence_groups_in_longe: "Lisää tyhjiä rivejä lauseryhmien väliin pidemmässä sanelussa. Täysin paikallinen, ei tekoälyä."
   word_replacements_to_automatically_correct_c: "Korjaa yleiset transkriptiovirheet automaattisesti lisäämällä sanankorvauksia."
-  words_to_help_pindrop_recognize_them_properl: "Lisää sanoja auttaaksesi Pindropia tunnistamaan ne oikein"
+  words_to_help_pindrop_recognize_them_properl: "Lisää sanoja auttaaksesi Superduper Dictationia tunnistamaan ne oikein"
   words_you_manually_correct_into_your_vocabul: "Lisää manuaalisesti korjaamasi sanat sanastoon tulevia transkriptioita varten."
 advanced:
   _self: "Lisäasetukset"
@@ -301,7 +301,7 @@ automatic:
   updates_and_manual_update_checks: "Automaattiset päivitykset ja manuaaliset päivitystarkistukset"
 automatically:
   check_for_new_versions_in_the_back: "Tarkista automaattisesti uudet versiot taustalla."
-  start_pindrop_when_you_sign_in: "Käynnistä Pindrop automaattisesti, kun kirjaudut sisään."
+  start_pindrop_when_you_sign_in: "Käynnistä Superduper Dictation automaattisesti, kun kirjaudut sisään."
 available:
   models: "Saatavilla olevat mallit"
 average:
@@ -342,7 +342,7 @@ change:
   microphone_ac9970f4: "Vaihda mikrofoni"
   your_choice_anytime_in_settings_privacy: "Muuta valintasi milloin tahansa kohdassa Asetukset → Tietosuoja."
 changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Superduper Dictation's interface."
 check:
   for_updates: "Tarkista päivitykset..."
   for_updates_736b9062: "Tarkista päivitykset"
@@ -358,8 +358,8 @@ choose:
   between_nemotron_punctuated_downloaded_mo: "Valitse Nemotron (välimerkit, ladattava malli) tai Apple SpeechTranscriber (macOS 26+, mukana järjestelmässä)."
   file: "Valitse tiedosto"
   how_dictated_text_lands_then_tune_the_fin: "Valitse sanelun tekstin saapumistapa ja säädä lopullinen lisäyskäyttäytyminen."
-  how_pindrop_appears_on_screen_while_you_d: "Valitse, miten Pindrop näkyy näytöllä sanelun aikana."
-  how_pindrop_follows_system_appearance_the: "Valitse, miten Pindrop seuraa järjestelmän ulkonäköä, ja sekoita sitten kuratoituja vaaleita ja tummia paletteja."
+  how_pindrop_appears_on_screen_while_you_d: "Valitse, miten Superduper Dictation näkyy näytöllä sanelun aikana."
+  how_pindrop_follows_system_appearance_the: "Valitse, miten Superduper Dictation seuraa järjestelmän ulkonäköä, ja sekoita sitten kuratoituja vaaleita ja tummia paletteja."
   how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Valitse, kuinka sanakirjatiedot tuodaan"
   how_to_import_the_preset_data: "Valitse, kuinka esiasetetut tiedot tuodaan"
@@ -368,10 +368,10 @@ choose:
   model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Valitse valotilassa käytettävä päiväkuori."
   the_low_glare_shell_used_in_dark_mode: "Valitse pimeässä tilassa käytettävä vähän häikäisevä kuori."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Superduper Dictation starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_should_use_for_d: "Valitse, mitä mikrofonia Pindropin tulee käyttää sanelussa ja miten se käyttäytyy tallennuksen aikana."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
+  which_microphone_pindrop_should_use_for_d: "Valitse, mitä mikrofonia Superduper Dictationin tulee käyttää sanelussa ja miten se käyttäytyy tallennuksen aikana."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Superduper Dictation uses for dictation."
   which_side_the_navigation_sidebar_appears: "Valitse, millä puolella navigoinnin sivupalkki näkyy."
   where_to_save_the_training_data_file: "Valitse, mihin koulutusdatatiedosto tallennetaan."
 clean:
@@ -418,7 +418,7 @@ continue:
   with_default: "Jatka oletusasetuksella"
   without: "Jatka ilman"
 control:
-  how_pindrop_appears_in_macos_and_whether: "Hallitse, kuinka Pindrop näkyy macOS:ssä ja alkaako se työpöytäistunnostasi."
+  how_pindrop_appears_in_macos_and_whether: "Hallitse, kuinka Superduper Dictation näkyy macOS:ssä ja alkaako se työpöytäistunnostasi."
 controls:
 copied:
   _self: "Kopioitu!"
@@ -536,7 +536,7 @@ dismiss:
 display:
   name: "Näyttönimi"
   name_c7874aaa: "Näyttönimi"
-  pindrop_in_the_dock_instead_of_running_o: "Näytä Pindrop Dockissa sen sijaan, että se toimisi vain valikkorivisovelluksena."
+  pindrop_in_the_dock_instead_of_running_o: "Näytä Superduper Dictation Dockissa sen sijaan, että se toimisi vain valikkorivisovelluksena."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Kiinnitä sivupalkki ikkunan vasempaan tai oikeaan reunaan."
 done:
@@ -686,7 +686,7 @@ great:
   _self: "Hienoa"
 help:
   _self: "Ohje"
-  improve_pindrop: "Haluatko auttaa parantamaan Pindropia?"
+  improve_pindrop: "Haluatko auttaa parantamaan Superduper Dictationia?"
 hide:
   api_key: "Piilota API-avain"
   this_for_1_hour: "Piilota tämä 1 tunnin ajaksi"
@@ -740,8 +740,8 @@ items:
 japanese:
   _self: "japanilainen"
 keep:
-  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
-  pindrop_current_automatically_or_trigger_a: "Pidä Pindrop ajan tasalla automaattisesti tai käynnistä manuaalinen tarkistus milloin haluat."
+  pindrop_current_automatically_or_check_for: "Keep Superduper Dictation current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Pidä Superduper Dictation ajan tasalla automaattisesti tai käynnistä manuaalinen tarkistus milloin haluat."
   before_and_after_text_pairs_when_ai_enhance: "Säilytä ennen ja jälkeen -tekstiparit, kun tekoälyparannus tai muokkauksesi parantavat transkriptiota. Tallennetaan vain tähän Maciin — mitään ei ladata."
 key:
   _self: "#%@"
@@ -771,7 +771,7 @@ left:
 legacy:
   _self: "Legacy"
 let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Anna Pindropin oppia hiljaa sanastoa ajan mittaan tekemistäsi korjauksista."
+  pindrop_quietly_learn_vocabulary_from_the_co: "Anna Superduper Dictationin oppia hiljaa sanastoa ajan mittaan tekemistäsi korjauksista."
 library:
   _self: "Kirjasto"
 license:
@@ -822,7 +822,7 @@ low:
 main:
   window: "Pääikkuna"
 manage:
-  local_speech_models_feature_models_and_th: "Hallinnoi paikallisia puhemalleja, ominaisuusmalleja ja oletusmoottoria, jota Pindrop käyttää transkriptioon."
+  local_speech_models_feature_models_and_th: "Hallinnoi paikallisia puhemalleja, ominaisuusmalleja ja oletusmoottoria, jota Superduper Dictation käyttää transkriptioon."
   models: "Hallitse malleja"
   presets: "Hallitse esiasetuksia"
   presets_ab87986d: "Hallitse esiasetuksia..."
@@ -1019,24 +1019,24 @@ pill:
 pin:
   to_screen_always_on_top: "Kiinnitä näyttöön (aina päällä)"
 pindrop:
-  _self: "Pindrop"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop-ohje"
+  _self: "Superduper Dictation"
+  1_19: "Superduper Dictation 1.19"
+  help: "Superduper Dictation-ohje"
   is_ready_to_use_click_the_menu_bar_icon: |-
-    Pindrop on käyttövalmis.
+    Superduper Dictation on käyttövalmis.
     Aloita napsauttamalla valikkopalkin kuvaketta.
-  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop on valmis käytettäväksi.nAloita napsauttamalla valikkopalkin kuvaketta."
-  needs_a_few_permissions_to_work_nyour_pr: "Pindrop tarvitsee muutaman käyttöoikeuden toimiakseen.nYksityisyyttäsi kunnioitetaan aina."
+  is_ready_to_use_nclick_the_menu_bar_icon: "Superduper Dictation on valmis käytettäväksi.nAloita napsauttamalla valikkopalkin kuvaketta."
+  needs_a_few_permissions_to_work_nyour_pr: "Superduper Dictation tarvitsee muutaman käyttöoikeuden toimiakseen.nYksityisyyttäsi kunnioitetaan aina."
   needs_a_few_permissions_to_work_your_pri: |-
-    Pindrop tarvitsee muutaman käyttöoikeuden toimiakseen.
+    Superduper Dictation tarvitsee muutaman käyttöoikeuden toimiakseen.
     Yksityisyyttäsi kunnioitetaan aina.
-  needs_accessibility_permission_to_insert: "\"\" Pindrop tarvitsee esteettömyysoikeuden lisätäkseen tekstiä kohdistimeen.                          Luvan myöntäminen: 1. Napsauta \"Avaa järjestelmäasetukset\" alla. 2. Napsauta +-painiketta 3. Siirry Finderissa näkyvään sovellukseen 4. Käynnistä Pindrop uudelleen luvan myöntämisen jälkeen Ilman tätä lupaa teksti kopioidaan vain leikepöydällesi.             \"\""
-  needs_microphone_access_to_record_and_tr: "Pindrop tarvitsee mikrofonin käyttöoikeuden äänittääkseen ja litteroidakseen äänesi.nnAnna lupa järjestelmäasetuksissa."
-  on_github: "Pindrop GitHubissa"
-  orb: "Pindrop-pallo"
-  pill: "Pindrop-pilleri"
-  theme: "Pindrop-teema"
-  can_send_anonymous_privacy_preserving_si: "Pindrop voi lähettää anonyymejä, yksityisyyttä suojaavia signaaleja, jotta virheet korjataan nopeammin."
+  needs_accessibility_permission_to_insert: "\"\" Superduper Dictation tarvitsee esteettömyysoikeuden lisätäkseen tekstiä kohdistimeen.                          Luvan myöntäminen: 1. Napsauta \"Avaa järjestelmäasetukset\" alla. 2. Napsauta +-painiketta 3. Siirry Finderissa näkyvään sovellukseen 4. Käynnistä Superduper Dictation uudelleen luvan myöntämisen jälkeen Ilman tätä lupaa teksti kopioidaan vain leikepöydällesi.             \"\""
+  needs_microphone_access_to_record_and_tr: "Superduper Dictation tarvitsee mikrofonin käyttöoikeuden äänittääkseen ja litteroidakseen äänesi.nnAnna lupa järjestelmäasetuksissa."
+  on_github: "Superduper Dictation GitHubissa"
+  orb: "Superduper Dictation-pallo"
+  pill: "Superduper Dictation-pilleri"
+  theme: "Superduper Dictation-teema"
+  can_send_anonymous_privacy_preserving_si: "Superduper Dictation voi lähettää anonyymejä, yksityisyyttä suojaavia signaaleja, jotta virheet korjataan nopeammin."
 pinned:
   _self: "Kiinnitetyt"
 plain:
@@ -1079,7 +1079,7 @@ preset:
   example_technical_output: "Kutsu `fetchUser` -> sitten mapaa vastaus `==` 200."
   name: "Esiasetettu nimi"
 press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Paina ja pidä painettuna sanellaksesi missä tahansa sovelluksessa. Pindrop litteroi puheesi ja lisää tekstin kohdistimen kohdalle."
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Paina ja pidä painettuna sanellaksesi missä tahansa sovelluksessa. Superduper Dictation litteroi puheesi ja lisää tekstin kohdistimen kohdalle."
   esc_to_cancel: "Peruuta painamalla Esc"
   escape_twice_to_cancel_a_recording_when_off_a_si: "Peruuta tallennus painamalla Escape kahdesti. Kun pois käytöstä, yksi painallus peruuttaa."
   keys: "Paina näppäimiä..."
@@ -1120,7 +1120,7 @@ quickly:
   pull_your_latest_transcript_back_to_the: "Vedä uusin transkriptio nopeasti takaisin leikepöydälle."
 quit:
   _self: "Lopettaa"
-  pindrop: "Lopeta Pindrop"
+  pindrop: "Lopeta Superduper Dictation"
 ready:
   _self: "Valmis"
   ec1296e1: "● Valmis"
@@ -1162,7 +1162,7 @@ rename:
   _self: "Nimeä uudelleen"
   folder: "Nimeä kansio uudelleen"
   participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Superduper Dictation to recognize voices automatically."
 replace:
   all: "Korvaa kaikki"
   words_and_phrases: "Korvaa sanat ja lauseet"
@@ -1227,7 +1227,7 @@ select:
   all: "Valitse Kaikki"
   language: "Valitse Kieli"
   language_daea52c9: "Valitse kieli"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
+  the_language_pindrop_should_expect_when_t: "Select the language Superduper Dictation should expect when transcribing speech."
   this_floating_indicator_style: "Valitse tämä kelluva ilmaisintyyli."
   voice_model: "Valitse Äänimalli"
 selected:
@@ -1310,7 +1310,7 @@ start:
   recording: "Aloita tallennus"
   recording_to_see_your_transcriptions_here: "Aloita nauhoitus nähdäksesi transkriptiosi tästä"
   stop_recording: "Aloita/lopeta tallennus"
-  using_pindrop: "Aloita Pindropin käyttö"
+  using_pindrop: "Aloita Superduper Dictationin käyttö"
   in_the_menu_bar_without_opening_the_main_w: "Käynnistä valikkoriville avaamatta pääikkunaa. Voit silti avata sen valikkorivin kuvakkeesta."
 stats:
   _self: "Stats"
@@ -1391,7 +1391,7 @@ time:
 timestamps:
   json: "Aikaleimat (.json)"
 to:
-  dictate_and_let_pindrop_transcribe_for_you: "sanella ja antaa Pindropin litteroida puolestasi"
+  dictate_and_let_pindrop_transcribe_for_you: "sanella ja antaa Superduper Dictationin litteroida puolestasi"
   start_talking: "alkaa puhua"
 today:
   _self: "Tänään"
@@ -1547,7 +1547,7 @@ u5:
   u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
   u7_replacements_section: "Replacements"
   u7_speech_to_text: "Speech to text"
-  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_teach_pindrop_your_words: "Teach Superduper Dictation your words"
   u7_unpin: "Unpin"
   u7_untitled_note: "Untitled Note"
   u7_words_recognizer_should_trust: "Words the recognizer should trust"
@@ -1557,9 +1557,9 @@ u8:
   settings_audio_on_disk_format: "Ääni levyllä: %@ · %@"
   settings_beta_channel: "Beta"
   settings_bundled_fonts_ofl: "Mukana tulevat fontit (Newsreader, Inter, JetBrains Mono) on lisensoitu SIL Open Font License -lisenssillä."
-  settings_checks_for_updates_automatically: "Pindrop tarkistaa päivitykset automaattisesti."
+  settings_checks_for_updates_automatically: "Superduper Dictation tarkistaa päivitykset automaattisesti."
   settings_choose_a_provider: "Valitse palveluntarjoaja"
-  settings_choose_folder_export_logs: "Valitse kansio, johon Pindropin lokitiedostot kopioidaan."
+  settings_choose_folder_export_logs: "Valitse kansio, johon Superduper Dictationin lokitiedostot kopioidaan."
   settings_copy_last_transcript: "Kopioi viimeinen transkriptio"
   settings_copy_token: "Kopioi tunnus"
   settings_days_30: "30 päivää"
@@ -1610,15 +1610,15 @@ u8:
   settings_warning: "Varoitus"
   settings_website: "Verkkosivusto"
 u9:
-  onboarding_accessibility_clipboard_fallback: "Ilman Käyttöapua Pindrop kopioi tekstin leikepöydälle."
+  onboarding_accessibility_clipboard_fallback: "Ilman Käyttöapua Superduper Dictation kopioi tekstin leikepöydälle."
   onboarding_change_hotkey_hint: "Vaihda painamalla eri näppäinyhdistelmää"
   onboarding_download_amount_format: "%@ / %@"
   onboarding_download_background_hint: "Jatka määritystä latauksen aikana — viimeistelemme taustalla."
   onboarding_enable_enhancement: "Ota parannus käyttöön"
   onboarding_granted_state: "Myönnetty"
-  onboarding_pindrop_writes: "Pindrop kirjoittaa"
+  onboarding_pindrop_writes: "Superduper Dictation kirjoittaa"
   onboarding_ready_heading: "Kaikki valmista."
-  onboarding_ready_instruction_format: "Paina %@ ja aloita puhuminen — Pindrop kirjoittaa kohdistimen kohdalle."
+  onboarding_ready_instruction_format: "Paina %@ ja aloita puhuminen — Superduper Dictation kirjoittaa kohdistimen kohdalle."
   onboarding_try_it_now: "Kokeile nyt"
   onboarding_you_say: "Sinä sanot"
 ukrainian:
@@ -1665,7 +1665,7 @@ via:
 vibe:
   mode: "Vibe-tila"
   mode_captures_structured_ui_context_when_re: "Vibe-tila kaappaa strukturoidun käyttöliittymäkontekstin tallennuksen alkaessa, jotta tekoälyn parannus voi käyttää aktiivista sovelluksesi tilaa viitteenä."
-  mode_works_best_with_accessibility_permissi: "Vibe-tila toimii parhaiten esteettömyysluvalla. Ilman sitä Pindrop palaa rajoitettuun sovelluksen metatietoon ja transkriptio toimii edelleen normaalisti."
+  mode_works_best_with_accessibility_permissi: "Vibe-tila toimii parhaiten esteettömyysluvalla. Ilman sitä Superduper Dictation palaa rajoitettuun sovelluksen metatietoon ja transkriptio toimii edelleen normaalisti."
 view:
   _self: "Näytä"
   all: "Näytä kaikki"
@@ -1681,11 +1681,11 @@ vs:
 web:
   link: "Web link"
 welcome:
-  to_pindrop: "Tervetuloa Pindroppiin"
+  to_pindrop: "Tervetuloa Superduper Dictationpiin"
 what:
   s_new: "Uutta…"
-  s_new_in_pindrop: "Uutta Pindropissa"
-  does_pindrop_collect: "Mitä Pindrop kerää?"
+  s_new_in_pindrop: "Uutta Superduper Dictationissa"
+  does_pindrop_collect: "Mitä Superduper Dictation kerää?"
 while:
   recording: "Tallennuksen aikana"
 whisperkit:
@@ -1742,7 +1742,7 @@ whatsnew:
   sensevoice_body: "Suoratoistokutsut, sammutus ja live-käyttöliittymäpäivitykset pysyvät nyt järjestyksessä ja tehokkaina."
   sensevoice_title: "Luotettavampi sanelu"
   summary: "Yksityinen diagnostiikka, muokattava historia, syvemmät suorituskykytiedot ja luotettavampi sanelu."
-  version_line: "Pindrop 1.22.0 · heinäkuu 2026"
+  version_line: "Superduper Dictation 1.22.0 · heinäkuu 2026"
 privacy:
   _self: "Tietosuoja"
 share:

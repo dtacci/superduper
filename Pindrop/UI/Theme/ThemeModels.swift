@@ -221,10 +221,10 @@ enum PindropThemePresetCatalog {
 
     /// Pindrop — amber signal on near-black grounds.
     static let pindrop = PindropThemePreset(
-        id: "pindrop",
+        id: "superduper",
         title: "Superduper Dictation",
         summary: "Dark precision surfaces with an amber signal accent.",
-        badgeText: "Pd",
+        badgeText: "SD",
         badgeBackgroundHex: "#141417",
         badgeForegroundHex: "#F2B54A",
         lightTheme: PindropThemeProfile(
@@ -340,7 +340,11 @@ enum PindropThemePresetCatalog {
         isLegacy: true
     )
 
+    /// Old preset IDs still found in saved settings, mapped to their current IDs.
+    static let renamedPresetIDs = ["pindrop": "superduper"]
+
     static func preset(withID id: String?) -> PindropThemePreset {
+        let id = id.map { renamedPresetIDs[$0] ?? $0 }
         guard let id, let preset = allPresets.first(where: { $0.id == id }) else {
             return allPresets.first(where: { $0.id == defaultPresetID }) ?? library
         }

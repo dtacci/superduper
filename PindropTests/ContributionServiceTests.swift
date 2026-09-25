@@ -191,7 +191,7 @@ struct ContributionServiceTests {
         #expect(object["synthetic_or_observed"] as? String == "observed")
         #expect(object["recognizer"] as? String == "parakeet")
         #expect(object["enhanced_with"] as? String == "test-model")
-        #expect(object["source"] as? String == "pindrop-first-party")
+        #expect(object["source"] as? String == "superduper-dictation-first-party")
         #expect(object["example_id"] != nil)
         #expect(object["created_at"] != nil)
         #expect(object["source_record_id"] == nil)

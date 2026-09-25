@@ -165,7 +165,7 @@ final class ContributionService {
                 "primary_transformation_type": transformationType,
                 "synthetic_or_observed": "observed",
                 "redaction_version": contribution.redactionVersion,
-                "source": "pindrop-first-party"
+                "source": "superduper-dictation-first-party"
             ]
             object["language"] = contribution.language
             object["locale"] = contribution.locale

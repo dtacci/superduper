@@ -89,7 +89,11 @@ struct ThemeFoundationTests {
 
     @Test func pickerIncludesScorchedPresets() {
         let ids = Set(PindropThemePresetCatalog.presets.map(\.id))
-        #expect(ids == Set(["library", "pindrop", "paper", "harbor", "evergreen", "signal"]))
+        #expect(ids == Set(["library", "superduper", "paper", "harbor", "evergreen", "signal"]))
+    }
+
+    @Test func renamedPresetIDsStillResolve() {
+        #expect(PindropThemePresetCatalog.preset(withID: "pindrop").id == "superduper")
     }
 
     @Test func signaturePresetAccentHexesArePinned() {
