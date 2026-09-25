@@ -651,6 +651,8 @@ final class AppCoordinator {
     private var capturedSnapshot: ContextSnapshot?
     private var capturedAdapterCapabilities: AppAdapterCapabilities?
     private var capturedRoutingSignal: PromptRoutingSignal?
+    /// The app that was frontmost when dictation started, for vocabulary pack rules.
+    private var dictationTargetBundleID: String?
     private var contextSessionState: ContextSessionState?
     private var contextSessionPollTimer: Timer?
     private var contextSessionAppActivationObserver: NSObjectProtocol?
@@ -4088,6 +4090,7 @@ final class AppCoordinator {
         
         isRecording = true
         recordingStartTime = recoverySession.startedAt
+        dictationTargetBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         capturedAdapterCapabilities = nil
         capturedRoutingSignal = nil
         cancelPendingContextSessionRefresh()
@@ -4248,7 +4251,9 @@ final class AppCoordinator {
         language: AppLanguage? = nil
     ) -> TranscriptionOptions {
         let bias = (try? dictionaryStore.vocabularyBiasWords()) ?? []
-        let packs = vocabularyPackStore.activeVocabulary()
+        let packs = vocabularyPackStore.activeVocabulary(for: VocabularyContext(
+            appBundleID: dictationTargetBundleID ?? NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        ))
         return TranscriptionOptions(
             language: language ?? settingsStore.selectedAppLanguage,
             vocabularyBiasWords: bias,
@@ -4271,7 +4276,12 @@ final class AppCoordinator {
         candidates += Self.calendarAttendeeNames(fromEventJSON: meetingCalendarEventJSON(for: occurrence))
 
         let terms = Self.meetingVocabulary(from: candidates)
-        let packs = vocabularyPackStore.activeVocabulary()
+        let packs = vocabularyPackStore.activeVocabulary(for: VocabularyContext(
+            meetingText: Self.meetingContextText(
+                fromEventJSON: meetingCalendarEventJSON(for: occurrence),
+                title: [occurrence?.calendarTitle, occurrence?.series?.displayName].compactMap { $0 }.joined(separator: " ")
+            )
+        ))
         if !terms.isEmpty || !packs.terms.isEmpty {
             Log.transcription.info(
                 "Meeting vocabulary boosting with \(terms.count) name/term(s) and \(packs.terms.count) pack term(s)"
@@ -4355,6 +4365,22 @@ final class AppCoordinator {
             }
             return (person["email"] as? String).flatMap(nameFromEmailAddress)
         }
+    }
+
+    /// Meeting title plus attendee names and emails, for matching pack keywords such
+    /// as "livekit" (which also matches "russ@livekit.io").
+    nonisolated static func meetingContextText(fromEventJSON json: String?, title: String?) -> String {
+        var parts = [title].compactMap { $0 }
+        if let data = json?.data(using: .utf8),
+           let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            if let summary = event["summary"] as? String { parts.append(summary) }
+            var people = (event["attendees"] as? [[String: Any]]) ?? []
+            if let organizer = event["organizer"] as? [String: Any] { people.append(organizer) }
+            for person in people {
+                parts += [person["displayName"] as? String, person["email"] as? String].compactMap { $0 }
+            }
+        }
+        return parts.joined(separator: "\n")
     }
 
     /// The only other person invited, if the event is a one-on-one: attendees and the

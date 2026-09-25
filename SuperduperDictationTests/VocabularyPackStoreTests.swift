@@ -130,6 +130,29 @@ struct VocabularyPackStoreTests {
         #expect(try VocabularyPackStore.decodePack(from: Data(contentsOf: file), fallbackName: "x") == pack)
     }
 
+    // MARK: - Automatic rules
+
+    @Test func packsTurnOnByThemselvesInMatchingAppsAndMeetings() throws {
+        let (sut, directory, defaults) = try makeStore()
+        sut.setRule(
+            VocabularyPackRule(appBundleIDs: ["com.tinyspeck.slackmacgap", "com.tinyspeck.slackmacgap"], meetingKeywords: [" LiveKit ", ""]),
+            packID: "livekit"
+        )
+
+        #expect(sut.rules["livekit"] == VocabularyPackRule(appBundleIDs: ["com.tinyspeck.slackmacgap"], meetingKeywords: ["LiveKit"]))
+        #expect(sut.activePacks(for: .none).isEmpty)
+        #expect(sut.activePacks(for: VocabularyContext(appBundleID: "com.tinyspeck.slackmacgap")).map(\.id) == ["livekit"])
+        #expect(sut.activePacks(for: VocabularyContext(meetingText: "Weekly sync\nruss@livekit.io")).map(\.id) == ["livekit"])
+        #expect(sut.activePacks(for: VocabularyContext(appBundleID: "com.apple.Notes", meetingText: "Dentist")).isEmpty)
+        #expect(sut.activeVocabulary(for: VocabularyContext(appBundleID: "com.tinyspeck.slackmacgap")).terms.contains("LiveKit"))
+
+        // Rules are per Mac and survive relaunch; an empty rule removes it.
+        let reloaded = VocabularyPackStore(directoryURL: directory, defaults: defaults)
+        #expect(reloaded.rules["livekit"]?.appBundleIDs == ["com.tinyspeck.slackmacgap"])
+        reloaded.setRule(VocabularyPackRule(), packID: "livekit")
+        #expect(reloaded.rules.isEmpty)
+    }
+
     // MARK: - Building packs from docs
 
     private let docs = """
