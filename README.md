@@ -185,6 +185,7 @@ acknowledgements bundled with the app and the upstream project notices.
 ### End users
 
 - A signed/notarized Superduper Dictation release
+- A Mac with Apple silicon (M1 or later)
 - macOS 14 or newer
 - Several GB of free space for the selected speech model
 
@@ -193,7 +194,7 @@ Xcode is not an end-user requirement.
 ### Contributors building from source
 
 - macOS 14 or newer
-- Apple Silicon recommended
+- A Mac with Apple silicon (builds are arm64-only)
 - Regular Xcode 16.4 or newer (Command Line Tools alone cannot build the app)
 - Several GB of free space for the selected model, dependencies, and build
   products

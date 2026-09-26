@@ -582,11 +582,14 @@ struct AudioRecorderTests {
 
             await Task.detached(priority: .userInitiated) {
                 burst.run()
-                // A distinct final value makes the coalescer's contractually retained
-                // latest level observable even when every stale burst value is dropped.
-                burst.onBuffer?(burst.buffer)
-                burst.onAudioLevel?(latestSourceLevel)
             }.value
+            // A distinct final value makes the coalescer's contractually retained
+            // latest level observable even when every stale burst value is dropped.
+            // Both final callbacks run in one main-actor turn, so the delivery hop
+            // can't split them: from a background thread, the bands could reach the
+            // main actor alone before the level was noted, which made this test flaky.
+            burst.onBuffer?(burst.buffer)
+            burst.onAudioLevel?(latestSourceLevel)
             let receivedLatestPair = await withTaskGroup(of: Bool.self) { group in
                 group.addTask {
                     for await _ in latestPairDelivered {
