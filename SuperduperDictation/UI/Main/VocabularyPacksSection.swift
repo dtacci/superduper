@@ -20,6 +20,7 @@ struct VocabularyPacksSection: View {
     @State private var isDownloading = false
     @State private var errorMessage: String?
     @State private var isBuildingFromDocs = false
+    @State private var packForRules: VocabularyPack?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -70,6 +71,9 @@ struct VocabularyPacksSection: View {
         .sheet(isPresented: $isBuildingFromDocs) {
             VocabularyPackBuilderSheet(store: store)
         }
+        .sheet(item: $packForRules) { pack in
+            VocabularyPackRuleSheet(store: store, pack: pack)
+        }
     }
 
     private var addPackMenu: some View {
@@ -116,11 +120,18 @@ struct VocabularyPacksSection: View {
                         .foregroundStyle(AppColors.textSecondary)
                         .lineLimit(1)
                 }
+                if let rule = store.rules[pack.id], !store.enabledPackIDs.contains(pack.id) {
+                    Text(String(format: localized("Auto: %@", locale: locale), Self.ruleSummary(rule)))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textTertiary)
+                        .lineLimit(1)
+                }
             }
 
             Spacer(minLength: 8)
 
             Menu {
+                Button(localized("Turn on automatically…", locale: locale)) { packForRules = pack }
                 Button(localized("Export…", locale: locale)) { export(pack) }
                 if !store.isBuiltIn(pack) {
                     Button(localized("Delete", locale: locale), role: .destructive) { delete(pack) }
@@ -147,6 +158,11 @@ struct VocabularyPacksSection: View {
             .accessibilityIdentifier("dictionary.vocabularyPacks.toggle.\(pack.id)")
         }
         .padding(.vertical, 8)
+    }
+
+    static func ruleSummary(_ rule: VocabularyPackRule) -> String {
+        let apps = rule.appBundleIDs.map(VocabularyPackRuleSheet.appName(for:))
+        return (apps + rule.meetingKeywords).joined(separator: ", ")
     }
 
     // MARK: - Actions
@@ -371,5 +387,142 @@ struct VocabularyPackBuilderSheet: View {
         } catch {
             message = error.localizedDescription
         }
+    }
+}
+
+/// Per-Mac rules for turning a pack on by itself.
+struct VocabularyPackRuleSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
+    let store: VocabularyPackStore
+    let pack: VocabularyPack
+
+    @State private var appBundleIDs: [String] = []
+    @State private var keywordsText = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(format: localized("Turn on “%@” automatically", locale: locale), pack.name))
+                    .font(AppTypography.labelStrongSelected)
+                    .foregroundStyle(AppColors.textPrimary)
+                Text(localized("When the pack is off, it switches on by itself in these places.", locale: locale))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(localized("When dictating in", locale: locale))
+                    .font(AppTypography.labelStrong)
+                    .foregroundStyle(AppColors.textPrimary)
+                if appBundleIDs.isEmpty {
+                    Text(localized("No apps yet", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textTertiary)
+                }
+                ForEach(appBundleIDs, id: \.self) { bundleID in
+                    HStack(spacing: 8) {
+                        Image(nsImage: Self.appIcon(for: bundleID))
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                        Text(Self.appName(for: bundleID))
+                            .font(AppTypography.label)
+                            .foregroundStyle(AppColors.textPrimary)
+                        Spacer()
+                        Button {
+                            appBundleIDs.removeAll { $0 == bundleID }
+                        } label: {
+                            Image(systemName: "minus.circle")
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .accessibilityLabel(localized("Remove", locale: locale))
+                    }
+                }
+                Menu(localized("Add app", locale: locale)) {
+                    ForEach(runningApps, id: \.bundleID) { app in
+                        Button(app.name) { add(app.bundleID) }
+                    }
+                    Divider()
+                    Button(localized("Choose app…", locale: locale), action: chooseApp)
+                }
+                .fixedSize()
+                .accessibilityIdentifier("vocabularyPackRule.addApp")
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(localized("In meetings that mention", locale: locale))
+                    .font(AppTypography.labelStrong)
+                    .foregroundStyle(AppColors.textPrimary)
+                TextField("livekit.io, Teensy", text: $keywordsText)
+                    .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("vocabularyPackRule.keywords")
+                Text(localized(
+                    "Separate with commas. Matches the event title and attendee names or emails.",
+                    locale: locale
+                ))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textTertiary)
+            }
+
+            HStack {
+                Spacer()
+                Button(localized("Cancel", locale: locale), role: .cancel) { dismiss() }
+                Button(localized("Save", locale: locale)) {
+                    store.setRule(
+                        VocabularyPackRule(
+                            appBundleIDs: appBundleIDs,
+                            meetingKeywords: keywordsText.split(separator: ",").map(String.init)
+                        ),
+                        packID: pack.id
+                    )
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20)
+        .frame(width: 420)
+        .onAppear {
+            let rule = store.rules[pack.id] ?? VocabularyPackRule()
+            appBundleIDs = rule.appBundleIDs
+            keywordsText = rule.meetingKeywords.joined(separator: ", ")
+        }
+    }
+
+    private var runningApps: [(bundleID: String, name: String)] {
+        NSWorkspace.shared.runningApplications
+            .filter { $0.activationPolicy == .regular && $0.bundleIdentifier != Bundle.main.bundleIdentifier }
+            .compactMap { app in app.bundleIdentifier.map { ($0, app.localizedName ?? $0) } }
+            .filter { !appBundleIDs.contains($0.0) }
+            .sorted { $0.1.localizedCaseInsensitiveCompare($1.1) == .orderedAscending }
+    }
+
+    private func add(_ bundleID: String) {
+        if !appBundleIDs.contains(bundleID) {
+            appBundleIDs.append(bundleID)
+        }
+    }
+
+    private func chooseApp() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.application]
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        guard panel.runModal() == .OK, let url = panel.url,
+              let bundleID = Bundle(url: url)?.bundleIdentifier else { return }
+        add(bundleID)
+    }
+
+    static func appName(for bundleID: String) -> String {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return bundleID }
+        return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
+    }
+
+    static func appIcon(for bundleID: String) -> NSImage {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else {
+            return NSImage(systemSymbolName: "app", accessibilityDescription: nil) ?? NSImage()
+        }
+        return NSWorkspace.shared.icon(forFile: url.path)
     }
 }

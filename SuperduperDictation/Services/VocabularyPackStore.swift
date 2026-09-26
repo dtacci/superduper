@@ -74,15 +74,37 @@ enum VocabularyPackError: Error, LocalizedError, Equatable {
     }
 }
 
+/// When a pack that isn't always on should turn on by itself: while dictating in
+/// one of these apps, or in a meeting whose title or attendees mention a keyword.
+struct VocabularyPackRule: Codable, Equatable, Sendable {
+    var appBundleIDs: [String] = []
+    var meetingKeywords: [String] = []
+
+    var isEmpty: Bool { appBundleIDs.isEmpty && meetingKeywords.isEmpty }
+}
+
+/// What the person is doing when vocabulary is gathered.
+struct VocabularyContext: Equatable, Sendable {
+    /// The app being dictated into.
+    var appBundleID: String?
+    /// Meeting title plus attendee names and emails.
+    var meetingText: String?
+
+    static let none = VocabularyContext()
+}
+
 /// Built-in packs, user packs (JSON files in Application Support), and which ones
 /// are enabled on this Mac.
 @MainActor
 @Observable
 final class VocabularyPackStore {
     nonisolated static let enabledPackIDsDefaultsKey = "enabledVocabularyPackIDs"
+    nonisolated static let rulesDefaultsKey = "vocabularyPackRules"
 
     private(set) var packs: [VocabularyPack] = []
     private(set) var enabledPackIDs: Set<String>
+    /// Per-Mac automatic rules, keyed by pack id.
+    private(set) var rules: [String: VocabularyPackRule]
 
     @ObservationIgnored private let directoryURL: URL
     @ObservationIgnored private let defaults: UserDefaults
@@ -97,6 +119,8 @@ final class VocabularyPackStore {
         self.defaults = defaults
         self.fileManager = fileManager
         self.enabledPackIDs = Set(defaults.stringArray(forKey: Self.enabledPackIDsDefaultsKey) ?? [])
+        self.rules = defaults.data(forKey: Self.rulesDefaultsKey)
+            .flatMap { try? JSONDecoder().decode([String: VocabularyPackRule].self, from: $0) } ?? [:]
         reload()
     }
 
@@ -131,6 +155,34 @@ final class VocabularyPackStore {
             enabledPackIDs.remove(packID)
         }
         defaults.set(enabledPackIDs.sorted(), forKey: Self.enabledPackIDsDefaultsKey)
+    }
+
+    func setRule(_ rule: VocabularyPackRule, packID: String) {
+        let cleaned = VocabularyPackRule(
+            appBundleIDs: Array(Set(rule.appBundleIDs)).sorted(),
+            meetingKeywords: rule.meetingKeywords
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+        )
+        rules[packID] = cleaned.isEmpty ? nil : cleaned
+        if let data = try? JSONEncoder().encode(rules) {
+            defaults.set(data, forKey: Self.rulesDefaultsKey)
+        }
+    }
+
+    /// Packs in use for a context: the always-on ones plus any whose rule matches.
+    func activePacks(for context: VocabularyContext) -> [VocabularyPack] {
+        packs.filter { pack in
+            enabledPackIDs.contains(pack.id) || (rules[pack.id].map { Self.rule($0, matches: context) } ?? false)
+        }
+    }
+
+    nonisolated static func rule(_ rule: VocabularyPackRule, matches context: VocabularyContext) -> Bool {
+        if let app = context.appBundleID, rule.appBundleIDs.contains(app) {
+            return true
+        }
+        guard let text = context.meetingText?.lowercased(), !text.isEmpty else { return false }
+        return rule.meetingKeywords.contains { !$0.isEmpty && text.contains($0.lowercased()) }
     }
 
     /// Imports a pack file (JSON, or the one-term-per-line text format) and enables it.
@@ -181,16 +233,17 @@ final class VocabularyPackStore {
         try fileManager.removeItem(at: url)
         if !Self.starterPacks.contains(where: { $0.id == pack.id }) {
             setEnabled(false, packID: pack.id)
+            setRule(VocabularyPackRule(), packID: pack.id)
         }
         reload()
     }
 
-    /// Terms and "sounds like" spellings from every enabled pack.
-    func activeVocabulary() -> (terms: [String], soundsLike: [String: [String]]) {
+    /// Terms and "sounds like" spellings from every pack in use for the context.
+    func activeVocabulary(for context: VocabularyContext = .none) -> (terms: [String], soundsLike: [String: [String]]) {
         var terms: [String] = []
         var soundsLike: [String: [String]] = [:]
         var seen = Set<String>()
-        for term in enabledPacks.flatMap(\.terms) {
+        for term in activePacks(for: context).flatMap(\.terms) {
             let text = term.text.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !text.isEmpty else { continue }
             if seen.insert(text.lowercased()).inserted {

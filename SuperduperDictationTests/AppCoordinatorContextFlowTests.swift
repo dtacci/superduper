@@ -842,6 +842,15 @@ struct AppCoordinatorContextFlowTests {
         #expect(AppCoordinator.oneOnOneParticipantName(fromEventJSON: nil) == nil)
     }
 
+    @Test func meetingContextIncludesTitleAndAttendees() {
+        let json = #"{"summary":"Agents sync","attendees":[{"email":"russ@livekit.io","displayName":"Russ D'Sa"}],"organizer":{"email":"me@x.com"}}"#
+
+        let text = AppCoordinator.meetingContextText(fromEventJSON: json, title: "Weekly")
+
+        #expect(text == "Weekly\nAgents sync\nRuss D'Sa\nruss@livekit.io\nme@x.com")
+        #expect(AppCoordinator.meetingContextText(fromEventJSON: nil, title: nil).isEmpty)
+    }
+
     // Workspace events often have emails but no display names.
     @Test func namesAreDerivedFromPersonalEmailAddresses() {
         #expect(AppCoordinator.nameFromEmailAddress("russ.dsa@livekit.io") == "Russ Dsa")
