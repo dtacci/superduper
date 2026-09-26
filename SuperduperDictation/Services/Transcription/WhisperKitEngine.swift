@@ -257,7 +257,7 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             .joined(separator: " ")
     }
 
-    static func progressUpdate(
+    nonisolated static func progressUpdate(
         windowID: Int,
         audioDuration: TimeInterval,
         elapsed: TimeInterval
