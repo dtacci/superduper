@@ -207,6 +207,23 @@ staple dmg_path:
     xcrun stapler staple {{dmg_path}}
     @echo "✅ Stapling complete"
 
+# Fail if an app bundle has a Google OAuth client compiled in. Public releases
+# must ship without one: every download would share the client and use up
+# Google's 100-user cap for unverified apps.
+[private]
+_check-no-bundled-oauth-client app=app_bundle:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    plist="{{app}}/Contents/Info.plist"
+    for key in GoogleCalendarClientID GoogleCalendarClientSecret; do
+        value=$(/usr/libexec/PlistBuddy -c "Print :${key}" "${plist}" 2>/dev/null || true)
+        if [ -n "${value}" ]; then
+            echo "❌ ${key} is compiled into {{app}}. Public releases must not ship a Google OAuth client."
+            exit 1
+        fi
+    done
+    echo "✅ No Google OAuth client in {{app}}"
+
 # Manual GitHub release workflow
 # Usage: just release 1.9.0
 # Runs locally: tests -> signed DMG -> notarize/staple -> appcast -> release notes -> tag -> push tag -> gh release create
@@ -230,6 +247,14 @@ release version: _public-release-disabled
     if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         echo "❌ Invalid version format: $VERSION"
         echo "   Expected format: X.Y.Z (e.g., 1.9.0)"
+        exit 1
+    fi
+
+    # Public builds must not carry the personal Google OAuth client from .env
+    if [ -n "${GOOGLE_CALENDAR_CLIENT_ID:-}" ] || [ -n "${GOOGLE_CALENDAR_CLIENT_SECRET:-}" ]; then
+        echo "❌ A Google OAuth client is set (from .env), and it would ship inside the public DMG."
+        echo "   Rerun without it:"
+        echo "   GOOGLE_CALENDAR_CLIENT_ID= GOOGLE_CALENDAR_CLIENT_SECRET= just release ${VERSION}"
         exit 1
     fi
 
@@ -350,6 +375,7 @@ release version: _public-release-disabled
     # Step 2: Build signed release DMG
     echo "📦 Building signed release DMG..."
     just dmg
+    just _check-no-bundled-oauth-client
 
     # Step 3: Notarize and staple the DMG before publishing or generating appcast
     echo "📝 Notarizing release DMG..."
