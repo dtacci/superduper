@@ -42,6 +42,62 @@ struct GoogleOAuthConfiguration: Equatable, Sendable {
     }
 }
 
+enum GoogleOAuthClientSource: Equatable, Sendable {
+    /// `SUPERDUPER_GOOGLE_CLIENT_ID` / `_SECRET` in the launch environment (development).
+    case environment
+    /// A client the user pasted on this Mac.
+    case custom
+    /// A client compiled into this build from `.env` (see `justfile`).
+    case builtIn
+}
+
+struct GoogleOAuthClientCredentials: Equatable, Sendable {
+    let clientID: String
+    let clientSecret: String?
+    let source: GoogleOAuthClientSource
+}
+
+enum GoogleOAuthClientResolver {
+    struct Candidate {
+        var clientID: String?
+        var clientSecret: String?
+    }
+
+    /// Picks the first source with a client ID and keeps that source's own secret.
+    /// Google binds a refresh token to the client that issued it, so a secret is
+    /// never borrowed from another source.
+    static func resolve(
+        environment: Candidate,
+        custom: Candidate,
+        builtIn: Candidate
+    ) -> GoogleOAuthClientCredentials? {
+        let ordered: [(GoogleOAuthClientSource, Candidate)] = [
+            (.environment, environment),
+            (.custom, custom),
+            (.builtIn, builtIn)
+        ]
+        for (source, candidate) in ordered {
+            guard let clientID = cleaned(candidate.clientID) else { continue }
+            return GoogleOAuthClientCredentials(
+                clientID: clientID,
+                clientSecret: cleaned(candidate.clientSecret),
+                source: source
+            )
+        }
+        return nil
+    }
+
+    /// Blank values and unexpanded `$(BUILD_SETTING)` placeholders count as absent.
+    static func cleaned(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty,
+              !trimmed.hasPrefix("$(") else {
+            return nil
+        }
+        return trimmed
+    }
+}
+
 struct GoogleOAuthToken: Codable, Equatable, Sendable {
     let accessToken: String
     let refreshToken: String?
@@ -134,6 +190,11 @@ final class URLSessionGoogleOAuthTransport: GoogleOAuthTransporting, @unchecked 
         let scope: String?
     }
 
+    private struct TokenErrorResponse: Decodable {
+        let error: String
+        let error_description: String?
+    }
+
     private let session: URLSession
 
     init(session: URLSession = .shared) {
@@ -188,8 +249,7 @@ final class URLSessionGoogleOAuthTransport: GoogleOAuthTransporting, @unchecked 
         request.httpBody = Self.formData(fields)
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            let detail = String(data: data, encoding: .utf8) ?? "Unknown OAuth error"
-            throw GoogleOAuthError.transport(detail)
+            throw Self.tokenError(from: data)
         }
         let responseBody = try JSONDecoder().decode(TokenResponse.self, from: data)
         return GoogleOAuthToken(
@@ -198,6 +258,21 @@ final class URLSessionGoogleOAuthTransport: GoogleOAuthTransporting, @unchecked 
             expiresAt: Date().addingTimeInterval(responseBody.expires_in),
             scope: responseBody.scope
         )
+    }
+
+    /// Maps Google's token-endpoint error body to an error the UI can act on.
+    static func tokenError(from data: Data) -> GoogleOAuthError {
+        guard let body = try? JSONDecoder().decode(TokenErrorResponse.self, from: data) else {
+            return .transport(String(data: data, encoding: .utf8) ?? "Unknown OAuth error")
+        }
+        switch body.error {
+        case "invalid_grant":
+            return .reauthorizationRequired
+        case "invalid_client", "unauthorized_client":
+            return .invalidClient(body.error_description ?? body.error)
+        default:
+            return .transport(body.error_description ?? body.error)
+        }
     }
 
     private static func formData(_ fields: [String: String]) -> Data? {
@@ -323,6 +398,9 @@ enum GoogleOAuthError: Error, LocalizedError {
     case transport(String)
     case keychain(OSStatus)
     case notConnected
+    /// The refresh token expired or was revoked; only a new browser sign-in fixes it.
+    case reauthorizationRequired
+    case invalidClient(String)
 
     var errorDescription: String? {
         switch self {
@@ -333,6 +411,10 @@ enum GoogleOAuthError: Error, LocalizedError {
         case .transport(let detail): return "Google sign-in failed: \(detail)"
         case .keychain(let status): return "Google credentials could not be stored in Keychain (\(status))."
         case .notConnected: return "Connect Google Calendar first."
+        case .reauthorizationRequired:
+            return "Google sign-in expired or was revoked. Reconnect Google Calendar."
+        case .invalidClient(let detail):
+            return "Google rejected the OAuth client ID or secret (\(detail)). Check them under Use my own OAuth client."
         }
     }
 }
@@ -426,6 +508,11 @@ final class GoogleOAuthService {
             scope: refreshed.scope
         )
         return refreshed.accessToken
+    }
+
+    /// Drops the cached access token so the next request refreshes it.
+    func invalidateAccessToken() {
+        accessToken = nil
     }
 
     func disconnect() async throws {
@@ -597,12 +684,22 @@ struct GoogleCalendarSyncResult: Equatable, Sendable {
 final class MeetingsFeatureState {
     var isGoogleConfigured = false
     var isGoogleConnected = false
+    /// Connected, but Google no longer accepts the saved sign-in.
+    var googleNeedsReconnect = false
+    /// A browser sign-in is in progress and can be canceled.
+    var isConnectingGoogle = false
+    var googleClientSource: GoogleOAuthClientSource?
+    /// The active client ID, shown so a Workspace admin can be asked to trust it.
+    var activeGoogleClientID: String?
+    /// Whether this build has a client compiled in, so a custom one can be removed.
+    var hasBuiltInGoogleClient = false
+    var googleAccountEmail: String?
+    var lastGoogleSyncAt: Date?
     var googleClientIDDraft = ""
     var googleClientSecretDraft = ""
     var isLaunchAtLoginEnabled = false
     var isRefreshing = false
     var errorMessage: String?
-    var readinessMessage: String?
     var calendarEvents: [MeetingOccurrenceSnapshot] = []
     var armedOccurrenceIDsByIdentity: [String: UUID] = [:]
     var isGoogleSetupPresented = false
@@ -738,12 +835,11 @@ final class GoogleCalendarClient {
     }
 
     func calendars() async throws -> [GoogleCalendar] {
-        let token = try await oauth.validAccessToken()
         var pageToken: String?
         var calendars: [GoogleCalendar] = []
         repeat {
             let query = pageToken.map { [URLQueryItem(name: "pageToken", value: $0)] } ?? []
-            let data = try await transport.get(path: "users/me/calendarList", queryItems: query, accessToken: token)
+            let data = try await authorizedGet(path: "users/me/calendarList", queryItems: query)
             let page = try JSONDecoder().decode(CalendarListResponse.self, from: data)
             calendars.append(contentsOf: page.items ?? [])
             pageToken = page.nextPageToken
@@ -757,7 +853,6 @@ final class GoogleCalendarClient {
         through end: Date,
         syncToken: String? = nil
     ) async throws -> GoogleCalendarSyncResult {
-        let token = try await oauth.validAccessToken()
         var pageToken: String?
         var allEvents: [GoogleCalendarEvent] = []
         var nextSyncToken: String?
@@ -780,10 +875,9 @@ final class GoogleCalendarClient {
             let encodedCalendarID = calendarID.addingPercentEncoding(
                 withAllowedCharacters: pathSegmentAllowed
             ) ?? calendarID
-            let data = try await transport.get(
+            let data = try await authorizedGet(
                 path: "calendars/\(encodedCalendarID)/events",
-                queryItems: query,
-                accessToken: token
+                queryItems: query
             )
             let page = try JSONDecoder().decode(EventListResponse.self, from: data)
             allEvents.append(contentsOf: page.items ?? [])
@@ -791,6 +885,19 @@ final class GoogleCalendarClient {
             nextSyncToken = page.nextSyncToken ?? nextSyncToken
         } while pageToken != nil
         return GoogleCalendarSyncResult(events: allEvents, nextSyncToken: nextSyncToken)
+    }
+
+    /// A 401 means the cached access token was revoked before it expired, so
+    /// mint a new one once. A dead refresh token surfaces as `reauthorizationRequired`.
+    private func authorizedGet(path: String, queryItems: [URLQueryItem]) async throws -> Data {
+        let token = try await oauth.validAccessToken()
+        do {
+            return try await transport.get(path: path, queryItems: queryItems, accessToken: token)
+        } catch GoogleCalendarAPIError.http(let status, _) where status == 401 {
+            oauth.invalidateAccessToken()
+            let freshToken = try await oauth.validAccessToken()
+            return try await transport.get(path: path, queryItems: queryItems, accessToken: freshToken)
+        }
     }
 
     func eventsRecoveringInvalidSyncToken(

@@ -111,10 +111,7 @@ struct MainWindow: View {
     let onDownloadDiarizationModel: (() -> Void)?
     let onNewTranscription: (() -> Void)?
     let onStartMeetingCapture: ((Int?) -> Void)?
-    let onConnectGoogleCalendar: (() -> Void)?
-    let onConfigureGoogleCalendarClientID: ((String) -> Void)?
-    let onEnableCalendarLaunchAtLogin: (() -> Void)?
-    let onDisconnectGoogleCalendar: (() -> Void)?
+    let googleCalendarActions: GoogleCalendarSetupActions?
     let onRefreshGoogleCalendar: (() -> Void)?
     let onReviewWeeklyMeetings: (() -> Void)?
     let onApplyWeeklyMeetingSelection: ((Set<String>) -> Void)?
@@ -264,10 +261,7 @@ struct MainWindow: View {
             if let meetingsState {
                 MeetingsView(
                     meetingsState: meetingsState,
-                    onConnect: onConnectGoogleCalendar ?? {},
-                    onConfigureClientID: onConfigureGoogleCalendarClientID ?? { _ in },
-                    onEnableLaunchAtLogin: onEnableCalendarLaunchAtLogin ?? {},
-                    onDisconnect: onDisconnectGoogleCalendar ?? {},
+                    googleCalendarActions: googleCalendarActions ?? GoogleCalendarSetupActions(),
                     onRefresh: onRefreshGoogleCalendar ?? {},
                     onReviewWeek: onReviewWeeklyMeetings ?? {},
                     onApplyWeeklySelection: onApplyWeeklyMeetingSelection ?? { _ in },
@@ -732,10 +726,7 @@ final class MainWindowController {
     var onDownloadDiarizationModel: (() -> Void)?
     var onNewTranscription: (() -> Void)?
     var onStartMeetingCapture: ((Int?) -> Void)?
-    var onConnectGoogleCalendar: (() -> Void)?
-    var onConfigureGoogleCalendarClientID: ((String) -> Void)?
-    var onEnableCalendarLaunchAtLogin: (() -> Void)?
-    var onDisconnectGoogleCalendar: (() -> Void)?
+    var googleCalendarActions: GoogleCalendarSetupActions?
     var onRefreshGoogleCalendar: (() -> Void)?
     var onReviewWeeklyMeetings: (() -> Void)?
     var onApplyWeeklyMeetingSelection: ((Set<String>) -> Void)?
@@ -801,10 +792,7 @@ final class MainWindowController {
 
     func configureMeetingsFeature(
         state: MeetingsFeatureState,
-        onConnect: @escaping () -> Void,
-        onConfigureClientID: @escaping (String) -> Void,
-        onEnableLaunchAtLogin: @escaping () -> Void,
-        onDisconnect: @escaping () -> Void,
+        googleCalendarActions: GoogleCalendarSetupActions,
         onRefresh: @escaping () -> Void,
         onReviewWeek: @escaping () -> Void,
         onApplyWeeklySelection: @escaping (Set<String>) -> Void,
@@ -814,10 +802,7 @@ final class MainWindowController {
         onRegenerateInsights: @escaping (UUID) -> Void
     ) {
         meetingsState = state
-        onConnectGoogleCalendar = onConnect
-        onConfigureGoogleCalendarClientID = onConfigureClientID
-        onEnableCalendarLaunchAtLogin = onEnableLaunchAtLogin
-        onDisconnectGoogleCalendar = onDisconnect
+        self.googleCalendarActions = googleCalendarActions
         onRefreshGoogleCalendar = onRefresh
         onReviewWeeklyMeetings = onReviewWeek
         onApplyWeeklyMeetingSelection = onApplyWeeklySelection
@@ -891,10 +876,7 @@ final class MainWindowController {
                 onDownloadDiarizationModel: onDownloadDiarizationModel,
                 onNewTranscription: onNewTranscription,
                 onStartMeetingCapture: onStartMeetingCapture,
-                onConnectGoogleCalendar: onConnectGoogleCalendar,
-                onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
-                onEnableCalendarLaunchAtLogin: onEnableCalendarLaunchAtLogin,
-                onDisconnectGoogleCalendar: onDisconnectGoogleCalendar,
+                googleCalendarActions: googleCalendarActions,
                 onRefreshGoogleCalendar: onRefreshGoogleCalendar,
                 onReviewWeeklyMeetings: onReviewWeeklyMeetings,
                 onApplyWeeklyMeetingSelection: onApplyWeeklyMeetingSelection,
@@ -1043,10 +1025,7 @@ final class MainWindowController {
         onDownloadDiarizationModel: nil,
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
-        onConnectGoogleCalendar: nil,
-        onConfigureGoogleCalendarClientID: nil,
-        onEnableCalendarLaunchAtLogin: nil,
-        onDisconnectGoogleCalendar: nil,
+        googleCalendarActions: nil,
         onRefreshGoogleCalendar: nil,
         onReviewWeeklyMeetings: nil,
         onApplyWeeklyMeetingSelection: nil,
@@ -1076,10 +1055,7 @@ final class MainWindowController {
         onDownloadDiarizationModel: nil,
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
-        onConnectGoogleCalendar: nil,
-        onConfigureGoogleCalendarClientID: nil,
-        onEnableCalendarLaunchAtLogin: nil,
-        onDisconnectGoogleCalendar: nil,
+        googleCalendarActions: nil,
         onRefreshGoogleCalendar: nil,
         onReviewWeeklyMeetings: nil,
         onApplyWeeklyMeetingSelection: nil,

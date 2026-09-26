@@ -54,9 +54,7 @@ struct SettingsPaneContent: View {
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
     let meetingsState: MeetingsFeatureState?
-    let onConnectGoogleCalendar: () -> Void
-    let onConfigureGoogleCalendarClientID: (String) -> Void
-    let onDisconnectGoogleCalendar: () -> Void
+    let googleCalendarActions: GoogleCalendarSetupActions
 
     init(
         settings: SettingsStore,
@@ -64,18 +62,14 @@ struct SettingsPaneContent: View {
         launchAtLoginManager: LaunchAtLoginManager,
         updateService: UpdateService,
         meetingsState: MeetingsFeatureState? = nil,
-        onConnectGoogleCalendar: @escaping () -> Void = {},
-        onConfigureGoogleCalendarClientID: @escaping (String) -> Void = { _ in },
-        onDisconnectGoogleCalendar: @escaping () -> Void = {}
+        googleCalendarActions: GoogleCalendarSetupActions = GoogleCalendarSetupActions()
     ) {
         self.settings = settings
         self.tab = tab
         self.launchAtLoginManager = launchAtLoginManager
         self.updateService = updateService
         self.meetingsState = meetingsState
-        self.onConnectGoogleCalendar = onConnectGoogleCalendar
-        self.onConfigureGoogleCalendarClientID = onConfigureGoogleCalendarClientID
-        self.onDisconnectGoogleCalendar = onDisconnectGoogleCalendar
+        self.googleCalendarActions = googleCalendarActions
     }
 
     @MainActor
@@ -97,9 +91,7 @@ struct SettingsPaneContent: View {
                 launchAtLoginManager: launchAtLoginManager,
                 updateService: updateService,
                 meetingsState: meetingsState,
-                onConnectGoogleCalendar: onConnectGoogleCalendar,
-                onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
-                onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
+                googleCalendarActions: googleCalendarActions
             )
         case .dictation:
             DictationSettingsView(settings: settings)
@@ -131,9 +123,7 @@ final class SettingsWindowController: NSWindowController {
     private let launchAtLoginManager: LaunchAtLoginManager
     private let updateService: UpdateService
     private let meetingsState: MeetingsFeatureState
-    private var onConnectGoogleCalendar: () -> Void
-    private var onConfigureGoogleCalendarClientID: (String) -> Void
-    private var onDisconnectGoogleCalendar: () -> Void
+    private var googleCalendarActions: GoogleCalendarSetupActions
     private let windowModel = SettingsWindowModel()
     private var settingsObservation: AnyCancellable?
     private var tabObservation: AnyCancellable?
@@ -145,18 +135,14 @@ final class SettingsWindowController: NSWindowController {
         launchAtLoginManager: LaunchAtLoginManager,
         updateService: UpdateService,
         meetingsState: MeetingsFeatureState,
-        onConnectGoogleCalendar: @escaping () -> Void = {},
-        onConfigureGoogleCalendarClientID: @escaping (String) -> Void = { _ in },
-        onDisconnectGoogleCalendar: @escaping () -> Void = {}
+        googleCalendarActions: GoogleCalendarSetupActions = GoogleCalendarSetupActions()
     ) {
         self.settings = settings
         self.modelContainer = modelContainer
         self.launchAtLoginManager = launchAtLoginManager
         self.updateService = updateService
         self.meetingsState = meetingsState
-        self.onConnectGoogleCalendar = onConnectGoogleCalendar
-        self.onConfigureGoogleCalendarClientID = onConfigureGoogleCalendarClientID
-        self.onDisconnectGoogleCalendar = onDisconnectGoogleCalendar
+        self.googleCalendarActions = googleCalendarActions
         self.lastLocalizedAppLocale = settings.selectedAppLocale
         super.init(window: nil)
 
@@ -177,14 +163,8 @@ final class SettingsWindowController: NSWindowController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configureGoogleCalendar(
-        onConnect: @escaping () -> Void,
-        onConfigureClientID: @escaping (String) -> Void,
-        onDisconnect: @escaping () -> Void
-    ) {
-        onConnectGoogleCalendar = onConnect
-        onConfigureGoogleCalendarClientID = onConfigureClientID
-        onDisconnectGoogleCalendar = onDisconnect
+    func configureGoogleCalendar(actions: GoogleCalendarSetupActions) {
+        googleCalendarActions = actions
     }
 
     func show(tab: SettingsTab = .general) {
@@ -217,9 +197,7 @@ final class SettingsWindowController: NSWindowController {
             launchAtLoginManager: launchAtLoginManager,
             updateService: updateService,
             meetingsState: meetingsState,
-            onConnectGoogleCalendar: onConnectGoogleCalendar,
-            onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
-            onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
+            googleCalendarActions: googleCalendarActions
         )
         let hostingController = NSHostingController(rootView: AnyView(rootView))
 
@@ -347,9 +325,7 @@ private struct SettingsRootHostingView: View {
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
     let meetingsState: MeetingsFeatureState
-    let onConnectGoogleCalendar: () -> Void
-    let onConfigureGoogleCalendarClientID: (String) -> Void
-    let onDisconnectGoogleCalendar: () -> Void
+    let googleCalendarActions: GoogleCalendarSetupActions
 
     var body: some View {
         SettingsShellView(
@@ -358,9 +334,7 @@ private struct SettingsRootHostingView: View {
             launchAtLoginManager: launchAtLoginManager,
             updateService: updateService,
             meetingsState: meetingsState,
-            onConnectGoogleCalendar: onConnectGoogleCalendar,
-            onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
-            onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
+            googleCalendarActions: googleCalendarActions
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .environment(\.locale, settings.selectedAppLocale.locale)

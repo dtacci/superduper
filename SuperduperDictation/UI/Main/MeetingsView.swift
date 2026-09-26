@@ -5,6 +5,7 @@
 //  Created on 2026-08-25.
 //
 
+import AppKit
 import AVFoundation
 import SwiftData
 import SwiftUI
@@ -15,10 +16,7 @@ struct MeetingsView: View {
     private var occurrences: [MeetingOccurrence]
 
     let meetingsState: MeetingsFeatureState
-    let onConnect: () -> Void
-    let onConfigureClientID: (String) -> Void
-    let onEnableLaunchAtLogin: () -> Void
-    let onDisconnect: () -> Void
+    let googleCalendarActions: GoogleCalendarSetupActions
     let onRefresh: () -> Void
     let onReviewWeek: () -> Void
     let onApplyWeeklySelection: (Set<String>) -> Void
@@ -115,9 +113,7 @@ struct MeetingsView: View {
         ) {
             GoogleCalendarSetupWizard(
                 meetingsState: meetingsState,
-                onConnect: onConnect,
-                onConfigureClientID: onConfigureClientID,
-                onEnableLaunchAtLogin: onEnableLaunchAtLogin
+                actions: googleCalendarActions
             )
         }
         .sheet(
@@ -152,32 +148,75 @@ struct MeetingsView: View {
         .background(AppColors.windowBackground)
     }
 
+    private func connectionSummary(state: MeetingsFeatureState) -> String {
+        guard let email = state.googleAccountEmail else {
+            return localized("Connected", locale: locale)
+        }
+        return String(format: localized("Connected as %@", locale: locale), email)
+    }
+
+    static func relativeSyncTime(_ date: Date, now: Date, locale: Locale) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = locale
+        formatter.unitsStyle = .full
+        formatter.dateTimeStyle = .named
+        // Anything under a minute reads as "now" rather than "30 seconds ago".
+        let elapsed = max(0, now.timeIntervalSince(date))
+        return formatter.localizedString(fromTimeInterval: elapsed < 60 ? 0 : -elapsed)
+    }
+
     private func calendarSection(state: MeetingsFeatureState) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             SectionHeader(title: localized("Google Calendar", locale: locale), isFirst: true)
 
-            if !state.isGoogleConfigured {
-                SecondaryButton(
-                    title: localized("Set Up Google Calendar", locale: locale),
-                    systemImage: "calendar.badge.plus",
-                    action: { meetingsState.isGoogleSetupPresented = true }
-                )
-            } else if !state.isGoogleConnected {
+            if !state.isGoogleConnected {
                 SecondaryButton(
                     title: localized("Set Up Google Calendar", locale: locale),
                     systemImage: "calendar.badge.plus",
                     action: { meetingsState.isGoogleSetupPresented = true }
                 )
             } else {
-                HStack {
-                    Label(localized("Connected", locale: locale), systemImage: "checkmark.circle.fill")
+                if state.googleNeedsReconnect {
+                    HStack(spacing: 10) {
+                        Label(
+                            localized("Google Calendar sign-in expired.", locale: locale),
+                            systemImage: "exclamationmark.triangle.fill"
+                        )
                         .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.success)
-                    Spacer()
-                    Button(localized("Disconnect", locale: locale), action: onDisconnect)
-                        .buttonStyle(.plain)
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textSecondary)
+                        .foregroundStyle(AppColors.warning)
+                        Spacer()
+                        Button(localized("Reconnect", locale: locale)) {
+                            meetingsState.isGoogleSetupPresented = true
+                            googleCalendarActions.connect()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                        .disabled(state.isConnectingGoogle)
+                        .accessibilityIdentifier("meetings.reconnectGoogle")
+                    }
+                } else {
+                    HStack {
+                        Label(connectionSummary(state: state), systemImage: "checkmark.circle.fill")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.success)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Spacer()
+                        Button(localized("Disconnect", locale: locale), action: googleCalendarActions.disconnect)
+                            .buttonStyle(.plain)
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
+                    if let lastSync = state.lastGoogleSyncAt {
+                        TimelineView(.periodic(from: .now, by: 60)) { context in
+                            Text(String(
+                                format: localized("Synced %@", locale: locale),
+                                Self.relativeSyncTime(lastSync, now: context.date, locale: locale)
+                            ))
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.textTertiary)
+                        }
+                    }
                 }
 
                 SecondaryButton(
@@ -703,42 +742,40 @@ struct GoogleCalendarSetupGuide: View {
     }
 }
 
-struct GoogleCalendarSetupWizard: View {
-    private enum Step: Int, CaseIterable {
-        case privacy
-        case account
-        case readiness
-    }
+/// Google Calendar account actions shared by the Meetings page and Settings.
+struct GoogleCalendarSetupActions {
+    var connect: () -> Void = {}
+    var cancelConnect: () -> Void = {}
+    var saveCustomClient: (_ clientID: String, _ clientSecret: String) -> Void = { _, _ in }
+    var useBuiltInClient: () -> Void = {}
+    var disconnect: () -> Void = {}
+    var enableLaunchAtLogin: () -> Void = {}
+}
 
+/// One-screen Google Calendar sign-in. With a built-in OAuth client this is a
+/// single browser round-trip; pasting a client is tucked under a disclosure.
+struct GoogleCalendarSetupWizard: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
 
     let meetingsState: MeetingsFeatureState
-    let onConnect: () -> Void
-    let onConfigureClientID: (String) -> Void
-    let onEnableLaunchAtLogin: () -> Void
+    let actions: GoogleCalendarSetupActions
 
-    @State private var step: Step = .privacy
     @State private var isShowingSetupGuide = false
+    @State private var isShowingCustomClient = false
+
+    private var isHealthyConnection: Bool {
+        meetingsState.isGoogleConnected && !meetingsState.googleNeedsReconnect
+    }
 
     var body: some View {
-        @Bindable var state = meetingsState
+        let state = meetingsState
 
         VStack(spacing: 0) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(localized("Google Calendar setup", locale: locale))
-                        .font(AppTypography.labelStrongSelected)
-                        .foregroundStyle(AppColors.textPrimary)
-                    Text(
-                        String(
-                            format: localized("Step %d of 3", locale: locale),
-                            step.rawValue + 1
-                        )
-                    )
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-                }
+                Text(localized("Google Calendar setup", locale: locale))
+                    .font(AppTypography.labelStrongSelected)
+                    .foregroundStyle(AppColors.textPrimary)
                 Spacer()
                 Button {
                     dismiss()
@@ -751,28 +788,17 @@ struct GoogleCalendarSetupWizard: View {
                 .foregroundStyle(AppColors.textSecondary)
                 .accessibilityLabel(localized("Close", locale: locale))
             }
-            .padding(24)
-
-            HStack(spacing: 7) {
-                ForEach(Step.allCases, id: \.rawValue) { item in
-                    Capsule()
-                        .fill(item.rawValue <= step.rawValue ? AppColors.accent : AppColors.border)
-                        .frame(height: 4)
-                }
-            }
             .padding(.horizontal, 24)
+            .padding(.top, 20)
 
             Group {
-                switch step {
-                case .privacy:
-                    privacyStep
-                case .account:
-                    accountStep(state: state)
-                case .readiness:
-                    readinessStep(state: state)
+                if isHealthyConnection {
+                    connectedBody(state: state)
+                } else {
+                    signInBody(state: state)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(24)
 
             Divider().overlay(AppColors.border)
@@ -780,20 +806,13 @@ struct GoogleCalendarSetupWizard: View {
                 .padding(20)
         }
         .frame(width: 520)
-        .frame(minHeight: 470)
         .background(AppColors.windowBackground)
-        .onChange(of: state.isGoogleConnected) { _, connected in
-            guard connected, step == .account else { return }
-            withAnimation(.easeInOut(duration: 0.2)) {
-                step = .readiness
-            }
-        }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("googleCalendar.setupWizard")
     }
 
-    private var privacyStep: some View {
-        VStack(alignment: .leading, spacing: 18) {
+    private func signInBody(state: MeetingsFeatureState) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
             wizardTitle(
                 localized("Connect Google Calendar", locale: locale),
                 subtitle: localized(
@@ -825,20 +844,43 @@ struct GoogleCalendarSetupWizard: View {
                     locale: locale
                 )
             )
-        }
-    }
 
-    private func accountStep(state: MeetingsFeatureState) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            wizardTitle(
-                localized("Sign in with Google", locale: locale),
-                subtitle: localized(
-                    "Your browser will open for Google sign-in and consent, then return you to Superduper Dictation.",
-                    locale: locale
+            if state.googleNeedsReconnect && !state.isConnectingGoogle {
+                wizardStatus(
+                    icon: "exclamationmark.arrow.triangle.2.circlepath",
+                    color: AppColors.warning,
+                    title: localized("Google Calendar sign-in expired.", locale: locale),
+                    detail: localized(
+                        "Sign in again to keep upcoming meetings and attendee names up to date.",
+                        locale: locale
+                    )
                 )
-            )
+            }
 
-            if !state.isGoogleConfigured {
+            if state.isConnectingGoogle {
+                waitingForGoogle(state: state)
+            }
+
+            if let error = state.errorMessage, !error.isEmpty, !state.isConnectingGoogle {
+                wizardStatus(
+                    icon: "exclamationmark.triangle.fill",
+                    color: AppColors.warning,
+                    title: localized("Google sign-in did not finish", locale: locale),
+                    detail: localized(error, locale: locale)
+                )
+            }
+
+            if state.isGoogleConfigured {
+                DisclosureGroup(isExpanded: $isShowingCustomClient) {
+                    customClientForm(state: state)
+                        .padding(.top, 10)
+                } label: {
+                    Text(localized("Use my own OAuth client", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+                .accessibilityIdentifier("googleCalendar.setup.customClientDisclosure")
+            } else {
                 wizardStatus(
                     icon: "wrench.and.screwdriver",
                     color: AppColors.warning,
@@ -848,106 +890,142 @@ struct GoogleCalendarSetupWizard: View {
                         locale: locale
                     )
                 )
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(localized("Google Desktop OAuth client ID", locale: locale))
-                        .font(AppTypography.labelStrong)
-                        .foregroundStyle(AppColors.textPrimary)
-                    TextField(
-                        localized("Client ID ending in .apps.googleusercontent.com", locale: locale),
-                        text: Binding(
-                            get: { state.googleClientIDDraft },
-                            set: { state.googleClientIDDraft = $0 }
-                        )
-                    )
-                    .textFieldStyle(.roundedBorder)
-                    .accessibilityIdentifier("googleCalendar.setup.clientID")
-
-                    Text(localized("Client secret", locale: locale))
-                        .font(AppTypography.labelStrong)
-                        .foregroundStyle(AppColors.textPrimary)
-                    SecureField(
-                        localized("Required for Desktop app clients (starts with GOCSPX-)", locale: locale),
-                        text: Binding(
-                            get: { state.googleClientSecretDraft },
-                            set: { state.googleClientSecretDraft = $0 }
-                        )
-                    )
-                    .textFieldStyle(.roundedBorder)
-                    .accessibilityIdentifier("googleCalendar.setup.clientSecret")
-
-                    HStack(spacing: 14) {
-                        Button {
-                            isShowingSetupGuide = true
-                        } label: {
-                            Label(localized("How do I get these?", locale: locale), systemImage: "questionmark.circle")
-                        }
-                        .buttonStyle(.link)
-                        .font(AppTypography.caption)
-                        .popover(isPresented: $isShowingSetupGuide, arrowEdge: .bottom) {
-                            GoogleCalendarSetupGuide()
-                        }
-                        .accessibilityIdentifier("googleCalendar.setup.guide")
-                        Link(
-                            localized("Open Google OAuth setup", locale: locale),
-                            destination: URL(string: "https://console.cloud.google.com/auth/clients")!
-                        )
-                        .font(AppTypography.caption)
-                        Spacer()
-                        Button(localized("Save client ID", locale: locale)) {
-                            onConfigureClientID(state.googleClientIDDraft)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(!isValidClientID(state.googleClientIDDraft))
-                        .accessibilityIdentifier("googleCalendar.setup.saveClientID")
-                    }
-                }
-                .padding(16)
-                .background(RoundedRectangle(cornerRadius: 10).fill(AppColors.contentBackground))
-            } else if state.isGoogleConnected {
-                wizardStatus(
-                    icon: "checkmark.circle.fill",
-                    color: AppColors.success,
-                    title: localized("Google Calendar is connected.", locale: locale),
-                    detail: localized("Superduper Dictation can now load your upcoming events.", locale: locale)
-                )
-            } else if state.isRefreshing {
-                HStack(spacing: 12) {
-                    ProgressView().controlSize(.small)
-                    Text(localized("Waiting for Google…", locale: locale))
-                        .font(AppTypography.label)
-                        .foregroundStyle(AppColors.textPrimary)
-                }
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RoundedRectangle(cornerRadius: 10).fill(AppColors.contentBackground))
-            }
-
-            if let error = state.errorMessage, !error.isEmpty {
-                wizardStatus(
-                    icon: "exclamationmark.triangle.fill",
-                    color: AppColors.warning,
-                    title: localized("Google sign-in did not finish", locale: locale),
-                    detail: localized(error, locale: locale)
-                )
+                customClientForm(state: state)
             }
         }
     }
 
-    private func readinessStep(state: MeetingsFeatureState) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            wizardTitle(
-                localized("Ready for scheduled meetings", locale: locale),
-                subtitle: localized(
-                    "One final setting keeps Superduper Dictation available when an armed meeting begins.",
+    private func waitingForGoogle(state: MeetingsFeatureState) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                ProgressView().controlSize(.small)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(localized("Waiting for Google…", locale: locale))
+                        .font(AppTypography.labelStrong)
+                        .foregroundStyle(AppColors.textPrimary)
+                    Text(localized(
+                        "Your browser will open for Google sign-in and consent, then return you to Superduper Dictation.",
+                        locale: locale
+                    ))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            if let clientID = state.activeGoogleClientID {
+                Divider().overlay(AppColors.border)
+                Text(localized(
+                    "Work account says access is blocked? Ask your Google Workspace admin to trust this client ID in the Admin console under Security → API controls.",
                     locale: locale
+                ))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 8) {
+                    Text(clientID)
+                        .font(AppTypography.caption.monospaced())
+                        .foregroundStyle(AppColors.textPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .textSelection(.enabled)
+                    Spacer()
+                    Button(localized("Copy", locale: locale)) {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(clientID, forType: .string)
+                    }
+                    .buttonStyle(.link)
+                    .font(AppTypography.caption)
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 10).fill(AppColors.contentBackground))
+        .accessibilityIdentifier("googleCalendar.setup.waiting")
+    }
+
+    private func customClientForm(state: MeetingsFeatureState) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if state.googleClientSource == .custom {
+                HStack(spacing: 10) {
+                    Text(localized("This Mac uses your own OAuth client.", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                    Spacer()
+                    if state.hasBuiltInGoogleClient {
+                        Button(localized("Use built-in client", locale: locale), action: actions.useBuiltInClient)
+                            .buttonStyle(.link)
+                            .font(AppTypography.caption)
+                            .accessibilityIdentifier("googleCalendar.setup.useBuiltInClient")
+                    }
+                }
+            }
+
+            Text(localized("Google Desktop OAuth client ID", locale: locale))
+                .font(AppTypography.labelStrong)
+                .foregroundStyle(AppColors.textPrimary)
+            TextField(
+                localized("Client ID ending in .apps.googleusercontent.com", locale: locale),
+                text: Binding(
+                    get: { state.googleClientIDDraft },
+                    set: { state.googleClientIDDraft = $0 }
                 )
             )
+            .textFieldStyle(.roundedBorder)
+            .accessibilityIdentifier("googleCalendar.setup.clientID")
+
+            Text(localized("Client secret", locale: locale))
+                .font(AppTypography.labelStrong)
+                .foregroundStyle(AppColors.textPrimary)
+            SecureField(
+                localized("Required for Desktop app clients (starts with GOCSPX-)", locale: locale),
+                text: Binding(
+                    get: { state.googleClientSecretDraft },
+                    set: { state.googleClientSecretDraft = $0 }
+                )
+            )
+            .textFieldStyle(.roundedBorder)
+            .accessibilityIdentifier("googleCalendar.setup.clientSecret")
+
+            HStack(spacing: 14) {
+                Button {
+                    isShowingSetupGuide = true
+                } label: {
+                    Label(localized("How do I get these?", locale: locale), systemImage: "questionmark.circle")
+                }
+                .buttonStyle(.link)
+                .font(AppTypography.caption)
+                .popover(isPresented: $isShowingSetupGuide, arrowEdge: .bottom) {
+                    GoogleCalendarSetupGuide()
+                }
+                .accessibilityIdentifier("googleCalendar.setup.guide")
+                Link(
+                    localized("Open Google OAuth setup", locale: locale),
+                    destination: URL(string: "https://console.cloud.google.com/auth/clients")!
+                )
+                .font(AppTypography.caption)
+                Spacer()
+                Button(localized("Save client ID", locale: locale)) {
+                    actions.saveCustomClient(state.googleClientIDDraft, state.googleClientSecretDraft)
+                }
+                .buttonStyle(.bordered)
+                .disabled(!isValidClientID(state.googleClientIDDraft) || state.isConnectingGoogle)
+                .accessibilityIdentifier("googleCalendar.setup.saveClientID")
+            }
+        }
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 10).fill(AppColors.contentBackground))
+    }
+
+    private func connectedBody(state: MeetingsFeatureState) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
             wizardStatus(
-                icon: state.isGoogleConnected ? "checkmark.circle.fill" : "xmark.circle.fill",
-                color: state.isGoogleConnected ? AppColors.success : AppColors.warning,
-                title: localized("Connected to Google", locale: locale),
-                detail: localized("One Google account can be connected at a time.", locale: locale)
+                icon: "checkmark.circle.fill",
+                color: AppColors.success,
+                title: localized("Google Calendar is connected.", locale: locale),
+                detail: state.googleAccountEmail.map {
+                    String(format: localized("Signed in as %@.", locale: locale), $0)
+                } ?? localized("Superduper Dictation can now load your upcoming events.", locale: locale)
             )
             HStack(alignment: .center, spacing: 12) {
                 Image(systemName: state.isLaunchAtLoginEnabled ? "checkmark.circle.fill" : "circle")
@@ -959,64 +1037,45 @@ struct GoogleCalendarSetupWizard: View {
                     Text(localized("Required so Superduper Dictation is running when an armed meeting starts.", locale: locale))
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer()
                 if !state.isLaunchAtLoginEnabled {
-                    Button(localized("Enable", locale: locale), action: onEnableLaunchAtLogin)
-                        .buttonStyle(.borderedProminent)
+                    Button(localized("Enable", locale: locale), action: actions.enableLaunchAtLogin)
+                        .buttonStyle(.bordered)
                         .accessibilityIdentifier("googleCalendar.setup.enableLaunchAtLogin")
                 }
             }
             .padding(16)
             .background(RoundedRectangle(cornerRadius: 10).fill(AppColors.contentBackground))
-
-            wizardDetail(
-                icon: "checklist",
-                title: localized("Recording readiness", locale: locale),
-                detail: localized(
-                    "Microphone access, system audio access, transcription and diarization models, and free disk space are checked before an event can be armed.",
-                    locale: locale
-                )
-            )
         }
     }
 
     @ViewBuilder
     private func footer(state: MeetingsFeatureState) -> some View {
         HStack {
-            if step != .privacy {
-                Button(localized("Back", locale: locale)) {
-                    step = Step(rawValue: step.rawValue - 1) ?? .privacy
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
-            }
             Spacer()
-            switch step {
-            case .privacy:
-                Button(localized("Continue", locale: locale)) {
-                    step = .account
-                }
-                .buttonStyle(.borderedProminent)
-            case .account:
-                if state.isGoogleConnected {
-                    Button(localized("Continue", locale: locale)) {
-                        step = .readiness
-                    }
-                    .buttonStyle(.borderedProminent)
-                } else {
-                    Button(localized("Continue in Browser", locale: locale), action: onConnect)
-                        .buttonStyle(.borderedProminent)
-                        .disabled(!state.isGoogleConfigured || state.isRefreshing)
-                        .accessibilityIdentifier("googleCalendar.setup.connect")
-                }
-            case .readiness:
-                Button(localized("Finish setup", locale: locale)) {
+            if isHealthyConnection {
+                Button(localized("Done", locale: locale)) {
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(!state.isGoogleConnected || !state.isLaunchAtLoginEnabled)
+                .keyboardShortcut(.defaultAction)
                 .accessibilityIdentifier("googleCalendar.setup.finish")
+            } else if state.isConnectingGoogle {
+                Button(localized("Cancel", locale: locale), action: actions.cancelConnect)
+                    .accessibilityIdentifier("googleCalendar.setup.cancel")
+            } else {
+                Button(
+                    state.googleNeedsReconnect
+                        ? localized("Reconnect", locale: locale)
+                        : localized("Sign in with Google", locale: locale),
+                    action: actions.connect
+                )
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
+                .disabled(!state.isGoogleConfigured)
+                .accessibilityIdentifier("googleCalendar.setup.connect")
             }
         }
     }

@@ -528,6 +528,7 @@ final class AppCoordinator {
     private var googleCalendarClient: GoogleCalendarClient?
     private var calendarMeetingScheduler: CalendarMeetingScheduler?
     private var calendarRefreshTask: Task<Void, Never>?
+    private var googleConnectTask: Task<Void, Never>?
     private var calendarWakeObserver: NSObjectProtocol?
     private var googleCalendarSyncTokens: [String: String] = [:]
     private var lastOfferedMeetingPinIdentity: String?
@@ -885,13 +886,17 @@ final class AppCoordinator {
         self.mainWindowController.setVocabularyPackStore(vocabularyPackStore)
         self.noteEditorWindowController = NoteEditorWindowController()
         self.noteEditorWindowController.setModelContainer(modelContainer)
-        self.settingsWindowController.configureGoogleCalendar(
-            onConnect: { [weak self] in self?.connectGoogleCalendar() },
-            onConfigureClientID: { [weak self] clientID in
-                self?.configureGoogleCalendarClientID(clientID)
+        let googleCalendarActions = GoogleCalendarSetupActions(
+            connect: { [weak self] in self?.connectGoogleCalendar() },
+            cancelConnect: { [weak self] in self?.cancelGoogleCalendarConnect() },
+            saveCustomClient: { [weak self] clientID, clientSecret in
+                self?.saveCustomGoogleCalendarClient(clientID: clientID, clientSecret: clientSecret)
             },
-            onDisconnect: { [weak self] in self?.disconnectGoogleCalendar() }
+            useBuiltInClient: { [weak self] in self?.useBuiltInGoogleCalendarClient() },
+            disconnect: { [weak self] in self?.disconnectGoogleCalendar() },
+            enableLaunchAtLogin: { [weak self] in self?.enableLaunchAtLoginForCalendarMeetings() }
         )
+        self.settingsWindowController.configureGoogleCalendar(actions: googleCalendarActions)
         self.mainWindowController.configureMeetingCapture(
             floatingIndicatorState: floatingIndicatorState,
             recordingState: recordingState,
@@ -911,12 +916,7 @@ final class AppCoordinator {
         )
         self.mainWindowController.configureMeetingsFeature(
             state: meetingsState,
-            onConnect: { [weak self] in self?.connectGoogleCalendar() },
-            onConfigureClientID: { [weak self] clientID in
-                self?.configureGoogleCalendarClientID(clientID)
-            },
-            onEnableLaunchAtLogin: { [weak self] in self?.enableLaunchAtLoginForCalendarMeetings() },
-            onDisconnect: { [weak self] in self?.disconnectGoogleCalendar() },
+            googleCalendarActions: googleCalendarActions,
             onRefresh: { [weak self] in
                 Task { @MainActor in await self?.refreshGoogleCalendar() }
             },
@@ -1218,36 +1218,6 @@ final class AppCoordinator {
 
     private func setupGoogleCalendarIntegration() {
         meetingsState.isLaunchAtLoginEnabled = launchAtLoginManager.isEnabled
-        let environmentClientID = ProcessInfo.processInfo.environment["SUPERDUPER_GOOGLE_CLIENT_ID"]?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        let bundledClientID = (Bundle.main.object(forInfoDictionaryKey: "GoogleCalendarClientID") as? String)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        let savedClientID = settingsStore.googleCalendarClientID
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        meetingsState.googleClientIDDraft = savedClientID
-        let clientID: String?
-        if environmentClientID?.isEmpty == false {
-            clientID = environmentClientID
-        } else if !savedClientID.isEmpty {
-            clientID = savedClientID
-        } else {
-            clientID = bundledClientID
-        }
-        meetingsState.isGoogleConfigured = clientID?.isEmpty == false
-        guard let clientID, !clientID.isEmpty else {
-            meetingsState.readinessMessage = "Google Calendar requires a desktop OAuth client ID in this build."
-            return
-        }
-
-        let clientSecret = [
-            ProcessInfo.processInfo.environment["SUPERDUPER_GOOGLE_CLIENT_SECRET"],
-            try? Self.googleClientSecretStore.loadRefreshToken(),
-            Bundle.main.object(forInfoDictionaryKey: "GoogleCalendarClientSecret") as? String
-        ]
-            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .first { !$0.isEmpty }
-        let oauth = GoogleOAuthService(configuration: .desktop(clientID: clientID, clientSecret: clientSecret))
-        let client = GoogleCalendarClient(oauth: oauth)
         let scheduler = CalendarMeetingScheduler(
             meetingStore: meetingStore,
             notifier: SystemMeetingNotifier(),
@@ -1276,11 +1246,9 @@ final class AppCoordinator {
                 try await self.dispatchRecordingStop()
             }
         )
-        googleOAuthService = oauth
-        googleCalendarClient = client
         calendarMeetingScheduler = scheduler
-        meetingsState.isGoogleConnected = oauth.isConnected
         googleCalendarSyncTokens = loadGoogleCalendarSyncTokens()
+        configureGoogleOAuthClient()
         refreshArmedMeetingState()
         Task { @MainActor [weak self, weak scheduler] in
             guard let self, let scheduler else { return }
@@ -1303,6 +1271,50 @@ final class AppCoordinator {
         }
     }
 
+    /// A client compiled in from `.env` by the `just` build recipes.
+    private static var builtInGoogleClient: GoogleOAuthClientResolver.Candidate {
+        GoogleOAuthClientResolver.Candidate(
+            clientID: Bundle.main.object(forInfoDictionaryKey: "GoogleCalendarClientID") as? String,
+            clientSecret: Bundle.main.object(forInfoDictionaryKey: "GoogleCalendarClientSecret") as? String
+        )
+    }
+
+    /// Builds the OAuth and Calendar clients for the active OAuth client.
+    /// Called again whenever the user changes clients.
+    private func configureGoogleOAuthClient() {
+        let environment = ProcessInfo.processInfo.environment
+        let builtIn = Self.builtInGoogleClient
+        let credentials = GoogleOAuthClientResolver.resolve(
+            environment: .init(
+                clientID: environment["SUPERDUPER_GOOGLE_CLIENT_ID"],
+                clientSecret: environment["SUPERDUPER_GOOGLE_CLIENT_SECRET"]
+            ),
+            custom: .init(
+                clientID: settingsStore.googleCalendarClientID,
+                clientSecret: try? Self.googleClientSecretStore.loadRefreshToken()
+            ),
+            builtIn: builtIn
+        )
+        meetingsState.hasBuiltInGoogleClient = GoogleOAuthClientResolver.cleaned(builtIn.clientID) != nil
+        meetingsState.googleClientIDDraft = settingsStore.googleCalendarClientID
+        meetingsState.googleClientSource = credentials?.source
+        meetingsState.activeGoogleClientID = credentials?.clientID
+        meetingsState.isGoogleConfigured = credentials != nil
+
+        guard let credentials else {
+            googleOAuthService = nil
+            googleCalendarClient = nil
+            meetingsState.isGoogleConnected = false
+            return
+        }
+        let oauth = GoogleOAuthService(
+            configuration: .desktop(clientID: credentials.clientID, clientSecret: credentials.clientSecret)
+        )
+        googleOAuthService = oauth
+        googleCalendarClient = GoogleCalendarClient(oauth: oauth)
+        meetingsState.isGoogleConnected = oauth.isConnected
+    }
+
     private func meetingPreflightReport() async -> MeetingPreflightReport {
         let preflight = MeetingPreflightService(
             permissionProvider: permissionManager,
@@ -1321,40 +1333,56 @@ final class AppCoordinator {
             meetingsState.errorMessage = "Google Calendar is not configured in this build."
             return
         }
-        meetingsState.isRefreshing = true
+        googleConnectTask?.cancel()
+        meetingsState.isConnectingGoogle = true
         meetingsState.errorMessage = nil
-        Task { @MainActor [weak self] in
-            guard let self else { return }
+        googleConnectTask = Task { @MainActor [weak self] in
             do {
                 try await googleOAuthService.connect()
+                guard let self else { return }
+                self.googleConnectTask = nil
+                self.meetingsState.isConnectingGoogle = false
                 self.meetingsState.isGoogleConnected = true
+                self.meetingsState.googleNeedsReconnect = false
                 await self.refreshGoogleCalendar()
                 self.startGoogleCalendarRefreshLoop()
             } catch {
+                // A canceled sign-in was already reset by `cancelGoogleCalendarConnect`.
+                guard let self, !Task.isCancelled else { return }
+                self.googleConnectTask = nil
+                self.meetingsState.isConnectingGoogle = false
                 self.meetingsState.errorMessage = error.localizedDescription
             }
-            self.meetingsState.isRefreshing = false
         }
     }
 
-    func configureGoogleCalendarClientID(_ value: String) {
-        let clientID = value.trimmingCharacters(in: .whitespacesAndNewlines)
+    /// Stops waiting for the browser, e.g. when Google shows "Access blocked"
+    /// and never redirects back to the loopback listener.
+    func cancelGoogleCalendarConnect() {
+        googleConnectTask?.cancel()
+        googleConnectTask = nil
+        meetingsState.isConnectingGoogle = false
+    }
+
+    func saveCustomGoogleCalendarClient(clientID rawClientID: String, clientSecret rawClientSecret: String) {
+        let locale = settingsStore.selectedAppLocale.locale
+        let clientID = rawClientID.trimmingCharacters(in: .whitespacesAndNewlines)
         guard clientID.hasSuffix(".apps.googleusercontent.com") else {
             meetingsState.errorMessage = localized(
                 "Enter a Google Desktop OAuth client ID ending in .apps.googleusercontent.com.",
-                locale: settingsStore.selectedAppLocale.locale
+                locale: locale
             )
             return
         }
-        guard googleOAuthService == nil else {
+        guard canChangeGoogleOAuthClient else {
             meetingsState.errorMessage = localized(
                 "Disconnect Google Calendar before changing its OAuth client ID.",
-                locale: settingsStore.selectedAppLocale.locale
+                locale: locale
             )
             return
         }
 
-        let clientSecret = meetingsState.googleClientSecretDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        let clientSecret = rawClientSecret.trimmingCharacters(in: .whitespacesAndNewlines)
         do {
             if clientSecret.isEmpty {
                 try Self.googleClientSecretStore.deleteRefreshToken()
@@ -1367,11 +1395,52 @@ final class AppCoordinator {
         }
 
         settingsStore.googleCalendarClientID = clientID
-        meetingsState.googleClientIDDraft = clientID
         meetingsState.googleClientSecretDraft = ""
         meetingsState.errorMessage = nil
-        meetingsState.readinessMessage = nil
-        setupGoogleCalendarIntegration()
+        switchGoogleOAuthClient()
+    }
+
+    /// Forgets the client pasted on this Mac and falls back to the built-in one.
+    func useBuiltInGoogleCalendarClient() {
+        guard canChangeGoogleOAuthClient else {
+            meetingsState.errorMessage = localized(
+                "Disconnect Google Calendar before changing its OAuth client ID.",
+                locale: settingsStore.selectedAppLocale.locale
+            )
+            return
+        }
+        do {
+            try Self.googleClientSecretStore.deleteRefreshToken()
+        } catch {
+            meetingsState.errorMessage = error.localizedDescription
+            return
+        }
+        settingsStore.googleCalendarClientID = ""
+        meetingsState.googleClientIDDraft = ""
+        meetingsState.googleClientSecretDraft = ""
+        meetingsState.errorMessage = nil
+        switchGoogleOAuthClient()
+    }
+
+    /// A healthy connection must be disconnected (and its token revoked) first;
+    /// a dead one can be replaced directly.
+    private var canChangeGoogleOAuthClient: Bool {
+        !meetingsState.isGoogleConnected || meetingsState.googleNeedsReconnect
+    }
+
+    /// A refresh token only works with the client that issued it, so a dead
+    /// token is dropped before the new client is built.
+    private func switchGoogleOAuthClient() {
+        cancelGoogleCalendarConnect()
+        if meetingsState.isGoogleConnected {
+            do {
+                try GoogleOAuthKeychainStore().deleteRefreshToken()
+            } catch {
+                Log.app.error("Failed to drop the stale Google refresh token: \(error.localizedDescription)")
+            }
+            clearGoogleCalendarConnectionState()
+        }
+        configureGoogleOAuthClient()
     }
 
     func enableLaunchAtLoginForCalendarMeetings() {
@@ -1391,24 +1460,35 @@ final class AppCoordinator {
 
     func disconnectGoogleCalendar() {
         guard let googleOAuthService else { return }
+        cancelGoogleCalendarConnect()
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
                 try await googleOAuthService.disconnect()
-                self.meetingsState.isGoogleConnected = false
-                self.meetingsState.replaceEvents([])
-                self.googleCalendarSyncTokens = [:]
-                self.saveGoogleCalendarSyncTokens()
-                self.calendarRefreshTask?.cancel()
-                self.calendarRefreshTask = nil
+                self.clearGoogleCalendarConnectionState()
             } catch {
                 self.meetingsState.errorMessage = error.localizedDescription
             }
         }
     }
 
+    private func clearGoogleCalendarConnectionState() {
+        meetingsState.isGoogleConnected = false
+        meetingsState.googleNeedsReconnect = false
+        meetingsState.googleAccountEmail = nil
+        meetingsState.lastGoogleSyncAt = nil
+        meetingsState.errorMessage = nil
+        meetingsState.replaceEvents([])
+        googleCalendarSyncTokens = [:]
+        saveGoogleCalendarSyncTokens()
+        calendarRefreshTask?.cancel()
+        calendarRefreshTask = nil
+    }
+
     func refreshGoogleCalendar() async {
-        guard meetingsState.isGoogleConnected, let googleCalendarClient else { return }
+        guard meetingsState.isGoogleConnected,
+              !meetingsState.googleNeedsReconnect,
+              let googleCalendarClient else { return }
         meetingsState.isRefreshing = true
         meetingsState.errorMessage = nil
         defer { meetingsState.isRefreshing = false }
@@ -1416,7 +1496,11 @@ final class AppCoordinator {
         do {
             let now = Date()
             let horizon = now.addingTimeInterval(30 * 24 * 60 * 60)
-            let calendars = try await googleCalendarClient.calendars().filter {
+            let allCalendars = try await googleCalendarClient.calendars()
+            // The primary calendar's ID is the signed-in account's email address.
+            meetingsState.googleAccountEmail = allCalendars
+                .first { $0.primary == true && $0.id.contains("@") }?.id
+            let calendars = allCalendars.filter {
                 $0.primary == true || $0.selected != false
             }
             var cached = Dictionary(
@@ -1474,11 +1558,39 @@ final class AppCoordinator {
             meetingsState.replaceEvents(Array(cached.values).filter {
                 $0.start <= horizon && ($0.end ?? $0.start) >= now
             })
+            meetingsState.lastGoogleSyncAt = Date()
             refreshArmedMeetingState()
             offerActiveRecordingMeetingPinIfNeeded()
+        } catch GoogleOAuthError.reauthorizationRequired {
+            markGoogleCalendarNeedsReconnect()
         } catch {
             meetingsState.errorMessage = error.localizedDescription
         }
+    }
+
+    /// Google stopped accepting the saved sign-in (expired, revoked, or a
+    /// Testing-mode consent screen's 7-day limit). Say so once and offer Reconnect.
+    private func markGoogleCalendarNeedsReconnect() {
+        googleOAuthService?.invalidateAccessToken()
+        guard !meetingsState.googleNeedsReconnect else { return }
+        meetingsState.googleNeedsReconnect = true
+        Log.app.warning("Google Calendar sign-in expired or was revoked")
+        let locale = settingsStore.selectedAppLocale.locale
+        toastService.show(
+            ToastPayload(
+                message: localized("Google Calendar sign-in expired.", locale: locale),
+                actions: [
+                    ToastAction(title: localized("Reconnect", locale: locale), role: .primary) { [weak self] in
+                        guard let self else { return }
+                        self.mainWindowController.showNavigationItem(.meetings)
+                        self.meetingsState.isGoogleSetupPresented = true
+                        self.connectGoogleCalendar()
+                    }
+                ],
+                duration: nil,
+                style: .error
+            )
+        )
     }
 
     func armCalendarMeeting(_ snapshot: MeetingOccurrenceSnapshot) {
@@ -1507,7 +1619,9 @@ final class AppCoordinator {
         mainWindowController.showNavigationItem(.meetings)
         meetingsState.weeklyReviewErrorMessage = nil
 
-        guard meetingsState.isGoogleConfigured, meetingsState.isGoogleConnected else {
+        guard meetingsState.isGoogleConfigured,
+              meetingsState.isGoogleConnected,
+              !meetingsState.googleNeedsReconnect else {
             meetingsState.isGoogleSetupPresented = true
             return
         }

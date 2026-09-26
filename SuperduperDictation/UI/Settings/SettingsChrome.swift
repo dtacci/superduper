@@ -18,9 +18,7 @@ struct SettingsShellView: View {
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
     let meetingsState: MeetingsFeatureState?
-    let onConnectGoogleCalendar: () -> Void
-    let onConfigureGoogleCalendarClientID: (String) -> Void
-    let onDisconnectGoogleCalendar: () -> Void
+    let googleCalendarActions: GoogleCalendarSetupActions
 
     @Environment(\.locale) private var locale
     @Environment(\.layoutDirection) private var layoutDirection
@@ -36,9 +34,7 @@ struct SettingsShellView: View {
                     launchAtLoginManager: launchAtLoginManager,
                     updateService: updateService,
                     meetingsState: meetingsState,
-                    onConnectGoogleCalendar: onConnectGoogleCalendar,
-                    onConfigureGoogleCalendarClientID: onConfigureGoogleCalendarClientID,
-                    onDisconnectGoogleCalendar: onDisconnectGoogleCalendar
+                    googleCalendarActions: googleCalendarActions
                 )
                 .padding(.top, SettingsLayoutMetrics.contentTopPadding)
                 .padding(.horizontal, SettingsLayoutMetrics.contentSidePadding)

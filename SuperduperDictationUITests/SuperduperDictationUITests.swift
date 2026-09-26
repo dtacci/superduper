@@ -126,7 +126,7 @@ final class SuperduperDictationUITests: XCTestCase {
     }
 
     @MainActor
-    func testGoogleCalendarSetupWizardCompletesPrivacyConnectionAndReadiness() throws {
+    func testGoogleCalendarSetupSignsInFromOneScreenAndOffersLaunchAtLogin() throws {
         try skipIfTargetAppIsAlreadyRunning()
 
         let app = configuredApplication(surface: "calendarSetup")
@@ -138,19 +138,29 @@ final class SuperduperDictationUITests: XCTestCase {
             app.descendants(matching: .any)["googleCalendar.setupWizard"]
                 .waitForExistence(timeout: 5)
         )
-
-        app.buttons["Continue"].click()
+        // A built-in client means no client ID form until the user asks for one.
+        XCTAssertFalse(app.textFields["googleCalendar.setup.clientID"].exists)
 
         let connectButton = app.buttons["googleCalendar.setup.connect"]
         XCTAssertTrue(connectButton.waitForExistence(timeout: 2))
-        connectButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).click()
+        connectButton.click()
+
+        // While the browser is open the sign-in can be canceled and retried.
+        let cancelButton = app.buttons["googleCalendar.setup.cancel"]
+        XCTAssertTrue(cancelButton.waitForExistence(timeout: 2))
+        cancelButton.click()
+        XCTAssertTrue(connectButton.waitForExistence(timeout: 2))
+        connectButton.click()
+
+        let finishSignIn = app.buttons["fixture.finishGoogleSignIn"]
+        XCTAssertTrue(finishSignIn.waitForExistence(timeout: 2))
+        finishSignIn.click()
 
         let enableButton = app.buttons["googleCalendar.setup.enableLaunchAtLogin"]
         XCTAssertTrue(enableButton.waitForExistence(timeout: 2))
+        let doneButton = app.buttons["googleCalendar.setup.finish"]
+        XCTAssertTrue(doneButton.isEnabled)
         enableButton.click()
-
-        let finishButton = app.buttons["googleCalendar.setup.finish"]
-        XCTAssertTrue(finishButton.isEnabled)
     }
 
     @MainActor
@@ -162,7 +172,10 @@ final class SuperduperDictationUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
-        app.buttons["Continue"].click()
+
+        let connectButton = app.buttons["googleCalendar.setup.connect"]
+        XCTAssertTrue(connectButton.waitForExistence(timeout: 5))
+        XCTAssertFalse(connectButton.isEnabled)
 
         let clientIDField = app.textFields["googleCalendar.setup.clientID"]
         XCTAssertTrue(clientIDField.waitForExistence(timeout: 2))
@@ -173,7 +186,6 @@ final class SuperduperDictationUITests: XCTestCase {
         XCTAssertTrue(saveButton.isEnabled)
         saveButton.click()
 
-        let connectButton = app.buttons["googleCalendar.setup.connect"]
         XCTAssertTrue(connectButton.waitForExistence(timeout: 2))
         XCTAssertTrue(connectButton.isEnabled)
     }

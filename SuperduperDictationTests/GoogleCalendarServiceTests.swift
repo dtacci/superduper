@@ -271,6 +271,105 @@ struct GoogleCalendarServiceTests {
         #expect(transport.calls[1].queryValue("timeMin") != nil)
     }
 
+    @Test func clientResolverPrefersEnvironmentThenCustomThenBuiltInWithTheirOwnSecrets() throws {
+        let builtIn = GoogleOAuthClientResolver.Candidate(clientID: "built-in", clientSecret: "built-in-secret")
+        let custom = GoogleOAuthClientResolver.Candidate(clientID: " custom ", clientSecret: nil)
+        let environment = GoogleOAuthClientResolver.Candidate(clientID: "env", clientSecret: "env-secret")
+        let none = GoogleOAuthClientResolver.Candidate()
+
+        let fromEnvironment = try #require(GoogleOAuthClientResolver.resolve(
+            environment: environment, custom: custom, builtIn: builtIn
+        ))
+        #expect(fromEnvironment == GoogleOAuthClientCredentials(
+            clientID: "env", clientSecret: "env-secret", source: .environment
+        ))
+
+        // A custom client never borrows the built-in secret: tokens are bound to one client.
+        let fromCustom = try #require(GoogleOAuthClientResolver.resolve(
+            environment: none, custom: custom, builtIn: builtIn
+        ))
+        #expect(fromCustom == GoogleOAuthClientCredentials(clientID: "custom", clientSecret: nil, source: .custom))
+
+        let fromBuiltIn = try #require(GoogleOAuthClientResolver.resolve(
+            environment: none, custom: .init(clientID: "", clientSecret: "orphan"), builtIn: builtIn
+        ))
+        #expect(fromBuiltIn.source == .builtIn)
+        #expect(fromBuiltIn.clientSecret == "built-in-secret")
+    }
+
+    @Test func clientResolverTreatsUnexpandedBuildSettingsAsMissing() {
+        let unexpanded = GoogleOAuthClientResolver.Candidate(
+            clientID: "$(GOOGLE_CALENDAR_CLIENT_ID)",
+            clientSecret: "$(GOOGLE_CALENDAR_CLIENT_SECRET)"
+        )
+        #expect(GoogleOAuthClientResolver.resolve(
+            environment: .init(), custom: .init(clientID: "  "), builtIn: unexpanded
+        ) == nil)
+    }
+
+    @Test func tokenEndpointErrorsMapToActionableOAuthErrors() {
+        let expired = URLSessionGoogleOAuthTransport.tokenError(
+            from: Data(#"{"error":"invalid_grant","error_description":"Token has been expired or revoked."}"#.utf8)
+        )
+        guard case .reauthorizationRequired = expired else {
+            Issue.record("Expected reauthorizationRequired, got \(expired)")
+            return
+        }
+
+        let badClient = URLSessionGoogleOAuthTransport.tokenError(
+            from: Data(#"{"error":"invalid_client","error_description":"The OAuth client was not found."}"#.utf8)
+        )
+        guard case .invalidClient(let detail) = badClient else {
+            Issue.record("Expected invalidClient, got \(badClient)")
+            return
+        }
+        #expect(detail == "The OAuth client was not found.")
+
+        let other = URLSessionGoogleOAuthTransport.tokenError(from: Data("<html>busy</html>".utf8))
+        guard case .transport(let raw) = other else {
+            Issue.record("Expected transport, got \(other)")
+            return
+        }
+        #expect(raw == "<html>busy</html>")
+    }
+
+    @Test func revokedAccessTokenIsRefreshedOnceAndTheRequestRetried() async throws {
+        let transport = CalendarAPITransportMock(results: [
+            .failure(GoogleCalendarAPIError.http(status: 401, detail: "Invalid Credentials")),
+            .success(Data(#"{"items":[{"id":"me@example.com","summary":"Me","primary":true}]}"#.utf8))
+        ])
+        let oauthTransport = OAuthTransportMock()
+        let sut = makeCalendarClient(transport: transport, oauthTransport: oauthTransport)
+
+        let calendars = try await sut.calendars()
+
+        #expect(calendars.map(\.id) == ["me@example.com"])
+        #expect(transport.calls.count == 2)
+        #expect(oauthTransport.refreshCount == 2)
+    }
+
+    @Test func deadRefreshTokenSurfacesAsReauthorizationRequired() async {
+        let transport = CalendarAPITransportMock(results: [])
+        let oauthTransport = OAuthTransportMock(refreshError: GoogleOAuthError.reauthorizationRequired)
+        let sut = makeCalendarClient(transport: transport, oauthTransport: oauthTransport)
+
+        do {
+            _ = try await sut.calendars()
+            Issue.record("Expected the calendar request to fail")
+        } catch GoogleOAuthError.reauthorizationRequired {
+            #expect(transport.calls.isEmpty)
+        } catch {
+            Issue.record("Expected reauthorizationRequired, got \(error)")
+        }
+    }
+
+    @Test func syncTimeReadsAsNowForTheFirstMinute() {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let locale = Locale(identifier: "en_US")
+        #expect(MeetingsView.relativeSyncTime(now.addingTimeInterval(-20), now: now, locale: locale) == "now")
+        #expect(MeetingsView.relativeSyncTime(now.addingTimeInterval(-180), now: now, locale: locale) == "3 minutes ago")
+    }
+
     @Test func restoreMarksStartsMissedWhileSuperduperWasClosedAndNotifies() async throws {
         let schema = Schema(versionedSchema: TranscriptionRecordSchemaV13.self)
         let container = try ModelContainer(
@@ -538,13 +637,16 @@ struct GoogleCalendarServiceTests {
         #expect(await notifier.titles == ["Calendar event removed"])
     }
 
-    private func makeCalendarClient(transport: CalendarAPITransportMock) -> GoogleCalendarClient {
+    private func makeCalendarClient(
+        transport: CalendarAPITransportMock,
+        oauthTransport: OAuthTransportMock = OAuthTransportMock()
+    ) -> GoogleCalendarClient {
         let credentials = OAuthCredentialMemoryStore()
         try! credentials.saveRefreshToken("refresh")
         let oauth = GoogleOAuthService(
             configuration: .desktop(clientID: "desktop-client"),
             credentialStore: credentials,
-            transport: OAuthTransportMock(),
+            transport: oauthTransport,
             callbackReceiver: OAuthCallbackMock()
         )
         return GoogleCalendarClient(oauth: oauth, transport: transport)
@@ -675,6 +777,12 @@ private final class OAuthCredentialMemoryStore: GoogleOAuthCredentialStoring, @u
 
 private final class OAuthTransportMock: GoogleOAuthTransporting, @unchecked Sendable {
     var exchangeVerifier: String?
+    private(set) var refreshCount = 0
+    private let refreshError: Error?
+
+    init(refreshError: Error? = nil) {
+        self.refreshError = refreshError
+    }
 
     func exchangeCode(
         _ code: String,
@@ -695,7 +803,9 @@ private final class OAuthTransportMock: GoogleOAuthTransporting, @unchecked Send
         _ refreshToken: String,
         configuration: GoogleOAuthConfiguration
     ) async throws -> GoogleOAuthToken {
-        GoogleOAuthToken(accessToken: "refreshed", refreshToken: nil, expiresAt: Date().addingTimeInterval(3_600), scope: nil)
+        refreshCount += 1
+        if let refreshError { throw refreshError }
+        return GoogleOAuthToken(accessToken: "refreshed", refreshToken: nil, expiresAt: Date().addingTimeInterval(3_600), scope: nil)
     }
 
     func revoke(_ token: String, endpoint: URL) async throws {}
