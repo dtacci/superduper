@@ -826,7 +826,7 @@ class ModelManager {
 
     static func parakeetDownloadSnapshot(
         modelName: String,
-        progress: DownloadUtils.DownloadProgress
+        progress: DownloadProgress
     ) -> DownloadSnapshot {
         let phase: DownloadPhase
 
@@ -1399,7 +1399,7 @@ class ModelManager {
                 // Offline Community-1 assets: download/prewarm via OfflineDiarizerModels,
                 // bridge FluidAudio progress onto MainActor, and only mark complete once
                 // every required artifact is present. Discard the in-memory models after.
-                let progressHandler: DownloadUtils.ProgressHandler = { [weak self] progress in
+                let progressHandler: ProgressHandler = { [weak self] progress in
                     let fraction = min(max(progress.fractionCompleted, 0), 0.99)
                     Task { @MainActor in
                         guard let self,
@@ -1435,7 +1435,7 @@ class ModelManager {
                     case .lowLatency: return .nemotronStreaming560
                     }
                 }()
-                try await DownloadUtils.downloadRepo(
+                try await ModelHub.download(
                     repo,
                     to: fluidAudioModelsURL
                 )

@@ -189,7 +189,7 @@ struct ModelManagerTests {
     @Test func parakeetDownloadProgressMapping_listing_setsListingPhase() {
         let snapshot = ModelManager.parakeetDownloadSnapshot(
             modelName: "parakeet-tdt-0.6b-v3",
-            progress: DownloadUtils.DownloadProgress(
+            progress: DownloadProgress(
                 fractionCompleted: 0.12,
                 phase: .listing
             )
@@ -203,7 +203,7 @@ struct ModelManagerTests {
     @Test func parakeetDownloadProgressMapping_downloading_setsFileCounts() {
         let snapshot = ModelManager.parakeetDownloadSnapshot(
             modelName: "parakeet-tdt-0.6b-v3",
-            progress: DownloadUtils.DownloadProgress(
+            progress: DownloadProgress(
                 fractionCompleted: 0.42,
                 phase: .downloading(completedFiles: 3, totalFiles: 7)
             )
@@ -216,7 +216,7 @@ struct ModelManagerTests {
     @Test func parakeetDownloadProgressMapping_compiling_setsCompilingPhase() {
         let snapshot = ModelManager.parakeetDownloadSnapshot(
             modelName: "parakeet-tdt-0.6b-v3",
-            progress: DownloadUtils.DownloadProgress(
+            progress: DownloadProgress(
                 fractionCompleted: 0.76,
                 phase: .compiling(modelName: "Decoder.mlmodelc")
             )
@@ -261,7 +261,7 @@ struct ModelManagerTests {
         #expect(FeatureModelType.diarization.repoFolderName == "speaker-diarization-coreml")
         // Streaming uses Nemotron Speech Streaming 0.6B. These folder names must match
         // FluidAudio's `Repo.nemotronStreaming*.folderName` values — that's where
-        // DownloadUtils.downloadRepo materializes each chunk variant.
+        // ModelHub.download materializes each chunk variant.
         #expect(FeatureModelType.streaming.repoFolderName == "nemotron-streaming/1120ms")
         #expect(FeatureModelType.meetingNotes.repoFolderName == "Qwen3-4B-MLX-4bit")
         #expect(FeatureModelType.streamingRepoFolderName(for: .standard) == "nemotron-streaming/1120ms")
