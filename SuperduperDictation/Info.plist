@@ -38,9 +38,12 @@
 	<string>Superduper Dictation needs microphone access to transcribe your voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Superduper Dictation uses on-device speech recognition to transcribe your audio without sending data to any server.</string>
-	<!-- Supply a Google desktop OAuth client ID in distribution builds. Developers
-	     can override this with SUPERDUPER_GOOGLE_CLIENT_ID. -->
+	<!-- Filled from GOOGLE_CALENDAR_CLIENT_ID / _SECRET in a local .env by the just
+	     build recipes (see .env.example); empty in CI and plain Xcode builds.
+	     Developers can override at runtime with SUPERDUPER_GOOGLE_CLIENT_ID / _SECRET. -->
 	<key>GoogleCalendarClientID</key>
-	<string></string>
+	<string>$(GOOGLE_CALENDAR_CLIENT_ID)</string>
+	<key>GoogleCalendarClientSecret</key>
+	<string>$(GOOGLE_CALENDAR_CLIENT_SECRET)</string>
 </dict>
 </plist>

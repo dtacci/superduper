@@ -13,9 +13,7 @@ struct GeneralSettingsView: View {
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
     var meetingsState: MeetingsFeatureState? = nil
-    var onConnectGoogleCalendar: () -> Void = {}
-    var onConfigureGoogleCalendarClientID: (String) -> Void = { _ in }
-    var onDisconnectGoogleCalendar: () -> Void = {}
+    var googleCalendarActions = GoogleCalendarSetupActions()
 
     @Environment(\.locale) private var locale
     @State private var showingResetConfirmation = false
@@ -81,28 +79,27 @@ struct GeneralSettingsView: View {
                     SettingsRow(showSeparator: false) {
                         SettingsRowLabel(
                             title: localized("Google Calendar", locale: locale),
-                            subtitle: localized(
-                                "Connect one account to browse events. Superduper Dictation only records occurrences you explicitly arm.",
-                                locale: locale
-                            )
+                            subtitle: googleCalendarSubtitle(meetingsState)
                         )
                     } control: {
-                        if !meetingsState.isGoogleConfigured {
-                            Button(localized("Set Up…", locale: locale)) {
+                        if meetingsState.googleNeedsReconnect {
+                            Button(localized("Reconnect", locale: locale)) {
+                                // Show the sheet too, so Cancel and the admin hint are visible.
                                 showingGoogleCalendarSetup = true
+                                googleCalendarActions.connect()
                             }
                             .buttonStyle(.borderedProminent)
-                            .accessibilityIdentifier("settings.button.connectGoogleCalendar")
+                            .disabled(meetingsState.isConnectingGoogle)
+                            .accessibilityIdentifier("settings.button.reconnectGoogleCalendar")
                         } else if meetingsState.isGoogleConnected {
-                            Button(localized("Disconnect", locale: locale), action: onDisconnectGoogleCalendar)
+                            Button(localized("Disconnect", locale: locale), action: googleCalendarActions.disconnect)
                                 .buttonStyle(.bordered)
                         } else {
                             Button(localized("Set Up…", locale: locale)) {
                                 showingGoogleCalendarSetup = true
                             }
-                                .buttonStyle(.borderedProminent)
-                                .disabled(meetingsState.isRefreshing)
-                                .accessibilityIdentifier("settings.button.connectGoogleCalendar")
+                            .buttonStyle(.borderedProminent)
+                            .accessibilityIdentifier("settings.button.connectGoogleCalendar")
                         }
                     }
                 }
@@ -122,9 +119,7 @@ struct GeneralSettingsView: View {
             if let meetingsState {
                 GoogleCalendarSetupWizard(
                     meetingsState: meetingsState,
-                    onConnect: onConnectGoogleCalendar,
-                    onConfigureClientID: onConfigureGoogleCalendarClientID,
-                    onEnableLaunchAtLogin: { updateLaunchAtLogin(true) }
+                    actions: wizardActions
                 )
             }
         }
@@ -176,6 +171,26 @@ struct GeneralSettingsView: View {
         guard settings.launchAtLogin != actualState else { return }
         settings.launchAtLogin = actualState
         Log.app.info("Synced launch at login setting from system state: \(actualState)")
+    }
+
+    /// Routes the wizard's Launch at Login button through this pane so its toggle stays in sync.
+    private var wizardActions: GoogleCalendarSetupActions {
+        var actions = googleCalendarActions
+        actions.enableLaunchAtLogin = { updateLaunchAtLogin(true) }
+        return actions
+    }
+
+    private func googleCalendarSubtitle(_ state: MeetingsFeatureState) -> String {
+        if state.googleNeedsReconnect {
+            return localized("Google Calendar sign-in expired.", locale: locale)
+        }
+        if state.isGoogleConnected, let email = state.googleAccountEmail {
+            return String(format: localized("Connected as %@", locale: locale), email)
+        }
+        return localized(
+            "Connect one account to browse events. Superduper Dictation only records occurrences you explicitly arm.",
+            locale: locale
+        )
     }
 
     private func updateLaunchAtLogin(_ requestedState: Bool) {

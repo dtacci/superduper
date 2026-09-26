@@ -5,6 +5,10 @@
 default:
     @just --list
 
+# Loads GOOGLE_CALENDAR_CLIENT_ID / GOOGLE_CALENDAR_CLIENT_SECRET from a local,
+# gitignored .env (see .env.example) so builds ship with a Google OAuth client.
+set dotenv-load
+
 # Variables
 app_name := "Superduper Dictation"
 scheme := "SuperduperDictation"
@@ -19,6 +23,9 @@ xcode_project := "SuperduperDictation.xcodeproj"
 
 # Shared code-signing overrides for unsigned CI runners
 signing_disabled := 'CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO'
+
+# Google Calendar OAuth client compiled into Info.plist (empty when .env has none)
+google_oauth_settings := 'GOOGLE_CALENDAR_CLIENT_ID="${GOOGLE_CALENDAR_CLIENT_ID:-}" GOOGLE_CALENDAR_CLIENT_SECRET="${GOOGLE_CALENDAR_CLIENT_SECRET:-}"'
 
 # Clean all build artifacts
 clean:
@@ -37,6 +44,7 @@ _build configuration sign="yes":
         -configuration {{configuration}} \
         -derivedDataPath DerivedData \
         {{ if sign == "no" { signing_disabled } else { "" } }} \
+        {{google_oauth_settings}} \
         build
 
 # Shared xcodebuild test invocation (signed unless sign="no"; coverage="yes" enables coverage)
@@ -149,12 +157,14 @@ dmg: export-app
 # Archive for App Store / Notarization
 archive:
     @echo "📦 Creating archive..."
+    @[ -n "${GOOGLE_CALENDAR_CLIENT_ID:-}" ] || echo "⚠️  No GOOGLE_CALENDAR_CLIENT_ID in .env: Google Calendar will ask for a custom OAuth client."
     xcodebuild archive \
         -project {{xcode_project}} \
         -scheme {{scheme}} \
         -configuration Release \
         -archivePath "{{build_dir}}/{{app_name}}.xcarchive" \
-        -allowProvisioningUpdates
+        -allowProvisioningUpdates \
+        {{google_oauth_settings}}
     @echo "✅ Archive created: {{build_dir}}/{{app_name}}.xcarchive"
 
 # Export a Developer ID-signed app bundle for distribution

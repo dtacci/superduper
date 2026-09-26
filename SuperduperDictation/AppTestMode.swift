@@ -92,19 +92,40 @@ private struct GoogleCalendarSetupFixtureRootView: View {
     init(isConfigured: Bool) {
         let state = MeetingsFeatureState()
         state.isGoogleConfigured = isConfigured
+        state.activeGoogleClientID = isConfigured ? "built-in.apps.googleusercontent.com" : nil
+        state.googleClientSource = isConfigured ? .builtIn : nil
+        state.hasBuiltInGoogleClient = isConfigured
         _state = State(initialValue: state)
     }
 
     var body: some View {
-        GoogleCalendarSetupWizard(
-            meetingsState: state,
-            onConnect: { state.isGoogleConnected = true },
-            onConfigureClientID: { clientID in
-                state.googleClientIDDraft = clientID
-                state.isGoogleConfigured = true
-            },
-            onEnableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true }
-        )
+        VStack(spacing: 0) {
+            // Stands in for the browser round-trip: the connect finishes when the test
+            // chooses "Finish sign-in" (a real sign-in happens outside the app).
+            if state.isConnectingGoogle {
+                Button("Finish sign-in") {
+                    state.isConnectingGoogle = false
+                    state.isGoogleConnected = true
+                    state.googleAccountEmail = "me@example.com"
+                }
+                .padding(12)
+                .accessibilityIdentifier("fixture.finishGoogleSignIn")
+            }
+            GoogleCalendarSetupWizard(
+                meetingsState: state,
+                actions: GoogleCalendarSetupActions(
+                    connect: { state.isConnectingGoogle = true },
+                    cancelConnect: { state.isConnectingGoogle = false },
+                    saveCustomClient: { clientID, _ in
+                        state.googleClientIDDraft = clientID
+                        state.activeGoogleClientID = clientID
+                        state.googleClientSource = .custom
+                        state.isGoogleConfigured = true
+                    },
+                    enableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true }
+                )
+            )
+        }
     }
 }
 
@@ -149,10 +170,9 @@ private struct MeetingsFixtureRootView: View {
     var body: some View {
         MeetingsView(
             meetingsState: state,
-            onConnect: {},
-            onConfigureClientID: { _ in },
-            onEnableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true },
-            onDisconnect: {},
+            googleCalendarActions: GoogleCalendarSetupActions(
+                enableLaunchAtLogin: { state.isLaunchAtLoginEnabled = true }
+            ),
             onRefresh: {},
             onReviewWeek: { state.isWeeklyReviewPresented = true },
             onApplyWeeklySelection: { _ in state.isWeeklyReviewPresented = false },
