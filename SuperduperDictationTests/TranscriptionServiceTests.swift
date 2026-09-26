@@ -1045,7 +1045,11 @@ struct TranscriptionServiceTests {
             )
         }
 
-        try await Task.sleep(nanoseconds: 10_000_000)
+        // Cancel once diarization is running; a fixed short sleep raced on slow CI runners.
+        let deadline = ContinuousClock.now + .seconds(5)
+        while mockDiarizer.diarizeCallCount == 0, ContinuousClock.now < deadline {
+            try await Task.sleep(nanoseconds: 5_000_000)
+        }
         task.cancel()
 
         do {

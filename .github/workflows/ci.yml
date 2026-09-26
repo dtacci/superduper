@@ -1,8 +1,9 @@
 name: CI
 
+# One run per change: pull requests, plus pushes to main after merge.
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
 
 permissions:
@@ -33,9 +34,17 @@ jobs:
         with:
           just-version: "1.49.0"
 
-      - name: Build unsigned
-        run: just build-unsigned
+      # Swift package checkouts (WhisperKit, FluidAudio, MLX, …) are reused
+      # between runs until Package.resolved changes.
+      - name: Cache Swift packages
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: DerivedData/SourcePackages
+          key: spm-${{ runner.os }}-${{ hashFiles('SuperduperDictation.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
 
+      # The test step builds the app itself (with testability), so a separate
+      # plain build only doubled compile time.
       - name: Run unit tests unsigned
         env:
           NSUnbufferedIO: YES
