@@ -978,8 +978,15 @@ struct AudioPCMFileStorageTests {
         try storage.start()
         #expect(storage.enqueue(first))
         #expect(storage.enqueue(second) == false)
-        Thread.sleep(forTimeInterval: 0.06) // Writer returns the sole slab off callback.
-        #expect(storage.enqueue(second))
+        // The writer returns the sole slab off the callback after its delay. Wait for
+        // that instead of a fixed sleep, which raced on loaded CI runners.
+        let deadline = Date().addingTimeInterval(2)
+        var acceptedAfterRecycle = false
+        repeat {
+            Thread.sleep(forTimeInterval: 0.01)
+            acceptedAfterRecycle = storage.enqueue(second)
+        } while !acceptedAfterRecycle && Date() < deadline
+        #expect(acceptedAfterRecycle)
 
         let finished = try storage.finish()
         let completed = try #require(finished)
