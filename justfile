@@ -152,6 +152,7 @@ l10n-add-locale locale:
 dmg: export-app
     @echo "📦 Creating DMG..."
     @./scripts/create-dmg.sh
+    codesign --sign "Developer ID Application" --timestamp "{{dmg_dir}}/{{app_name}}.dmg"
     @echo "✅ DMG created in {{dmg_dir}}/"
 
 # Archive for App Store / Notarization
@@ -164,6 +165,7 @@ archive:
         -configuration Release \
         -archivePath "{{build_dir}}/{{app_name}}.xcarchive" \
         -allowProvisioningUpdates \
+        ARCHS=arm64 \
         {{google_oauth_settings}}
     @echo "✅ Archive created: {{build_dir}}/{{app_name}}.xcarchive"
 
@@ -194,7 +196,7 @@ verify-signature:
 notarize dmg_path:
     @echo "📝 Notarizing {{dmg_path}}..."
     @result_file=$(mktemp) && \
-    xcrun notarytool submit {{dmg_path}} \
+    xcrun notarytool submit "{{dmg_path}}" \
         --keychain-profile "notarytool-password" \
         --wait \
         --output-format json > "$result_file" && \
@@ -204,7 +206,7 @@ notarize dmg_path:
 # Staple notarization ticket to DMG
 staple dmg_path:
     @echo "📎 Stapling notarization ticket..."
-    xcrun stapler staple {{dmg_path}}
+    xcrun stapler staple "{{dmg_path}}"
     @echo "✅ Stapling complete"
 
 # Fail if an app bundle has a Google OAuth client compiled in. Public releases
