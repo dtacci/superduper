@@ -164,6 +164,7 @@ archive:
         -configuration Release \
         -archivePath "{{build_dir}}/{{app_name}}.xcarchive" \
         -allowProvisioningUpdates \
+        ARCHS=arm64 \
         {{google_oauth_settings}}
     @echo "✅ Archive created: {{build_dir}}/{{app_name}}.xcarchive"
 
