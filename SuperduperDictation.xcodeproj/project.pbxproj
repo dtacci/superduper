@@ -1980,7 +1980,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			repositoryURL = "https://github.com/ml-explore/mlx-swift-lm.git";
 			requirement = {
 				kind = exactVersion;
-				version = 2.30.6;
+				version = 3.31.4;
 			};
 		};
 		TRANSFORMERSREF01A2B3C4D /* XCRemoteSwiftPackageReference "swift-transformers" */ = {
