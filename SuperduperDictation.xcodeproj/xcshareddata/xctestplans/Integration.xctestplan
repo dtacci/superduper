@@ -30,6 +30,8 @@
       },
       "selectedTests" : [
         "PermissionManagerTests",
+        "ParakeetEngineIntegrationTests",
+        "WhisperKitEngineIntegrationTests",
         "DiarizationQualityIntegrationTests"
       ]
     }

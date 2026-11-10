@@ -187,7 +187,7 @@ struct VocabularyPacksSection: View {
 
     private func importFromRemoteURL() {
         let text = remoteURLText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let url = URL(string: text), let scheme = url.scheme?.lowercased(), scheme == "https" || scheme == "http" else {
+        guard let url = URL(string: text), MediaLinkSecurityPolicy.isAllowed(url) else {
             errorMessage = localized("Enter a web address that starts with https://", locale: locale)
             return
         }
@@ -338,8 +338,7 @@ struct VocabularyPackBuilderSheet: View {
     private var url: URL? {
         let text = urlText.trimmingCharacters(in: .whitespacesAndNewlines)
         let withScheme = text.contains("://") ? text : "https://\(text)"
-        guard let url = URL(string: withScheme), let scheme = url.scheme?.lowercased(),
-              scheme == "https" || scheme == "http", url.host != nil else {
+        guard let url = URL(string: withScheme), MediaLinkSecurityPolicy.isAllowed(url) else {
             return nil
         }
         return url

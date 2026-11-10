@@ -454,32 +454,18 @@ struct SenseVoiceEngineTests {
         #expect(!ModelManager.ModelProvider.senseVoice.iconName.isEmpty)
     }
 
-    @Test func transcriptionServiceFactoryRoutesSenseVoiceToSenseVoiceEngine() async {
+    @Test func transcriptionServiceFactoryReceivesSenseVoiceProvider() async throws {
         var captured: ModelManager.ModelProvider?
         let service = TranscriptionService(
             engineFactory: { provider in
                 captured = provider
-                switch provider {
-                case .senseVoice:
-                    return SenseVoiceEngine()
-                case .whisperKit:
-                    return WhisperKitEngine()
-                case .parakeet:
-                    return ParakeetEngine()
-                case .appleSpeech:
-                    return AppleSpeechEngine()
-                default:
-                    throw TranscriptionService.TranscriptionError.modelLoadFailed("unsupported")
-                }
+                return MockTranscriptionEngine()
             }
         )
 
-        do {
-            try await service.loadModel(modelName: "sensevoice-small", provider: .senseVoice)
-        } catch {
-            // Expected without local int8 model / offline download.
-        }
+        try await service.loadModel(modelName: "sensevoice-small", provider: .senseVoice)
         #expect(captured == .senseVoice)
+        #expect(service.state == .ready)
     }
 
     @Test func onboardingProviderRoutingDoesNotUsePathAPIForSenseVoice() {

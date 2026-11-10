@@ -12,6 +12,56 @@ import Testing
 @MainActor
 @Suite(.serialized)
 struct StatusBarControllerTests {
+    @Test func recoverableRecordingsAreAvailableOnDemandAndDisabledWhileBusy() throws {
+        let settingsStore = SettingsStore()
+        settingsStore.resetAllSettings()
+        defer { settingsStore.resetAllSettings() }
+        let recorder = try AudioRecorder(
+            permissionManager: MockPermissionProvider(),
+            captureBackend: MockAudioCaptureBackend(identifier: "microphone"),
+            systemAudioCaptureBackend: MockAudioCaptureBackend(identifier: "system")
+        )
+        let sut = StatusBarController(audioRecorder: recorder, settingsStore: settingsStore)
+        #expect(sut.recoverableRecordingsMenuItemForTesting()?.isHidden == true)
+
+        let failed = DictationRecoverySession(
+            id: UUID(), startedAt: Date(timeIntervalSince1970: 1), updatedAt: Date(),
+            state: .failed, failureMessage: "No speech was detected."
+        )
+        let canceled = DictationRecoverySession(
+            id: UUID(), startedAt: Date(timeIntervalSince1970: 2), updatedAt: Date(),
+            state: .canceled, failureMessage: nil
+        )
+        sut.updateRecoverableRecordings([failed, canceled])
+        let item = try #require(sut.recoverableRecordingsMenuItemForTesting())
+        let submenu = try #require(item.submenu)
+        #expect(!item.isHidden)
+        #expect(submenu.items.count == 2)
+        #expect(submenu.items.first?.representedObject as? UUID == canceled.id)
+
+        var retriedIDs: [UUID] = []
+        sut.onRetryRecoverableRecording = { retriedIDs.append($0) }
+        submenu.performActionForItem(at: 0)
+        #expect(retriedIDs == [canceled.id])
+
+        sut.setRecordingState()
+        #expect(submenu.items.allSatisfy { !$0.isEnabled })
+        // The action itself also guards against stale menu events.
+        submenu.performActionForItem(at: 1)
+        #expect(retriedIDs == [canceled.id])
+        sut.setProcessingState()
+        #expect(submenu.items.allSatisfy { !$0.isEnabled })
+        sut.setIdleState()
+        #expect(submenu.items.allSatisfy { $0.isEnabled })
+
+        settingsStore.selectedAppLocale = .german
+        sut.reloadLocalizedStrings()
+        #expect(sut.recoverableRecordingsMenuItemForTesting()?.title == localized("Retry Transcription", locale: AppLocale.german.locale))
+        #expect(sut.recoverableRecordingsMenuItemForTesting()?.submenu?.items.count == 2)
+        sut.updateRecoverableRecordings([])
+        #expect(sut.recoverableRecordingsMenuItemForTesting()?.isHidden == true)
+    }
+
     @Test func recordingIndicatorMenuIsCheckmarkedAndDoesNotChangeRecordingState() throws {
         let settingsStore = SettingsStore()
         settingsStore.resetAllSettings()

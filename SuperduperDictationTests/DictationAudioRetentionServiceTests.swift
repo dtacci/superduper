@@ -783,6 +783,34 @@ struct DictationRecoveryStoreTests {
         #expect(try restarted.session(id: session.id).state == .failed)
     }
 
+    @Test func restartOnlyAutomaticallyResumesUnfinishedSessions() throws {
+        let (sut, root) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let recording = try sut.begin(startedAt: Date(timeIntervalSince1970: 1))
+        let processing = try sut.begin(startedAt: Date(timeIntervalSince1970: 2))
+        let failed = try sut.begin(startedAt: Date(timeIntervalSince1970: 3))
+        let canceled = try sut.begin(startedAt: Date(timeIntervalSince1970: 4))
+        let empty = try sut.begin()
+        for session in [recording, processing, failed, canceled] {
+            try Data(repeating: 0, count: 64).write(to: sut.audioURL(for: session.id))
+        }
+        try sut.markProcessing(id: processing.id)
+        try sut.markFailed(id: failed.id, message: "No speech was detected.")
+        try sut.markCanceled(id: canceled.id)
+
+        let restarted = DictationRecoveryStore(directoryURL: root)
+        #expect(restarted.interruptedSessions().map(\.id) == [recording.id, processing.id])
+        #expect(restarted.recoverableSessions().map(\.id) == [recording.id, processing.id, failed.id, canceled.id])
+        #expect(!restarted.hasAudio(id: empty.id))
+
+        // Once automatic recovery fails, the next launch must not repeat it.
+        try restarted.markFailed(id: processing.id, message: "No speech was detected.")
+        let nextLaunch = DictationRecoveryStore(directoryURL: root)
+        #expect(nextLaunch.interruptedSessions().map(\.id) == [recording.id])
+        #expect(try nextLaunch.audioData(id: processing.id).count == 64)
+    }
+
     @Test func completeDeletesOnlyRequestedWorkspace() throws {
         let (sut, root) = try makeStore()
         defer { try? FileManager.default.removeItem(at: root) }

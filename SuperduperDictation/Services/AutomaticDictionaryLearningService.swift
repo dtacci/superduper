@@ -723,19 +723,14 @@ struct AutomaticDictionaryLearningDetector {
         return previewText(nsText.substring(with: previewRange))
     }
 
-    private static func previewText(_ text: String, maxLength: Int = 60) -> String {
-        let normalized = text
-            .replacingOccurrences(of: "\n", with: "\\n")
-            .replacingOccurrences(of: "\t", with: "\\t")
-        let nsText = normalized as NSString
-        let truncated = nsText.length > maxLength
-            ? nsText.substring(with: NSRange(location: 0, length: maxLength)) + "..."
-            : normalized
-        return "\"\(truncated)\""
+    private static func previewText(_ text: String) -> String {
+        // Diagnostics also reach the unified system log through *Visible calls.
+        // Never put dictated words or surrounding editor text into a log message.
+        "<redacted length=\(text.utf16.count)>"
     }
 
     static func logToken(_ text: String) -> String {
-        previewText(text, maxLength: 24)
+        previewText(text)
     }
 
     private static func isSameEditingContext(_ lhs: FocusedTextSnapshot, _ rhs: FocusedTextSnapshot) -> Bool {
@@ -1297,7 +1292,7 @@ final class AutomaticDictionaryLearningService {
             )
             return true
         } catch {
-            Log.app.errorVisible("Automatic dictionary learning persist failed: \(error.localizedDescription)")
+            Log.app.error("Automatic dictionary learning persist failed: \(error.localizedDescription)")
             return false
         }
     }
@@ -1309,7 +1304,7 @@ final class AutomaticDictionaryLearningService {
                 "Automatic dictionary learning undo completed: learnedOriginalLength=\(change.learnedOriginal.count)"
             )
         } catch {
-            Log.app.errorVisible("Automatic dictionary learning undo failed: \(error.localizedDescription)")
+            Log.app.error("Automatic dictionary learning undo failed: \(error.localizedDescription)")
         }
     }
 }

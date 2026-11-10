@@ -1854,6 +1854,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 
 				CODE_SIGN_ENTITLEMENTS = SuperduperDictation/SuperduperDictation.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1964,7 +1965,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			repositoryURL = "https://github.com/argmaxinc/WhisperKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.1.0;
+				version = 1.1.1;
 			};
 		};
 		FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */ = {
@@ -1972,7 +1973,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			repositoryURL = "https://github.com/FluidInference/FluidAudio.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.15.6;
+				version = 0.18.3;
 			};
 		};
 		MLXLMREF01A2B3C4D5E6F70 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */ = {
@@ -1980,7 +1981,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			repositoryURL = "https://github.com/ml-explore/mlx-swift-lm.git";
 			requirement = {
 				kind = exactVersion;
-				version = 2.30.6;
+				version = 2.31.3;
 			};
 		};
 		TRANSFORMERSREF01A2B3C4D /* XCRemoteSwiftPackageReference "swift-transformers" */ = {
@@ -1988,7 +1989,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			repositoryURL = "https://github.com/huggingface/swift-transformers";
 			requirement = {
 				kind = exactVersion;
-				version = 1.1.6;
+				version = 1.2.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

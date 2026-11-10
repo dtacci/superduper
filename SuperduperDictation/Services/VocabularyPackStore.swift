@@ -200,10 +200,7 @@ final class VocabularyPackStore {
     /// Downloads a pack from a URL (for example a raw file in a shared repo).
     @discardableResult
     func importPack(fromRemote url: URL, session: URLSession = .shared) async throws -> VocabularyPack {
-        let (data, response) = try await session.data(from: url)
-        if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-            throw VocabularyPackError.unreadable("the server returned HTTP \(http.statusCode)")
-        }
+        let data = try await Self.downloadRemoteData(from: url, session: session)
         let pack = try Self.decodePack(from: data, fallbackName: url.deletingPathExtension().lastPathComponent)
         try save(pack)
         return pack
@@ -549,6 +546,9 @@ enum VocabularyPackExtractor {
             guard let swiftRange = Range(match.range, in: text),
                   let url = URL(string: String(text[swiftRange])),
                   url.host == base.host,
+                  url.scheme == base.scheme,
+                  url.port == base.port,
+                  MediaLinkSecurityPolicy.isAllowed(url),
                   !url.lastPathComponent.contains("full"),
                   seen.insert(url).inserted else {
                 continue
@@ -561,6 +561,40 @@ enum VocabularyPackExtractor {
 }
 
 extension VocabularyPackStore {
+    /// Use the same HTTPS, redirect, and streaming size checks as media imports.
+    /// Download to a bounded temporary file before reading any remote text into RAM.
+    nonisolated private static func downloadRemoteData(from url: URL, session: URLSession) async throws -> Data {
+        let validatedURL = try MediaLinkSecurityPolicy.validatedURL(from: url.absoluteString)
+        let delegate = DirectDownloadDelegate(
+            maximumBytes: 8_000_000,
+            sizeLimitError: VocabularyPackError.unreadable("the page is too large or isn't text"),
+            onProgress: { _, _ in }
+        )
+        let configuration = session.configuration
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        configuration.urlCredentialStorage = nil
+        configuration.urlCache = nil
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 60
+        let downloadSession = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+        defer { downloadSession.invalidateAndCancel() }
+        let task = downloadSession.downloadTask(with: validatedURL)
+        let fileURL = try await withTaskCancellationHandler {
+            try await delegate.waitForCompletion { task.resume() }
+        } onCancel: {
+            task.cancel()
+            delegate.cancel()
+        }
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        try Task.checkCancellation()
+        guard let http = task.response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            let status = (task.response as? HTTPURLResponse)?.statusCode ?? -1
+            throw VocabularyPackError.unreadable("the server returned HTTP \(status)")
+        }
+        return try Data(contentsOf: fileURL)
+    }
+
     /// Documentation text for building a pack. A web page falls back to the site's
     /// `/llms.txt`; a root `llms.txt` also pulls in the section indexes it links to.
     nonisolated static func fetchDocumentation(
@@ -568,11 +602,8 @@ extension VocabularyPackStore {
         session: URLSession = .shared
     ) async throws -> (title: String?, text: String) {
         func text(at url: URL) async throws -> String {
-            let (data, response) = try await session.data(from: url)
-            if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-                throw VocabularyPackError.unreadable("the server returned HTTP \(http.statusCode)")
-            }
-            guard data.count <= 8_000_000, let string = String(data: data, encoding: .utf8) else {
+            let data = try await downloadRemoteData(from: url, session: session)
+            guard let string = String(data: data, encoding: .utf8) else {
                 throw VocabularyPackError.unreadable("the page is too large or isn't text")
             }
             return string

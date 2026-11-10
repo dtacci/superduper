@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import Darwin
 import Foundation
 import ImageIO
 import UniformTypeIdentifiers
@@ -125,7 +126,10 @@ enum MediaLinkSecurityPolicy {
             return false
         }
 
-        let host = rawHost.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+        let unbracketedHost = rawHost.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+        // A final dot denotes the same DNS name (localhost. still resolves locally).
+        let host = unbracketedHost.hasSuffix(".") ? String(unbracketedHost.dropLast()) : unbracketedHost
+        guard !host.isEmpty, !host.hasSuffix(".") else { return false }
         guard host != "localhost",
               !host.hasSuffix(".localhost"),
               !host.hasSuffix(".local"),
@@ -139,8 +143,17 @@ enum MediaLinkSecurityPolicy {
         // local/link-local IPv6 literals cannot be used to reach machine services.
         guard !host.contains(":") else { return false }
 
-        let octets = host.split(separator: ".").compactMap { UInt8($0) }
-        if octets.count == 4 {
+        var address = in_addr()
+        let isIPv4 = host.withCString { inet_aton($0, &address) == 1 }
+        let labels = host.split(separator: ".", omittingEmptySubsequences: false)
+        if isIPv4 {
+            // URL stacks accept integer, octal, hexadecimal, and shortened IPv4
+            // spellings. Require canonical dotted decimal before checking ranges.
+            guard labels.count == 4, labels.allSatisfy({ label in
+                guard let octet = UInt8(label) else { return false }
+                return String(octet) == label
+            }) else { return false }
+            let octets = labels.compactMap { UInt8($0) }
             let first = octets[0]
             let second = octets[1]
             if first == 0 || first == 10 || first == 127 || first >= 224 { return false }
@@ -542,14 +555,17 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
     private let onProgress: (Int64, Int64) -> Void
     private let temporaryDirectory: URL
     private let maximumBytes: Int64
+    private let sizeLimitError: Error
 
     init(
         temporaryDirectory: URL = FileManager.default.temporaryDirectory,
         maximumBytes: Int64 = MediaLinkSecurityPolicy.maximumDownloadBytes,
+        sizeLimitError: Error = MediaIngestionError.downloadFailed("The file exceeds the 2 GB safety limit."),
         onProgress: @escaping (Int64, Int64) -> Void
     ) {
         self.temporaryDirectory = temporaryDirectory
         self.maximumBytes = maximumBytes
+        self.sizeLimitError = sizeLimitError
         self.onProgress = onProgress
     }
 
@@ -580,7 +596,7 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         if let size = try? location.resourceValues(forKeys: [.fileSizeKey]).fileSize,
            Int64(size) > maximumBytes {
-            complete(.failure(MediaIngestionError.downloadFailed("The file exceeds the 2 GB safety limit.")))
+            complete(.failure(sizeLimitError))
             return
         }
         // URLSession deletes the temp file when this method returns, so move it first.
@@ -612,7 +628,7 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
         if totalBytesWritten > maximumBytes
             || (totalBytesExpectedToWrite > maximumBytes && totalBytesExpectedToWrite > 0) {
             downloadTask.cancel()
-            complete(.failure(MediaIngestionError.downloadFailed("The file exceeds the 2 GB safety limit.")))
+            complete(.failure(sizeLimitError))
             return
         }
         onProgress(totalBytesWritten, totalBytesExpectedToWrite)

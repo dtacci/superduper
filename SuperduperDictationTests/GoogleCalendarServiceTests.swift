@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Network
 import SwiftData
 import Testing
 @testable import SuperduperDictation
@@ -13,6 +14,30 @@ import Testing
 @MainActor
 @Suite
 struct GoogleCalendarServiceTests {
+    @Test func oauthCancellationBeforeCallbackInstallationDoesNotHang() async throws {
+        let sut = OAuthCallbackGate()
+        let listener = try NWListener(using: .tcp)
+        sut.finish(.failure(CancellationError()))
+
+        await #expect(throws: CancellationError.self) {
+            try await withCheckedThrowingContinuation { continuation in
+                sut.install(continuation, listener: listener)
+            }
+        }
+    }
+
+    @Test func oauthCallbackOnlyCompletesOnce() async throws {
+        let sut = OAuthCallbackGate()
+        let listener = try NWListener(using: .tcp)
+        let expected = try #require(URL(string: "http://127.0.0.1/oauth/callback?code=example"))
+        let callback = try await withCheckedThrowingContinuation { continuation in
+            sut.install(continuation, listener: listener)
+            sut.finish(.success(expected))
+            sut.finish(.failure(CancellationError()))
+        }
+        #expect(callback == expected)
+    }
+
     @Test func oauthUsesPKCEStateLoopbackAndNarrowReadOnlyScopes() async throws {
         let credentials = OAuthCredentialMemoryStore()
         let transport = OAuthTransportMock()

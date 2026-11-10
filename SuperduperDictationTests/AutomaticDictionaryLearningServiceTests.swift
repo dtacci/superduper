@@ -111,6 +111,31 @@ private final class MockFocusedTextChangeObserver: FocusedTextChangeObserving {
 @MainActor
 @Suite(.serialized)
 struct AutomaticDictionaryLearningServiceTests {
+    @Test func diagnosticsNeverContainDictationOrSurroundingEditorText() {
+        let prefix = "ConfidentialPrefix"
+        let suffix = "ConfidentialSuffix"
+        let inserted = "SensitiveDictation"
+        let original = prefix + suffix
+        let observed = prefix + inserted + suffix
+        let description = AutomaticDictionaryLearningDetector.debugDescription(
+            for: .unableToResolveObservedInsertedSegment,
+            preInsertSnapshot: makeSnapshot(
+                text: original,
+                selectedRange: CFRange(location: prefix.utf16.count, length: 0)
+            ),
+            insertedText: inserted,
+            observedSnapshot: makeSnapshot(
+                text: observed,
+                selectedRange: CFRange(location: (prefix + inserted).utf16.count, length: 0)
+            )
+        )
+        for sensitive in [prefix, suffix, inserted] {
+            #expect(!description.contains(sensitive))
+            #expect(!AutomaticDictionaryLearningDetector.logToken(sensitive).contains(sensitive))
+        }
+        #expect(description.contains("<redacted length="))
+    }
+
     private struct Fixture {
         let snapshotProvider: MockFocusedTextSnapshotProvider
         let changeObserver: MockFocusedTextChangeObserver
