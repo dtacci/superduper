@@ -122,6 +122,13 @@ final class DictationRecoveryStore {
         .sorted { $0.startedAt < $1.startedAt }
     }
 
+    /// Only an unfinished operation should resume at launch. Failed attempts and
+    /// deliberate cancellations remain available for an explicit retry, but must
+    /// not replay the same error (or canceled audio) on every restart.
+    func interruptedSessions() -> [DictationRecoverySession] {
+        recoverableSessions().filter { $0.state == .recording || $0.state == .processing }
+    }
+
     func workspaceURL(for id: UUID) -> URL {
         directoryURL.appendingPathComponent(id.uuidString, isDirectory: true)
     }

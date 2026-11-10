@@ -290,23 +290,31 @@ protocol GoogleOAuthCallbackReceiving: AnyObject {
     ) async throws -> URL
 }
 
-private final class OAuthCallbackGate: @unchecked Sendable {
+final class OAuthCallbackGate: @unchecked Sendable {
     private let lock = NSLock()
     private var continuation: CheckedContinuation<URL, Error>?
     private var listener: NWListener?
-    private var isComplete = false
+    private var result: Result<URL, Error>?
 
     func install(_ continuation: CheckedContinuation<URL, Error>, listener: NWListener) {
-        lock.withLock {
+        let completedResult = lock.withLock { () -> Result<URL, Error>? in
+            if let result { return result }
             self.continuation = continuation
             self.listener = listener
+            return nil
+        }
+        // Cancellation can finish the gate before the async operation installs
+        // its continuation. Retain that result so Cancel never leaves it waiting.
+        if let completedResult {
+            listener.cancel()
+            continuation.resume(with: completedResult)
         }
     }
 
     func finish(_ result: Result<URL, Error>) {
         let continuation: CheckedContinuation<URL, Error>? = lock.withLock {
-            guard !isComplete else { return nil }
-            isComplete = true
+            guard self.result == nil else { return nil }
+            self.result = result
             listener?.cancel()
             listener = nil
             defer { self.continuation = nil }
@@ -1078,7 +1086,7 @@ protocol MeetingNotifying: Sendable {
 
 struct LogMeetingNotifier: MeetingNotifying {
     func notify(title: String, body: String) async {
-        Log.app.info("Meeting notification: \(title) — \(body)")
+        Log.app.info("Meeting notification requested")
     }
 }
 

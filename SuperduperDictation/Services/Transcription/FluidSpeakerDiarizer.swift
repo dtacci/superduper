@@ -259,7 +259,7 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
             switch offlineError {
             case .modelNotLoaded:
                 return .modelLoadFailed(offlineError.localizedDescription)
-            case .invalidConfiguration, .invalidBatchSize, .processingFailed, .exportFailed:
+            case .invalidConfiguration, .invalidBatchSize, .invalidSpan, .processingFailed, .exportFailed:
                 return .processingFailed(offlineError.localizedDescription)
             case .noSpeechDetected:
                 // noSpeechDetected is handled as an empty success at the call site.

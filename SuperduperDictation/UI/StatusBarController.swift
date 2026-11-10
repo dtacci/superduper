@@ -42,6 +42,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var exportLastTranscriptItem: NSMenuItem?
 
     private var openHistoryItem: NSMenuItem?
+    private var recoverableRecordingsItem: NSMenuItem?
+    private var recoverableRecordings: [DictationRecoverySession] = []
 
     private var promptPresetMenuItem: NSMenuItem?
     private var promptPresetMenu: NSMenu?
@@ -65,6 +67,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onOpenSettings: ((SettingsTab) -> Void)?
     var onSelectPromptPreset: ((PromptPresetOption) -> Void)?
     var onMenuWillOpen: (() -> Void)?
+    var onRetryRecoverableRecording: ((UUID) -> Void)?
 
     // Recent transcripts for submenu
     private(set) var recentTranscripts: [(id: UUID, text: String, timestamp: Date)] = []
@@ -294,6 +297,15 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         recentMenuItem.image = NSImage(systemSymbolName: "text.bubble", accessibilityDescription: nil)
         menu.addItem(recentMenuItem)
 
+        recoverableRecordingsItem = NSMenuItem(
+            title: localized("Retry Transcription", locale: locale),
+            action: nil,
+            keyEquivalent: ""
+        )
+        recoverableRecordingsItem?.image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)
+        menu.addItem(recoverableRecordingsItem!)
+        rebuildRecoverableRecordingsMenu()
+
         menu.addItem(NSMenuItem.separator())
 
         // === PROMPT PRESET ===
@@ -414,6 +426,39 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     func updatePromptPresets(_ presets: [PromptPresetOption]) {
         promptPresetOptions = presets
         rebuildPromptPresetMenu()
+    }
+
+    func updateRecoverableRecordings(_ sessions: [DictationRecoverySession]) {
+        recoverableRecordings = sessions
+        rebuildRecoverableRecordingsMenu()
+    }
+
+    private func rebuildRecoverableRecordingsMenu() {
+        let submenu = NSMenu()
+        // Keep retry availability under our recording/processing admission policy.
+        submenu.autoenablesItems = false
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .medium
+        for session in recoverableRecordings.reversed() {
+            let item = NSMenuItem(
+                title: formatter.string(from: session.startedAt),
+                action: #selector(retryRecoverableRecording(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = session.id
+            item.isEnabled = currentState == .idle
+            submenu.addItem(item)
+        }
+        recoverableRecordingsItem?.submenu = submenu
+        recoverableRecordingsItem?.isHidden = recoverableRecordings.isEmpty
+        applyInterfaceLayoutDirection(to: submenu, locale: locale)
+    }
+
+    func recoverableRecordingsMenuItemForTesting() -> NSMenuItem? {
+        recoverableRecordingsItem
     }
 
     private func rebuildPromptPresetMenu() {
@@ -550,6 +595,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     func updateMenuState() {
+        for item in recoverableRecordingsItem?.submenu?.items ?? [] {
+            item.isEnabled = currentState == .idle
+        }
         toggleRecordingIndicatorItem?.state = settingsStore.floatingIndicatorEnabled ? .on : .off
         switch currentState {
         case .recording:
@@ -705,6 +753,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc private func openHistory() {
         onOpenHistory?()
+    }
+
+    @objc private func retryRecoverableRecording(_ sender: NSMenuItem) {
+        guard currentState == .idle,
+              let id = sender.representedObject as? UUID else { return }
+        onRetryRecoverableRecording?(id)
     }
 
     @objc private func showApp() {

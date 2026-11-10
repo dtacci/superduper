@@ -26,6 +26,11 @@ Xcode in **Xcode → Settings → Locations** or run commands with:
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer just test-unsigned
 ```
 
+Builds, tests, and archives use the versions committed in `Package.resolved`.
+After deliberately changing package requirements, run `just resolve-packages`,
+review the full lockfile diff (including transitive dependencies and binary
+artifacts), then run `just build` and `just test` before committing it.
+
 ## Stable local signing
 
 Accessibility approval follows an app’s code-signing identity. The

@@ -17,11 +17,22 @@ struct MediaIngestionServiceTests {
 
     @Test func testWebLinkPolicyRequiresPublicHTTPS() throws {
         #expect(try MediaLinkSecurityPolicy.validatedURL(from: "https://example.com/video").host == "example.com")
+        #expect(try MediaLinkSecurityPolicy.validatedURL(from: "https://8.8.8.8/video").host == "8.8.8.8")
 
         for blocked in [
             "http://example.com/video",
             "https://localhost/video",
+            "https://localhost./video",
+            "https://printer.local./video",
+            "https://service.internal./video",
+            "https://home.arpa./video",
             "https://127.0.0.1/video",
+            "https://127.0.0.1./video",
+            "https://0177.0.0.1/video",
+            "https://127.0.0x0.1/video",
+            "https://2130706433/video",
+            "https://127.1/video",
+            "https://0x7f000001/video",
             "https://192.168.1.20/video",
             "https://[::1]/video",
             "https://user:password@example.com/video",
@@ -54,6 +65,44 @@ struct MediaIngestionServiceTests {
         #expect(!didStart)
         #expect(try Data(contentsOf: downloadedURL) == Data("audio-data".utf8))
         try? FileManager.default.removeItem(at: downloadedURL)
+    }
+
+    @Test func testDirectDownloadDelegateAppliesTheVocabularySizeLimitWhileStreaming() async throws {
+        let expectedError = VocabularyPackError.unreadable("the page is too large or isn't text")
+        let delegate = DirectDownloadDelegate(
+            maximumBytes: 4,
+            sizeLimitError: expectedError,
+            onProgress: { _, _ in Issue.record("Oversized download must not report progress") }
+        )
+        let session = URLSession(configuration: .ephemeral)
+        defer { session.invalidateAndCancel() }
+        let task = session.downloadTask(with: URL(string: "https://example.com/llms.txt")!)
+        delegate.urlSession(session, downloadTask: task, didWriteData: 5, totalBytesWritten: 5, totalBytesExpectedToWrite: -1)
+
+        await #expect(throws: expectedError) {
+            try await delegate.waitForCompletion { Issue.record("Oversized download must not restart") }
+        }
+    }
+
+    @Test func testDirectDownloadDelegateBlocksLocalRedirectBeforeFollowingIt() async throws {
+        let delegate = DirectDownloadDelegate(onProgress: { _, _ in })
+        let session = URLSession(configuration: .ephemeral)
+        defer { session.invalidateAndCancel() }
+        let url = try #require(URL(string: "https://example.com/audio.mp3"))
+        let task = session.downloadTask(with: url)
+        let response = try #require(HTTPURLResponse(url: url, statusCode: 302, httpVersion: nil, headerFields: nil))
+        var didCheckRedirect = false
+        delegate.urlSession(
+            session, task: task, willPerformHTTPRedirection: response,
+            newRequest: URLRequest(url: URL(string: "https://localhost./audio.mp3")!)
+        ) { request in
+            didCheckRedirect = true
+            #expect(request == nil)
+        }
+        #expect(didCheckRedirect)
+        await #expect(throws: MediaIngestionError.self) {
+            try await delegate.waitForCompletion { Issue.record("Blocked redirect must not restart") }
+        }
     }
 
     @Test func testDirectDownloadDelegateRetainsImmediateFailure() async {

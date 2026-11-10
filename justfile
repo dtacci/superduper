@@ -43,6 +43,7 @@ _build configuration sign="yes":
         -scheme {{scheme}} \
         -configuration {{configuration}} \
         -derivedDataPath DerivedData \
+        -onlyUsePackageVersionsFromResolvedFile \
         {{ if sign == "no" { signing_disabled } else { "" } }} \
         {{google_oauth_settings}} \
         build
@@ -56,8 +57,16 @@ _test testplan sign="yes" coverage="no":
         -testPlan {{testplan}} \
         -destination 'platform=macOS' \
         -derivedDataPath DerivedData \
+        -onlyUsePackageVersionsFromResolvedFile \
         {{ if coverage == "yes" { "-enableCodeCoverage YES" } else { "" } }} \
         {{ if sign == "no" { signing_disabled } else { "" } }}
+
+# Resolve deliberate package requirement changes, then review Package.resolved.
+resolve-packages:
+    xcodebuild -resolvePackageDependencies \
+        -project {{xcode_project}} \
+        -scheme {{scheme}} \
+        -derivedDataPath DerivedData
 
 # Build for development (Debug, Xcode-managed signing)
 build:
@@ -163,6 +172,7 @@ archive:
         -project {{xcode_project}} \
         -scheme {{scheme}} \
         -configuration Release \
+        -onlyUsePackageVersionsFromResolvedFile \
         -archivePath "{{build_dir}}/{{app_name}}.xcarchive" \
         -allowProvisioningUpdates \
         ARCHS=arm64 \

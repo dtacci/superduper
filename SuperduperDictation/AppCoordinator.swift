@@ -1000,6 +1000,13 @@ final class AppCoordinator {
 
         self.statusBarController.onMenuWillOpen = { [weak self] in
             self?.refreshStatusBarPresets()
+            self?.refreshRecoverableRecordingsMenu()
+        }
+
+        self.statusBarController.onRetryRecoverableRecording = { [weak self] id in
+            Task { @MainActor [weak self] in
+                await self?.processRecoverableRecording(id: id, automatic: false)
+            }
         }
 
         self.statusBarController.onOpenSettings = { [weak self] tab in
@@ -6378,13 +6385,8 @@ final class AppCoordinator {
     }
 
     private func resumeInterruptedDictationsIfNeeded() {
-        let interrupted = dictationRecoveryStore.recoverableSessions(includeCanceled: false)
-        let canceled = dictationRecoveryStore.recoverableSessions(includeCanceled: true)
-            .filter { $0.state == .canceled }
-
-        if let canceledSession = canceled.last {
-            showRecoverableRecordingToast(id: canceledSession.id, wasExplicitlyCanceled: true)
-        }
+        refreshRecoverableRecordingsMenu()
+        let interrupted = dictationRecoveryStore.interruptedSessions()
         guard !interrupted.isEmpty else { return }
 
         Log.audio.warning("Found \(interrupted.count) interrupted recording(s); resuming transcription")
@@ -6395,6 +6397,10 @@ final class AppCoordinator {
                 await self.processRecoverableRecording(id: session.id, automatic: true)
             }
         }
+    }
+
+    private func refreshRecoverableRecordingsMenu() {
+        statusBarController.updateRecoverableRecordings(dictationRecoveryStore.recoverableSessions())
     }
 
     private func showRecoverableRecordingToast(id: UUID, wasExplicitlyCanceled: Bool) {
@@ -6436,7 +6442,9 @@ final class AppCoordinator {
             return
         }
         guard activeModelName != nil else {
-            showRecoverableRecordingToast(id: id, wasExplicitlyCanceled: false)
+            if !automatic {
+                showRecoverableRecordingToast(id: id, wasExplicitlyCanceled: false)
+            }
             return
         }
 

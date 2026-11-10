@@ -60,6 +60,34 @@ struct VocabularyPackStoreTests {
         }
     }
 
+    @Test func remoteImportsAndDocumentationRejectUnsafeURLsBeforeDownloading() async throws {
+        let (sut, directory, _) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        for input in ["http://example.com/pack.json", "https://localhost./llms.txt", "file:///etc/passwd"] {
+            let url = try #require(URL(string: input))
+            await #expect(throws: MediaIngestionError.self) {
+                try await sut.importPack(fromRemote: url)
+            }
+            await #expect(throws: MediaIngestionError.self) {
+                try await VocabularyPackStore.fetchDocumentation(from: url)
+            }
+        }
+    }
+
+    @Test func documentationIndexesStayOnTheSameSecureOrigin() throws {
+        let base = try #require(URL(string: "https://docs.example.com/llms.txt"))
+        let text = """
+        https://docs.example.com/safe/llms.txt
+        http://docs.example.com/insecure/llms.txt
+        https://docs.example.com:8443/other-port/llms.txt
+        https://user:password@docs.example.com/credentials/llms.txt
+        https://other.example.com/external/llms.txt
+        """
+        #expect(VocabularyPackExtractor.linkedIndexURLs(in: text, base: base).map(\.absoluteString) == [
+            "https://docs.example.com/safe/llms.txt"
+        ])
+    }
+
     @Test func starterPacksAreAvailableButOffUntilEnabledOnThisMac() throws {
         let (sut, directory, defaults) = try makeStore()
 

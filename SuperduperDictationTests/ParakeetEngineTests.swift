@@ -32,34 +32,6 @@ struct ParakeetEngineTests {
         #expect(engine.error == nil, "Initial error should be nil")
     }
 
-    @Test func loadModelSetsStateToReady() async throws {
-        let engine = makeEngine()
-        #expect(engine.state == .unloaded)
-
-        do {
-            try await engine.loadModel(modelName: "parakeet-tdt-0.6b-v2")
-        } catch {
-        }
-
-        #expect(engine.state != .unloaded, "State should change from unloaded when loading starts")
-    }
-
-    @Test func loadModelTransitionsThroughLoadingState() async throws {
-        let engine = makeEngine()
-        #expect(engine.state == .unloaded)
-
-        Task {
-            do {
-                try await engine.loadModel(modelName: "parakeet-tdt-0.6b-v2")
-            } catch {
-            }
-        }
-
-        try await Task.sleep(nanoseconds: 100_000_000)
-
-        #expect(engine.state != .unloaded, "State should transition from unloaded when loading starts")
-    }
-
     @Test func loadModelWithPathNotSupported() async throws {
         let engine = makeEngine()
         #expect(engine.state == .unloaded)
@@ -88,44 +60,11 @@ struct ParakeetEngineTests {
         }
     }
 
-    @Test func transcribeWithEmptyAudioDataThrowsError() async throws {
-        let engine = makeEngine()
-
-        do {
-            try await engine.loadModel(modelName: "parakeet-tdt-0.6b-v2")
-        } catch {
-        }
-
-        do {
-            _ = try await engine.transcribe(audioData: Data())
-            Issue.record("Should throw error for empty audio data")
-        } catch ParakeetEngine.EngineError.invalidAudioData {
-        } catch ParakeetEngine.EngineError.modelNotLoaded {
-        } catch {
-            Issue.record("Unexpected error: \(error)")
-        }
-    }
-
-    @Test func unloadModelSetsStateToUnloaded() async throws {
-        let engine = makeEngine()
-
-        do {
-            try await engine.loadModel(modelName: "parakeet-tdt-0.6b-v2")
-        } catch {
-        }
-
-        await engine.unloadModel()
-
-        #expect(engine.state == .unloaded, "State should be unloaded after unloadModel")
-        #expect(engine.error == nil, "Error should be nil after unloadModel")
-    }
-
     @Test func unloadModelClearsError() async throws {
         let engine = makeEngine()
 
-        do {
+        await #expect(throws: ParakeetEngine.EngineError.self) {
             try await engine.loadModel(modelPath: "/invalid/path")
-        } catch {
         }
 
         #expect(engine.error != nil, "Error should be set after failed load")
@@ -145,38 +84,17 @@ struct ParakeetEngineTests {
         #expect(engine.error == nil, "Error should remain nil")
     }
 
-    @Test func stateTransitions() async throws {
-        let engine = makeEngine()
-        #expect(engine.state == .unloaded)
-
-        Task {
-            do {
-                try await engine.loadModel(modelName: "parakeet-tdt-0.6b-v2")
-            } catch {
-            }
-        }
-
-        try await Task.sleep(nanoseconds: 100_000_000)
-
-        let stateAfterLoadAttempt = engine.state
-        #expect(stateAfterLoadAttempt != .unloaded)
-
-        await engine.unloadModel()
-        #expect(engine.state == .unloaded)
-    }
-
-    @Test func concurrentTranscriptionPrevention() async throws {
+    @Test func concurrentRequestsWithoutALoadedModelBothFail() async {
         let engine = makeEngine()
         let audioData = makeInt16AudioData()
 
-        async let result1 = engine.transcribe(audioData: audioData)
-        async let result2 = engine.transcribe(audioData: audioData)
-
-        do {
-            _ = try await result1
-            _ = try await result2
-        } catch {
+        async let first = #expect(throws: ParakeetEngine.EngineError.self) {
+            try await engine.transcribe(audioData: audioData)
         }
+        async let second = #expect(throws: ParakeetEngine.EngineError.self) {
+            try await engine.transcribe(audioData: audioData)
+        }
+        _ = await (first, second)
     }
 
     @Test func errorDescriptionForModelNotLoaded() {
@@ -217,21 +135,6 @@ struct ParakeetEngineTests {
                 "Error description should contain the failure message")
     }
 
-    @Test func v3ModelVersionSelection() async throws {
-        let engine = makeEngine()
-        #expect(engine.state == .unloaded)
-
-        Task {
-            do {
-                try await engine.loadModel(modelName: "parakeet-tdt-0.6b-v3")
-            } catch {
-            }
-        }
-
-        try await Task.sleep(nanoseconds: 100_000_000)
-        #expect(engine.state != .unloaded, "State should transition when loading v3 model")
-    }
-
     // MARK: - Short clip padding
 
     @Test func shortClipsArePaddedToFluidAudioMinimum() {
@@ -262,10 +165,13 @@ struct ParakeetEngineTests {
     private func writeCompleteV2ModelSet(at directory: URL) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         for fileName in ModelNames.ASR.requiredModels {
+            let modelURL = directory.appendingPathComponent(fileName, isDirectory: true)
             try FileManager.default.createDirectory(
-                at: directory.appendingPathComponent(fileName, isDirectory: true),
+                at: modelURL,
                 withIntermediateDirectories: true
             )
+            // FluidAudio validates the compiled bundle layout before reusing it.
+            try Data([0]).write(to: modelURL.appendingPathComponent("coremldata.bin"))
         }
         try Data("{}".utf8).write(to: directory.appendingPathComponent(ModelNames.ASR.vocabularyFile))
     }
@@ -337,6 +243,11 @@ struct ParakeetEngineTests {
 
         try writeCompleteV2ModelSet(at: cache)
         #expect(ParakeetEngine.resolveModelDirectory(version: .v2, downloadBase: base, fluidAudioCacheDirectory: cache) == cache)
+
+        let partial = cache.appendingPathComponent(ModelNames.ASR.encoderFile).appendingPathComponent("weights.bin.partial")
+        try Data([0]).write(to: partial)
+        #expect(ParakeetEngine.resolveModelDirectory(version: .v2, downloadBase: base, fluidAudioCacheDirectory: cache) == nil)
+        try FileManager.default.removeItem(at: partial)
 
         let appDirectory = ParakeetEngine.appModelDirectory(downloadBase: base, version: .v2)
         try writeCompleteV2ModelSet(at: appDirectory)
@@ -513,5 +424,36 @@ struct ParakeetEngineTests {
 
         #expect(result.map(\.text) == ["say", "hi", "to", "D'Sa.", "Thanks"])
         #expect(result[3].startTime == 3)
+    }
+}
+
+/// Real model loads are opt-in: unit tests must never download or compile models.
+@MainActor
+@Suite(
+    "ParakeetEngine (integration, network)",
+    .serialized,
+    .enabled(
+        if: ProcessInfo.processInfo.environment["SUPERDUPER_RUN_INTEGRATION_TESTS"] == "1",
+        "Parakeet model loads are disabled by default. Run just test-integration."
+    )
+)
+struct ParakeetEngineIntegrationTests {
+    @Test(arguments: ["parakeet-tdt-0.6b-v2", "parakeet-tdt-0.6b-v3"])
+    func modelLoadTranscriptionValidationAndUnload(modelName: String) async throws {
+        let engine = ParakeetEngine()
+        do {
+            try await engine.loadModel(name: modelName, downloadBase: nil)
+            #expect(engine.state == .ready)
+            #expect(engine.error == nil)
+            await #expect(throws: ParakeetEngine.EngineError.self) {
+                try await engine.transcribe(audioData: Data())
+            }
+            await engine.unloadModel()
+            #expect(engine.state == .unloaded)
+            #expect(engine.error == nil)
+        } catch {
+            await engine.unloadModel()
+            throw error
+        }
     }
 }
