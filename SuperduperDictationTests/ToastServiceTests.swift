@@ -137,7 +137,11 @@ struct ToastServiceTests {
         let scheduler = ManualTaskScheduler(now: Date(timeIntervalSince1970: 1_000))
         let service = ToastService(presenter: presenter, scheduler: scheduler)
 
-        service.show(ToastPayload(message: "Saved", duration: 0.25))
+        service.show(ToastPayload(
+            message: "Saved",
+            actions: [ToastAction(title: "Undo") {}],
+            duration: 0.25
+        ))
 
         scheduler.advance(by: 0.08)
         presenter.currentHoverHandler?(true)
@@ -152,6 +156,44 @@ struct ToastServiceTests {
 
         scheduler.advance(by: 0.17)
         #expect(presenter.hideCallCount == 1)
+    }
+
+    @Test func hoverDoesNotKeepPassiveToastVisible() {
+        let presenter = MockToastPresenter()
+        let scheduler = ManualTaskScheduler()
+        let service = ToastService(presenter: presenter, scheduler: scheduler)
+
+        service.show(ToastPayload(message: "Paste failed", duration: 0.25, style: .error))
+        scheduler.advance(by: 0.08)
+        presenter.currentHoverHandler?(true)
+        scheduler.advance(by: 0.18)
+
+        #expect(presenter.hideCallCount == 1)
+    }
+
+    @Test func successfulDictationDoesNotProduceOutputFeedback() {
+        let locale = Locale(identifier: "en")
+        #expect(ToastPayload.dictationOutputFailure(
+            for: .pasted(destinationAppName: "ChatGPT"), locale: locale
+        ) == nil)
+        #expect(ToastPayload.dictationOutputFailure(
+            for: .copiedToClipboard(reason: .copyOnlyMode), locale: locale
+        ) == nil)
+        #expect(ToastPayload.dictationOutputFailure(
+            for: .copiedToClipboard(reason: .accessibilityUnavailable), locale: locale
+        ) == nil)
+    }
+
+    @Test func unexpectedOutputFallbacksRemainVisibleAndExpire() throws {
+        let locale = Locale(identifier: "en")
+        for reason: OutputManager.OutputResult.ClipboardFallbackReason in [.pasteFailed, .screenLocked] {
+            let payload = try #require(ToastPayload.dictationOutputFailure(
+                for: .copiedToClipboard(reason: reason), locale: locale
+            ))
+            #expect(payload.style == .error)
+            #expect(payload.duration == 4.0)
+            #expect(payload.actions.isEmpty)
+        }
     }
 }
 

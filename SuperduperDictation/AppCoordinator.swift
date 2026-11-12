@@ -3615,7 +3615,7 @@ final class AppCoordinator {
                 if try dictationRecoveryStore.session(id: recoveryID).state == .processing {
                     try dictationRecoveryStore.complete(id: recoveryID)
                 } else if dictationRecoveryStore.hasAudio(id: recoveryID) {
-                    showRecoverableRecordingToast(id: recoveryID, wasExplicitlyCanceled: false)
+                    showRecoverableRecordingToast(id: recoveryID)
                 }
                 if activeDictationRecoveryID == recoveryID {
                     activeDictationRecoveryID = nil
@@ -4868,25 +4868,6 @@ final class AppCoordinator {
         )
     }
 
-    /// Success toast after a paste landed in the target app. Not shown for clipboard-only
-    /// fallback (that path gets a separate Copied+Undo toast in B7).
-    private func showInsertionSuccessToast(appName: String?, wordCount: Int) {
-        let locale = settingsStore.selectedAppLocale.locale
-        let trimmedName = appName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let displayName = trimmedName.isEmpty
-            ? localized("Unknown App", locale: locale)
-            : trimmedName
-        let format = localized("Inserted into %@", locale: locale)
-        let message = String(format: format, locale: locale, displayName)
-        toastService.show(
-            ToastPayload(
-                message: message,
-                style: .standard,
-                variant: .inserted(wordCount: wordCount)
-            )
-        )
-    }
-
     private func handleRecordingStartFailure(_ error: Error, source: RecordingTriggerSource) {
         let isHotkeySource: Bool
         switch source {
@@ -5133,12 +5114,6 @@ final class AppCoordinator {
                 )
             }
             updateRecentTranscriptsMenu()
-            if outcome.didPaste {
-                showInsertionSuccessToast(
-                    appName: outcome.destinationAppName,
-                    wordCount: outcome.finalText.wordCount
-                )
-            }
         } catch {
             Log.app.error("Failed to save streamed transcription to history: \(error)")
             if let recoveryID = activeDictationRecoveryID {
@@ -5627,7 +5602,7 @@ final class AppCoordinator {
             }
             updateRecentTranscriptsMenu()
             if let outputResult {
-                showOutputResultToast(outputResult, wordCount: finalText.wordCount)
+                showOutputResultToast(outputResult)
             }
         } catch {
             Log.app.error("Failed to save to history: \(error)")
@@ -5637,59 +5612,13 @@ final class AppCoordinator {
         }
     }
 
-    /// Post-output feedback for the batch path. A landed paste gets the insertion
-    /// toast; the intentional no-Accessibility copy fallback gets "Copied" with Undo
-    /// (previously it was silent, making dictation look like a no-op); a real paste
-    /// failure that fell back to the clipboard gets an error toast.
-    private func showOutputResultToast(_ result: OutputManager.OutputResult, wordCount: Int) {
-        let locale = settingsStore.selectedAppLocale.locale
-        if result.didPaste {
-            showInsertionSuccessToast(
-                appName: result.destinationAppName,
-                wordCount: wordCount
-            )
-            return
-        }
-
-        switch result.clipboardFallbackReason {
-        case .copyOnlyMode, .accessibilityUnavailable:
-            var actions: [ToastAction] = []
-            if let snapshot = result.previousClipboardSnapshot {
-                actions.append(
-                    ToastAction(title: localized("Undo", locale: locale), role: .primary) { [weak self] in
-                        let restored = self?.outputManager.restoreClipboardSnapshot(snapshot) ?? false
-                        if restored {
-                            Log.output.info("Restored clipboard after copy undo")
-                        } else {
-                            Log.output.error("Failed to restore clipboard after copy undo")
-                        }
-                    }
-                )
-            }
-            toastService.show(
-                ToastPayload(
-                    message: localized("Copied to clipboard", locale: locale),
-                    actions: actions,
-                    variant: .copied
-                )
-            )
-        case .screenLocked:
-            toastService.show(
-                ToastPayload(
-                    message: localized(
-                        "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted.",
-                        locale: locale
-                    ),
-                    duration: nil
-                )
-            )
-        case .pasteFailed, nil:
-            toastService.show(
-                ToastPayload(
-                    message: localized("Paste failed. Transcript copied to clipboard.", locale: locale),
-                    style: .error
-                )
-            )
+    /// Successful output is silent; unexpected clipboard fallbacks remain visible.
+    private func showOutputResultToast(_ result: OutputManager.OutputResult) {
+        if let payload = ToastPayload.dictationOutputFailure(
+            for: result,
+            locale: settingsStore.selectedAppLocale.locale
+        ) {
+            toastService.show(payload)
         }
     }
 
@@ -6268,9 +6197,8 @@ final class AppCoordinator {
 
         finishIndicatorSession()
 
-        if let recoveryID, dictationRecoveryStore.hasAudio(id: recoveryID) {
-            showRecoverableRecordingToast(id: recoveryID, wasExplicitlyCanceled: true)
-        }
+        // Deliberately canceled audio remains available from the menu without a banner.
+        refreshRecoverableRecordingsMenu()
     }
 
     private func markActiveMeetingFailed(_ message: String) {
@@ -6335,7 +6263,7 @@ final class AppCoordinator {
             ToastPayload(message: captureFailureMessage, style: .error)
         )
         if let recoveryID, dictationRecoveryStore.hasAudio(id: recoveryID) {
-            showRecoverableRecordingToast(id: recoveryID, wasExplicitlyCanceled: false)
+            showRecoverableRecordingToast(id: recoveryID)
         }
     }
 
@@ -6403,11 +6331,10 @@ final class AppCoordinator {
         statusBarController.updateRecoverableRecordings(dictationRecoveryStore.recoverableSessions())
     }
 
-    private func showRecoverableRecordingToast(id: UUID, wasExplicitlyCanceled: Bool) {
+    private func showRecoverableRecordingToast(id: UUID) {
+        refreshRecoverableRecordingsMenu()
         let locale = settingsStore.selectedAppLocale.locale
-        let message = wasExplicitlyCanceled
-            ? localized("Recording canceled. The audio is safe and can be transcribed later.", locale: locale)
-            : localized("An interrupted recording is safe and ready to resume.", locale: locale)
+        let message = localized("An interrupted recording is safe and ready to resume.", locale: locale)
         toastService.show(
             ToastPayload(
                 message: message,
@@ -6421,7 +6348,7 @@ final class AppCoordinator {
                         }
                     }
                 ],
-                duration: nil
+                duration: 6.0
             )
         )
     }
@@ -6443,7 +6370,7 @@ final class AppCoordinator {
         }
         guard activeModelName != nil else {
             if !automatic {
-                showRecoverableRecordingToast(id: id, wasExplicitlyCanceled: false)
+                showRecoverableRecordingToast(id: id)
             }
             return
         }
@@ -7954,9 +7881,8 @@ final class AppCoordinator {
 
         finishIndicatorSession()
 
-        if let recoveryID, dictationRecoveryStore.hasAudio(id: recoveryID) {
-            showRecoverableRecordingToast(id: recoveryID, wasExplicitlyCanceled: true)
-        }
+        // Deliberately canceled audio remains available from the menu without a banner.
+        refreshRecoverableRecordingsMenu()
     }
 
     // MARK: - Cancel Operation

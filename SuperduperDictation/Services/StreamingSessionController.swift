@@ -631,56 +631,15 @@ final class StreamingSessionController {
         return sink
     }
 
-    /// Copy fallbacks are not all failures: in copy-only mode or without Accessibility
-    /// permission the copy IS the intended output (surface "Copied" with Undo), while
-    /// a failed paste that fell back to the clipboard is an error worth flagging.
+    /// Matches batch dictation: routine copies are silent, unexpected fallbacks are errors.
     private func showClipboardFallbackToast(for result: OutputManager.OutputResult) {
-        let locale = settingsStore.selectedAppLocale.locale
-        switch result.clipboardFallbackReason {
-        case .copyOnlyMode, .accessibilityUnavailable:
-            var actions: [ToastAction] = []
-            if let snapshot = result.previousClipboardSnapshot {
-                actions.append(
-                    ToastAction(title: localized("Undo", locale: locale), role: .primary) { [weak self] in
-                        let restored = self?.outputManager.restoreClipboardSnapshot(snapshot) ?? false
-                        if restored {
-                            Log.output.info("Restored clipboard after copy undo")
-                        } else {
-                            Log.output.error("Failed to restore clipboard after copy undo")
-                        }
-                    }
-                )
-            }
-            toastService.show(
-                ToastPayload(
-                    message: localized("Copied to clipboard", locale: locale),
-                    actions: actions,
-                    variant: .copied
-                )
-            )
-        case .screenLocked:
-            toastService.show(
-                ToastPayload(
-                    message: localized(
-                        "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted.",
-                        locale: locale
-                    ),
-                    duration: nil
-                )
-            )
-        case .pasteFailed, nil:
-            toastService.show(
-                ToastPayload(
-                    message: localized(
-                        "Paste failed. Transcript copied to clipboard.",
-                        locale: locale
-                    ),
-                    style: .error
-                )
-            )
+        if let payload = ToastPayload.dictationOutputFailure(
+            for: result,
+            locale: settingsStore.selectedAppLocale.locale
+        ) {
+            toastService.show(payload)
         }
     }
-
 
     /// True when `error` is cooperative task cancellation (or URLSession cancel).
     nonisolated static func isCancellationError(_ error: Error) -> Bool {

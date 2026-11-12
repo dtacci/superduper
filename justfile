@@ -68,6 +68,11 @@ resolve-packages:
         -scheme {{scheme}} \
         -derivedDataPath DerivedData
 
+# Check all locked source revisions and versions against current OSV advisories.
+audit-dependencies:
+    python3 -m unittest discover -s scripts/tests -p 'test_audit_dependencies.py'
+    python3 scripts/audit_dependencies.py
+
 # Build for development (Debug, Xcode-managed signing)
 build:
     @echo "🔨 Building {{app_name}} (Debug)..."
