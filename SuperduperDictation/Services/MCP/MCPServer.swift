@@ -30,9 +30,17 @@ final class MCPServer {
     // MARK: - Lifecycle
 
     func start() {
+        // Enforce the production boundary at the listener itself, including callers
+        // that bypass coordinator settings.
+        guard LocalOnlySecurityPolicy.allowsMCPServer else { return }
         guard !isRunning else { return }
         do {
-            let listener = try NWListener(using: .tcp, on: NWEndpoint.Port(rawValue: port)!)
+            let parameters = NWParameters.tcp
+            parameters.requiredLocalEndpoint = .hostPort(
+                host: "127.0.0.1",
+                port: NWEndpoint.Port(rawValue: port)!
+            )
+            let listener = try NWListener(using: parameters)
             self.listener = listener
 
             listener.newConnectionHandler = { [weak self] nwConn in

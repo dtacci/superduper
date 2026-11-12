@@ -1,0 +1,348 @@
+{
+  "checkedAt": "2026-11-12T16:48:12.641773+00:00",
+  "method": "OSV commit and SwiftURL package/version querybatch",
+  "dependencies": [
+    {
+      "identity": "async-http-client",
+      "location": "https://github.com/swift-server/async-http-client",
+      "revision": "4c005f955e83f888d5616e579717a36d2dfc6301",
+      "version": "1.36.2",
+      "osvPackage": "github.com/swift-server/async-http-client",
+      "advisories": [],
+      "latestRelease": "1.37.0",
+      "releaseURL": "https://github.com/swift-server/async-http-client/releases/tag/1.37.0"
+    },
+    {
+      "identity": "eventsource",
+      "location": "https://github.com/mattt/EventSource.git",
+      "revision": "bb4b61273b5a976bb571859c17f903ebc3439df1",
+      "version": "1.6.0",
+      "osvPackage": "github.com/mattt/EventSource",
+      "advisories": [],
+      "latestRelease": "1.6.0",
+      "releaseURL": "https://github.com/mattt/EventSource/releases/tag/1.6.0"
+    },
+    {
+      "identity": "fluidaudio",
+      "location": "https://github.com/FluidInference/FluidAudio.git",
+      "revision": "c8b41f98eae668794dd0083bbe028fe7e6585051",
+      "version": "0.18.3",
+      "osvPackage": "github.com/FluidInference/FluidAudio",
+      "advisories": [],
+      "latestRelease": "v0.18.3",
+      "releaseURL": "https://github.com/FluidInference/FluidAudio/releases/tag/v0.18.3"
+    },
+    {
+      "identity": "mlx-swift",
+      "location": "https://github.com/ml-explore/mlx-swift",
+      "revision": "dc43e62d7055353c7f99fa071a4e71d29dfddc44",
+      "version": "0.31.4",
+      "osvPackage": "github.com/ml-explore/mlx-swift",
+      "advisories": [],
+      "latestRelease": "0.33.0",
+      "releaseURL": "https://github.com/ml-explore/mlx-swift/releases/tag/0.33.0"
+    },
+    {
+      "identity": "mlx-swift-lm",
+      "location": "https://github.com/ml-explore/mlx-swift-lm.git",
+      "revision": "25b00d4e22e61ec9c41efda47990cd2084ec87ff",
+      "version": "2.31.3",
+      "osvPackage": "github.com/ml-explore/mlx-swift-lm",
+      "advisories": [],
+      "latestRelease": "3.32.3",
+      "releaseURL": "https://github.com/ml-explore/mlx-swift-lm/releases/tag/3.32.3"
+    },
+    {
+      "identity": "swift-algorithms",
+      "location": "https://github.com/apple/swift-algorithms.git",
+      "revision": "87e50f483c54e6efd60e885f7f5aa946cee68023",
+      "version": "1.2.1",
+      "osvPackage": "github.com/apple/swift-algorithms",
+      "advisories": [],
+      "latestRelease": "1.2.1",
+      "releaseURL": "https://github.com/apple/swift-algorithms/releases/tag/1.2.1"
+    },
+    {
+      "identity": "swift-argument-parser",
+      "location": "https://github.com/apple/swift-argument-parser.git",
+      "revision": "6a52f3251125d74daf04fcbd5e6f08a75d074382",
+      "version": "1.8.2",
+      "osvPackage": "github.com/apple/swift-argument-parser",
+      "advisories": [],
+      "latestRelease": "1.8.2",
+      "releaseURL": "https://github.com/apple/swift-argument-parser/releases/tag/1.8.2"
+    },
+    {
+      "identity": "swift-asn1",
+      "location": "https://github.com/apple/swift-asn1.git",
+      "revision": "917b472dbe53ba699cbb0495f9a95a084bc6364d",
+      "version": "1.7.4",
+      "osvPackage": "github.com/apple/swift-asn1",
+      "advisories": [],
+      "latestRelease": "1.7.4",
+      "releaseURL": "https://github.com/apple/swift-asn1/releases/tag/1.7.4"
+    },
+    {
+      "identity": "swift-async-algorithms",
+      "location": "https://github.com/apple/swift-async-algorithms.git",
+      "revision": "13713a4ffdee8abd929f92568ee9462a46ae26e0",
+      "version": "1.1.7",
+      "osvPackage": "github.com/apple/swift-async-algorithms",
+      "advisories": [],
+      "latestRelease": "1.1.7",
+      "releaseURL": "https://github.com/apple/swift-async-algorithms/releases/tag/1.1.7"
+    },
+    {
+      "identity": "swift-atomics",
+      "location": "https://github.com/apple/swift-atomics.git",
+      "revision": "0442cb5a3f98ab802acb777929fdb446bda11a34",
+      "version": "1.3.1",
+      "osvPackage": "github.com/apple/swift-atomics",
+      "advisories": [],
+      "latestRelease": "1.3.1",
+      "releaseURL": "https://github.com/apple/swift-atomics/releases/tag/1.3.1"
+    },
+    {
+      "identity": "swift-certificates",
+      "location": "https://github.com/apple/swift-certificates.git",
+      "revision": "84f03fafeca28c19f5fc4b528df3d22ce8896bd7",
+      "version": "1.21.1",
+      "osvPackage": "github.com/apple/swift-certificates",
+      "advisories": [],
+      "latestRelease": "1.21.1",
+      "releaseURL": "https://github.com/apple/swift-certificates/releases/tag/1.21.1"
+    },
+    {
+      "identity": "swift-collections",
+      "location": "https://github.com/apple/swift-collections.git",
+      "revision": "a0cb0954ecb21e4e31b0070e6ed5674e8556685a",
+      "version": "1.6.0",
+      "osvPackage": "github.com/apple/swift-collections",
+      "advisories": [],
+      "latestRelease": "1.7.6",
+      "releaseURL": "https://github.com/apple/swift-collections/releases/tag/1.7.6"
+    },
+    {
+      "identity": "swift-crypto",
+      "location": "https://github.com/apple/swift-crypto.git",
+      "revision": "da9d28d69ebe3894b18376c8f2395c2f37b8448f",
+      "version": "4.5.2",
+      "osvPackage": "github.com/apple/swift-crypto",
+      "advisories": [],
+      "latestRelease": "5.1.1",
+      "releaseURL": "https://github.com/apple/swift-crypto/releases/tag/5.1.1"
+    },
+    {
+      "identity": "swift-distributed-tracing",
+      "location": "https://github.com/apple/swift-distributed-tracing.git",
+      "revision": "cc504a45f6ce73ce6067837d7ac19fa67b229a56",
+      "version": "1.5.0",
+      "osvPackage": "github.com/apple/swift-distributed-tracing",
+      "advisories": [],
+      "latestRelease": "1.7.4",
+      "releaseURL": "https://github.com/apple/swift-distributed-tracing/releases/tag/1.7.4"
+    },
+    {
+      "identity": "swift-http-structured-headers",
+      "location": "https://github.com/apple/swift-http-structured-headers.git",
+      "revision": "933538faa42c432d385f02e07df0ace7c5ecfc47",
+      "version": "1.7.0",
+      "osvPackage": "github.com/apple/swift-http-structured-headers",
+      "advisories": [],
+      "latestRelease": "1.7.0",
+      "releaseURL": "https://github.com/apple/swift-http-structured-headers/releases/tag/1.7.0"
+    },
+    {
+      "identity": "swift-http-types",
+      "location": "https://github.com/apple/swift-http-types.git",
+      "revision": "bff4b6903cdc99dda49649dd52f46c11cfd3ed50",
+      "version": "1.8.0",
+      "osvPackage": "github.com/apple/swift-http-types",
+      "advisories": [],
+      "latestRelease": "1.8.0",
+      "releaseURL": "https://github.com/apple/swift-http-types/releases/tag/1.8.0"
+    },
+    {
+      "identity": "swift-huggingface",
+      "location": "https://github.com/huggingface/swift-huggingface.git",
+      "revision": "f0a0cb43cb1b402d2bbf6fb10d8981328c449c48",
+      "version": "0.13.0",
+      "osvPackage": "github.com/huggingface/swift-huggingface",
+      "advisories": [],
+      "latestRelease": "1.0.0",
+      "releaseURL": "https://github.com/huggingface/swift-huggingface/releases/tag/1.0.0"
+    },
+    {
+      "identity": "swift-jinja",
+      "location": "https://github.com/huggingface/swift-jinja.git",
+      "revision": "1e4d0dc69f7ec1277131fb3853808229c5991825",
+      "version": "2.5.2",
+      "osvPackage": "github.com/huggingface/swift-jinja",
+      "advisories": [],
+      "latestRelease": "3.1.0",
+      "releaseURL": "https://github.com/huggingface/swift-jinja/releases/tag/3.1.0"
+    },
+    {
+      "identity": "swift-log",
+      "location": "https://github.com/apple/swift-log.git",
+      "revision": "9c6fb14227f55d8f711ce3847dc2f419fb0ecacb",
+      "version": "1.15.1",
+      "osvPackage": "github.com/apple/swift-log",
+      "advisories": [],
+      "latestRelease": "1.17.0",
+      "releaseURL": "https://github.com/apple/swift-log/releases/tag/1.17.0"
+    },
+    {
+      "identity": "swift-nio",
+      "location": "https://github.com/apple/swift-nio.git",
+      "revision": "2f58d8ef84438d6517fc78bcea2f8527e3c72936",
+      "version": "2.105.0",
+      "osvPackage": "github.com/apple/swift-nio",
+      "advisories": [],
+      "latestRelease": "2.105.0",
+      "releaseURL": "https://github.com/apple/swift-nio/releases/tag/2.105.0"
+    },
+    {
+      "identity": "swift-nio-extras",
+      "location": "https://github.com/apple/swift-nio-extras.git",
+      "revision": "8e1249b29f92574e05e0d91637f239e378a9a95b",
+      "version": "1.35.2",
+      "osvPackage": "github.com/apple/swift-nio-extras",
+      "advisories": [],
+      "latestRelease": "1.35.2",
+      "releaseURL": "https://github.com/apple/swift-nio-extras/releases/tag/1.35.2"
+    },
+    {
+      "identity": "swift-nio-http2",
+      "location": "https://github.com/apple/swift-nio-http2.git",
+      "revision": "0f3e54e29c944c2e835ad52159da7d9e1c94ac69",
+      "version": "1.46.0",
+      "osvPackage": "github.com/apple/swift-nio-http2",
+      "advisories": [],
+      "latestRelease": "1.46.0",
+      "releaseURL": "https://github.com/apple/swift-nio-http2/releases/tag/1.46.0"
+    },
+    {
+      "identity": "swift-nio-ssl",
+      "location": "https://github.com/apple/swift-nio-ssl.git",
+      "revision": "15e0b9e495786807272dd4891fa4bac76aa43034",
+      "version": "2.37.6",
+      "osvPackage": "github.com/apple/swift-nio-ssl",
+      "advisories": [],
+      "latestRelease": "2.37.6",
+      "releaseURL": "https://github.com/apple/swift-nio-ssl/releases/tag/2.37.6"
+    },
+    {
+      "identity": "swift-nio-transport-services",
+      "location": "https://github.com/apple/swift-nio-transport-services.git",
+      "revision": "67787bb645a5e67d2edcdfbe48a216cc549222d5",
+      "version": "1.28.0",
+      "osvPackage": "github.com/apple/swift-nio-transport-services",
+      "advisories": [],
+      "latestRelease": "1.28.0",
+      "releaseURL": "https://github.com/apple/swift-nio-transport-services/releases/tag/1.28.0"
+    },
+    {
+      "identity": "swift-numerics",
+      "location": "https://github.com/apple/swift-numerics",
+      "revision": "0c0290ff6b24942dadb83a929ffaaa1481df04a2",
+      "version": "1.1.1",
+      "osvPackage": "github.com/apple/swift-numerics",
+      "advisories": [],
+      "latestRelease": "1.1.1",
+      "releaseURL": "https://github.com/apple/swift-numerics/releases/tag/1.1.1"
+    },
+    {
+      "identity": "swift-service-context",
+      "location": "https://github.com/apple/swift-service-context.git",
+      "revision": "d0997351b0c7779017f88e7a93bc30a1878d7f29",
+      "version": "1.3.0",
+      "osvPackage": "github.com/apple/swift-service-context",
+      "advisories": [],
+      "latestRelease": "1.5.1",
+      "releaseURL": "https://github.com/apple/swift-service-context/releases/tag/1.5.1"
+    },
+    {
+      "identity": "swift-service-lifecycle",
+      "location": "https://github.com/swift-server/swift-service-lifecycle.git",
+      "revision": "c55297914e26ce3085b73ca88c521ef99136f6ad",
+      "version": "2.12.1",
+      "osvPackage": "github.com/swift-server/swift-service-lifecycle",
+      "advisories": [],
+      "latestRelease": "2.13.0",
+      "releaseURL": "https://github.com/swift-server/swift-service-lifecycle/releases/tag/2.13.0"
+    },
+    {
+      "identity": "swift-system",
+      "location": "https://github.com/apple/swift-system.git",
+      "revision": "869129b7bf4ecc57b97d0193ad29690ca2134750",
+      "version": "1.8.1",
+      "osvPackage": "github.com/apple/swift-system",
+      "advisories": [],
+      "latestRelease": "1.8.1",
+      "releaseURL": "https://github.com/apple/swift-system/releases/tag/1.8.1"
+    },
+    {
+      "identity": "swift-transformers",
+      "location": "https://github.com/huggingface/swift-transformers",
+      "revision": "58c4bc11963a140358d791f678a60a2745a23146",
+      "version": "1.2.1",
+      "osvPackage": "github.com/huggingface/swift-transformers",
+      "advisories": [],
+      "latestRelease": "1.4.0",
+      "releaseURL": "https://github.com/huggingface/swift-transformers/releases/tag/1.4.0"
+    },
+    {
+      "identity": "swift-xet",
+      "location": "https://github.com/huggingface/swift-xet.git",
+      "revision": "3c1ba24b0a4de832338128fc7fdea3efd9c659ef",
+      "version": "0.3.2",
+      "osvPackage": "github.com/huggingface/swift-xet",
+      "advisories": [],
+      "latestRelease": "1.1.1",
+      "releaseURL": "https://github.com/huggingface/swift-xet/releases/tag/1.1.1"
+    },
+    {
+      "identity": "whisperkit",
+      "location": "https://github.com/argmaxinc/WhisperKit.git",
+      "revision": "1bbc57cb7fe6410248a685b1c5a3c6d56adc2ed4",
+      "version": "1.1.1",
+      "osvPackage": "github.com/argmaxinc/WhisperKit",
+      "advisories": [],
+      "latestRelease": "v1.1.1",
+      "releaseURL": "https://github.com/argmaxinc/argmax-oss-swift/releases/tag/v1.1.1"
+    },
+    {
+      "identity": "yyjson",
+      "location": "https://github.com/ibireme/yyjson.git",
+      "revision": "8b4a38dc994a110abaec8a400615567bd996105f",
+      "version": "0.12.0",
+      "osvPackage": "github.com/ibireme/yyjson",
+      "advisories": [],
+      "latestRelease": "0.13.0",
+      "releaseURL": "https://github.com/ibireme/yyjson/releases/tag/0.13.0"
+    }
+  ],
+  "toolchain": {
+    "xcode": "16.4",
+    "swift": "6.1.2",
+    "deploymentTarget": "macOS 14"
+  },
+  "coverageLimit": "Source revisions and SwiftURL package versions only; embedded binary internals, model files, optional executables, and undisclosed vulnerabilities are outside this scan.",
+  "externalToolUpdate": {
+    "ffmpeg": {
+      "before": "8.1.1",
+      "after": "9.0.2",
+      "homebrewFormulaVersion": "9.0.2_1"
+    },
+    "ffprobe": {
+      "after": "9.0.2"
+    },
+    "validation": [
+      "brew linkage --test ffmpeg",
+      "brew missing ffmpeg",
+      "48 kHz stereo AAC to 16 kHz mono pcm_s16le WAV using MediaPreparationService flags"
+    ],
+    "homebrewFollowup": "The separate pkgconf reinstall was blocked by the old Xcode/Command Line Tools. Existing pkgconf 2.5.1 still runs; the FFmpeg runtime upgrade completed."
+  }
+}

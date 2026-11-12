@@ -25,7 +25,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: latest-stable
 
@@ -42,6 +42,9 @@ jobs:
           path: DerivedData/SourcePackages
           key: spm-${{ runner.os }}-${{ hashFiles('SuperduperDictation.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-
+
+      - name: Audit Swift package advisories
+        run: just audit-dependencies
 
       # The test step builds the app itself (with testability), so a separate
       # plain build only doubled compile time.

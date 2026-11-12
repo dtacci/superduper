@@ -100,6 +100,31 @@ struct ToastPayload {
         self.placement = placement
         self.screenHintRect = screenHintRect
     }
+
+    /// Routine dictation stays quiet. Only unexpected output fallbacks need a banner.
+    static func dictationOutputFailure(
+        for result: OutputManager.OutputResult,
+        locale: Locale
+    ) -> ToastPayload? {
+        guard !result.didPaste else { return nil }
+        switch result.clipboardFallbackReason {
+        case .copyOnlyMode, .accessibilityUnavailable:
+            return nil
+        case .screenLocked:
+            return ToastPayload(
+                message: localized(
+                    "Your Mac was locked, so the transcript was copied to the clipboard instead of pasted.",
+                    locale: locale
+                ),
+                style: .error
+            )
+        case .pasteFailed, nil:
+            return ToastPayload(
+                message: localized("Paste failed. Transcript copied to clipboard.", locale: locale),
+                style: .error
+            )
+        }
+    }
 }
 
 @MainActor
@@ -247,6 +272,9 @@ final class ToastService: ToastShowing {
 
     private func setTimerPaused(_ isPaused: Bool) {
         guard var activeToast else { return }
+        // Hover is useful while reaching for an action, but passive feedback
+        // must not linger just because the pointer happens to overlap it.
+        guard !activeToast.payload.actions.isEmpty else { return }
         guard activeToast.isTimerPaused != isPaused else { return }
         guard let remainingDuration = activeToast.remainingDuration else { return }
 

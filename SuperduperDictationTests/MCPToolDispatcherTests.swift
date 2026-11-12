@@ -4,6 +4,15 @@ import Testing
 @MainActor
 @Suite(.serialized)
 struct MCPToolDispatcherTests {
+    @Test func productionPolicyPreventsDirectListenerStartup() {
+        let sut = MCPServer(port: 0, token: "test-token")
+        defer { sut.stop() }
+
+        sut.start()
+
+        #expect(!sut.isRunning)
+    }
+
     @Test func transcribeSchemaExposesExpectedSpeakerCount() throws {
         let definition = try #require(
             MCPToolDispatcher.allToolDefinitions().first { $0.name == "transcribe" }

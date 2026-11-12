@@ -4,6 +4,17 @@ Build and packaging helpers for Superduper Dictation. The Xcode target and
 Swift module are named `SuperduperDictation`; the built application is
 `Superduper Dictation.app`.
 
+## Dependency security
+
+Run `just audit-dependencies` to check every source pin in the committed Xcode
+SwiftPM lockfile against OSV using both its Git revision and SwiftURL version.
+The recipe tests the scanner, then performs live queries; CI uses the same check.
+Matches return exit status 1; inconclusive scans return 2. This does not audit
+binary internals, model files, or optional user-installed executables.
+
+To keep a dated inventory, run
+`python3 scripts/audit_dependencies.py --output docs/YYYY-MM-DD-dependency-inventory.json`.
+
 ## Local signing
 
 `sign-app-bundle.sh` signs nested code before the main bundle, enables hardened
